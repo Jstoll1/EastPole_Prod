@@ -23,7 +23,7 @@ async function fetchESPN() {
     var evStatus = data.events?.[0]?.status?.type?.name || '';
     var isPreTournament = evStatus === 'STATUS_SCHEDULED';
     EVENT_ID = data.events?.[0]?.id || null;
-    var fullName = data.events[0].name || 'Houston Open';
+    var fullName = data.events[0].name || 'Valero Texas Open';
     var parts = fullName.split(' ');
     var openIdx = parts.findIndex(function(w) { return w.toLowerCase() === 'open'; });
     var shortName = openIdx > 0 ? parts.slice(Math.max(0, openIdx - 1), openIdx + 1).join(' ') : fullName;
