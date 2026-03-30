@@ -1,0 +1,197 @@
+// ── Utility Functions ──────────────────────────────────────
+
+function escHtml(s) {
+  var d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function timeAgo(ts) {
+  var s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 5) return 'just now';
+  if (s < 60) return s + 's ago';
+  var m = Math.floor(s / 60);
+  if (m < 60) return m + 'm ago';
+  var h = Math.floor(m / 60);
+  return h + 'h ago';
+}
+
+function normalCDF(x) {
+  var a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741;
+  var a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+  var sign = x < 0 ? -1 : 1;
+  x = Math.abs(x) / Math.SQRT2;
+  var t = 1.0 / (1.0 + p * x);
+  var y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+  return 0.5 * (1.0 + sign * y);
+}
+
+// Score formatting helpers
+var gs = function(n) {
+  if (GOLFER_SCORES[n]) return GOLFER_SCORES[n].score;
+  if (Object.keys(GOLFER_SCORES).length > 0) console.warn('⚠️ Player not found in GOLFER_SCORES:', n);
+  return 11;
+};
+var fmt = function(s) { return s === 11 ? 'MC' : s === 12 ? 'WD' : s < 0 ? '' + s : s > 0 ? '+' + s : 'E'; };
+var fmtTeam = function(s) { return s < 0 ? '' + s : s > 0 ? '+' + s : 'E'; };
+var cls = function(s) { return s < 0 ? 'neg' : s > 0 ? 'pos' : 'eve'; };
+
+function parsePos(pos) {
+  if (!pos || pos === '—' || pos === 'MC' || pos === 'WD') return null;
+  return parseInt(String(pos).replace('T', '')) || null;
+}
+
+function resolvePlayerName(name) { return NAME_ALIASES[name] || name; }
+function getCountryCode(name) { return FLAG_TO_CODE[FLAGS[name]] || ''; }
+
+function getHolesRemaining(playerName) {
+  var gd = GOLFER_SCORES[playerName];
+  if (!gd) return 72;
+  if (gd.thru === 'MC' || gd.thru === 'WD' || gd.score === 11 || gd.score === 12) return 0;
+  var completedRounds = [gd.r1, gd.r2, gd.r3, gd.r4].filter(function(r) { return r != null; }).length;
+  var holesThisRound = 0;
+  var isTeeTime = gd.thru && /[AP]M/i.test(gd.thru);
+  if (gd.thru === 'F' || gd.thru === '18' || isTeeTime) {
+    holesThisRound = 18;
+  } else if (gd.thru === '—') {
+    holesThisRound = 0;
+  } else {
+    holesThisRound = parseInt(gd.thru) || 0;
+  }
+  if (isTeeTime && completedRounds === 0) {
+    completedRounds = 1;
+  }
+  var isMidRound = gd.thru !== 'F' && gd.thru !== '18' && gd.thru !== '—' && gd.thru !== 'MC' && gd.thru !== 'WD' && !isTeeTime;
+  var totalPlayed = isMidRound
+    ? (completedRounds * 18) + holesThisRound
+    : completedRounds * 18;
+  return Math.max(0, 72 - totalPlayed);
+}
+
+function calcEntry(e) {
+  var scores = e.picks.map(function(n) { return { name: n, score: gs(n) }; }).sort(function(a, b) { return a.score - b.score; });
+  var top4 = scores.slice(0, 4);
+  return Object.assign({}, e, { scores: scores, top4: top4, total: top4.reduce(function(s, g) { return s + g.score; }, 0) });
+}
+
+function getRanked() {
+  return ENTRIES.map(calcEntry).sort(function(a, b) { return a.total - b.total; });
+}
+
+function computeOwnership() {
+  if (!ENTRIES.length) return [];
+  var counts = {};
+  ENTRIES.forEach(function(e) { e.picks.forEach(function(p) { counts[p] = (counts[p] || 0) + 1; }); });
+  return Object.entries(counts)
+    .map(function(pair) { return { player: pair[0], entries: pair[1], pct: pair[1] / ENTRIES.length }; })
+    .sort(function(a, b) { return b.pct - a.pct; });
+}
+
+function getMyPicksMap() {
+  if (!currentUserEmail) return {};
+  var map = {};
+  var teamsToShow = activeTeamIdx >= 0 ? [currentUserTeams[activeTeamIdx]].filter(Boolean) : currentUserTeams;
+  teamsToShow.forEach(function(entry) {
+    var idx = currentUserTeams.indexOf(entry);
+    entry.picks.forEach(function(name) {
+      if (!map[name]) map[name] = [];
+      if (!map[name].includes(idx)) map[name].push(idx);
+    });
+  });
+  return map;
+}
+
+function getActiveTeamPicks() {
+  if (!currentUserEmail) return new Set();
+  if (activeTeamIdx >= 0 && currentUserTeams[activeTeamIdx]) {
+    return new Set(currentUserTeams[activeTeamIdx].picks);
+  }
+  return new Set(currentUserTeams.flatMap(function(t) { return t.picks; }));
+}
+
+function golferTodayScore(gd) {
+  if (!gd || gd.score > 10) return null;
+  var thru = gd.thru;
+  if (!thru || thru === '—' || thru === 'MC' || thru === 'WD' || thru === 'F' || thru.includes(':')) return null;
+  var thruNum = parseInt(thru);
+  if (isNaN(thruNum) || thruNum < 1) return null;
+  var rounds = [gd.r1, gd.r2, gd.r3, gd.r4];
+  var completedRel = 0;
+  for (var i = 0; i < rounds.length; i++) {
+    var r = rounds[i];
+    if (r == null || r <= 50) break;
+    var next = rounds[i + 1];
+    if (next != null && next > 50) { completedRel += r - COURSE_PAR; continue; }
+    break;
+  }
+  return gd.score - completedRel;
+}
+
+function getDefaultPars() {
+  return [4, 3, 5, 4, 4, 4, 3, 5, 3, 4, 3, 4, 4, 4, 3, 5, 4, 4];
+}
+
+function getHolePar(holeNum) {
+  if (COURSE_HOLES && COURSE_HOLES[holeNum - 1]) return COURSE_HOLES[holeNum - 1].par;
+  var defaults = getDefaultPars();
+  return defaults[holeNum - 1] || 4;
+}
+
+function scorecardClass(strokes, par) {
+  if (!strokes || strokes <= 0) return '';
+  var diff = strokes - par;
+  if (diff <= -3 || strokes === 1) return 'sc-ace';
+  if (diff <= -2) return 'sc-eagle';
+  if (diff === -1) return 'sc-birdie';
+  if (diff === 0) return 'sc-par';
+  if (diff === 1) return 'sc-bogey';
+  return 'sc-dbl';
+}
+
+function getTopMovers(arrowMap) {
+  var ups = [], dns = [];
+  arrowMap.forEach(function(delta, name) {
+    if (delta > 0) ups.push({ name: name, delta: delta });
+    if (delta < 0) dns.push({ name: name, delta: Math.abs(delta) });
+  });
+  ups.sort(function(a, b) { return b.delta - a.delta; });
+  dns.sort(function(a, b) { return b.delta - a.delta; });
+  var result = new Map();
+  function assignTiers(list, sign) {
+    if (!list.length) return;
+    var tier = 3, prevDelta = null;
+    list.forEach(function(item) {
+      if (prevDelta !== null && item.delta < prevDelta) tier--;
+      if (tier < 1) return;
+      result.set(item.name, { tier: tier, sign: sign });
+      prevDelta = item.delta;
+    });
+  }
+  assignTiers(ups, 'up');
+  assignTiers(dns, 'down');
+  return result;
+}
+
+function calcWinProbability(entryA, entryB) {
+  var cA = calcEntry(entryA);
+  var cB = calcEntry(entryB);
+  var diff = cA.total - cB.total;
+  var holesA = cA.top4.map(function(g) { return getHolesRemaining(g.name); });
+  var holesB = cB.top4.map(function(g) { return getHolesRemaining(g.name); });
+  var totalHolesA = holesA.reduce(function(s, h) { return s + h; }, 0);
+  var totalHolesB = holesB.reduce(function(s, h) { return s + h; }, 0);
+  if (totalHolesA + totalHolesB === 0) {
+    if (diff < 0) return { pctA: 100, pctB: 0 };
+    if (diff > 0) return { pctA: 0, pctB: 100 };
+    return { pctA: 50, pctB: 50 };
+  }
+  var STROKE_VAR = 1.1 * 1.1;
+  var BEST4_DAMPEN = 0.65;
+  var teamVarA = holesA.reduce(function(s, h) { return s + STROKE_VAR * h; }, 0) * BEST4_DAMPEN;
+  var teamVarB = holesB.reduce(function(s, h) { return s + STROKE_VAR * h; }, 0) * BEST4_DAMPEN;
+  var sigma = Math.sqrt(Math.max(teamVarA + teamVarB, 1));
+  var z = -diff / sigma;
+  var pA = normalCDF(z) * 100;
+  var clampedA = Math.max(1, Math.min(99, Math.round(pA)));
+  return { pctA: clampedA, pctB: 100 - clampedA };
+}
