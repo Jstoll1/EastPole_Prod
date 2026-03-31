@@ -2763,7 +2763,8 @@ to  {
 }
 #activity-overlay.open { opacity:1; pointer-events:auto; }
 
-#chat-fab {
+/* ── Chat removed ── */
+/* #chat-fab {
   position:fixed; bottom:calc(70px + env(safe-area-inset-bottom)); right:14px;
   width:52px; height:52px; border-radius:50%; border:none;
   background:var(--green2); color:#fff; cursor:pointer; z-index:900;
@@ -2892,7 +2893,7 @@ to  {
 }
 .chat-name-row .chat-lock-icon {
   font-size:12px; color:var(--gold); flex-shrink:0;
-}
+} */
 /* ── Live Feed Drawer ── */
 /* ── Headline Popup ── */
 /* ── Debug Panel ── */

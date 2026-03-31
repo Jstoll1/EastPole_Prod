@@ -103,7 +103,6 @@ async function initApp() {
   await fetchESPN().catch(function() { setApiStatus('cached', 'Offline'); });
 
   renderAll();
-  initChat();
   startAutoRefresh();
   startAgeTimer();
 }
