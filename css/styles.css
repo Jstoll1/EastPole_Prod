@@ -2960,5 +2960,20 @@ to  {
 .debug-stat-value.bad { color:#FF7F7F; }
 .debug-empty { color:var(--text3); text-align:center; padding:24px; font-size:11px; }
 .debug-copy-btn { color:rgba(255,255,255,0.3); cursor:pointer; font-size:14px; flex-shrink:0; padding:0 4px; }
+
+/* ── View Footer ─── */
+.view-footer {
+  text-align:center; padding:24px 14px 16px;
+}
+.footer-feedback {
+  display:inline-block; padding:10px 20px;
+  font-size:12px; font-weight:700; color:var(--text3);
+  text-decoration:none; border:1px solid var(--border);
+  border-radius:20px; letter-spacing:0.3px;
+  transition:all 0.15s;
+}
+.footer-feedback:active {
+  color:var(--gold); border-color:var(--gold);
+}
 .debug-copy-btn:active { color:var(--gold); }
 

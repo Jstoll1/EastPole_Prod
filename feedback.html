@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Feedback · East Pole Golf Pool</title>
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<style>
+  :root {
+    --bg: #06120c;
+    --card: #0e2218;
+    --border: rgba(255,255,255,0.08);
+    --text: #e8e6e3;
+    --text2: rgba(232,230,227,0.7);
+    --text3: rgba(232,230,227,0.4);
+    --gold: #c6a03c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .fb-header {
+    width: 100%;
+    padding: 20px 16px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 480px;
+  }
+  .fb-back {
+    background: none; border: none; color: var(--gold);
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    padding: 8px 0; text-decoration: none;
+  }
+  .fb-title {
+    font-size: 18px; font-weight: 800; color: var(--gold);
+    letter-spacing: 0.5px;
+  }
+  .fb-card {
+    width: 100%; max-width: 480px;
+    padding: 0 16px;
+  }
+  .fb-intro {
+    font-size: 13px; color: var(--text2);
+    line-height: 1.6; margin-bottom: 20px;
+  }
+  .fb-label {
+    display: block;
+    font-size: 11px; font-weight: 700; color: var(--gold);
+    text-transform: uppercase; letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+  .fb-input, .fb-textarea, .fb-select {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--text);
+    font-family: inherit;
+    outline: none;
+    margin-bottom: 16px;
+    -webkit-appearance: none;
+  }
+  .fb-input:focus, .fb-textarea:focus, .fb-select:focus {
+    border-color: var(--gold);
+  }
+  .fb-input::placeholder, .fb-textarea::placeholder { color: var(--text3); }
+  .fb-textarea { min-height: 120px; resize: vertical; }
+  .fb-select { cursor: pointer; }
+  .fb-rating {
+    display: flex; gap: 6px; margin-bottom: 16px;
+  }
+  .fb-star {
+    background: none; border: 2px solid var(--border);
+    border-radius: 8px; width: 44px; height: 44px;
+    font-size: 20px; cursor: pointer; color: var(--text3);
+    transition: all 0.15s;
+  }
+  .fb-star.active {
+    border-color: var(--gold); color: var(--gold);
+    background: rgba(198,160,60,0.1);
+  }
+  .fb-submit {
+    width: 100%;
+    padding: 14px;
+    background: var(--gold);
+    color: #1a1a1a;
+    font-size: 15px; font-weight: 800;
+    border: none; border-radius: 10px;
+    cursor: pointer; letter-spacing: 0.3px;
+    margin-top: 8px;
+  }
+  .fb-submit:active { opacity: 0.8; }
+  .fb-submit:disabled { opacity: 0.5; cursor: default; }
+  .fb-success {
+    display: none;
+    text-align: center;
+    padding: 40px 16px;
+  }
+  .fb-success-icon { font-size: 48px; margin-bottom: 12px; }
+  .fb-success-title { font-size: 20px; font-weight: 800; color: var(--gold); margin-bottom: 8px; }
+  .fb-success-text { font-size: 14px; color: var(--text2); line-height: 1.5; }
+  .fb-success-back {
+    display: inline-block; margin-top: 20px;
+    padding: 12px 28px; background: transparent;
+    border: 2px solid var(--gold); border-radius: 30px;
+    color: var(--gold); font-size: 14px; font-weight: 700;
+    text-decoration: none; cursor: pointer;
+  }
+  .fb-branding {
+    margin-top: auto; padding: 24px;
+    font-size: 10px; color: var(--text3);
+    text-align: center; letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div class="fb-header">
+  <a href="./" class="fb-back">← Back</a>
+  <span class="fb-title">Feedback</span>
+</div>
+
+<div class="fb-card" id="fb-form-wrap">
+  <p class="fb-intro">Help us improve the East Pole Golf Pool experience. All feedback is anonymous unless you choose to include your name.</p>
+
+  <label class="fb-label">How's the experience?</label>
+  <div class="fb-rating" id="fb-rating">
+    <button class="fb-star" onclick="setRating(1)">1</button>
+    <button class="fb-star" onclick="setRating(2)">2</button>
+    <button class="fb-star" onclick="setRating(3)">3</button>
+    <button class="fb-star" onclick="setRating(4)">4</button>
+    <button class="fb-star" onclick="setRating(5)">5</button>
+  </div>
+
+  <label class="fb-label">Category</label>
+  <select class="fb-select" id="fb-category">
+    <option value="">Select one…</option>
+    <option value="bug">Bug / Something's broken</option>
+    <option value="feature">Feature request</option>
+    <option value="design">Design / UI</option>
+    <option value="scores">Scores / Data issue</option>
+    <option value="general">General feedback</option>
+  </select>
+
+  <label class="fb-label">Your feedback</label>
+  <textarea class="fb-textarea" id="fb-message" placeholder="What's on your mind?"></textarea>
+
+  <label class="fb-label">Name (optional)</label>
+  <input class="fb-input" id="fb-name" type="text" placeholder="Anonymous">
+
+  <button class="fb-submit" id="fb-submit" onclick="submitFeedback()">Submit Feedback</button>
+</div>
+
+<div class="fb-success" id="fb-success">
+  <div class="fb-success-icon">✓</div>
+  <div class="fb-success-title">Thanks for the feedback!</div>
+  <div class="fb-success-text">We'll use it to make the pool better for everyone.</div>
+  <a href="./" class="fb-success-back">Back to Pool →</a>
+</div>
+
+<div class="fb-branding">East Pole Coffee · Golf Pool</div>
+
+<script>
+var _rating = 0;
+
+function setRating(n) {
+  _rating = n;
+  document.querySelectorAll('.fb-star').forEach(function(btn, i) {
+    btn.classList.toggle('active', i < n);
+  });
+}
+
+function submitFeedback() {
+  var message = document.getElementById('fb-message').value.trim();
+  var category = document.getElementById('fb-category').value;
+  var name = document.getElementById('fb-name').value.trim() || 'Anonymous';
+
+  if (!message) { document.getElementById('fb-message').focus(); return; }
+
+  // Track submission in GoatCounter
+  if (window.goatcounter && goatcounter.count) {
+    goatcounter.count({ path: '/event/feedback-' + (category || 'general'), event: true });
+  }
+
+  // Store in localStorage as a simple feedback log
+  var feedback = JSON.parse(localStorage.getItem('ep_feedback') || '[]');
+  feedback.push({
+    rating: _rating,
+    category: category,
+    message: message,
+    name: name,
+    time: new Date().toISOString()
+  });
+  localStorage.setItem('ep_feedback', JSON.stringify(feedback));
+
+  // Show success
+  document.getElementById('fb-form-wrap').style.display = 'none';
+  document.getElementById('fb-success').style.display = 'block';
+}
+</script>
+<script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
