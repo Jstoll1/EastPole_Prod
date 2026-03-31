@@ -113,7 +113,6 @@
 <strong style="color:var(--text2);">TB</strong> = Pre-submitted tiebreaker prediction (winning score to par). Only shown when entries are tied. Closest to actual winning score wins the tiebreaker.
 <br><strong style="color:var(--text2);">MC</strong> = Missed Cut (+11 penalty).
 </div>
-<div class="view-footer"><a href="./feedback.html" class="footer-feedback">💬 Send Feedback</a></div>
 </div>
 <div class="view active" id="view-leaderboard" style="padding-bottom:100px">
 <div class="ptr-indicator" id="ptr-indicator"><span class="ptr-arrow">↓</span><span class="ptr-text">Pull to refresh</span><span class="ptr-spinner"></span></div>
@@ -137,7 +136,6 @@
 </div>
 <div id="leaderboard-list">
 </div>
-<div class="view-footer"><a href="./feedback.html" class="footer-feedback">💬 Send Feedback</a></div>
 </div>
 <div class="view" id="view-ownership" style="padding-bottom:100px">
 <div class="tv-header">
@@ -160,7 +158,6 @@
 <input class="own-search" id="own-search" type="text" placeholder="Search players…" oninput="renderOwnership()">
 <div id="ownership-list">
 </div>
-<div class="view-footer"><a href="./feedback.html" class="footer-feedback">💬 Send Feedback</a></div>
 </div>
 </div>
 <nav id="nav">
@@ -184,6 +181,10 @@
 <circle cx="12" cy="12" r="3"/>
 <circle cx="12" cy="12" r="7" stroke-dasharray="4 3"/>
 </svg> Owned </button>
+<a class="nav-btn" href="./feedback.html">
+<svg viewBox="0 0 24 24">
+<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+</svg> Feedback </a>
 </nav>
 <!-- Activity Tracker -->
 <button id="activity-fab" onclick="toggleActivityDrawer()">⚡<span class="act-badge" id="act-badge">0</span></button>
