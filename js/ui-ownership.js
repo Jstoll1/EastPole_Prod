@@ -1,6 +1,6 @@
 // ── Ownership View ──
 
-let ownFilter='most';
+var ownFilter='most';
 
 function setOwnFilter(f,btn) {
   ownFilter=f;
