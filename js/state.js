@@ -160,9 +160,8 @@ var PRE_ODDS = {
   'Austin Wylie':['+500000','+49000','+17500'],'Chan Kim':['+2500','+1050','']
 };
 
-var POOL_CONFIG = { buyIn: 25, entries: 6, payouts: [ { place: '1st', pct: 0.60 }, { place: '2nd', pct: 0.27 }, { place: '3rd', pct: 0.13 } ] };
+var POOL_CONFIG = { buyIn: 25, entries: 120, payouts: [ { place: '1st', amount: 1800 }, { place: '2nd', amount: 1175 }, { place: '3rd', amount: 25 } ] };
 POOL_CONFIG.pot = POOL_CONFIG.buyIn * POOL_CONFIG.entries;
-POOL_CONFIG.payouts.forEach(function(p) { p.amount = Math.round(POOL_CONFIG.pot * p.pct); });
 
 var PILL_CLASSES = ['pill-a', 'pill-b', 'pill-c'];
 function pillLabel(teamIdx) { return teamIdx + 1; }
