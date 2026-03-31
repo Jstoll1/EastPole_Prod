@@ -121,7 +121,13 @@ function renderLeaderboard() {
   var anyHaveTeeTime = activePlayingLb.some(function(p) { return p.thru && p.thru.includes(':'); });
   var currentRound = samplePlayer ? (anyStillPlaying ? (completedRoundCount + 1) || 1 : anyHaveTeeTime ? completedRoundCount + 1 : completedRoundCount) : 0;
   var isPreT = currentRound === 0;
-  if (isPreT) { var wIdx = players.findIndex(function(p){return p.name===PREV_WINNER;}); if (wIdx > 0) { var w = players.splice(wIdx,1)[0]; players.unshift(w); } }
+  if (isPreT) {
+    players.sort(function(a,b) {
+      var oa = PRE_ODDS[a.name] ? parseInt(PRE_ODDS[a.name].replace('+','')) : 999999;
+      var ob = PRE_ODDS[b.name] ? parseInt(PRE_ODDS[b.name].replace('+','')) : 999999;
+      return oa - ob;
+    });
+  }
   var roundLabels = ['PRE-TOURNAMENT','FIRST ROUND','SECOND ROUND','THIRD ROUND','FINAL ROUND'];
   var endOfRoundLabels = ['','END OF ROUND 1','END OF ROUND 2','END OF ROUND 3','FINAL ROUND'];
   var tvTitle = document.getElementById('lb-round-title');
@@ -133,11 +139,17 @@ function renderLeaderboard() {
   }
   var sortArrow = function(col) { return lbSort===col ? (lbSortAsc ? ' ▲' : ' ▼') : ''; };
   var sortCls = function(col) { return lbSort===col ? ' tv-h-active' : ''; };
-  var colHdr = '<div class="tv-col-hdr"><div class="tv-h-pos">POS</div><div class="tv-h-pill"></div><div class="tv-h-player">PLAYER</div>'
-    + '<div class="tv-h-score tv-h-sort' + sortCls('score') + '" onclick="setLbSort(\'score\')">SCORE' + sortArrow('score') + '</div>'
-    + '<div class="tv-h-today tv-h-sort' + sortCls('today') + '" onclick="setLbSort(\'today\')">TODAY' + sortArrow('today') + '</div>'
-    + '<div class="tv-h-thru tv-h-sort' + sortCls('thru') + '" onclick="setLbSort(\'thru\')">THRU' + sortArrow('thru') + '</div>'
-    + '</div>';
+  var colHdr;
+  if (isPreT) {
+    colHdr = '<div class="tv-col-hdr"><div class="tv-h-pos">#</div><div class="tv-h-pill"></div><div class="tv-h-player">PLAYER</div>'
+      + '<div class="tv-h-odds">ODDS</div></div>';
+  } else {
+    colHdr = '<div class="tv-col-hdr"><div class="tv-h-pos">POS</div><div class="tv-h-pill"></div><div class="tv-h-player">PLAYER</div>'
+      + '<div class="tv-h-score tv-h-sort' + sortCls('score') + '" onclick="setLbSort(\'score\')">SCORE' + sortArrow('score') + '</div>'
+      + '<div class="tv-h-today tv-h-sort' + sortCls('today') + '" onclick="setLbSort(\'today\')">TODAY' + sortArrow('today') + '</div>'
+      + '<div class="tv-h-thru tv-h-sort' + sortCls('thru') + '" onclick="setLbSort(\'thru\')">THRU' + sortArrow('thru') + '</div>'
+      + '</div>';
+  }
   var rows = '';
   var cutInserted = false;
   var estCutInserted = false;
@@ -204,19 +216,33 @@ function renderLeaderboard() {
     var escapedName = p.name.replace(/'/g, "\\'");
     var scoreChange = SCORE_CHANGES[p.name] || '';
     var flashCls = scoreChange === 'birdie' ? ' birdie-flash' : scoreChange === 'bogey' ? ' bogey-flash' : scoreChange === 'eagle' ? ' eagle-flash' : '';
-    rows += '<div class="tv-row' + (mc?' tv-mc':'') + (isMyPick?' is-my-team':'') + (isPrevWinner?' tv-prev-winner':'') + flashCls + '" onclick="toggleScorecard(' + ri + ',\'' + escapedName + '\')" style="cursor:pointer">'
-      + '<div class="tv-pos">' + (mc?(p.thru==='WD'||p.score===12?'WD':'MC'):p.pos) + moveHtml + '</div>'
-      + '<div class="tv-pill-slot">' + pills + '</div>'
-      + '<div class="tv-player"><span class="tv-name ' + (isMyPick?'is-my-pick':'') + '">' + p.name + '</span> <span class="tv-country">' + flag + (cc?' '+cc:'') + '</span>'
-      + (isMover ? (moverInfo.sign === 'up' ? '<span class="top-mover"><span class="mover-arrow">\uD83D\uDD25</span>' + Math.abs(roundDelta) + '</span>' : '<span class="top-mover down"><span class="mover-arrow">\uD83E\uDDCA</span>' + Math.abs(roundDelta) + '</span>') : '')
-      + (isPrevWinner?'<span class="prev-winner-badge">Def. Champion</span>':'')
-      + (inPool&&!isMyPick?'<span class="tv-pool-dot"></span>':'')
-      + '</div>'
-      + '<div class="tv-score ' + scClass + '">' + (preT?'—':mc?(p.thru==='WD'||p.score===12?'WD':'MC'):(scoreChange ? '<span class="score-pulse">' + scf + '</span>' : scf)) + '</div>'
-      + '<div class="tv-today ' + todayCls + '">' + todayDisp + '</div>'
-      + '<div class="tv-thru' + (!mc && !roundDone && !isTeeTime && !preT ? ' active' : '') + '">' + thruDisp + '</div>'
-      + '</div>'
-      + '<div class="sc-panel" id="sc-panel-' + ri + '"></div>';
+    var oddsVal = PRE_ODDS[p.name] || '';
+    if (isPreT) {
+      rows += '<div class="tv-row' + (isMyPick?' is-my-team':'') + (isPrevWinner?' tv-prev-winner':'') + '" onclick="toggleScorecard(' + ri + ',\'' + escapedName + '\')" style="cursor:pointer">'
+        + '<div class="tv-pos">' + (ri + 1) + '</div>'
+        + '<div class="tv-pill-slot">' + pills + '</div>'
+        + '<div class="tv-player"><span class="tv-name ' + (isMyPick?'is-my-pick':'') + '">' + p.name + '</span> <span class="tv-country">' + flag + (cc?' '+cc:'') + '</span>'
+        + (isPrevWinner?'<span class="prev-winner-badge">Def. Champion</span>':'')
+        + (inPool&&!isMyPick?'<span class="tv-pool-dot"></span>':'')
+        + '</div>'
+        + '<div class="tv-odds">' + oddsVal + '</div>'
+        + '</div>'
+        + '<div class="sc-panel" id="sc-panel-' + ri + '"></div>';
+    } else {
+      rows += '<div class="tv-row' + (mc?' tv-mc':'') + (isMyPick?' is-my-team':'') + (isPrevWinner?' tv-prev-winner':'') + flashCls + '" onclick="toggleScorecard(' + ri + ',\'' + escapedName + '\')" style="cursor:pointer">'
+        + '<div class="tv-pos">' + (mc?(p.thru==='WD'||p.score===12?'WD':'MC'):p.pos) + moveHtml + '</div>'
+        + '<div class="tv-pill-slot">' + pills + '</div>'
+        + '<div class="tv-player"><span class="tv-name ' + (isMyPick?'is-my-pick':'') + '">' + p.name + '</span> <span class="tv-country">' + flag + (cc?' '+cc:'') + '</span>'
+        + (isMover ? (moverInfo.sign === 'up' ? '<span class="top-mover"><span class="mover-arrow">\uD83D\uDD25</span>' + Math.abs(roundDelta) + '</span>' : '<span class="top-mover down"><span class="mover-arrow">\uD83E\uDDCA</span>' + Math.abs(roundDelta) + '</span>') : '')
+        + (isPrevWinner?'<span class="prev-winner-badge">Def. Champion</span>':'')
+        + (inPool&&!isMyPick?'<span class="tv-pool-dot"></span>':'')
+        + '</div>'
+        + '<div class="tv-score ' + scClass + '">' + (preT?'—':mc?(p.thru==='WD'||p.score===12?'WD':'MC'):(scoreChange ? '<span class="score-pulse">' + scf + '</span>' : scf)) + '</div>'
+        + '<div class="tv-today ' + todayCls + '">' + todayDisp + '</div>'
+        + '<div class="tv-thru' + (!mc && !roundDone && !isTeeTime && !preT ? ' active' : '') + '">' + thruDisp + '</div>'
+        + '</div>'
+        + '<div class="sc-panel" id="sc-panel-' + ri + '"></div>';
+    }
   });
   document.getElementById('leaderboard-list').innerHTML = colHdr + rows;
   var _stickyH = document.querySelector('.lb-sticky-hdr');
