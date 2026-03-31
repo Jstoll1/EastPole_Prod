@@ -128,7 +128,7 @@ function renderLeaderboard() {
       return oa - ob;
     });
   }
-  var roundLabels = ['PRE-TOURNAMENT','FIRST ROUND','SECOND ROUND','THIRD ROUND','FINAL ROUND'];
+  var roundLabels = ['PRE-TOURNAMENT ODDS','FIRST ROUND','SECOND ROUND','THIRD ROUND','FINAL ROUND'];
   var endOfRoundLabels = ['','END OF ROUND 1','END OF ROUND 2','END OF ROUND 3','FINAL ROUND'];
   var tvTitle = document.getElementById('lb-round-title');
   if (tvTitle) {
