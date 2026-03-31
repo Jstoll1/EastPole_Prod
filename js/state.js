@@ -88,7 +88,7 @@ var TIERS = [];
 var NAME_ALIASES = { 'Nicolas Echavarria': 'Nico Echavarria', 'Jordan L. Smith': 'Jordan Smith', 'Hao-Tong Li': 'Haotong Li', 'Seonghyeon Kim': 'S.H. Kim' };
 var FLAG_TO_CODE = {'🇺🇸':'USA','🇦🇺':'AUS','🇰🇷':'KOR','🇨🇦':'CAN','🇿🇦':'RSA','🇩🇰':'DEN','🇸🇪':'SWE','🇫🇷':'FRA','🇯🇵':'JPN','🇮🇪':'IRL','🇧🇪':'BEL','🇦🇷':'ARG','🇹🇼':'TPE','🇻🇪':'VEN','🇵🇭':'PHI','🇵🇷':'PUR','🇩🇪':'GER','🇳🇿':'NZL','🇨🇴':'COL','🇨🇳':'CHN','🇳🇴':'NOR','🏴󠁧󠁢󠁥󠁮󠁧󠁿':'ENG','🏳️':'—'};
 
-var PREV_WINNER = 'Min Woo Lee';
+var PREV_WINNER = 'Corey Conners';
 
 var POOL_CONFIG = { buyIn: 25, entries: 6, payouts: [ { place: '1st', pct: 0.60 }, { place: '2nd', pct: 0.27 }, { place: '3rd', pct: 0.13 } ] };
 POOL_CONFIG.pot = POOL_CONFIG.buyIn * POOL_CONFIG.entries;
