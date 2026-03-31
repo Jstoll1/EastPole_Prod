@@ -123,8 +123,8 @@ function renderLeaderboard() {
   var isPreT = currentRound === 0;
   if (isPreT) {
     players.sort(function(a,b) {
-      var oa = PRE_ODDS[a.name] ? parseInt(PRE_ODDS[a.name].replace('+','')) : 999999;
-      var ob = PRE_ODDS[b.name] ? parseInt(PRE_ODDS[b.name].replace('+','')) : 999999;
+      var oa = PRE_ODDS[a.name] ? parseInt(PRE_ODDS[a.name][0].replace('+','')) : 999999;
+      var ob = PRE_ODDS[b.name] ? parseInt(PRE_ODDS[b.name][0].replace('+','')) : 999999;
       return oa - ob;
     });
   }
@@ -142,7 +142,7 @@ function renderLeaderboard() {
   var colHdr;
   if (isPreT) {
     colHdr = '<div class="tv-col-hdr"><div class="tv-h-pos">#</div><div class="tv-h-pill"></div><div class="tv-h-player">PLAYER</div>'
-      + '<div class="tv-h-odds">ODDS</div></div>';
+      + '<div class="tv-h-odds">WIN</div><div class="tv-h-odds">T5</div><div class="tv-h-odds">T10</div></div>';
   } else {
     colHdr = '<div class="tv-col-hdr"><div class="tv-h-pos">POS</div><div class="tv-h-pill"></div><div class="tv-h-player">PLAYER</div>'
       + '<div class="tv-h-score tv-h-sort' + sortCls('score') + '" onclick="setLbSort(\'score\')">SCORE' + sortArrow('score') + '</div>'
@@ -216,7 +216,7 @@ function renderLeaderboard() {
     var escapedName = p.name.replace(/'/g, "\\'");
     var scoreChange = SCORE_CHANGES[p.name] || '';
     var flashCls = scoreChange === 'birdie' ? ' birdie-flash' : scoreChange === 'bogey' ? ' bogey-flash' : scoreChange === 'eagle' ? ' eagle-flash' : '';
-    var oddsVal = PRE_ODDS[p.name] || '';
+    var oddsArr = PRE_ODDS[p.name] || ['','',''];
     if (isPreT) {
       rows += '<div class="tv-row' + (isMyPick?' is-my-team':'') + (isPrevWinner?' tv-prev-winner':'') + '" onclick="toggleScorecard(' + ri + ',\'' + escapedName + '\')" style="cursor:pointer">'
         + '<div class="tv-pos">' + (ri + 1) + '</div>'
@@ -225,7 +225,9 @@ function renderLeaderboard() {
         + (isPrevWinner?'<span class="prev-winner-badge">Def. Champion</span>':'')
         + (inPool&&!isMyPick?'<span class="tv-pool-dot"></span>':'')
         + '</div>'
-        + '<div class="tv-odds">' + oddsVal + '</div>'
+        + '<div class="tv-odds">' + oddsArr[0] + '</div>'
+        + '<div class="tv-odds">' + oddsArr[1] + '</div>'
+        + '<div class="tv-odds">' + oddsArr[2] + '</div>'
         + '</div>'
         + '<div class="sc-panel" id="sc-panel-' + ri + '"></div>';
     } else {

@@ -1076,11 +1076,11 @@ html, body  {
 .tv-h-score { width: 48px; text-align: center; flex-shrink: 0; }
 .tv-h-today { width: 48px; text-align: center; flex-shrink: 0; color: var(--gold); }
 .tv-h-thru { width: 52px; text-align: center; flex-shrink: 0; }
-.tv-h-odds { width: 72px; text-align: right; flex-shrink: 0; }
+.tv-h-odds { width: 48px; text-align: right; flex-shrink: 0; font-size: 8px; }
 .tv-odds {
-  width: 72px; text-align: right; flex-shrink: 0;
-  font-size: 12px; font-weight: 700; color: var(--gold);
-  letter-spacing: 0.3px;
+  width: 48px; text-align: right; flex-shrink: 0;
+  font-size: 10px; font-weight: 700; color: var(--gold);
+  letter-spacing: 0.2px;
 }
 .tv-h-rnd { width: 26px; text-align: right; flex-shrink: 0; color: var(--text3); }
 .tv-h-tot { width: 30px; text-align: right; flex-shrink: 0; }
