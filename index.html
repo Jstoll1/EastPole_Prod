@@ -159,6 +159,43 @@
 <div id="ownership-list">
 </div>
 </div>
+<div class="view" id="view-feedback" style="padding-bottom:100px">
+<div class="fb-view-header">
+<span class="fb-view-title">Feedback</span>
+<button class="fb-view-close" onclick="closeFeedback()">✕</button>
+</div>
+<div class="fb-view-card" id="fb-form-wrap">
+<p class="fb-view-intro">Help us improve the East Pole Golf Pool experience. All feedback is anonymous unless you choose to include your name.</p>
+<label class="fb-view-label">How's the experience?</label>
+<div class="fb-view-rating" id="fb-rating">
+<button class="fb-view-star" onclick="setRating(1)">1</button>
+<button class="fb-view-star" onclick="setRating(2)">2</button>
+<button class="fb-view-star" onclick="setRating(3)">3</button>
+<button class="fb-view-star" onclick="setRating(4)">4</button>
+<button class="fb-view-star" onclick="setRating(5)">5</button>
+</div>
+<label class="fb-view-label">Category</label>
+<select class="fb-view-select" id="fb-category">
+<option value="">Select one…</option>
+<option value="bug">Bug / Something's broken</option>
+<option value="feature">Feature request</option>
+<option value="design">Design / UI</option>
+<option value="scores">Scores / Data issue</option>
+<option value="general">General feedback</option>
+</select>
+<label class="fb-view-label">Your feedback</label>
+<textarea class="fb-view-textarea" id="fb-message" placeholder="What's on your mind?"></textarea>
+<label class="fb-view-label">Name (optional)</label>
+<input class="fb-view-input" id="fb-name" type="text" placeholder="Anonymous">
+<button class="fb-view-submit" id="fb-submit" onclick="submitFeedback()">Submit Feedback</button>
+</div>
+<div class="fb-view-success" id="fb-success">
+<div class="fb-view-success-icon">✓</div>
+<div class="fb-view-success-title">Thanks for the feedback!</div>
+<div class="fb-view-success-text">We'll use it to make the pool better for everyone.</div>
+<button class="fb-view-success-back" onclick="closeFeedback()">Back to Pool →</button>
+</div>
+</div>
 </div>
 <nav id="nav">
 <button class="nav-btn" onclick="switchTab('standings',this)">
@@ -181,10 +218,10 @@
 <circle cx="12" cy="12" r="3"/>
 <circle cx="12" cy="12" r="7" stroke-dasharray="4 3"/>
 </svg> Owned </button>
-<a class="nav-btn" href="./feedback.html">
+<button class="nav-btn" onclick="switchTab('feedback',this)">
 <svg viewBox="0 0 24 24">
 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-</svg> Feedback </a>
+</svg> Feedback </button>
 </nav>
 <!-- Activity Tracker -->
 <button id="activity-fab" onclick="toggleActivityDrawer()">⚡<span class="act-badge" id="act-badge">0</span></button>

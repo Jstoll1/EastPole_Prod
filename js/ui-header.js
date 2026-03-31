@@ -79,9 +79,15 @@ function initTheme() {
   if (meta) meta.setAttribute('content', saved === 'light' ? '#006747' : '#06120c');
 }
 
+var _prevTab = 'leaderboard';
+
 function switchTab(name, btn) {
   trackEvent('tab-' + name);
-  var alreadyActive = btn.classList.contains('active');
+  // Remember previous tab (but not feedback itself)
+  var cur = document.querySelector('.view.active');
+  if (cur && cur.id !== 'view-feedback') {
+    _prevTab = cur.id.replace('view-', '');
+  }
   document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
   document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
   document.getElementById('view-' + name).classList.add('active');
@@ -95,6 +101,67 @@ function switchTab(name, btn) {
     renderLeaderboard();
     document.getElementById('view-leaderboard').scrollTo({ top: 0, behavior: 'smooth' });
   }
+}
+
+function closeFeedback() {
+  // Return to previous tab
+  var tabName = _prevTab || 'leaderboard';
+  var btn = document.querySelector('.nav-btn[onclick*="' + tabName + '"]');
+  if (btn) {
+    switchTab(tabName, btn);
+  } else {
+    // Fallback: just switch to leaderboard
+    var lb = document.querySelector('.nav-btn[onclick*="leaderboard"]');
+    if (lb) switchTab('leaderboard', lb);
+  }
+}
+
+// Feedback form logic
+var _rating = 0;
+
+function setRating(n) {
+  _rating = n;
+  document.querySelectorAll('.fb-view-star').forEach(function(btn, i) {
+    btn.classList.toggle('active', i < n);
+  });
+}
+
+function submitFeedback() {
+  var message = document.getElementById('fb-message').value.trim();
+  var category = document.getElementById('fb-category').value;
+  var name = document.getElementById('fb-name').value.trim() || 'Anonymous';
+  var btn = document.getElementById('fb-submit');
+
+  if (!message) { document.getElementById('fb-message').focus(); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  trackEvent('feedback-' + (category || 'general'));
+
+  fetch('https://formspree.io/f/mjgprdnz', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      rating: _rating || 'none',
+      category: category || 'general',
+      message: message,
+      name: name
+    })
+  }).then(function(res) {
+    if (res.ok) {
+      document.getElementById('fb-form-wrap').style.display = 'none';
+      document.getElementById('fb-success').style.display = 'block';
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Submit Feedback';
+      alert('Something went wrong. Please try again.');
+    }
+  }).catch(function() {
+    btn.disabled = false;
+    btn.textContent = 'Submit Feedback';
+    alert('Network error. Please try again.');
+  });
 }
 
 var toastT;
