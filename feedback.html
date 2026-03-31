@@ -184,28 +184,42 @@ function submitFeedback() {
   var message = document.getElementById('fb-message').value.trim();
   var category = document.getElementById('fb-category').value;
   var name = document.getElementById('fb-name').value.trim() || 'Anonymous';
+  var btn = document.getElementById('fb-submit');
 
   if (!message) { document.getElementById('fb-message').focus(); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
 
   // Track submission in GoatCounter
   if (window.goatcounter && goatcounter.count) {
     goatcounter.count({ path: '/event/feedback-' + (category || 'general'), event: true });
   }
 
-  // Store in localStorage as a simple feedback log
-  var feedback = JSON.parse(localStorage.getItem('ep_feedback') || '[]');
-  feedback.push({
-    rating: _rating,
-    category: category,
-    message: message,
-    name: name,
-    time: new Date().toISOString()
+  // Send to Formspree → emails you directly
+  fetch('https://formspree.io/f/mjgprdnz', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      rating: _rating || 'none',
+      category: category || 'general',
+      message: message,
+      name: name
+    })
+  }).then(function(res) {
+    if (res.ok) {
+      document.getElementById('fb-form-wrap').style.display = 'none';
+      document.getElementById('fb-success').style.display = 'block';
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Submit Feedback';
+      alert('Something went wrong. Please try again.');
+    }
+  }).catch(function() {
+    btn.disabled = false;
+    btn.textContent = 'Submit Feedback';
+    alert('Network error. Please try again.');
   });
-  localStorage.setItem('ep_feedback', JSON.stringify(feedback));
-
-  // Show success
-  document.getElementById('fb-form-wrap').style.display = 'none';
-  document.getElementById('fb-success').style.display = 'block';
 }
 </script>
 <script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
