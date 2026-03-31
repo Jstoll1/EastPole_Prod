@@ -112,7 +112,7 @@ var ATHLETE_IDS = {};
 var EVENT_ID = null;
 var SCORECARD_CACHE = {};
 var COURSE_HOLES = null;
-var COURSE_PAR = getDefaultPars().reduce(function(s, p) { return s + p; }, 0);
+var COURSE_PAR = 70; // sum of default pars [4,3,5,4,4,4,3,5,3,4,3,4,4,4,3,5,4,4]
 
 var lastFetchTime = 0;
 var _lastStatusText = 'Loading…';
