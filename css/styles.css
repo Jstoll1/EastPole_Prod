@@ -2999,7 +2999,7 @@ to  {
 .fb-view-star {
   background:none; border:2px solid var(--border); border-radius:8px;
   width:44px; height:44px; font-size:20px; cursor:pointer; color:var(--text3);
-  transition:all 0.15s;
+  transition:all 0.15s; position:relative; z-index:1; -webkit-tap-highlight-color:transparent;
 }
 .fb-view-star.active {
   border-color:var(--gold); color:var(--gold); background:rgba(198,160,60,0.1);
