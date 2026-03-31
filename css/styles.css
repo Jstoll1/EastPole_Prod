@@ -2960,3 +2960,64 @@ to  {
 .debug-empty { color:var(--text3); text-align:center; padding:24px; font-size:11px; }
 .debug-copy-btn { color:rgba(255,255,255,0.3); cursor:pointer; font-size:14px; flex-shrink:0; padding:0 4px; }
 .debug-copy-btn:active { color:var(--gold); }
+
+/* ── While You Were Away Banner ─── */
+#away-banner {
+  position:fixed; inset:0; z-index:10000;
+  background:rgba(0,0,0,0.6);
+  display:flex; align-items:flex-start; justify-content:center;
+  padding:60px 16px 16px;
+  animation:awayFadeIn 0.3s ease;
+}
+#away-banner.away-hiding {
+  opacity:0; transition:opacity 0.3s ease;
+}
+.away-card {
+  background:var(--card); border:1px solid var(--gold);
+  border-radius:14px; width:100%; max-width:380px;
+  box-shadow:0 12px 40px rgba(0,0,0,0.5);
+  overflow:hidden;
+}
+.away-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 16px 10px; border-bottom:1px solid var(--border);
+}
+.away-title {
+  font-size:13px; font-weight:800; color:var(--gold);
+  letter-spacing:0.3px;
+}
+.away-close {
+  background:none; border:none; color:var(--text3);
+  font-size:16px; cursor:pointer; padding:4px 8px;
+}
+.away-events {
+  padding:10px 16px; max-height:260px; overflow-y:auto;
+}
+.away-event {
+  display:flex; align-items:flex-start; gap:8px;
+  padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.away-event:last-child { border-bottom:none; }
+.away-icon { font-size:14px; flex-shrink:0; padding-top:1px; }
+.away-text { font-size:12px; color:var(--text); line-height:1.4; flex:1; }
+.away-text strong { font-weight:700; }
+.away-time {
+  font-size:10px; color:var(--text3); white-space:nowrap;
+  flex-shrink:0; padding-top:2px;
+}
+.away-net {
+  padding:8px 16px; font-size:13px; font-weight:800;
+  text-align:center; border-top:1px solid var(--border);
+}
+.away-dismiss {
+  display:block; width:100%; padding:14px;
+  background:var(--gold); color:#1a1a1a;
+  font-size:14px; font-weight:800; border:none;
+  cursor:pointer; letter-spacing:0.3px;
+  border-radius:0 0 13px 13px;
+}
+.away-dismiss:active { opacity:0.8; }
+@keyframes awayFadeIn {
+  from { opacity:0; transform:translateY(-10px); }
+  to { opacity:1; transform:translateY(0); }
+}
