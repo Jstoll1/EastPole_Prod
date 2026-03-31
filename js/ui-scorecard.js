@@ -33,6 +33,7 @@ function showPickerPopup(owners, evt) {
 }
 
 async function toggleScorecard(idx, playerName) {
+  trackEvent('scorecard-open');
   var panel = document.getElementById('sc-panel-' + idx);
   if (!panel) return;
   if (_openScorecardIdx === idx) {

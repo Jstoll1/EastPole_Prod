@@ -25,6 +25,7 @@ function updateActBadge() {
 }
 
 function toggleActivityDrawer() {
+  if (!_actOpen) trackEvent('activity-open');
   _actOpen = !_actOpen;
   document.getElementById('activity-drawer').classList.toggle('open', _actOpen);
   document.getElementById('activity-overlay').classList.toggle('open', _actOpen);

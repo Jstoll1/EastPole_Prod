@@ -58,6 +58,7 @@ function filterH2HPicker(targetIdx) {
 }
 
 function selectH2H(myIdx, theirIdx) {
+  trackEvent('h2h-compare');
   var popup = document.getElementById('h2h-picker');
   var backdrop = document.getElementById('h2h-picker-backdrop');
   if (popup) popup.remove();

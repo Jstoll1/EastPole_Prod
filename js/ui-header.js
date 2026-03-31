@@ -61,6 +61,7 @@ function selectTeamEntry(idx) {
 function toggleTheme() {
   var current = document.documentElement.getAttribute('data-theme');
   var next = current === 'light' ? 'dark' : 'light';
+  trackEvent('theme-' + next);
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem('ep-theme', next);
   var btn = document.getElementById('theme-toggle-btn');
@@ -79,6 +80,7 @@ function initTheme() {
 }
 
 function switchTab(name, btn) {
+  trackEvent('tab-' + name);
   var alreadyActive = btn.classList.contains('active');
   document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
   document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -189,6 +191,7 @@ function confirmOnboarding() {
   hideOnboarding();
   try {
     setUser(obSelectedEmail, 0, true);
+    trackEvent('user-login');
     showToast('✓ Team locked in');
   } catch(e) { console.error('setUser error:', e); }
 }

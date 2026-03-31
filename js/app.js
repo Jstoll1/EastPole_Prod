@@ -52,6 +52,7 @@ function renderAll() {
       ptr.classList.add('refreshing', 'releasing');
       ptr.style.height = '40px';
       ptrText.textContent = 'Refreshing…';
+      trackEvent('pull-to-refresh');
       var startTime = Date.now();
       fetchESPN().finally(function() {
         var elapsed = Date.now() - startTime;

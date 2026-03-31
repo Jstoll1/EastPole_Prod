@@ -1,3 +1,10 @@
+// ── Analytics ─────────────────────────────────────────────
+function trackEvent(name) {
+  if (window.goatcounter && goatcounter.count) {
+    goatcounter.count({ path: '/event/' + name, event: true });
+  }
+}
+
 // ── Utility Functions ──────────────────────────────────────
 
 function escHtml(s) {
