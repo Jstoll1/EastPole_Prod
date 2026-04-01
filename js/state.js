@@ -154,7 +154,9 @@ var NAME_ALIASES = {
   'Stephan Jäger':'Stephan Jaeger',
   'Alex Norén':'Alex Noren',
   'Sami Välimäki':'Sami Valimaki',
-  'Jordan L. Smith':'Jordan Smith'
+  'Jordan L. Smith':'Jordan Smith',
+  'Adrien Dumont de Chassart':'Adrien Dumont De Chassart',
+  'Johnny Keefer':'John Keefer'
 };
 var FLAG_TO_CODE = {'🇺🇸':'USA','🇦🇺':'AUS','🇰🇷':'KOR','🇨🇦':'CAN','🇿🇦':'RSA','🇩🇰':'DEN','🇸🇪':'SWE','🇫🇷':'FRA','🇯🇵':'JPN','🇮🇪':'IRL','🇧🇪':'BEL','🇦🇷':'ARG','🇹🇼':'TPE','🇻🇪':'VEN','🇵🇭':'PHI','🇵🇷':'PUR','🇩🇪':'GER','🇳🇿':'NZL','🇨🇴':'COL','🇨🇳':'CHN','🇳🇴':'NOR','🏴󠁧󠁢󠁥󠁮󠁧󠁿':'ENG','🏳️':'—'};
 
