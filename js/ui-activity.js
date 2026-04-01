@@ -72,6 +72,7 @@ function getLiveFilteredPicks() {
   var sel = document.getElementById('live-entry-filter');
   var val = sel ? sel.value : 'all';
   if (val !== 'all' && currentUserTeams && currentUserTeams[parseInt(val)]) {
+    trackEvent('live-filter-entry');
     return new Set(currentUserTeams[parseInt(val)].picks);
   }
   return getActiveTeamPicks();

@@ -34,6 +34,7 @@ function showPickerPopup(owners, evt) {
 
 async function toggleScorecard(idx, playerName) {
   trackEvent('scorecard-open');
+  trackEvent('scorecard-' + playerName.toLowerCase().replace(/\s+/g, '-'));
   var panel = document.getElementById('sc-panel-' + idx);
   if (!panel) return;
   if (_openScorecardIdx === idx) {

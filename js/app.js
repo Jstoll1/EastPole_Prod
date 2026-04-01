@@ -85,6 +85,10 @@ async function initApp() {
   var returning = loadUser();
   if (returning) {
     console.log('👤 Returning user:', currentUserEmail);
+    trackEvent('returning-user');
+    trackEvent('returning-entries-' + currentUserTeams.length);
+  } else {
+    trackEvent('new-visitor');
   }
   if (!shouldShowSplash()) {
     var sp = document.getElementById('splash');

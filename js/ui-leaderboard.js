@@ -20,6 +20,7 @@ function setLbSort(col) {
 
 function setLbFilter(f, btn) {
   lbFilter = f;
+  trackEvent('lb-filter-' + f);
   document.querySelectorAll('#view-leaderboard .seg-btn').forEach(function(b) { b.classList.remove('active'); });
   btn.classList.add('active');
   renderLeaderboard();

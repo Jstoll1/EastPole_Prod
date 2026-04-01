@@ -50,6 +50,7 @@ function closeTeamDropdown() {
 
 function selectTeamEntry(idx) {
   activeTeamIdx = idx;
+  trackEvent('entry-filter-' + (idx === -1 ? 'all' : 'single'));
   saveUser();
   updateHeaderDisplay();
   updateLbSeg();
@@ -213,6 +214,7 @@ function enterApp() {
 }
 
 function dismissSplashBrowse() {
+  trackEvent('splash-browse');
   markSplashSeen();
   var splash = document.getElementById('splash');
   splash.classList.add('hidden');
@@ -259,7 +261,9 @@ function confirmOnboarding() {
   hideOnboarding();
   try {
     setUser(obSelectedEmail, -1, true);
+    var userTeams = ENTRIES.filter(function(e) { return e.email === obSelectedEmail; });
     trackEvent('user-login');
+    trackEvent('login-entries-' + userTeams.length);
     showToast('✓ Team locked in');
   } catch(e) { console.error('setUser error:', e); }
 }

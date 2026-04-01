@@ -48,7 +48,7 @@ function renderStandings() {
         rows += '<div class="my-row" onclick="setUser(\'' + myEntry.email + '\',' + currentUserTeams.indexOf(activeTeam) + ')"> <div class="my-row-rank">' + myRank + '</div> <div class="my-row-team">' + myEntry.team + '</div> ' + moveHtml + ' ' + payoutHtml + ' <div class="my-row-score ' + scc + '">' + fmtTeam(myEntry.total) + '</div> </div>';
       }
     });
-    var showAllBtn = (activeTeamIdx >= 0 && currentUserTeams.length > 1) ? '<div class="my-show-all" onclick="setUser(\'' + currentUserEmail + '\',-1)">Show All Entries</div>' : '';
+    var showAllBtn = (activeTeamIdx >= 0 && currentUserTeams.length > 1) ? '<div class="my-show-all" onclick="trackEvent(\'show-all-entries\');setUser(\'' + currentUserEmail + '\',-1)">Show All Entries</div>' : '';
     if (rows) heroHtml = '<div class="my-teams-block"><div class="my-teams-label">YOUR ENTRIES</div>' + rows + showAllBtn + '</div>';
   }
 
@@ -107,6 +107,7 @@ function renderStandings() {
 }
 
 function togglePanel(row, i) {
+  trackEvent('standings-expand');
   var panel = document.getElementById('panel-'+i);
   var arr = document.getElementById('arr-'+i);
   var prevOpen = document.querySelector('.picks-panel.open');
@@ -128,6 +129,7 @@ function togglePanel(row, i) {
 }
 
 function jumpToEntry(teamName) {
+  trackEvent('jump-to-entry');
   var popup = document.getElementById('picker-popup');
   if (popup) popup.remove();
   if (_openScorecardIdx !== null) {
