@@ -2738,30 +2738,147 @@ to  {
   background:#4ade80;
   border-radius:50%;
   margin-left:3px;
+  box-shadow:0 0 6px rgba(74,222,128,0.6);
   animation:livePulse 1.5s ease-in-out infinite;
 }
 .live-dot.active { display:inline-block; }
 @keyframes livePulse {
-  0%,100% { opacity:1; transform:scale(1); }
-  50% { opacity:0.4; transform:scale(0.7); }
+  0%,100% { opacity:1; transform:scale(1); box-shadow:0 0 6px rgba(74,222,128,0.6); }
+  50% { opacity:0.4; transform:scale(0.7); box-shadow:0 0 2px rgba(74,222,128,0.2); }
 }
+
+/* Live header */
+.live-header {
+  padding:12px 14px 8px;
+}
+.live-header-top {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
+}
+.live-title {
+  font-size:18px;
+  font-weight:900;
+  color:var(--text);
+  letter-spacing:0.5px;
+}
+.live-status {
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  padding:4px 10px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.06);
+  color:var(--text3);
+  border:1px solid rgba(255,255,255,0.08);
+}
+.live-status.active {
+  background:rgba(74,222,128,0.12);
+  color:#4ade80;
+  border-color:rgba(74,222,128,0.3);
+  animation:statusGlow 2s ease-in-out infinite;
+}
+@keyframes statusGlow {
+  0%,100% { box-shadow:0 0 8px rgba(74,222,128,0.15); }
+  50% { box-shadow:0 0 16px rgba(74,222,128,0.3); }
+}
+.live-filter {
+  width:100%;
+  background:rgba(0,0,0,0.3);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:10px;
+  padding:10px 14px;
+  font-size:13px;
+  color:var(--text);
+  font-family:inherit;
+  font-weight:600;
+  outline:none;
+  letter-spacing:0.2px;
+  -webkit-appearance:none;
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+}
+
+/* Activity list */
 .act-list {
-  flex:1; overflow-y:auto; padding:0;
+  flex:1; overflow-y:auto; padding:0 10px;
   -webkit-overflow-scrolling:touch;
 }
 .act-item {
-  display:flex; align-items:flex-start; gap:10px;
-  padding:10px 16px;
-  border-bottom:1px solid var(--border);
-  animation:actSlideIn 0.3s ease;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px 14px;
+  margin-bottom:6px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.05);
+  animation:actSlideIn 0.4s cubic-bezier(0.16,1,0.3,1);
 }
-@keyframes actSlideIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
-.act-icon { font-size:16px; flex-shrink:0; width:24px; text-align:center; margin-top:1px; }
+.act-item:first-child {
+  border-color:rgba(212,168,67,0.15);
+  background:rgba(212,168,67,0.04);
+}
+.act-item.act-birdie {
+  border-left:3px solid #4ade80;
+  background:rgba(74,222,128,0.04);
+}
+.act-item.act-eagle {
+  border-left:3px solid var(--gold);
+  background:rgba(212,168,67,0.06);
+}
+.act-item.act-bogey {
+  border-left:3px solid #fbbf24;
+  background:rgba(251,191,36,0.03);
+}
+.act-item.act-double {
+  border-left:3px solid #f87171;
+  background:rgba(248,113,113,0.04);
+}
+.act-item.act-worse {
+  border-left:3px solid #ef4444;
+  background:rgba(239,68,68,0.05);
+}
+@keyframes actSlideIn {
+  from { opacity:0; transform:translateY(-12px) scale(0.97); }
+  to { opacity:1; transform:translateY(0) scale(1); }
+}
+.act-icon {
+  font-size:22px;
+  flex-shrink:0;
+  width:36px;
+  height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:10px;
+  background:rgba(255,255,255,0.04);
+}
 .act-body { flex:1; min-width:0; }
-.act-text { font-size:13px; color:var(--text); line-height:1.4; }
-.act-text strong { font-weight:700; }
-.act-time { font-size:10px; color:var(--text3); margin-top:2px; }
-.act-empty { padding:40px 20px; text-align:center; color:var(--text3); font-size:13px; }
+.act-text {
+  font-size:14px;
+  color:var(--text);
+  line-height:1.45;
+  font-weight:500;
+}
+.act-text strong { font-weight:800; }
+.act-time {
+  font-size:10px;
+  color:var(--text3);
+  margin-top:3px;
+  letter-spacing:0.3px;
+}
+.act-empty {
+  padding:60px 24px;
+  text-align:center;
+  color:var(--text3);
+  font-size:14px;
+  line-height:1.6;
+}
 
 /* ── Chat removed ── */
 /* #chat-fab {

@@ -24,8 +24,8 @@ function _saveActivity() {
   try { localStorage.setItem(_ACT_STORAGE_KEY, JSON.stringify(ACTIVITY_LOG)); } catch(e) {}
 }
 
-function addActivity(icon, text, playerName) {
-  ACTIVITY_LOG.unshift({ icon: icon, text: text, player: playerName, time: Date.now() });
+function addActivity(icon, text, playerName, type) {
+  ACTIVITY_LOG.unshift({ icon: icon, text: text, player: playerName, type: type || '', time: Date.now() });
   if (ACTIVITY_LOG.length > MAX_ACTIVITY) ACTIVITY_LOG = ACTIVITY_LOG.slice(0, MAX_ACTIVITY);
   _saveActivity();
   _actUnseen++;
@@ -97,7 +97,8 @@ function renderActivityList() {
   el.innerHTML = items.map(function(a) {
     var ts = new Date(a.time);
     var timeStr = ts.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-    return '<div class="act-item">' +
+    var typeCls = a.type ? ' act-' + a.type : '';
+    return '<div class="act-item' + typeCls + '">' +
       '<div class="act-icon">' + a.icon + '</div>' +
       '<div class="act-body"><div class="act-text">' + a.text + '</div>' +
       '<div class="act-time">' + timeStr + ' · ' + timeAgo(a.time) + '</div></div></div>';
@@ -113,6 +114,16 @@ setInterval(function() {
 function setRoundLive(isLive) {
   _roundLive = isLive;
   updateLiveTab();
+  var pill = document.getElementById('live-status-pill');
+  if (pill) {
+    if (isLive) {
+      pill.textContent = '● Live';
+      pill.classList.add('active');
+    } else {
+      pill.textContent = TOURNAMENT_STARTED ? 'Between Rounds' : 'Pre-Tournament';
+      pill.classList.remove('active');
+    }
+  }
 }
 
 function detectGolfActivity(freshScores) {
@@ -131,18 +142,18 @@ function detectGolfActivity(freshScores) {
     var holeNum = !isNaN(thruNum) && thruNum >= 1 ? thruNum : (d.thru === 'F' || d.thru === '18' ? 18 : null);
     var holePar = holeNum ? (pars[holeNum - 1] || 4) : 4;
     var flag = FLAGS[name] || '';
-    var icon, label;
-    if (diff <= -3) { icon = '🦅🦅'; label = 'albatross'; }
-    else if (diff === -2) { icon = '🦅'; label = 'eagles'; }
-    else if (diff === -1) { icon = '🐦'; label = 'birdies'; }
-    else if (diff === 1) { icon = '🟡'; label = 'bogeys'; }
-    else if (diff === 2) { icon = '🔴'; label = 'double bogeys'; }
-    else { icon = '⛔'; label = '+' + diff + ' on'; }
+    var icon, label, type;
+    if (diff <= -3) { icon = '🦅'; label = 'albatross'; type = 'eagle'; }
+    else if (diff === -2) { icon = '🦅'; label = 'eagles'; type = 'eagle'; }
+    else if (diff === -1) { icon = '🐦'; label = 'birdies'; type = 'birdie'; }
+    else if (diff === 1) { icon = '🟡'; label = 'bogeys'; type = 'bogey'; }
+    else if (diff === 2) { icon = '🔴'; label = 'double bogeys'; type = 'double'; }
+    else { icon = '⛔'; label = '+' + diff + ' on'; type = 'worse'; }
     var holeStr = holeNum ? ' #' + holeNum : '';
-    var parStr = holeNum ? ' <span style="color:var(--text3);font-size:11px">(Par ' + holePar + ')</span>' : '';
+    var parStr = holeNum ? ' <span style="color:var(--text3);font-size:12px">(Par ' + holePar + ')</span>' : '';
     var todayStr = d.todayDisplay && d.todayDisplay !== '—' ? d.todayDisplay : '';
-    var statusStr = ' <span style="color:var(--text2)">— <strong>' + fmt(d.score) + '</strong>' + (todayStr ? ' (' + todayStr + ' today)' : '') + '</span>';
-    addActivity(icon, '<strong>' + flag + ' ' + name + '</strong> ' + label + holeStr + parStr + statusStr, name);
+    var statusStr = ' <span style="color:var(--text2)">—</span> <strong>' + fmt(d.score) + '</strong>' + (todayStr ? ' <span style="color:var(--text3);font-size:12px">(' + todayStr + ' today)</span>' : '');
+    addActivity(icon, '<strong>' + flag + ' ' + name + '</strong> ' + label + holeStr + parStr + statusStr, name, type);
   });
 }
 
