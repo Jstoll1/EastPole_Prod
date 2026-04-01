@@ -43,8 +43,9 @@ async function fetchESPN() {
     var freshScores = {};
     var freshAthleteIds = {};
     comps.forEach(function(c) {
-      var name = c.athlete?.displayName;
-      if (!name) return;
+      var rawName = c.athlete?.displayName;
+      if (!rawName) return;
+      var name = resolvePlayerName(rawName);
       if (c.athlete?.id) freshAthleteIds[name] = c.athlete.id;
       var state = c.status?.type?.name || '';
       var scheduled = state === 'STATUS_SCHEDULED';

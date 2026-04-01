@@ -37,7 +37,7 @@ function normalCDF(x) {
 var gs = function(n) {
   if (GOLFER_SCORES[n]) return GOLFER_SCORES[n].score;
   if (Object.keys(GOLFER_SCORES).length > 0) console.warn('⚠️ Player not found in GOLFER_SCORES:', n);
-  return 11;
+  return TOURNAMENT_STARTED ? 11 : 0;
 };
 var fmt = function(s) { return s === 11 ? 'MC' : s === 12 ? 'WD' : s < 0 ? '' + s : s > 0 ? '+' + s : 'E'; };
 var fmtTeam = function(s) { return s < 0 ? '' + s : s > 0 ? '+' + s : 'E'; };
