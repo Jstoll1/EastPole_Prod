@@ -89,7 +89,52 @@ var ENTRIES = [
   { team:'0.00% BAC', name:'Andrew Steioff', email:'andrewsteioff@gmail.com', picks:['Tommy Fleetwood','J.J. Spaun','Marco Penge','Tony Finau','Chris Kirk','Max Homa'], tb:-14 }
 ];
 
-var FLAGS = {};
+var FLAGS = {
+  'Tommy Fleetwood':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Ludvig Aberg':'🇸🇪','Russell Henley':'🇺🇸',
+  'Robert MacIntyre':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','Jordan Spieth':'🇺🇸','Si Woo Kim':'🇰🇷',
+  'Hideki Matsuyama':'🇯🇵','Maverick McNealy':'🇺🇸','Rickie Fowler':'🇺🇸',
+  'Michael Thorbjornsen':'🇺🇸','Sepp Straka':'🇦🇹','Keith Mitchell':'🇺🇸',
+  'Ryo Hisatsune':'🇯🇵','J.J. Spaun':'🇺🇸','Alex Noren':'🇸🇪',
+  'Denny McCarthy':'🇺🇸','Nick Taylor':'🇨🇦','Alex Smalley':'🇺🇸',
+  'Marco Penge':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','John Keefer':'🇺🇸','Jordan Smith':'🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  'Sudarshan Yellamaraju':'🇮🇳','Stephan Jaeger':'🇩🇪','Thorbjorn Olesen':'🇩🇰',
+  'Brian Harman':'🇺🇸','Will Zalatoris':'🇺🇸','Davis Thompson':'🇺🇸',
+  'Tony Finau':'🇺🇸','Rico Hoey':'🇵🇭','Christiaan Bezuidenhout':'🇿🇦',
+  'Matt Wallace':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','J.T. Poston':'🇺🇸','Mackenzie Hughes':'🇨🇦',
+  'Matt McCarty':'🇺🇸','Mac Meissner':'🇺🇸','Kristoffer Reitan':'🇳🇴',
+  'Chris Kirk':'🇺🇸','Patrick Rodgers':'🇺🇸','Haotong Li':'🇨🇳',
+  'Tom Kim':'🇰🇷','Bud Cauley':'🇺🇸','Austin Smotherman':'🇺🇸',
+  'Max McGreevy':'🇺🇸','Eric Cole':'🇺🇸','Chad Ramey':'🇺🇸',
+  'Andrew Novak':'🇺🇸','Adrien Dumont De Chassart':'🇧🇪','Zecheng Dou':'🇨🇳',
+  'Billy Horschel':'🇺🇸','Beau Hossler':'🇺🇸','Max Homa':'🇺🇸',
+  'John Parry':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','William Mouw':'🇺🇸','Taylor Moore':'🇺🇸',
+  'S.H. Kim':'🇰🇷','Vince Whaley':'🇺🇸','Doug Ghim':'🇺🇸',
+  'Steven Fisk':'🇺🇸','Michael Kim':'🇺🇸','Lee Hodges':'🇺🇸',
+  'Seamus Power':'🇮🇪','Kevin Roy':'🇺🇸','Austin Eckroat':'🇺🇸',
+  'Kris Ventura':'🇳🇴','Sami Valimaki':'🇫🇮','Bronson Burgoon':'🇺🇸',
+  'Emiliano Grillo':'🇦🇷','Jesper Svensson':'🇸🇪','Carson Young':'🇺🇸',
+  'Andrew Putnam':'🇺🇸','Jhonattan Vegas':'🇻🇪','Adrien Saddier':'🇫🇷',
+  'Matt Kuchar':'🇺🇸','Kevin Yu':'🇹🇼','Garrick Higgo':'🇿🇦',
+  'Jackson Suber':'🇺🇸','Webb Simpson':'🇺🇸','Daniel Brown':'🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  'Joel Dahmen':'🇺🇸','Matthieu Pavon':'🇫🇷','Karl Vilips':'🇦🇺',
+  'Tom Hoge':'🇺🇸','David Ford':'🇺🇸','Chandler Blanchet':'🇺🇸',
+  'Mark Hubbard':'🇺🇸','Takumi Kanaya':'🇯🇵','Lucas Glover':'🇺🇸',
+  'Sam Ryder':'🇺🇸','Brandt Snedeker':'🇺🇸','Patrick Fishburn':'🇺🇸',
+  'A.J. Ewart':'🇨🇦','Dylan Wu':'🇺🇸','Pontus Nyholm':'🇸🇪',
+  'Jimmy Stanger':'🇺🇸','Luke Clanton':'🇺🇸','Adam Svensson':'🇨🇦',
+  'Hank Lebioda':'🇺🇸','Neal Shipley':'🇺🇸','Danny Walker':'🇺🇸',
+  'John Vanderlaan':'🇺🇸','Erik Van Rooyen':'🇿🇦','Zach Bauchou':'🇺🇸',
+  'Patton Kizzire':'🇺🇸','Lanto Griffin':'🇺🇸','Chandler Phillips':'🇺🇸',
+  'Kevin Streelman':'🇺🇸','Alejandro Tosti':'🇦🇷','Nick Dunlap':'🇺🇸',
+  'Charley Hoffman':'🇺🇸','Christo Lamprecht':'🇿🇦','Adam Schenk':'🇺🇸',
+  'Kensei Hirata':'🇯🇵','Joe Highsmith':'🇺🇸','Peter Malnati':'🇺🇸',
+  'Justin Lower':'🇺🇸','Gordon Sargent':'🇺🇸','Brice Garnett':'🇺🇸',
+  'Paul Waring':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Nick Hardy':'🇺🇸','Davis Chatfield':'🇺🇸',
+  'Camilo Villegas':'🇨🇴','Jeffrey Kang':'🇺🇸','K.H. Lee':'🇰🇷',
+  'Jimmy Walker':'🇺🇸','Brendon Todd':'🇺🇸','Rafael Campos':'🇵🇷',
+  'Frankie Capan III':'🇺🇸','Marcelo Rozo':'🇨🇴','Ryan Palmer':'🇺🇸',
+  'Charlie Crockett':'🇺🇸','Austin Wylie':'🇺🇸','Chan Kim':'🇺🇸'
+};
 
 var TIERS = [];
 var NAME_ALIASES = {
