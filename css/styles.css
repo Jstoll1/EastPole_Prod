@@ -804,8 +804,8 @@ html, body  {
 }
 
 .mini-pick.is-top  {
-  background: var(--gold-bg) !important;
-  border-left: 2px solid rgba(212,168,67,0.35);
+  background: rgba(212,168,67,0.08) !important;
+  border-left: 3px solid rgba(212,168,67,0.5);
 }
 
 .mini-pick-left  {

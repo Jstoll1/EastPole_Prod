@@ -70,6 +70,7 @@ function renderStandings() {
     html += ' <div class="standing-row ' + isMyTeam + cmpCls + cmpSelCls + '" onclick="' + rowClick + '"> <div class="s-rank">' + rank + '</div> <div class="s-info"> <div class="s-team">' + e.team + cmpBadge + '</div> <div class="s-name">' + e.name + tbTag + '</div> </div> <div class="s-score ' + scc + '">' + scf + '</div> <div class="s-arrow" id="arr-' + i + '">' + (compareMode ? '' : '›') + '</div> </div> <div class="picks-panel" id="panel-' + i + '"> ' + e.scores.map(function(g, j) {
       var isTop = j < 4;
       var gd = GOLFER_SCORES[g.name];
+      var preT = !TOURNAMENT_STARTED;
       var pos = gd ? (gd.thru === 'WD' || gd.score === 12 ? 'WD' : gd.pos) : '—';
       var rounds = gd ? [gd.r1,gd.r2,gd.r3,gd.r4].filter(function(r){return r!=null;}) : [];
       var rndsStr = rounds.length ? rounds.map(function(r,ri){return 'R'+(ri+1)+':'+r;}).join(' ') : '';
@@ -79,8 +80,9 @@ function renderStandings() {
       var holesLeft = getHolesRemaining(g.name);
       var stLastRound = (function(){ if(!gd) return null; var rs = [gd.r1,gd.r2,gd.r3,gd.r4]; for(var i=rs.length-1;i>=0;i--){ if(rs[i]&&rs[i]>50) return rs[i]; } return null; })();
       var stRoundDone = gd && (gd.thru === 'F' || gd.thru === '18');
-      var thruDisplay = (gd && (gd.thru === 'WD' || gd.score === 12)) ? '' : (stRoundDone ? (stLastRound ? 'Shot ' + stLastRound : '') : (thruVal ? 'Thru ' + thruVal : ''));
-      return '<div class="mini-pick ' + (isTop?'is-top':'') + '"> <div class="mini-pick-left"> <div class="mini-pick-top"> ' + (isTop?'<span class="star">★</span>':'<span style="width:14px;display:inline-block"></span>') + ' <span class="mini-pick-name">' + g.name + '</span> <span class="mini-pick-pos">' + pos + '</span> </div> <div class="mini-pick-bottom"> ' + (rndsStr?'<span class="mini-pick-rounds">' + rndsStr + '</span>':'') + ' ' + (thruDisplay?'<span class="mini-pick-thru">' + thruDisplay + '</span>':'') + ' ' + (ownP?'<span class="mini-pick-own">' + ownP + '</span>':'') + ' </div> </div> <span class="mini-pick-score ' + cls(g.score) + '">' + fmt(g.score) + '</span> </div>';
+      var thruDisplay = preT ? '' : ((gd && (gd.thru === 'WD' || gd.score === 12)) ? '' : (stRoundDone ? (stLastRound ? 'Shot ' + stLastRound : '') : (thruVal ? 'Thru ' + thruVal : '')));
+      var posDisplay = preT ? '' : pos;
+      return '<div class="mini-pick ' + (isTop?'is-top':'') + '"> <div class="mini-pick-left"> <div class="mini-pick-top"> ' + (isTop?'<span class="star">★</span>':'<span style="width:14px;display:inline-block"></span>') + ' <span class="mini-pick-name">' + g.name + '</span>' + (posDisplay ? ' <span class="mini-pick-pos">' + posDisplay + '</span>' : '') + ' </div> <div class="mini-pick-bottom"> ' + (rndsStr?'<span class="mini-pick-rounds">' + rndsStr + '</span>':'') + ' ' + (thruDisplay?'<span class="mini-pick-thru">' + thruDisplay + '</span>':'') + ' ' + (ownP?'<span class="mini-pick-own">' + ownP + '</span>':'') + ' </div> </div> <span class="mini-pick-score ' + cls(g.score) + '">' + fmt(g.score) + '</span> </div>';
     }).join('') + '<div class="picks-panel-footer"><span>' + teamHolesLeft + ' holes remaining</span><button class="h2h-quick-btn" onclick="event.stopPropagation();openH2HPicker(' + entryIdx + ')">⚔️ H2H</button></div> </div>';
   });
 
