@@ -85,10 +85,10 @@ async function initApp() {
   var returning = loadUser();
   if (returning) {
     console.log('👤 Returning user:', currentUserEmail);
-    if (!shouldShowSplash()) {
-      var sp = document.getElementById('splash');
-      if (sp) { sp.style.display = 'none'; sp.classList.add('hidden'); }
-    }
+  }
+  if (!shouldShowSplash()) {
+    var sp = document.getElementById('splash');
+    if (sp) { sp.style.display = 'none'; sp.classList.add('hidden'); }
   }
 
   updateLbSeg();
