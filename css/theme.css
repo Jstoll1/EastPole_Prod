@@ -27,8 +27,8 @@
 [data-theme="light"] .ticker-wrap {
   background: #006747;
 }
-[data-theme="light"] .ticker-label { color: #ffffff; }
-[data-theme="light"] .ticker-content { color: rgba(255,255,255,0.9); }
+[data-theme="light"] .ticker-label { color: #1a2e1a; }
+[data-theme="light"] .ticker-content { color: #ffffff; }
 [data-theme="light"] .seg-btn { background: #f0f5f0; color: #5a6b5a; border-color: #d4ddd6; }
 [data-theme="light"] .seg-btn.active { background: #006747; color: #ffffff; border-color: #006747; }
 [data-theme="light"] .standing-row { border-bottom-color: #e8ede8; }
@@ -58,8 +58,8 @@
 [data-theme="light"] input, [data-theme="light"] select { background: #ffffff; color: #1a2e1a; border-color: #d4ddd6; }
 [data-theme="light"] .h2h-quick-btn { border-color: #006747; color: #006747; }
 [data-theme="light"] #team-dropdown { background: #ffffff; border-color: #d4ddd6; }
-[data-theme="light"] .tv-header-top { background: linear-gradient(180deg, #006747 0%, #004d35 100%); }
-[data-theme="light"] #view-leaderboard .tv-header-top { background: linear-gradient(180deg, #006747 0%, #004d35 100%); }
+[data-theme="light"] .tv-header-top { background: linear-gradient(180deg, #f0f5f0 0%, #e8ede8 100%); color: #1a2e1a; }
+[data-theme="light"] #view-leaderboard .tv-header-top { background: linear-gradient(180deg, #f0f5f0 0%, #e8ede8 100%); color: #1a2e1a; }
 [data-theme="light"] .tv-col-hdr { background: #eef3ee; color: #5a6b5a; border-bottom-color: #d4ddd6; }
 [data-theme="light"] .standing-row:nth-child(even) { background: #f8faf8; }
 [data-theme="light"] .standing-row:nth-child(odd) { background: #ffffff; }

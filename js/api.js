@@ -54,8 +54,8 @@ async function fetchESPN() {
       var dispVal = (c.status?.displayValue || '').toUpperCase();
       var stateDesc = (c.status?.type?.description || '').toUpperCase();
       var posName = (c.status?.position?.displayName || '').toUpperCase();
-      var wd = !isPreTournament && (state.includes('WD') || state.includes('WITHDRAW') || dispVal === 'WD' || stateDesc.includes('WITHDRAW') || posName === 'WD') || false;
-      var mc = !isPreTournament && !wd && (state.includes('CUT') || false);
+      var wd = !isPreTournament && (state.includes('WD') || state.includes('WITHDRAW') || dispVal === 'WD' || stateDesc.includes('WITHDRAW') || posName === 'WD');
+      var mc = !isPreTournament && !wd && state.includes('CUT');
       var scoreToPar = c.statistics?.find(function(s) { return s.name === 'scoreToPar'; });
       var score = wd ? 12 : mc ? 11 : (scoreToPar ? scoreToPar.value : 0);
       var lines = c.linescores || [];
@@ -87,7 +87,7 @@ async function fetchESPN() {
     });
     if (Object.keys(newChanges).length > 0) {
       SCORE_CHANGES = newChanges;
-      setTimeout(function() { SCORE_CHANGES = {}; renderAll(); }, 8000);
+      setTimeout(function() { SCORE_CHANGES = {}; renderLeaderboard(); }, 8000);
     } else if (!Object.keys(SCORE_CHANGES).length) {
       SCORE_CHANGES = {};
     }
@@ -223,21 +223,14 @@ async function fetchPlayerScorecard(playerName) {
     if (!res.ok) throw new Error('Scorecard API ' + res.status);
     var data = await res.json();
 
-    console.log('🔍 RAW linescores response for', playerName, JSON.stringify(data, null, 2).slice(0, 3000));
-
     var roundItems = data.items || [];
 
     var rounds = await Promise.all(roundItems.map(async function(r, ri) {
       var holeData = r.linescores || [];
 
-      console.log('🔍 Round', ri + 1, 'for', playerName, '- holes in linescores:', holeData.length,
-        '- has $ref keys:', Object.keys(r).filter(function(k) { return typeof r[k] === 'string' && r[k].includes('http'); }),
-        '- all keys:', Object.keys(r));
-
       if (holeData.length < 18) {
         var linesRef = r.linescores$ref || r.$ref || (r.linescores && r.linescores.$ref);
         if (linesRef) {
-          console.log('🔍 Found $ref for round', ri + 1, ':', linesRef);
           try {
             var refUrl = linesRef + (linesRef.includes('?') ? '&' : '?') + 'limit=25';
             var refRes = await fetch(refUrl);
@@ -245,7 +238,6 @@ async function fetchPlayerScorecard(playerName) {
               var refData = await refRes.json();
               if (refData.items && refData.items.length > holeData.length) {
                 holeData = refData.items;
-                console.log('✅ Resolved $ref: got', holeData.length, 'holes for round', ri + 1);
               }
             }
           } catch(e2) { ErrorTracker.api('Scorecard $ref fetch failed', { player: playerName, round: ri + 1, error: e2.message }); console.warn('⚠️ $ref fetch failed for round', ri + 1, e2.message); }

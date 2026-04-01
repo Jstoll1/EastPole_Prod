@@ -2739,6 +2739,7 @@ to  {
   max-height:65vh;
   display:flex; flex-direction:column;
   box-shadow:0 -8px 40px rgba(0,0,0,0.5);
+  padding-bottom:env(safe-area-inset-bottom);
 }
 #activity-drawer.open { transform:translateY(0); }
 .act-handle {
@@ -3030,7 +3031,7 @@ to  {
   cursor:pointer; letter-spacing:0.3px; margin-top:8px;
 }
 .fb-view-submit:active { opacity:0.8; }
-.fb-view-submit:disabled { opacity:0.5; cursor:default; }
+.fb-view-submit:disabled { opacity:0.4; cursor:default; background:#8a9a8a; color:#555; }
 .fb-view-success {
   display:none; text-align:center; padding:40px 16px; max-width:480px; margin:0 auto;
 }

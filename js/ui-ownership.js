@@ -1,6 +1,11 @@
 // ── Ownership View ──
 
 var ownFilter='most';
+var _ownSearchTimer = null;
+function debouncedOwnSearch() {
+  clearTimeout(_ownSearchTimer);
+  _ownSearchTimer = setTimeout(renderOwnership, 200);
+}
 
 function setOwnFilter(f,btn) {
   ownFilter=f;

@@ -15,7 +15,7 @@ function renderAll() {
   var view = document.getElementById('view-leaderboard');
   var ptr = document.getElementById('ptr-indicator');
   var ptrText = ptr.querySelector('.ptr-text');
-  var threshold = 60;
+  var threshold = 80;
   var startY = 0, pulling = false, armed = false, refreshing = false;
 
   view.addEventListener('touchstart', function(e) {

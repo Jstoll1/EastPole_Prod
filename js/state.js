@@ -260,7 +260,8 @@ var SPLASH_DATE_KEY = 'eastpole_splash_date';
 // Load round-start positions from localStorage
 try {
   var saved = JSON.parse(localStorage.getItem('eastpole_round_start') || '{}');
-  if (saved.round && saved.positions) { ROUND_START_POSITIONS = saved.positions; ROUND_START_ROUND = saved.round; }
+  var posAge = saved.timestamp ? Date.now() - saved.timestamp : Infinity;
+  if (saved.round && saved.positions && posAge < 18 * 60 * 60 * 1000) { ROUND_START_POSITIONS = saved.positions; ROUND_START_ROUND = saved.round; }
 } catch(e) {}
 
 function saveRoundStartPositions(round) {
@@ -270,7 +271,7 @@ function saveRoundStartPositions(round) {
     var p = parsePos(pair[1].pos);
     if (p) ROUND_START_POSITIONS[pair[0]] = p;
   });
-  try { localStorage.setItem('eastpole_round_start', JSON.stringify({ round: round, positions: ROUND_START_POSITIONS })); } catch(e) {}
+  try { localStorage.setItem('eastpole_round_start', JSON.stringify({ round: round, positions: ROUND_START_POSITIONS, timestamp: Date.now() })); } catch(e) {}
 }
 
 function shouldShowSplash() {
