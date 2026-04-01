@@ -17,7 +17,7 @@ function renderStandings() {
   // Payout cards
   var cardsEl = document.getElementById('standings-cards');
   cardsEl.innerHTML = POOL_CONFIG.payouts.map(function(p, i) {
-    var holder = ranked[i] ? ranked[i].team : '—';
+    var holder = !TOURNAMENT_STARTED ? '—' : (ranked[i] ? ranked[i].team : '—');
     var isGold = i === 0;
     return '<div class="payout-card ' + (isGold ? 'gold' : '') + '">' +
       '<div class="pc-lbl">' + p.place + '</div>' +
