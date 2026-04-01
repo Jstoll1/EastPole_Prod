@@ -92,6 +92,10 @@ function switchTab(name, btn) {
   document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
   document.getElementById('view-' + name).classList.add('active');
   btn.classList.add('active');
+  // Flip ticker based on tab
+  var wantMode = (name === 'leaderboard' || name === 'ownership') ? 'golfers' : 'entries';
+  if (_tickerMode !== wantMode) toggleTickerMode();
+
   if (name === 'leaderboard') {
     lbSort = 'score'; lbSortAsc = true; lbFilter = 'all';
     var search = document.getElementById('lb-search');
