@@ -44,7 +44,12 @@ function renderActivityList() {
     ? ACTIVITY_LOG.filter(function(a) { return myPicks.has(a.player); })
     : ACTIVITY_LOG;
   if (!items.length) {
-    el.innerHTML = '<div class="act-empty">No activity yet for your golfers. Updates appear as they complete holes.</div>';
+    el.innerHTML = '<div class="act-empty">' +
+      '<div style="font-size:24px;margin-bottom:12px">⚡</div>' +
+      '<div style="font-weight:700;color:var(--text);margin-bottom:8px">Live Hole-by-Hole Feed</div>' +
+      '<div>Your entries\' golfers will show up here as they complete each hole during the round.</div>' +
+      '<div style="margin-top:12px;font-size:12px;color:var(--text3);font-style:italic">' +
+      'The broadcast won\'t show every shot — but this will. Birdies, bogeys, eagles — as they happen.</div></div>';
     return;
   }
   el.innerHTML = items.map(function(a) {
@@ -77,15 +82,17 @@ function detectGolfActivity(freshScores) {
     var holePar = holeNum ? (pars[holeNum - 1] || 4) : 4;
     var flag = FLAGS[name] || '';
     var icon, label;
-    if (diff <= -3) { icon = '🦅🦅'; label = 'albatross on'; }
+    if (diff <= -3) { icon = '🦅🦅'; label = 'albatross'; }
     else if (diff === -2) { icon = '🦅'; label = 'eagles'; }
     else if (diff === -1) { icon = '🐦'; label = 'birdies'; }
     else if (diff === 1) { icon = '🟡'; label = 'bogeys'; }
     else if (diff === 2) { icon = '🔴'; label = 'double bogeys'; }
-    else { icon = '⛔'; label = 'makes +' + diff + ' on'; }
-    var holeStr = holeNum ? ' hole ' + holeNum + ' (par ' + holePar + ')' : '';
-    var scoreStr = ' — now <strong>' + fmt(d.score) + '</strong> thru ' + (d.thru || '?');
-    addActivity(icon, '<strong>' + flag + ' ' + name + '</strong> ' + label + holeStr + scoreStr, name);
+    else { icon = '⛔'; label = '+' + diff + ' on'; }
+    var holeStr = holeNum ? ' #' + holeNum : '';
+    var parStr = holeNum ? ' <span style="color:var(--text3);font-size:11px">(Par ' + holePar + ')</span>' : '';
+    var todayStr = d.todayDisplay && d.todayDisplay !== '—' ? d.todayDisplay : '';
+    var statusStr = ' <span style="color:var(--text2)">— <strong>' + fmt(d.score) + '</strong>' + (todayStr ? ' (' + todayStr + ' today)' : '') + '</span>';
+    addActivity(icon, '<strong>' + flag + ' ' + name + '</strong> ' + label + holeStr + parStr + statusStr, name);
   });
 }
 
