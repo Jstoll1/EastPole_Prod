@@ -86,7 +86,10 @@ var ENTRIES = [
   { team:'Texas Cake', name:'Jake', email:'jhs797@gmail.com', picks:['Jordan Spieth','Sepp Straka','Thorbjorn Olesen','Brian Harman','Haotong Li','Eric Cole'], tb:-26 },
   { team:'Loves2Splooge_69', name:'Tyler D', email:'tdewitt815@gmail.com', picks:['Si Woo Kim','Ryo Hisatsune','Marco Penge','Sudarshan Yellamaraju','Haotong Li','Zecheng Dou'], tb:-11 },
   { team:'Gooey Bellies', name:'Tyler D', email:'tdewitt815@gmail.com', picks:['Jordan Spieth','Rickie Fowler','Denny McCarthy','Will Zalatoris','Tom Kim','Beau Hossler'], tb:-19 },
-  { team:'0.00% BAC', name:'Andrew Steioff', email:'andrewsteioff@gmail.com', picks:['Tommy Fleetwood','J.J. Spaun','Marco Penge','Tony Finau','Chris Kirk','Max Homa'], tb:-14 }
+  { team:'0.00% BAC', name:'Andrew Steioff', email:'andrewsteioff@gmail.com', picks:['Tommy Fleetwood','J.J. Spaun','Marco Penge','Tony Finau','Chris Kirk','Max Homa'], tb:-14 },
+  { team:'Jules Test', name:'Jules Tompkins', email:'ajulestompkins@gmail.com', picks:['Robert MacIntyre','Rickie Fowler','Marco Penge','Brian Harman','Tom Kim','Max Homa'], tb:-14 },
+  { team:'Art VandeLayup', name:'Tyler C', email:'tycon0612@gmail.com', picks:['Ludvig Aberg','Keith Mitchell','Marco Penge','Tony Finau','Haotong Li','Max Homa'], tb:-16 },
+  { team:'Art VandeLayup 2', name:'Tyler C', email:'tycon0612@gmail.com', picks:['Tommy Fleetwood','Rickie Fowler','Denny McCarthy','Sudarshan Yellamaraju','Chris Kirk','Jhonattan Vegas'], tb:-18 }
 ];
 
 var FLAGS = {
