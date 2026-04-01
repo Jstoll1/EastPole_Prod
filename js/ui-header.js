@@ -258,7 +258,7 @@ function confirmOnboarding() {
   if (!obSelectedEmail) return;
   hideOnboarding();
   try {
-    setUser(obSelectedEmail, 0, true);
+    setUser(obSelectedEmail, -1, true);
     trackEvent('user-login');
     showToast('✓ Team locked in');
   } catch(e) { console.error('setUser error:', e); }

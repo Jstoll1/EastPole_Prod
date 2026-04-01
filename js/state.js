@@ -286,7 +286,7 @@ function loadUser() {
   try {
     var s = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
     if (s?.email && ENTRIES.some(function(e) { return e.email === s.email; })) {
-      setUser(s.email, s.activeTeamIdx || 0, false);
+      setUser(s.email, s.activeTeamIdx != null ? s.activeTeamIdx : -1, false);
       return true;
     }
   } catch(e) {}
