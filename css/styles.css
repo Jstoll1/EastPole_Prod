@@ -1036,6 +1036,10 @@ html, body  {
 }
 .ticker-item-score.sc-red { color: #FF7F7F; }
 .ticker-item-score.sc-green { color: var(--gold); }
+.ticker-pool-dot {
+  display:inline-block; width:5px; height:5px; border-radius:50%;
+  background:var(--gold); margin-left:3px; vertical-align:middle;
+}
 
 .tv-title  {
   font-size: 12px;

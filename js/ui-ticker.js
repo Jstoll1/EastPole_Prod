@@ -20,12 +20,14 @@ function renderTicker() {
   if (_tickerMode === 'golfers') {
     var players = Object.entries(GOLFER_SCORES).map(function(pair) { return Object.assign({ name: pair[0] }, pair[1]); });
     players.sort(function(a, b) { return a.score - b.score; });
+    var poolNames = new Set(ENTRIES.flatMap(function(e) { return e.picks; }));
     var active = players.filter(function(p) { return p.score < 11; });
     items = active.map(function(p) {
       var scf = fmt(p.score);
       var scc = cls(p.score);
       var flag = FLAGS[p.name] || '';
-      return '<span class="ticker-item"><span class="ticker-item-rank">' + p.pos + '</span> <span>' + flag + ' ' + p.name + '</span> <span class="ticker-item-score ' + scc + '">' + scf + '</span></span>';
+      var dot = poolNames.has(p.name) ? '<span class="ticker-pool-dot"></span>' : '';
+      return '<span class="ticker-item"><span class="ticker-item-rank">' + p.pos + '</span> <span>' + flag + ' ' + p.name + dot + '</span> <span class="ticker-item-score ' + scc + '">' + scf + '</span></span>';
     }).join('');
   } else {
     var ranked = getRanked();
