@@ -18,16 +18,34 @@ function renderTicker() {
   var prevScroll = track ? track.scrollLeft : 0;
   var items;
   if (_tickerMode === 'golfers') {
-    var players = Object.entries(GOLFER_SCORES).map(function(pair) { return Object.assign({ name: pair[0] }, pair[1]); });
-    players.sort(function(a, b) { return a.score - b.score; });
     var poolNames = new Set(ENTRIES.flatMap(function(e) { return e.picks; }));
+    var players = Object.entries(GOLFER_SCORES).map(function(pair) { return Object.assign({ name: pair[0] }, pair[1]); });
+    // If GOLFER_SCORES is sparse, supplement from FLAGS
+    if (players.length < 10) {
+      Object.keys(FLAGS).forEach(function(name) {
+        if (!GOLFER_SCORES[name]) {
+          players.push({ name: name, pos: '—', score: 0, thru: '—' });
+        }
+      });
+    }
+    players.sort(function(a, b) {
+      // Sort by odds pre-tournament if available
+      if (PRE_ODDS[a.name] && PRE_ODDS[b.name]) {
+        var oa = parseInt(PRE_ODDS[a.name][0].replace('+','')) || 999999;
+        var ob = parseInt(PRE_ODDS[b.name][0].replace('+','')) || 999999;
+        if (oa !== ob) return oa - ob;
+      }
+      return a.score - b.score;
+    });
     var active = players.filter(function(p) { return p.score < 11; });
     items = active.map(function(p) {
       var scf = fmt(p.score);
       var scc = cls(p.score);
       var flag = FLAGS[p.name] || '';
       var dot = poolNames.has(p.name) ? '<span class="ticker-pool-dot"></span>' : '';
-      return '<span class="ticker-item"><span class="ticker-item-rank">' + p.pos + '</span> <span>' + flag + ' ' + p.name + dot + '</span> <span class="ticker-item-score ' + scc + '">' + scf + '</span></span>';
+      var odds = PRE_ODDS[p.name] ? PRE_ODDS[p.name][0] : '';
+      var oddsHtml = odds && !TOURNAMENT_STARTED ? ' <span style="color:var(--gold);font-size:9px">' + odds + '</span>' : '';
+      return '<span class="ticker-item"><span class="ticker-item-rank">' + p.pos + '</span> <span>' + flag + ' ' + p.name + dot + '</span>' + oddsHtml + ' <span class="ticker-item-score ' + scc + '">' + scf + '</span></span>';
     }).join('');
   } else {
     var ranked = getRanked();
@@ -58,7 +76,7 @@ function startTickerScroll() {
     var half = content.scrollWidth / 2;
     track.scrollLeft += 1;
     if (track.scrollLeft >= half) track.scrollLeft -= half;
-  }, 30);
+  }, 16);
 }
 
 var _tickerMouseDrag = false, _tickerMouseX = 0, _tickerMouseScroll = 0;

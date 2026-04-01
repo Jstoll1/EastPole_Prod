@@ -92,8 +92,8 @@ function switchTab(name, btn) {
   document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
   document.getElementById('view-' + name).classList.add('active');
   btn.classList.add('active');
-  toggleTickerMode();
   if (name === 'leaderboard') {
+    toggleTickerMode();
     lbSort = 'score'; lbSortAsc = true; lbFilter = 'all';
     var search = document.getElementById('lb-search');
     if (search) search.value = '';
