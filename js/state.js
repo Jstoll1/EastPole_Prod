@@ -81,9 +81,9 @@ window.addEventListener('unhandledrejection', function(e) {
 // ╚══════════════════════════════════════════════════════════════╝
 
 var ENTRIES = [
-  { team:'Shark Select', name:'Jake', email:'jhs797@gmail.com', picks:['Collin Morikawa','Sepp Straka','Marco Penge','Tony Finau','Mac Meissner','S.H. Kim'], tb:-24 },
+  { team:'Shark Select', name:'Jake', email:'jhs797@gmail.com', picks:['Ludvig Aberg','Sepp Straka','Marco Penge','Tony Finau','Mac Meissner','S.H. Kim'], tb:-24 },
   { team:'Maverick & Goose', name:'Jake', email:'jhs797@gmail.com', picks:['Maverick McNealy','Rickie Fowler','Denny McCarthy','Christiaan Bezuidenhout','Bud Cauley','Mackenzie Hughes'], tb:-28 },
-  { team:'Texas Cake', name:'Jake', email:'jhs797@gmail.com', picks:['Jordan Spieth','Daniel Berger','Thorbjorn Olesen','Brian Harman','Haotong Li','Eric Cole'], tb:-26 },
+  { team:'Texas Cake', name:'Jake', email:'jhs797@gmail.com', picks:['Jordan Spieth','Sepp Straka','Thorbjorn Olesen','Brian Harman','Haotong Li','Eric Cole'], tb:-26 },
   { team:'Loves2Splooge_69', name:'Tyler D', email:'tdewitt815@gmail.com', picks:['Si Woo Kim','Ryo Hisatsune','Marco Penge','Sudarshan Yellamaraju','Haotong Li','Zecheng Dou'], tb:-11 },
   { team:'Gooey Bellies', name:'Tyler D', email:'tdewitt815@gmail.com', picks:['Jordan Spieth','Rickie Fowler','Denny McCarthy','Will Zalatoris','Tom Kim','Beau Hossler'], tb:-19 },
   { team:'0.00% BAC', name:'Andrew Steioff', email:'andrewsteioff@gmail.com', picks:['Tommy Fleetwood','J.J. Spaun','Marco Penge','Tony Finau','Chris Kirk','Max Homa'], tb:-14 }
