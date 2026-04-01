@@ -2144,6 +2144,11 @@ to  {
   color: #300505;
 }
 
+.pill-c  {
+  background: #C8A2F5;
+  color: #1a0530;
+}
+
 .my-teams-block {
   margin: 8px 14px 6px;
   background: linear-gradient(135deg, rgba(212,168,67,0.08), rgba(212,168,67,0.02));
