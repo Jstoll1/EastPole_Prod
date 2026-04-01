@@ -8,9 +8,11 @@ function renderAll() {
   renderTicker();
   if (compareMode && cmpSelections.length === 2) renderH2HInline();
   if (_debugOpen) renderDebugPanel();
-  // Hide ownership tab pre-tournament
+  // Hide ownership tab and compare button pre-tournament
   var ownBtn = document.querySelector('.nav-btn[onclick*="ownership"]');
   if (ownBtn) ownBtn.style.display = TOURNAMENT_STARTED ? '' : 'none';
+  var cmpBtn = document.getElementById('cmp-toggle');
+  if (cmpBtn) cmpBtn.style.display = TOURNAMENT_STARTED ? '' : 'none';
 }
 
 // Pull-to-refresh for leaderboard
