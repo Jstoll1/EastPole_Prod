@@ -140,7 +140,8 @@ var TIERS = [];
 var NAME_ALIASES = {
   'Hao-Tong Li':'Haotong Li',
   'Seonghyeon Kim':'S.H. Kim',
-  'Thorbjørn Olesen':'Thorbjorn Olesen'
+  'Thorbjørn Olesen':'Thorbjorn Olesen',
+  'Ludvig Åberg':'Ludvig Aberg'
 };
 var FLAG_TO_CODE = {'🇺🇸':'USA','🇦🇺':'AUS','🇰🇷':'KOR','🇨🇦':'CAN','🇿🇦':'RSA','🇩🇰':'DEN','🇸🇪':'SWE','🇫🇷':'FRA','🇯🇵':'JPN','🇮🇪':'IRL','🇧🇪':'BEL','🇦🇷':'ARG','🇹🇼':'TPE','🇻🇪':'VEN','🇵🇭':'PHI','🇵🇷':'PUR','🇩🇪':'GER','🇳🇿':'NZL','🇨🇴':'COL','🇨🇳':'CHN','🇳🇴':'NOR','🏴󠁧󠁢󠁥󠁮󠁧󠁿':'ENG','🏳️':'—'};
 
