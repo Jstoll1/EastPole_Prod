@@ -156,7 +156,7 @@ html, body  {
 
 #views  {
   position: fixed;
-  top: calc(var(--header-h) + var(--safe-top) + 2px + 28px);
+  top: calc(var(--header-h) + var(--safe-top) + 22px);
   bottom: calc(var(--nav-h) + var(--safe-bot));
   left: 0;
   right: 0;
@@ -970,7 +970,7 @@ html, body  {
 
 .ticker-wrap {
   position: fixed;
-  top: calc(var(--header-h) + var(--safe-top) + 2px);
+  top: calc(var(--header-h) + var(--safe-top));
   left: 0;
   right: 0;
   z-index: 90;
@@ -980,7 +980,7 @@ html, body  {
   border-top: 1px solid rgba(212,168,67,0.15);
   border-bottom: 1px solid rgba(212,168,67,0.15);
   overflow: hidden;
-  height: 28px;
+  height: 22px;
 }
 .ticker-label {
   flex-shrink: 0;
