@@ -97,7 +97,7 @@ var FLAGS = {
   'Ryo Hisatsune':'🇯🇵','J.J. Spaun':'🇺🇸','Alex Noren':'🇸🇪',
   'Denny McCarthy':'🇺🇸','Nick Taylor':'🇨🇦','Alex Smalley':'🇺🇸',
   'Marco Penge':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','John Keefer':'🇺🇸','Jordan Smith':'🏴󠁧󠁢󠁥󠁮󠁧󠁿',
-  'Sudarshan Yellamaraju':'🇮🇳','Stephan Jaeger':'🇩🇪','Thorbjorn Olesen':'🇩🇰',
+  'Sudarshan Yellamaraju':'🇨🇦','Stephan Jaeger':'🇩🇪','Thorbjorn Olesen':'🇩🇰',
   'Brian Harman':'🇺🇸','Will Zalatoris':'🇺🇸','Davis Thompson':'🇺🇸',
   'Tony Finau':'🇺🇸','Rico Hoey':'🇵🇭','Christiaan Bezuidenhout':'🇿🇦',
   'Matt Wallace':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','J.T. Poston':'🇺🇸','Mackenzie Hughes':'🇨🇦',
