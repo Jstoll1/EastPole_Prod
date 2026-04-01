@@ -82,7 +82,6 @@ function initTheme() {
 var _prevTab = 'leaderboard';
 
 function switchTab(name, btn) {
-  if (name === 'live' && !_roundLive && ACTIVITY_LOG.length === 0) return;
   trackEvent('tab-' + name);
   // Remember previous tab (but not feedback itself)
   var cur = document.querySelector('.view.active');
@@ -102,12 +101,6 @@ function switchTab(name, btn) {
     updateLbSeg();
     renderLeaderboard();
     document.getElementById('view-leaderboard').scrollTo({ top: 0, behavior: 'smooth' });
-  }
-  if (name === 'live') {
-    populateLiveEntryFilter();
-    _actUnseen = 0;
-    try { localStorage.setItem(_ACT_SEEN_KEY, String(Date.now())); } catch(e) {}
-    renderActivityList();
   }
 }
 

@@ -1,13 +1,14 @@
-// ── Activity / Live Feed Tab ──────────────────────────────
+// ── Activity / Live Feed Drawer ───────────────────────────
 // Shows hole-by-hole updates for the current user's golfers.
 // Persisted to localStorage so feed survives refreshes.
 
 var ACTIVITY_LOG = [];
 var MAX_ACTIVITY = 300;
+var _actOpen = false;
 var _actUnseen = 0;
+var _roundLive = false;
 var _ACT_STORAGE_KEY = 'eastpole_activity';
 var _ACT_SEEN_KEY = 'eastpole_activity_seen';
-var _roundLive = false;
 
 // Load persisted activity on startup
 (function() {
@@ -28,26 +29,30 @@ function addActivity(icon, text, playerName, type) {
   ACTIVITY_LOG.unshift({ icon: icon, text: text, player: playerName, type: type || '', time: Date.now() });
   if (ACTIVITY_LOG.length > MAX_ACTIVITY) ACTIVITY_LOG = ACTIVITY_LOG.slice(0, MAX_ACTIVITY);
   _saveActivity();
-  _actUnseen++;
-  var liveView = document.getElementById('view-live');
-  if (liveView && liveView.classList.contains('active')) {
+  if (!_actOpen) _actUnseen++;
+  if (_actOpen) renderActivityList();
+}
+
+function toggleActivityDrawer() {
+  if (!_actOpen) trackEvent('activity-open');
+  _actOpen = !_actOpen;
+  document.getElementById('activity-drawer').classList.toggle('open', _actOpen);
+  document.getElementById('activity-overlay').classList.toggle('open', _actOpen);
+  if (_actOpen) {
     _actUnseen = 0;
     try { localStorage.setItem(_ACT_SEEN_KEY, String(Date.now())); } catch(e) {}
+    populateLiveEntryFilter();
+    renderActivityList();
   }
-  renderActivityList();
 }
 
 function updateLiveTab() {
-  var btn = document.getElementById('nav-live');
-  var dot = document.getElementById('live-dot');
-  if (!btn) return;
+  var fab = document.getElementById('activity-fab');
+  if (!fab) return;
   if (_roundLive) {
-    btn.classList.remove('disabled');
-    if (dot) dot.classList.add('active');
+    fab.classList.add('live');
   } else {
-    btn.classList.add('disabled');
-    if (dot) dot.classList.remove('active');
-    // If currently on live tab and round ends, stay but show message
+    fab.classList.remove('live');
   }
 }
 
@@ -82,15 +87,15 @@ function renderActivityList() {
   if (!items.length) {
     var msg = !_roundLive
       ? '<div class="act-empty">' +
-        '<div style="font-size:24px;margin-bottom:12px">⚡</div>' +
-        '<div style="font-weight:700;color:var(--text);margin-bottom:8px">Live Hole-by-Hole Feed</div>' +
-        '<div>Your entries\' golfers will show up here as they complete each hole during the round.</div>' +
-        '<div style="margin-top:12px;font-size:12px;color:var(--text3);font-style:italic">' +
-        'The broadcast won\'t show every shot — but this will. Birdies, bogeys, eagles — as they happen.</div></div>'
+        '<div style="font-size:36px;margin-bottom:16px">⚡</div>' +
+        '<div style="font-weight:800;color:var(--text);margin-bottom:10px;font-size:16px">Live Hole-by-Hole Feed</div>' +
+        '<div style="line-height:1.6">Your entries\' golfers will show up here as they complete each hole during the round.</div>' +
+        '<div style="margin-top:16px;font-size:13px;color:var(--gold);font-weight:600">' +
+        'The broadcast won\'t show every shot — but this will.</div></div>'
       : '<div class="act-empty">' +
-        '<div style="font-size:24px;margin-bottom:12px">⚡</div>' +
-        '<div style="font-weight:700;color:var(--text);margin-bottom:8px">Waiting for updates…</div>' +
-        '<div>Scores will appear here as your golfers complete holes.</div></div>';
+        '<div style="font-size:36px;margin-bottom:16px">⚡</div>' +
+        '<div style="font-weight:800;color:var(--text);margin-bottom:10px;font-size:16px">Waiting for updates…</div>' +
+        '<div style="line-height:1.6">Scores will appear here as your golfers complete holes.</div></div>';
     el.innerHTML = msg;
     return;
   }
@@ -105,11 +110,8 @@ function renderActivityList() {
   }).join('');
 }
 
-// Update time-ago labels every 15s when live tab is visible
-setInterval(function() {
-  var liveView = document.getElementById('view-live');
-  if (liveView && liveView.classList.contains('active')) renderActivityList();
-}, 15000);
+// Update time-ago labels every 15s when drawer is open
+setInterval(function() { if (_actOpen) renderActivityList(); }, 15000);
 
 function setRoundLive(isLive) {
   _roundLive = isLive;

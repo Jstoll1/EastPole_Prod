@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="East Pole Golf">
 <title>East Pole Golf Pool</title>
 <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-<link rel="stylesheet" href="./css/styles.css?v=20">
+<link rel="stylesheet" href="./css/styles.css?v=21">
 <link rel="stylesheet" href="./css/theme.css">
 <script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -159,18 +159,6 @@
 <div id="ownership-list">
 </div>
 </div>
-<div class="view" id="view-live" style="padding-bottom:100px">
-<div class="live-header">
-<div class="live-header-top">
-<div class="live-title">⚡ Live Feed</div>
-<div class="live-status" id="live-status-pill">Pre-Tournament</div>
-</div>
-<select id="live-entry-filter" class="live-filter" onchange="renderActivityList()">
-<option value="all">All My Entries</option>
-</select>
-</div>
-<div class="act-list" id="act-list"></div>
-</div>
 <div class="view" id="view-feedback" style="padding-bottom:100px">
 <div class="fb-view-header">
 <span class="fb-view-title">Feedback</span>
@@ -224,12 +212,6 @@
 <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
 <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
 </svg> Standings </button>
-<button class="nav-btn nav-live" id="nav-live" onclick="switchTab('live',this)">
-<svg viewBox="0 0 24 24">
-<circle cx="12" cy="18" r="2"/>
-<path d="M7.05 13.05A7 7 0 0 1 12 11a7 7 0 0 1 4.95 2.05"/>
-<path d="M3.34 9.34A12 12 0 0 1 12 6a12 12 0 0 1 8.66 3.34"/>
-</svg><span class="nav-live-label">Live<span class="live-dot" id="live-dot"></span></span></button>
 <button class="nav-btn" onclick="switchTab('ownership',this)">
 <svg viewBox="0 0 24 24">
 <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z"/>
@@ -241,6 +223,21 @@
 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
 </svg> Feedback </button>
 </nav>
+<button id="activity-fab" onclick="toggleActivityDrawer()">⚡</button>
+<div id="activity-overlay" onclick="toggleActivityDrawer()"></div>
+<div id="activity-drawer">
+<div class="act-handle"></div>
+<div class="live-header">
+<div class="live-header-top">
+<div class="live-title">⚡ Live Feed</div>
+<div class="live-status" id="live-status-pill">Pre-Tournament</div>
+</div>
+<select id="live-entry-filter" class="live-filter" onchange="renderActivityList()">
+<option value="all">All My Entries</option>
+</select>
+</div>
+<div class="act-list" id="act-list"></div>
+</div>
 </div>
 </div>
 </div>
@@ -267,18 +264,18 @@
 </div>
 
 <!-- Module Scripts (deferred) -->
-<script defer src="./js/state.js?v=20"></script>
-<script defer src="./js/utils.js?v=20"></script>
-<script defer src="./js/api.js?v=20"></script>
-<script defer src="./js/ui-header.js?v=20"></script>
-<script defer src="./js/ui-standings.js?v=20"></script>
-<script defer src="./js/ui-leaderboard.js?v=20"></script>
-<script defer src="./js/ui-scorecard.js?v=20"></script>
-<script defer src="./js/ui-compare.js?v=20"></script>
-<script defer src="./js/ui-ownership.js?v=20"></script>
-<script defer src="./js/ui-activity.js?v=20"></script>
-<script defer src="./js/ui-ticker.js?v=20"></script>
-<script defer src="./js/ui-debug.js?v=20"></script>
-<script defer src="./js/app.js?v=20"></script>
+<script defer src="./js/state.js?v=21"></script>
+<script defer src="./js/utils.js?v=21"></script>
+<script defer src="./js/api.js?v=21"></script>
+<script defer src="./js/ui-header.js?v=21"></script>
+<script defer src="./js/ui-standings.js?v=21"></script>
+<script defer src="./js/ui-leaderboard.js?v=21"></script>
+<script defer src="./js/ui-scorecard.js?v=21"></script>
+<script defer src="./js/ui-compare.js?v=21"></script>
+<script defer src="./js/ui-ownership.js?v=21"></script>
+<script defer src="./js/ui-activity.js?v=21"></script>
+<script defer src="./js/ui-ticker.js?v=21"></script>
+<script defer src="./js/ui-debug.js?v=21"></script>
+<script defer src="./js/app.js?v=21"></script>
 </body>
 </html>
