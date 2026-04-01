@@ -1,15 +1,34 @@
 // ── Activity Tracker ──────────────────────────────────────
-// Shows hole-by-hole updates for the current user's golfers only.
-// Sorted newest first. No TTL expiry — persists for the session.
+// Shows hole-by-hole updates for the current user's golfers.
+// Persisted to localStorage so feed survives refreshes.
 
 var ACTIVITY_LOG = [];
-var MAX_ACTIVITY = 200;
+var MAX_ACTIVITY = 300;
 var _actOpen = false;
 var _actUnseen = 0;
+var _ACT_STORAGE_KEY = 'eastpole_activity';
+var _ACT_SEEN_KEY = 'eastpole_activity_seen';
+
+// Load persisted activity on startup
+(function() {
+  try {
+    var saved = JSON.parse(localStorage.getItem(_ACT_STORAGE_KEY) || '[]');
+    var cutoff = Date.now() - 24 * 60 * 60 * 1000;
+    ACTIVITY_LOG = saved.filter(function(a) { return a.time > cutoff; });
+    var lastSeen = parseInt(localStorage.getItem(_ACT_SEEN_KEY) || '0');
+    _actUnseen = ACTIVITY_LOG.filter(function(a) { return a.time > lastSeen; }).length;
+    updateActBadge();
+  } catch(e) { ACTIVITY_LOG = []; }
+})();
+
+function _saveActivity() {
+  try { localStorage.setItem(_ACT_STORAGE_KEY, JSON.stringify(ACTIVITY_LOG)); } catch(e) {}
+}
 
 function addActivity(icon, text, playerName) {
   ACTIVITY_LOG.unshift({ icon: icon, text: text, player: playerName, time: Date.now() });
-  if (ACTIVITY_LOG.length > MAX_ACTIVITY) ACTIVITY_LOG.pop();
+  if (ACTIVITY_LOG.length > MAX_ACTIVITY) ACTIVITY_LOG = ACTIVITY_LOG.slice(0, MAX_ACTIVITY);
+  _saveActivity();
   if (!_actOpen) {
     _actUnseen++;
     updateActBadge();
@@ -32,6 +51,7 @@ function toggleActivityDrawer() {
   if (_actOpen) {
     _actUnseen = 0;
     updateActBadge();
+    try { localStorage.setItem(_ACT_SEEN_KEY, String(Date.now())); } catch(e) {}
     renderActivityList();
   }
 }
