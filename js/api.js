@@ -171,7 +171,7 @@ function setApiStatus(state, text) {
   dot.className = 'live-dot' + (state === 'live' ? ' on' : '');
   document.getElementById('hdr-status').textContent = text;
   var ticker = document.querySelector('.ticker-label');
-  if (ticker) ticker.textContent = state === 'live' ? 'LIVE' : (state === 'between' ? 'STANDINGS' : 'STANDINGS');
+  if (ticker) ticker.textContent = state === 'live' ? 'LIVE' : (_tickerMode === 'entries' ? 'POOL' : 'FIELD');
 }
 
 function refreshData() { setApiStatus('', 'Refreshing…'); fetchESPN(); }
