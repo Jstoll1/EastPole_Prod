@@ -18,6 +18,14 @@ function renderStandings() {
   var cardsEl = document.getElementById('standings-cards');
   cardsEl.innerHTML = POOL_CONFIG.payouts.map(function(p, i) {
     var holder = !TOURNAMENT_STARTED ? '—' : (ranked[i] ? ranked[i].team : '—');
+    if (TOURNAMENT_STARTED) {
+      var maxCompleted = 0;
+      Object.values(GOLFER_SCORES).forEach(function(gd) {
+        var cnt = [gd.r1,gd.r2,gd.r3,gd.r4].filter(function(r){return r!=null && r>50;}).length;
+        if (cnt > maxCompleted) maxCompleted = cnt;
+      });
+      if (maxCompleted < 2) holder = 'In Progress';
+    }
     var isGold = i === 0;
     return '<div class="payout-card ' + (isGold ? 'gold' : '') + '">' +
       '<div class="pc-lbl">' + p.place + '</div>' +
@@ -68,7 +76,15 @@ function renderStandings() {
     var cmpBadge = isCmpSelected ? '<span class="cmp-badge">' + cmpNum + '</span>' : '';
     var teamHolesLeft = e.picks.reduce(function(sum, p) { return sum + getHolesRemaining(p); }, 0);
     var rowClick = compareMode ? 'cmpSelectTeam(' + entryIdx + ')' : 'togglePanel(this,' + i + ')';
-    html += ' <div class="standing-row ' + isMyTeam + cmpCls + cmpSelCls + '" onclick="' + rowClick + '"> <div class="s-rank">' + rank + '</div> <div class="s-info"> <div class="s-team">' + e.team + cmpBadge + '</div> <div class="s-name">' + e.name + tbTag + '</div> </div> <div class="s-score ' + scc + '">' + scf + '</div> <div class="s-arrow" id="arr-' + i + '">' + (compareMode ? '' : '›') + '</div> </div> <div class="picks-panel" id="panel-' + i + '"> ' + e.scores.map(function(g, j) {
+    // Movement badge within current round
+    var prevRk = PREV_RANKS[e.team];
+    var moveBadge = '';
+    if (TOURNAMENT_STARTED && prevRk && prevRk !== rank) {
+      var mv = prevRk - rank;
+      if (mv >= 3) moveBadge = '<span class="s-mover up">🔥 +' + mv + '</span>';
+      else if (mv <= -3) moveBadge = '<span class="s-mover dn">🧊 ' + mv + '</span>';
+    }
+    html += ' <div class="standing-row ' + isMyTeam + cmpCls + cmpSelCls + '" onclick="' + rowClick + '"> <div class="s-rank">' + rank + '</div> <div class="s-info"> <div class="s-team">' + e.team + cmpBadge + moveBadge + '</div> <div class="s-name">' + e.name + tbTag + '</div> </div> <div class="s-score ' + scc + '">' + scf + '</div> <div class="s-arrow" id="arr-' + i + '">' + (compareMode ? '' : '›') + '</div> </div> <div class="picks-panel" id="panel-' + i + '"> ' + e.scores.map(function(g, j) {
       var isTop = j < 4;
       var gd = GOLFER_SCORES[g.name];
       var preT = !TOURNAMENT_STARTED;

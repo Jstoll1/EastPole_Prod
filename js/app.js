@@ -43,6 +43,16 @@ function renderAll() {
     }
   }, { passive: true });
 
+  function cancelPull() {
+    if (!pulling) return;
+    pulling = false;
+    armed = false;
+    ptr.classList.add('releasing');
+    ptr.style.height = '0px';
+    setTimeout(function() { ptr.classList.remove('releasing', 'armed'); }, 300);
+  }
+  view.addEventListener('touchcancel', cancelPull, { passive: true });
+
   view.addEventListener('touchend', function() {
     if (!pulling) return;
     pulling = false;

@@ -109,6 +109,7 @@ function initTickerTouch() {
   }
   track.addEventListener('touchstart', pause, { passive: true });
   track.addEventListener('touchend', function() { clearTimeout(_tickerResumeT); _tickerPaused = false; }, { passive: true });
+  track.addEventListener('touchcancel', function() { clearTimeout(_tickerResumeT); _tickerPaused = false; }, { passive: true });
   track.addEventListener('mousedown', function(e) {
     _tickerMouseDrag = true;
     _tickerMouseX = e.clientX;

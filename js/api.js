@@ -181,9 +181,16 @@ var _autoRefresh = null;
 function startAutoRefresh() {
   if (_autoRefresh) return;
   _autoRefresh = setInterval(function() {
-    console.log('🔄 Auto-refresh…');
+    if (document.hidden) return;
     fetchESPN();
   }, 60000);
+
+  // Refresh immediately when user returns to tab
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden && lastFetchTime && (Date.now() - lastFetchTime > 30000)) {
+      fetchESPN();
+    }
+  });
 }
 
 function stopAutoRefresh() { clearInterval(_autoRefresh); _autoRefresh = null; }

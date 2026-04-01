@@ -14,7 +14,7 @@ var _ACT_SEEN_KEY = 'eastpole_activity_seen';
 (function() {
   try {
     var saved = JSON.parse(localStorage.getItem(_ACT_STORAGE_KEY) || '[]');
-    var cutoff = Date.now() - 24 * 60 * 60 * 1000;
+    var cutoff = Date.now() - 96 * 60 * 60 * 1000;
     ACTIVITY_LOG = saved.filter(function(a) { return a.time > cutoff; });
     var lastSeen = parseInt(localStorage.getItem(_ACT_SEEN_KEY) || '0');
     _actUnseen = ACTIVITY_LOG.filter(function(a) { return a.time > lastSeen; }).length;
