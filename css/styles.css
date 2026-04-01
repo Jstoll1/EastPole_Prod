@@ -649,6 +649,9 @@ html, body  {
 .standing-row:active  {
   background: var(--card2);
 }
+.standing-row.locked { cursor: default; }
+.standing-row.locked:active { background: inherit; }
+.standing-row.locked .s-arrow { font-size: 12px; opacity: 0.4; }
 
 .s-rank  {
   width: 40px;

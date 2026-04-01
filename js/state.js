@@ -177,6 +177,7 @@ var ROUND_START_ROUND = 0;
 var PREV_SCORES = {};
 var SCORE_CHANGES = {};
 var OWNERSHIP_DATA = [];
+var TOURNAMENT_STARTED = false;
 var ATHLETE_IDS = {};
 var EVENT_ID = null;
 var SCORECARD_CACHE = {};

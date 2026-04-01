@@ -22,6 +22,7 @@ async function fetchESPN() {
     }
     var evStatus = data.events?.[0]?.status?.type?.name || '';
     var isPreTournament = evStatus === 'STATUS_SCHEDULED';
+    TOURNAMENT_STARTED = !isPreTournament;
     EVENT_ID = data.events?.[0]?.id || null;
     var fullName = data.events[0].name || 'Valero Texas Open';
     var parts = fullName.split(' ');
