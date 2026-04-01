@@ -2112,11 +2112,11 @@ to  {
 }
 
 .tv-pill-slot  {
-  width: 20px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  gap: 2px;
+  margin-right: 4px;
 }
 
 .team-pill  {
