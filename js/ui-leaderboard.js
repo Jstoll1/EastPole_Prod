@@ -30,14 +30,12 @@ function updateLbSeg() {
   if (!seg) return;
   if (lbFilter === 'teamA' || lbFilter === 'teamB') lbFilter = 'all';
   if (lbFilter === 'myPicks' && !currentUserTeams.length) lbFilter = 'all';
-  if (!TOURNAMENT_STARTED && (lbFilter === 'pool' || lbFilter === 'myPicks')) lbFilter = 'all';
-  var poolBtn = TOURNAMENT_STARTED ? '<button class="seg-btn' + (lbFilter==='pool'?' active':'') + '" onclick="setLbFilter(\'pool\',this)">In Pool</button> ' : '';
-  var myPicksBtn = (TOURNAMENT_STARTED && currentUserTeams.length) ? '<button class="seg-btn' + (lbFilter==='myPicks'?' active':'') + '" onclick="setLbFilter(\'myPicks\',this)">My Picks</button>' : '';
+  var myPicksBtn = currentUserTeams.length ? '<button class="seg-btn' + (lbFilter==='myPicks'?' active':'') + '" onclick="setLbFilter(\'myPicks\',this)">My Picks</button>' : '';
   var teamLegend = '';
   if (lbFilter === 'myPicks' && currentUserTeams.length > 0) {
     teamLegend = '<div style="display:flex;gap:8px;justify-content:center;padding:4px 14px 0;flex-wrap:wrap">' + currentUserTeams.map(function(t, i) { return '<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--text2)"><span class="team-pill ' + (PILL_CLASSES[i]||'') + '" style="width:16px;height:13px;font-size:8px;border-radius:4px">' + pillLabel(i) + '</span>' + t.team + '</span>'; }).join('') + '</div>';
   }
-  seg.innerHTML = '<button class="seg-btn' + (lbFilter==='all'?' active':'') + '" onclick="setLbFilter(\'all\',this)">All</button> ' + poolBtn + myPicksBtn;
+  seg.innerHTML = '<button class="seg-btn' + (lbFilter==='all'?' active':'') + '" onclick="setLbFilter(\'all\',this)">All</button> <button class="seg-btn' + (lbFilter==='pool'?' active':'') + '" onclick="setLbFilter(\'pool\',this)">In Pool</button> ' + myPicksBtn;
   var oldLegend = seg.parentNode.querySelector('.seg-team-legend');
   if (oldLegend) oldLegend.remove();
   if (teamLegend) { var div = document.createElement('div'); div.className = 'seg-team-legend'; div.innerHTML = teamLegend; seg.parentNode.appendChild(div); }
@@ -225,7 +223,7 @@ function renderLeaderboard() {
         + '<div class="tv-pill-slot">' + pills + '</div>'
         + '<div class="tv-player"><span class="tv-name ' + (isMyPick?'is-my-pick':'') + '">' + p.name + '</span> <span class="tv-country">' + flag + (cc?' '+cc:'') + '</span>'
         + (isPrevWinner?'<span class="prev-winner-badge">Def. Champion</span>':'')
-        + (TOURNAMENT_STARTED&&inPool&&!isMyPick?'<span class="tv-pool-dot"></span>':'')
+        + (inPool&&!isMyPick?'<span class="tv-pool-dot"></span>':'')
         + '</div>'
         + '<div class="tv-odds">' + oddsArr[0] + '</div>'
         + '<div class="tv-odds">' + oddsArr[1] + '</div>'
@@ -239,7 +237,7 @@ function renderLeaderboard() {
         + '<div class="tv-player"><span class="tv-name ' + (isMyPick?'is-my-pick':'') + '">' + p.name + '</span> <span class="tv-country">' + flag + (cc?' '+cc:'') + '</span>'
         + (isMover ? (moverInfo.sign === 'up' ? '<span class="top-mover"><span class="mover-arrow">\uD83D\uDD25</span>' + Math.abs(roundDelta) + '</span>' : '<span class="top-mover down"><span class="mover-arrow">\uD83E\uDDCA</span>' + Math.abs(roundDelta) + '</span>') : '')
         + (isPrevWinner?'<span class="prev-winner-badge">Def. Champion</span>':'')
-        + (TOURNAMENT_STARTED&&inPool&&!isMyPick?'<span class="tv-pool-dot"></span>':'')
+        + (inPool&&!isMyPick?'<span class="tv-pool-dot"></span>':'')
         + '</div>'
         + '<div class="tv-score ' + scClass + '">' + (preT?'—':mc?(p.thru==='WD'||p.score===12?'WD':'MC'):(scoreChange ? '<span class="score-pulse">' + scf + '</span>' : scf)) + '</div>'
         + '<div class="tv-today ' + todayCls + '">' + todayDisp + '</div>'

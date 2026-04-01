@@ -66,10 +66,8 @@ function renderStandings() {
     var cmpSelCls = isCmpSelected ? ' cmp-selected' : '';
     var cmpBadge = isCmpSelected ? '<span class="cmp-badge">' + cmpNum + '</span>' : '';
     var teamHolesLeft = e.picks.reduce(function(sum, p) { return sum + getHolesRemaining(p); }, 0);
-    var locked = !TOURNAMENT_STARTED;
-    var rowClick = compareMode ? 'cmpSelectTeam(' + entryIdx + ')' : (locked ? '' : 'togglePanel(this,' + i + ')');
-    var arrowContent = compareMode ? '' : (locked ? '🔒' : '›');
-    html += ' <div class="standing-row ' + isMyTeam + cmpCls + cmpSelCls + (locked ? ' locked' : '') + '" onclick="' + rowClick + '"> <div class="s-rank">' + rank + '</div> <div class="s-info"> <div class="s-team">' + e.team + cmpBadge + '</div> <div class="s-name">' + e.name + tbTag + '</div> </div> <div class="s-score ' + scc + '">' + scf + '</div> <div class="s-arrow" id="arr-' + i + '">' + arrowContent + '</div> </div> <div class="picks-panel" id="panel-' + i + '"> ' + e.scores.map(function(g, j) {
+    var rowClick = compareMode ? 'cmpSelectTeam(' + entryIdx + ')' : 'togglePanel(this,' + i + ')';
+    html += ' <div class="standing-row ' + isMyTeam + cmpCls + cmpSelCls + '" onclick="' + rowClick + '"> <div class="s-rank">' + rank + '</div> <div class="s-info"> <div class="s-team">' + e.team + cmpBadge + '</div> <div class="s-name">' + e.name + tbTag + '</div> </div> <div class="s-score ' + scc + '">' + scf + '</div> <div class="s-arrow" id="arr-' + i + '">' + (compareMode ? '' : '›') + '</div> </div> <div class="picks-panel" id="panel-' + i + '"> ' + e.scores.map(function(g, j) {
       var isTop = j < 4;
       var gd = GOLFER_SCORES[g.name];
       var pos = gd ? (gd.thru === 'WD' || gd.score === 12 ? 'WD' : gd.pos) : '—';
