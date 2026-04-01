@@ -2213,6 +2213,17 @@ to  {
 }
 .my-row-move.up { color: #52b788; }
 .my-row-move.dn { color: var(--red); }
+.my-show-all {
+  text-align: center;
+  padding: 8px 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gold);
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  opacity: 0.8;
+}
+.my-show-all:active { opacity: 1; }
 
 .s-name  {
   font-size: 10px;

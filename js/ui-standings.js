@@ -48,7 +48,8 @@ function renderStandings() {
         rows += '<div class="my-row" onclick="setUser(\'' + myEntry.email + '\',' + currentUserTeams.indexOf(activeTeam) + ')"> <div class="my-row-rank">' + myRank + '</div> <div class="my-row-team">' + myEntry.team + '</div> ' + moveHtml + ' ' + payoutHtml + ' <div class="my-row-score ' + scc + '">' + fmtTeam(myEntry.total) + '</div> </div>';
       }
     });
-    if (rows) heroHtml = '<div class="my-teams-block"><div class="my-teams-label">YOUR ENTRIES</div>' + rows + '</div>';
+    var showAllBtn = (activeTeamIdx >= 0 && currentUserTeams.length > 1) ? '<div class="my-show-all" onclick="setUser(\'' + currentUserEmail + '\',-1)">Show All Entries</div>' : '';
+    if (rows) heroHtml = '<div class="my-teams-block"><div class="my-teams-label">YOUR ENTRIES</div>' + rows + showAllBtn + '</div>';
   }
 
   var html = '';
