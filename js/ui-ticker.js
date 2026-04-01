@@ -5,10 +5,11 @@ var _tickerMode = 'entries';
 function toggleTickerMode() {
   _tickerMode = _tickerMode === 'entries' ? 'golfers' : 'entries';
   var label = document.querySelector('.ticker-label');
-  if (label) label.textContent = _tickerMode === 'entries' ? 'LIVE' : 'PGA';
+  if (label) label.textContent = _tickerMode === 'entries' ? 'POOL' : 'FIELD';
   var track = document.querySelector('.ticker-track');
   if (track) track.scrollLeft = 0;
   renderTicker();
+  console.log('🎰 Ticker mode:', _tickerMode);
 }
 
 function renderTicker() {
@@ -57,8 +58,9 @@ function renderTicker() {
       return '<span class="ticker-item"><span class="ticker-item-rank">' + (i + 1) + '.</span> <span' + nameStyle + '>' + e.team + '</span> <span class="ticker-item-score ' + scc + '">' + scf + '</span>' + money + '</span>';
     }).join('');
   }
+  if (!items) items = '<span class="ticker-item">No data yet</span>';
   el.innerHTML = items + items;
-  if (track) track.scrollLeft = prevScroll;
+  if (track) track.scrollLeft = 0;
   if (!_tickerInterval) { startTickerScroll(); initTickerTouch(); }
 }
 
