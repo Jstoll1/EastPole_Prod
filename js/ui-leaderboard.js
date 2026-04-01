@@ -30,12 +30,14 @@ function updateLbSeg() {
   if (!seg) return;
   if (lbFilter === 'teamA' || lbFilter === 'teamB') lbFilter = 'all';
   if (lbFilter === 'myPicks' && !currentUserTeams.length) lbFilter = 'all';
-  var myPicksBtn = currentUserTeams.length ? '<button class="seg-btn' + (lbFilter==='myPicks'?' active':'') + '" onclick="setLbFilter(\'myPicks\',this)">My Picks</button>' : '';
+  if (!TOURNAMENT_STARTED && (lbFilter === 'pool' || lbFilter === 'myPicks')) lbFilter = 'all';
+  var poolBtn = TOURNAMENT_STARTED ? '<button class="seg-btn' + (lbFilter==='pool'?' active':'') + '" onclick="setLbFilter(\'pool\',this)">In Pool</button> ' : '';
+  var myPicksBtn = (TOURNAMENT_STARTED && currentUserTeams.length) ? '<button class="seg-btn' + (lbFilter==='myPicks'?' active':'') + '" onclick="setLbFilter(\'myPicks\',this)">My Picks</button>' : '';
   var teamLegend = '';
   if (lbFilter === 'myPicks' && currentUserTeams.length > 0) {
     teamLegend = '<div style="display:flex;gap:8px;justify-content:center;padding:4px 14px 0;flex-wrap:wrap">' + currentUserTeams.map(function(t, i) { return '<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--text2)"><span class="team-pill ' + (PILL_CLASSES[i]||'') + '" style="width:16px;height:13px;font-size:8px;border-radius:4px">' + pillLabel(i) + '</span>' + t.team + '</span>'; }).join('') + '</div>';
   }
-  seg.innerHTML = '<button class="seg-btn' + (lbFilter==='all'?' active':'') + '" onclick="setLbFilter(\'all\',this)">All</button> <button class="seg-btn' + (lbFilter==='pool'?' active':'') + '" onclick="setLbFilter(\'pool\',this)">In Pool</button> ' + myPicksBtn;
+  seg.innerHTML = '<button class="seg-btn' + (lbFilter==='all'?' active':'') + '" onclick="setLbFilter(\'all\',this)">All</button> ' + poolBtn + myPicksBtn;
   var oldLegend = seg.parentNode.querySelector('.seg-team-legend');
   if (oldLegend) oldLegend.remove();
   if (teamLegend) { var div = document.createElement('div'); div.className = 'seg-team-legend'; div.innerHTML = teamLegend; seg.parentNode.appendChild(div); }
