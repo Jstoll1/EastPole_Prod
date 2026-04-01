@@ -116,8 +116,9 @@ html, body  {
 }
 
 .hdr-pill  {
-  background: rgba(0,0,0,0.3);
-  border: 1px solid rgba(212,168,67,0.25);
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(212,168,67,0.35);
+  backdrop-filter: blur(8px);
   border-radius: 20px;
   padding: 3px 8px;
   font-size: 9px;
@@ -1303,7 +1304,7 @@ html, body  {
 }
 
 .own-bar-bg  {
-  background: #0d1f12;
+  background: rgba(255,255,255,0.08);
   border-radius: 5px;
   height: 5px;
   overflow: hidden;
@@ -1608,7 +1609,8 @@ html, body  {
 
 .splash-cta  {
   font-size: 14px;
-  color: rgba(255,255,255,0.55);
+  color: rgba(255,255,255,0.85);
+  font-weight: 800;
   animation: bounce 2s infinite;
   margin-top: 4px;
 }
