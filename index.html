@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="East Pole Golf">
 <title>East Pole Golf Pool</title>
 <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-<link rel="stylesheet" href="./css/styles.css?v=18">
+<link rel="stylesheet" href="./css/styles.css?v=19">
 <link rel="stylesheet" href="./css/theme.css">
 <script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -159,6 +159,18 @@
 <div id="ownership-list">
 </div>
 </div>
+<div class="view" id="view-live" style="padding-bottom:100px">
+<div style="padding:10px 14px 0">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+<div style="font-size:14px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:0.5px">Live Feed</div>
+<div style="font-size:11px;color:var(--text3)">Hole by hole</div>
+</div>
+<select id="live-entry-filter" onchange="renderActivityList()" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--text);font-family:inherit;outline:none;letter-spacing:0.2px;-webkit-appearance:none;appearance:none">
+<option value="all">All My Entries</option>
+</select>
+</div>
+<div class="act-list" id="act-list" style="padding-top:8px"></div>
+</div>
 <div class="view" id="view-feedback" style="padding-bottom:100px">
 <div class="fb-view-header">
 <span class="fb-view-title">Feedback</span>
@@ -218,25 +230,15 @@
 <circle cx="12" cy="12" r="3"/>
 <circle cx="12" cy="12" r="7" stroke-dasharray="4 3"/>
 </svg> Owned </button>
+<button class="nav-btn nav-live" id="nav-live" onclick="switchTab('live',this)">
+<svg viewBox="0 0 24 24">
+<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+</svg><span class="nav-live-label">Live<span class="live-dot" id="live-dot"></span></span></button>
 <button class="nav-btn" onclick="switchTab('feedback',this)">
 <svg viewBox="0 0 24 24">
 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
 </svg> Feedback </button>
 </nav>
-<!-- Activity Tracker -->
-<button id="activity-fab" onclick="toggleActivityDrawer()">⚡<span class="act-badge" id="act-badge">0</span></button>
-<div id="activity-overlay" onclick="toggleActivityDrawer()"></div>
-<div id="activity-drawer">
-<div class="act-handle"></div>
-<div class="act-header">
-<span class="act-title">Live Feed</span>
-<button class="act-close" onclick="toggleActivityDrawer()">✕</button>
-</div>
-<div class="act-tabs">
-<span style="font-size:11px;color:var(--text3)">Your entries' golfers · hole by hole</span>
-</div>
-<div class="act-list" id="act-list"></div>
-</div>
 </div>
 </div>
 </div>
@@ -263,18 +265,18 @@
 </div>
 
 <!-- Module Scripts (deferred) -->
-<script defer src="./js/state.js?v=18"></script>
-<script defer src="./js/utils.js?v=18"></script>
-<script defer src="./js/api.js?v=18"></script>
-<script defer src="./js/ui-header.js?v=18"></script>
-<script defer src="./js/ui-standings.js?v=18"></script>
-<script defer src="./js/ui-leaderboard.js?v=18"></script>
-<script defer src="./js/ui-scorecard.js?v=18"></script>
-<script defer src="./js/ui-compare.js?v=18"></script>
-<script defer src="./js/ui-ownership.js?v=18"></script>
-<script defer src="./js/ui-activity.js?v=18"></script>
-<script defer src="./js/ui-ticker.js?v=18"></script>
-<script defer src="./js/ui-debug.js?v=18"></script>
-<script defer src="./js/app.js?v=18"></script>
+<script defer src="./js/state.js?v=19"></script>
+<script defer src="./js/utils.js?v=19"></script>
+<script defer src="./js/api.js?v=19"></script>
+<script defer src="./js/ui-header.js?v=19"></script>
+<script defer src="./js/ui-standings.js?v=19"></script>
+<script defer src="./js/ui-leaderboard.js?v=19"></script>
+<script defer src="./js/ui-scorecard.js?v=19"></script>
+<script defer src="./js/ui-compare.js?v=19"></script>
+<script defer src="./js/ui-ownership.js?v=19"></script>
+<script defer src="./js/ui-activity.js?v=19"></script>
+<script defer src="./js/ui-ticker.js?v=19"></script>
+<script defer src="./js/ui-debug.js?v=19"></script>
+<script defer src="./js/app.js?v=19"></script>
 </body>
 </html>

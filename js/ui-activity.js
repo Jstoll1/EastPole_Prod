@@ -1,13 +1,13 @@
-// ── Activity Tracker ──────────────────────────────────────
+// ── Activity / Live Feed Tab ──────────────────────────────
 // Shows hole-by-hole updates for the current user's golfers.
 // Persisted to localStorage so feed survives refreshes.
 
 var ACTIVITY_LOG = [];
 var MAX_ACTIVITY = 300;
-var _actOpen = false;
 var _actUnseen = 0;
 var _ACT_STORAGE_KEY = 'eastpole_activity';
 var _ACT_SEEN_KEY = 'eastpole_activity_seen';
+var _roundLive = false;
 
 // Load persisted activity on startup
 (function() {
@@ -17,7 +17,6 @@ var _ACT_SEEN_KEY = 'eastpole_activity_seen';
     ACTIVITY_LOG = saved.filter(function(a) { return a.time > cutoff; });
     var lastSeen = parseInt(localStorage.getItem(_ACT_SEEN_KEY) || '0');
     _actUnseen = ACTIVITY_LOG.filter(function(a) { return a.time > lastSeen; }).length;
-    updateActBadge();
   } catch(e) { ACTIVITY_LOG = []; }
 })();
 
@@ -29,47 +28,70 @@ function addActivity(icon, text, playerName) {
   ACTIVITY_LOG.unshift({ icon: icon, text: text, player: playerName, time: Date.now() });
   if (ACTIVITY_LOG.length > MAX_ACTIVITY) ACTIVITY_LOG = ACTIVITY_LOG.slice(0, MAX_ACTIVITY);
   _saveActivity();
-  if (!_actOpen) {
-    _actUnseen++;
-    updateActBadge();
-  }
-  if (_actOpen) renderActivityList();
-}
-
-function updateActBadge() {
-  var badge = document.getElementById('act-badge');
-  if (!badge) return;
-  if (_actUnseen > 0) { badge.textContent = _actUnseen > 99 ? '99+' : _actUnseen; badge.style.display = 'flex'; }
-  else { badge.style.display = 'none'; }
-}
-
-function toggleActivityDrawer() {
-  if (!_actOpen) trackEvent('activity-open');
-  _actOpen = !_actOpen;
-  document.getElementById('activity-drawer').classList.toggle('open', _actOpen);
-  document.getElementById('activity-overlay').classList.toggle('open', _actOpen);
-  if (_actOpen) {
+  _actUnseen++;
+  var liveView = document.getElementById('view-live');
+  if (liveView && liveView.classList.contains('active')) {
     _actUnseen = 0;
-    updateActBadge();
     try { localStorage.setItem(_ACT_SEEN_KEY, String(Date.now())); } catch(e) {}
-    renderActivityList();
   }
+  renderActivityList();
+}
+
+function updateLiveTab() {
+  var btn = document.getElementById('nav-live');
+  var dot = document.getElementById('live-dot');
+  if (!btn) return;
+  if (_roundLive) {
+    btn.classList.remove('disabled');
+    if (dot) dot.classList.add('active');
+  } else {
+    btn.classList.add('disabled');
+    if (dot) dot.classList.remove('active');
+    // If currently on live tab and round ends, stay but show message
+  }
+}
+
+function populateLiveEntryFilter() {
+  var sel = document.getElementById('live-entry-filter');
+  if (!sel) return;
+  var opts = '<option value="all">All My Entries</option>';
+  if (currentUserTeams && currentUserTeams.length > 0) {
+    currentUserTeams.forEach(function(t, i) {
+      opts += '<option value="' + i + '">' + t.team + '</option>';
+    });
+  }
+  sel.innerHTML = opts;
+}
+
+function getLiveFilteredPicks() {
+  var sel = document.getElementById('live-entry-filter');
+  var val = sel ? sel.value : 'all';
+  if (val !== 'all' && currentUserTeams && currentUserTeams[parseInt(val)]) {
+    return new Set(currentUserTeams[parseInt(val)].picks);
+  }
+  return getActiveTeamPicks();
 }
 
 function renderActivityList() {
   var el = document.getElementById('act-list');
   if (!el) return;
-  var myPicks = getActiveTeamPicks();
+  var myPicks = getLiveFilteredPicks();
   var items = myPicks.size > 0
     ? ACTIVITY_LOG.filter(function(a) { return myPicks.has(a.player); })
     : ACTIVITY_LOG;
   if (!items.length) {
-    el.innerHTML = '<div class="act-empty">' +
-      '<div style="font-size:24px;margin-bottom:12px">⚡</div>' +
-      '<div style="font-weight:700;color:var(--text);margin-bottom:8px">Live Hole-by-Hole Feed</div>' +
-      '<div>Your entries\' golfers will show up here as they complete each hole during the round.</div>' +
-      '<div style="margin-top:12px;font-size:12px;color:var(--text3);font-style:italic">' +
-      'The broadcast won\'t show every shot — but this will. Birdies, bogeys, eagles — as they happen.</div></div>';
+    var msg = !_roundLive
+      ? '<div class="act-empty">' +
+        '<div style="font-size:24px;margin-bottom:12px">⚡</div>' +
+        '<div style="font-weight:700;color:var(--text);margin-bottom:8px">Live Hole-by-Hole Feed</div>' +
+        '<div>Your entries\' golfers will show up here as they complete each hole during the round.</div>' +
+        '<div style="margin-top:12px;font-size:12px;color:var(--text3);font-style:italic">' +
+        'The broadcast won\'t show every shot — but this will. Birdies, bogeys, eagles — as they happen.</div></div>'
+      : '<div class="act-empty">' +
+        '<div style="font-size:24px;margin-bottom:12px">⚡</div>' +
+        '<div style="font-weight:700;color:var(--text);margin-bottom:8px">Waiting for updates…</div>' +
+        '<div>Scores will appear here as your golfers complete holes.</div></div>';
+    el.innerHTML = msg;
     return;
   }
   el.innerHTML = items.map(function(a) {
@@ -82,8 +104,16 @@ function renderActivityList() {
   }).join('');
 }
 
-// Update time-ago labels every 15s
-setInterval(function() { if (_actOpen) renderActivityList(); }, 15000);
+// Update time-ago labels every 15s when live tab is visible
+setInterval(function() {
+  var liveView = document.getElementById('view-live');
+  if (liveView && liveView.classList.contains('active')) renderActivityList();
+}, 15000);
+
+function setRoundLive(isLive) {
+  _roundLive = isLive;
+  updateLiveTab();
+}
 
 function detectGolfActivity(freshScores) {
   var myPicks = getActiveTeamPicks();
@@ -116,6 +146,4 @@ function detectGolfActivity(freshScores) {
   });
 }
 
-function detectEntryActivity() {
-  // No longer used — activity is golfer-focused only
-}
+function detectEntryActivity() {}
