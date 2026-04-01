@@ -46,7 +46,7 @@ html, body  {
   left: 0;
   right: 0;
   z-index: 200;
-  background: linear-gradient(180deg, #1a4430 0%, #143828 100%);
+  background: linear-gradient(180deg, #002855 0%, #001a3a 100%);
   padding-top: var(--safe-top);
   border-bottom: 2px solid var(--gold);
 }
