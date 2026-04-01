@@ -79,6 +79,14 @@ async function toggleScorecard(idx, playerName) {
     var flag = FLAGS[playerName] || '';
     var cc = getCountryCode(playerName);
     if (flag || cc) fb += '<div style="font-size:11px;color:var(--text2);margin-bottom:8px;">' + flag + ' ' + cc + '</div>';
+    var pOdds = PRE_ODDS[playerName];
+    if (pOdds) {
+      fb += '<div style="display:flex;gap:8px;margin-bottom:10px;">';
+      fb += '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;text-align:center;min-width:60px;"><div style="font-size:9px;color:var(--text3);font-weight:700;">WIN</div><div style="font-size:14px;font-weight:800;color:var(--gold)">' + pOdds[0] + '</div></div>';
+      fb += '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;text-align:center;min-width:60px;"><div style="font-size:9px;color:var(--text3);font-weight:700;">TOP 5</div><div style="font-size:14px;font-weight:800;color:var(--gold)">' + pOdds[1] + '</div></div>';
+      fb += '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;text-align:center;min-width:60px;"><div style="font-size:9px;color:var(--text3);font-weight:700;">TOP 10</div><div style="font-size:14px;font-weight:800;color:var(--gold)">' + pOdds[2] + '</div></div>';
+      fb += '</div>';
+    }
     fb += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
     var scTotal = gd ? fmt(gd.score) : '—';
     fb += '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;text-align:center;min-width:60px;">'
