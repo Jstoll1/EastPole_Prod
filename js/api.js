@@ -32,8 +32,8 @@ async function fetchESPN() {
     var shortName = openIdx > 0 ? parts.slice(Math.max(0, openIdx - 1), openIdx + 1).join(' ') : fullName;
     var hdrSub = document.getElementById('hdr-sub');
     if (hdrSub) hdrSub.textContent = shortName + (isPreTournament ? ' · Pre-Tournament' : ' · Live');
-    var tournBanner = document.getElementById('lb-tournament-name');
-    if (tournBanner) tournBanner.textContent = shortName;
+    var tournLabel = document.getElementById('lb-tournament-label');
+    if (tournLabel) tournLabel.textContent = shortName;
 
     Object.entries(GOLFER_SCORES).forEach(function(pair) {
       var n = pair[0], d = pair[1];
