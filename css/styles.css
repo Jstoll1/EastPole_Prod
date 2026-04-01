@@ -997,6 +997,7 @@ html, body  {
 }
 .ticker-track {
   flex: 1;
+  height: 100%;
   overflow-x: auto;
   overflow-y: hidden;
   position: relative;
@@ -1011,6 +1012,8 @@ html, body  {
 .ticker-track.dragging { cursor: grabbing; }
 .ticker-content {
   display: flex;
+  align-items: center;
+  height: 100%;
   gap: 0;
   white-space: nowrap;
   width: max-content;
