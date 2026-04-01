@@ -122,10 +122,12 @@ function renderLeaderboard() {
   var currentRound = samplePlayer ? (anyStillPlaying ? (completedRoundCount + 1) || 1 : anyHaveTeeTime ? completedRoundCount + 1 : completedRoundCount) : 0;
   var isPreT = currentRound === 0;
   if (isPreT) {
+    var oddsIdx = lbSort === 't5' ? 1 : lbSort === 't10' ? 2 : 0;
+    var oddsDir = lbSortAsc ? 1 : -1;
     players.sort(function(a,b) {
-      var oa = PRE_ODDS[a.name] ? parseInt(PRE_ODDS[a.name][0].replace('+','')) : 999999;
-      var ob = PRE_ODDS[b.name] ? parseInt(PRE_ODDS[b.name][0].replace('+','')) : 999999;
-      return oa - ob;
+      var oa = PRE_ODDS[a.name] ? parseInt(PRE_ODDS[a.name][oddsIdx].replace('+','')) : 999999;
+      var ob = PRE_ODDS[b.name] ? parseInt(PRE_ODDS[b.name][oddsIdx].replace('+','')) : 999999;
+      return (oa - ob) * oddsDir;
     });
   }
   var roundLabels = ['PRE-TOURNAMENT ODDS','FIRST ROUND','SECOND ROUND','THIRD ROUND','FINAL ROUND'];
@@ -142,7 +144,9 @@ function renderLeaderboard() {
   var colHdr;
   if (isPreT) {
     colHdr = '<div class="tv-col-hdr"><div class="tv-h-pos">#</div><div class="tv-h-pill"></div><div class="tv-h-player">PLAYER</div>'
-      + '<div class="tv-h-odds">WIN</div><div class="tv-h-odds">T5</div><div class="tv-h-odds">T10</div></div>';
+      + '<div class="tv-h-odds tv-h-sort' + sortCls('win') + '" onclick="setLbSort(\'win\')">WIN' + sortArrow('win') + '</div>'
+      + '<div class="tv-h-odds tv-h-sort' + sortCls('t5') + '" onclick="setLbSort(\'t5\')">T5' + sortArrow('t5') + '</div>'
+      + '<div class="tv-h-odds tv-h-sort' + sortCls('t10') + '" onclick="setLbSort(\'t10\')">T10' + sortArrow('t10') + '</div></div>';
   } else {
     colHdr = '<div class="tv-col-hdr"><div class="tv-h-pos">POS</div><div class="tv-h-pill"></div><div class="tv-h-player">PLAYER</div>'
       + '<div class="tv-h-score tv-h-sort' + sortCls('score') + '" onclick="setLbSort(\'score\')">SCORE' + sortArrow('score') + '</div>'
