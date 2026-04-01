@@ -51,8 +51,8 @@ async function fetchESPN() {
       var dispVal = (c.status?.displayValue || '').toUpperCase();
       var stateDesc = (c.status?.type?.description || '').toUpperCase();
       var posName = (c.status?.position?.displayName || '').toUpperCase();
-      var wd = state.includes('WD') || state.includes('WITHDRAW') || dispVal === 'WD' || stateDesc.includes('WITHDRAW') || posName === 'WD' || false;
-      var mc = !wd && (state.includes('CUT') || false);
+      var wd = !isPreTournament && (state.includes('WD') || state.includes('WITHDRAW') || dispVal === 'WD' || stateDesc.includes('WITHDRAW') || posName === 'WD') || false;
+      var mc = !isPreTournament && !wd && (state.includes('CUT') || false);
       var scoreToPar = c.statistics?.find(function(s) { return s.name === 'scoreToPar'; });
       var score = wd ? 12 : mc ? 11 : (scoreToPar ? scoreToPar.value : 0);
       var lines = c.linescores || [];
@@ -89,15 +89,17 @@ async function fetchESPN() {
       SCORE_CHANGES = {};
     }
 
-    // Players in picks/FLAGS but missing from ESPN data are likely WD
-    var allPickNames = new Set();
-    ENTRIES.forEach(function(e) { e.picks.forEach(function(p) { allPickNames.add(p); }); });
-    allPickNames.forEach(function(name) {
-      if (!freshScores[name] && FLAGS[name]) {
-        freshScores[name] = { pos: 'WD', score: 12, thru: 'WD', teeTime: '', startHole: 1, tot: null, todayDisplay: '—', r1: null, r2: null, r3: null, r4: null };
-        console.log('⚠️ Marked', name, 'as WD (missing from ESPN data)');
-      }
-    });
+    // Players in picks/FLAGS but missing from ESPN data are likely WD (only during tournament)
+    if (!isPreTournament) {
+      var allPickNames = new Set();
+      ENTRIES.forEach(function(e) { e.picks.forEach(function(p) { allPickNames.add(p); }); });
+      allPickNames.forEach(function(name) {
+        if (!freshScores[name] && FLAGS[name]) {
+          freshScores[name] = { pos: 'WD', score: 12, thru: 'WD', teeTime: '', startHole: 1, tot: null, todayDisplay: '—', r1: null, r2: null, r3: null, r4: null };
+          console.log('⚠️ Marked', name, 'as WD (missing from ESPN data)');
+        }
+      });
+    }
 
     detectGolfActivity(freshScores);
     GOLFER_SCORES = freshScores;
