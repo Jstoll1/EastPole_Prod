@@ -82,12 +82,6 @@ async function initApp() {
   OWNERSHIP_DATA = computeOwnership();
   console.log('✅ Loaded', ENTRIES.length, 'baked-in entries');
 
-  // Try loading fresh entries from Google Sheets
-  var sheetsLoaded = await fetchEntriesFromSheets();
-  if (sheetsLoaded) {
-    OWNERSHIP_DATA = computeOwnership();
-  }
-
   var returning = loadUser();
   if (returning) {
     console.log('👤 Returning user:', currentUserEmail);

@@ -144,8 +144,6 @@ var FLAGS = {
   'Charlie Crockett':'🇺🇸','Austin Wylie':'🇺🇸','Chan Kim':'🇺🇸'
 };
 
-var SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS9T2gYZWZpIzn_QSC7y5HTwqzg6cfpI7eAu9hkWBGXLPCh8-eZBkXGGQzXvYDGaDSH-jZ-JVrh_GcD/pub?output=csv';
-
 var TIERS = [];
 var NAME_ALIASES = {
   'Hao-Tong Li':'Haotong Li',
