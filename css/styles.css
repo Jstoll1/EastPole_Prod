@@ -1022,9 +1022,11 @@ html, body  {
 .ticker-item {
   display: inline-flex;
   align-items: center;
+  height: 100%;
   gap: 6px;
   padding: 0 16px;
   font-size: 11px;
+  line-height: 1;
   font-weight: 600;
   color: var(--text);
   border-right: 1px solid rgba(255,255,255,0.08);
