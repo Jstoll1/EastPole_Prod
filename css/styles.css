@@ -2785,6 +2785,13 @@ to  {
   border-radius:2px;
   margin:10px auto 4px;
 }
+.act-close {
+  background:none; border:none;
+  color:var(--text3); font-size:16px;
+  cursor:pointer; padding:4px 8px;
+  line-height:1; opacity:0.6;
+}
+.act-close:active { opacity:1; }
 
 /* Live header */
 .live-header {

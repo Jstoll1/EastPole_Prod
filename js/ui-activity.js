@@ -89,9 +89,7 @@ function renderActivityList() {
       ? '<div class="act-empty">' +
         '<div style="font-size:36px;margin-bottom:16px">⚡</div>' +
         '<div style="font-weight:800;color:var(--text);margin-bottom:10px;font-size:16px">Live Hole-by-Hole Feed</div>' +
-        '<div style="line-height:1.6">Your entries\' golfers will show up here as they complete each hole during the round.</div>' +
-        '<div style="margin-top:16px;font-size:13px;color:var(--gold);font-weight:600">' +
-        'The broadcast won\'t show every shot — but this will.</div></div>'
+        '<div style="line-height:1.6">Your entries\' golfers will show up here as they complete each hole during the round.</div></div>'
       : '<div class="act-empty">' +
         '<div style="font-size:36px;margin-bottom:16px">⚡</div>' +
         '<div style="font-weight:800;color:var(--text);margin-bottom:10px;font-size:16px">Waiting for updates…</div>' +
