@@ -113,6 +113,10 @@ async function initApp() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  // Reset Safari zoom on load
+  var vp = document.querySelector('meta[name="viewport"]');
+  if (vp) { vp.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover'); }
+
   initTheme();
   initDebugPanel();
 
