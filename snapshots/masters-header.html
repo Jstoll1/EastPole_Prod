@@ -1,0 +1,176 @@
+<!--
+  MASTERS TOURNAMENT HEADER SNAPSHOT
+  Saved: 2026-04-01 | Commit: af548f2
+
+  To restore: Copy <header id="hdr">...</header> block back into index.html
+  and ensure the CSS classes below are in styles.css.
+  Also restore the Masters logo URL and green gradient background.
+-->
+
+<!-- ═══ HTML BLOCK (goes inside <body> after splash) ═══ -->
+
+<header id="hdr">
+<div class="hdr-inner">
+<div class="hdr-left">
+<span class="hdr-brand">East Pole</span>
+<div class="hdr-pill" onclick="refreshData()" style="cursor:pointer">
+<div class="live-dot" id="live-dot"></div>
+<span id="hdr-status">Loading…</span>
+</div>
+<div id="hdr-sub" style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.3px"></div>
+</div>
+<div class="hdr-logo-center">
+<img src="https://brandlogos.net/wp-content/uploads/2024/04/masters_tournament-logo_brandlogos.net_4zhff.png" alt="Masters Tournament">
+</div>
+<div class="hdr-right">
+<div id="hdr-team-display" onclick="toggleTeamDropdown()" style="cursor:pointer">
+<span style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(212,168,67,0.7);text-align:right;display:block;margin-bottom:2px">Filter Entry</span>
+<div class="hdr-team-pill">
+<span class="hdr-active-team" id="hdr-active-team"></span>
+<span class="hdr-dropdown-caret" id="hdr-dd-caret">▾</span>
+</div>
+</div>
+<button id="hdr-join-btn" onclick="showOnboarding()" style="display:none">Join Pool</button>
+</div>
+</div>
+<div id="team-dropdown">
+<div class="td-header">Entries</div>
+<div id="team-dropdown-list">
+</div>
+</div>
+</header>
+
+
+<!-- ═══ CSS (styles.css lines 43-155 + 1758-1901) ═══ -->
+<!--
+#hdr {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 200;
+  background: linear-gradient(180deg, #1a4430 0%, #143828 100%);
+  padding-top: var(--safe-top);
+  border-bottom: 2px solid var(--gold);
+}
+#hdr::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(212,168,67,0.3) 50%, transparent 100%);
+}
+.hdr-inner {
+  min-height: var(--header-h);
+  display: flex;
+  align-items: center;
+  padding: 6px 14px;
+  gap: 10px;
+}
+.hdr-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.hdr-brand {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+}
+.hdr-logo-center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 44px;
+  position: relative;
+  z-index: 2;
+}
+.hdr-logo-center img {
+  height: 38px;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+  pointer-events: none;
+}
+.hdr-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.hdr-pill {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(212,168,67,0.25);
+  border-radius: 20px;
+  padding: 3px 8px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: rgba(255,255,255,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.hdr-pill .live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  flex-shrink: 0;
+}
+.hdr-pill .live-dot.on {
+  background: #34c759;
+  animation: livePulse 2s ease-in-out infinite;
+}
+.hdr-team-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(212,168,67,0.4);
+  border-radius: 20px;
+  padding: 5px 10px;
+}
+.hdr-active-team {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90px;
+  letter-spacing: 0.2px;
+}
+.hdr-dropdown-caret {
+  font-size: 8px;
+  color: rgba(212,168,67,0.6);
+  flex-shrink: 0;
+  line-height: 1;
+  transition: transform 0.2s;
+}
+#hdr-join-btn {
+  background: transparent;
+  border: 1px solid rgba(212,168,67,0.4);
+  border-radius: 20px;
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+KEY DESIGN NOTES:
+- Background: Masters green gradient (#1a4430 → #143828)
+- Gold accent color throughout (var(--gold) = #d4a843)
+- Masters logo: centered, 38px height, drop-shadow
+- Gold bottom border with gradient glow line
+- Status pill with live dot animation
+- Entry filter dropdown on right side
+- "EAST POLE" brand text top-left, subtle 35% white
+-->
