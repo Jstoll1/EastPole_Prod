@@ -89,7 +89,9 @@ var ENTRIES = [
   { team:'0.00% BAC', name:'Andrew Steioff', email:'andrewsteioff@gmail.com', picks:['Tommy Fleetwood','J.J. Spaun','Marco Penge','Tony Finau','Chris Kirk','Max Homa'], tb:-14 },
   { team:'Jules Test', name:'Jules Tompkins', email:'ajulestompkins@gmail.com', picks:['Robert MacIntyre','Rickie Fowler','Marco Penge','Brian Harman','Tom Kim','Max Homa'], tb:-14 },
   { team:'Art VandeLayup', name:'Tyler C', email:'tycon0612@gmail.com', picks:['Ludvig Aberg','Keith Mitchell','Marco Penge','Tony Finau','Haotong Li','Max Homa'], tb:-16 },
-  { team:'Art VandeLayup 2', name:'Tyler C', email:'tycon0612@gmail.com', picks:['Tommy Fleetwood','Rickie Fowler','Denny McCarthy','Sudarshan Yellamaraju','Chris Kirk','Jhonattan Vegas'], tb:-18 }
+  { team:'Art VandeLayup 2', name:'Tyler C', email:'tycon0612@gmail.com', picks:['Tommy Fleetwood','Rickie Fowler','Denny McCarthy','Sudarshan Yellamaraju','Chris Kirk','Jhonattan Vegas'], tb:-18 },
+  { team:'CanMan', name:'Steve Cannon', email:'jake.stoll@abridge.com', picks:['Hideki Matsuyama','Keith Mitchell','Stephan Jaeger','Rico Hoey','Austin Smotherman','Emiliano Grillo'], tb:-22 },
+  { team:'SiWooBird', name:'Steve Cannon', email:'jake.stoll@abridge.com', picks:['Russell Henley','Ryo Hisatsune','Jordan Smith','J.T. Poston','Matt Wallace','Nick Dunlap'], tb:-23 }
 ];
 
 var FLAGS = {
@@ -147,7 +149,8 @@ var NAME_ALIASES = {
   'Ludvig Åberg':'Ludvig Aberg',
   'Stephan Jäger':'Stephan Jaeger',
   'Alex Norén':'Alex Noren',
-  'Sami Välimäki':'Sami Valimaki'
+  'Sami Välimäki':'Sami Valimaki',
+  'Jordan L. Smith':'Jordan Smith'
 };
 var FLAG_TO_CODE = {'🇺🇸':'USA','🇦🇺':'AUS','🇰🇷':'KOR','🇨🇦':'CAN','🇿🇦':'RSA','🇩🇰':'DEN','🇸🇪':'SWE','🇫🇷':'FRA','🇯🇵':'JPN','🇮🇪':'IRL','🇧🇪':'BEL','🇦🇷':'ARG','🇹🇼':'TPE','🇻🇪':'VEN','🇵🇭':'PHI','🇵🇷':'PUR','🇩🇪':'GER','🇳🇿':'NZL','🇨🇴':'COL','🇨🇳':'CHN','🇳🇴':'NOR','🏴󠁧󠁢󠁥󠁮󠁧󠁿':'ENG','🏳️':'—'};
 
