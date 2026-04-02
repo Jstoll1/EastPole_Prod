@@ -114,16 +114,8 @@ function renderStandings() {
       var stRoundDone = gd && (gd.thru === 'F' || gd.thru === '18');
       var thruDisplay = preT ? '' : ((gd && (gd.thru === 'WD' || gd.score === 12)) ? '' : (stRoundDone ? (stLastRound ? 'Shot ' + stLastRound : '') : (thruVal ? 'Thru ' + thruVal : '')));
       var posDisplay = preT ? '' : pos;
-      var currPos = parsePos(pos);
-      var startPos = ROUND_START_POSITIONS[g.name];
-      var prevPos = PREV_POSITIONS[g.name];
-      var refPos = startPos || prevPos;
-      var posDelta = (refPos && currPos) ? refPos - currPos : 0;
-      var moveArrow = '';
-      if (posDelta > 0) moveArrow = '<span class="mini-pick-move up">&#9650;' + posDelta + '</span>';
-      else if (posDelta < 0) moveArrow = '<span class="mini-pick-move dn">&#9660;' + Math.abs(posDelta) + '</span>';
       var flag = FLAGS[g.name] || '';
-      return '<div class="mini-pick ' + (isTop?'is-top':'') + '"> <div class="mini-pick-left"> <div class="mini-pick-top"> ' + (isTop?'<span class="star">★</span>':'<span style="width:14px;display:inline-block"></span>') + ' <span class="mini-pick-name">' + (flag ? flag + ' ' : '') + g.name + '</span>' + (posDisplay ? ' <span class="mini-pick-pos">' + posDisplay + '</span>' : '') + moveArrow + ' </div> <div class="mini-pick-bottom"> ' + (rndsStr?'<span class="mini-pick-rounds">' + rndsStr + '</span>':'') + ' ' + (thruDisplay?'<span class="mini-pick-thru">' + thruDisplay + '</span>':'') + ' ' + (ownP?'<span class="mini-pick-own">' + ownP + '</span>':'') + ' </div> </div> <span class="mini-pick-score ' + cls(g.score) + '">' + fmt(g.score) + '</span> </div>';
+      return '<div class="mini-pick ' + (isTop?'is-top':'') + '"> <div class="mini-pick-left"> <div class="mini-pick-top"> ' + (isTop?'<span class="star">★</span>':'<span style="width:14px;display:inline-block"></span>') + ' <span class="mini-pick-name">' + (flag ? flag + ' ' : '') + g.name + '</span>' + (posDisplay ? ' <span class="mini-pick-pos">' + posDisplay + '</span>' : '') + ' </div> <div class="mini-pick-bottom"> ' + (rndsStr?'<span class="mini-pick-rounds">' + rndsStr + '</span>':'') + ' ' + (thruDisplay?'<span class="mini-pick-thru">' + thruDisplay + '</span>':'') + ' ' + (ownP?'<span class="mini-pick-own">' + ownP + '</span>':'') + ' </div> </div> <span class="mini-pick-score ' + cls(g.score) + '">' + fmt(g.score) + '</span> </div>';
     }).join('') + '<div class="picks-panel-footer"><span>' + teamHolesLeft + ' holes remaining</span><button class="h2h-quick-btn" onclick="event.stopPropagation();openH2HPicker(' + entryIdx + ')">⚔️ H2H</button></div> </div>';
   });
 
