@@ -136,26 +136,7 @@ function renderStandings() {
     var todayDisp = teamTodayCount > 0 ? (teamToday > 0 ? '+' + teamToday : teamToday === 0 ? 'E' : '' + teamToday) : '—';
     var todayCls = teamToday < 0 ? 'neg' : teamToday > 0 ? 'pos' : 'eve';
     var holesTag = teamHolesLeft > 0 ? '<span class="s-holes">' + teamHolesLeft + ' holes left</span>' : '<span class="s-holes done">F</span>';
-    var golferLine = e.top4.map(function(g) {
-      var gd = GOLFER_SCORES[g.name];
-      var lastName = g.name.split(' ').pop();
-      var gt = golferTodayScore(gd);
-      var gtDisp = gt !== null ? (gt > 0 ? '+' + gt : gt === 0 ? 'E' : '' + gt) : '';
-      var gtCls = gt !== null ? (gt < 0 ? 'neg' : gt > 0 ? 'pos' : 'eve') : '';
-      var thru = gd ? gd.thru : '';
-      var thruDisp = '';
-      if (thru && thru !== '—') {
-        if (thru === 'F' || thru === '18') thruDisp = 'F';
-        else if (thru === 'WD' || (gd && gd.score === 12)) thruDisp = 'WD';
-        else if (thru === 'MC') thruDisp = 'MC';
-        else thruDisp = thru;
-      }
-      var parts = [];
-      if (gtDisp) parts.push('<span class="sg-today ' + gtCls + '">' + gtDisp + '</span>');
-      if (thruDisp) parts.push('<span class="sg-thru">' + thruDisp + '</span>');
-      return '<span class="sg-chip">' + lastName + (parts.length ? ' ' + parts.join(' ') : '') + '</span>';
-    }).join(' ');
-    html += ' <div class="standing-row ' + isMyTeam + cmpCls + cmpSelCls + '" onclick="' + rowClick + '"> <div class="s-rank">' + rank + '</div> <div class="s-info"> <div class="s-team">' + e.team + cmpBadge + moveBadge + '</div> <div class="s-name">' + e.name + ' ' + holesTag + '</div> <div class="s-golfers">' + golferLine + '</div> </div> <div class="s-today ' + todayCls + '">' + todayDisp + '</div> <div class="s-score ' + scc + '">' + scf + '</div> <div class="s-arrow" id="arr-' + i + '">' + (compareMode ? '' : '›') + '</div> </div> <div class="picks-panel" id="panel-' + i + '"> ' + e.scores.map(function(g, j) {
+    html += ' <div class="standing-row ' + isMyTeam + cmpCls + cmpSelCls + '" onclick="' + rowClick + '"> <div class="s-rank">' + rank + '</div> <div class="s-info"> <div class="s-team">' + e.team + cmpBadge + moveBadge + '</div> <div class="s-name">' + e.name + ' ' + holesTag + '</div> </div> <div class="s-today ' + todayCls + '">' + todayDisp + '</div> <div class="s-score ' + scc + '">' + scf + '</div> <div class="s-arrow" id="arr-' + i + '">' + (compareMode ? '' : '›') + '</div> </div> <div class="picks-panel" id="panel-' + i + '"> ' + e.scores.map(function(g, j) {
       var isTop = j < 4;
       var gd = GOLFER_SCORES[g.name];
       var preT = !TOURNAMENT_STARTED;
@@ -173,10 +154,16 @@ function renderStandings() {
       var flag = FLAGS[g.name] || '';
       var holesDisp = holesLeft > 0 ? holesLeft + ' holes left' : 'F';
       var gToday = golferTodayScore(gd);
-      var gTodayDisp = gToday !== null ? (gToday > 0 ? '+' + gToday : gToday === 0 ? 'E' : '' + gToday) : '';
+      var gTodayDisp = gToday !== null ? (gToday > 0 ? '+' + gToday : gToday === 0 ? 'E' : '' + gToday) : '—';
       var gTodayCls = gToday !== null ? (gToday < 0 ? 'neg' : gToday > 0 ? 'pos' : 'eve') : '';
-      var gTodayHtml = gTodayDisp ? '<span class="mini-pick-today ' + gTodayCls + '">' + gTodayDisp + '</span>' : '';
-      return '<div class="mini-pick ' + (isTop?'is-top':'') + '"> <div class="mini-pick-left"> <div class="mini-pick-top"> ' + (isTop?'<span class="star">★</span>':'<span style="width:10px;display:inline-block"></span>') + ' <span class="mini-pick-name">' + (flag ? flag + ' ' : '') + g.name + '</span>' + (posDisplay ? ' <span class="mini-pick-pos">' + posDisplay + '</span>' : '') + ' </div> <div class="mini-pick-bottom"> ' + (rndsStr?'<span class="mini-pick-rounds">' + rndsStr + '</span>':'') + ' ' + (thruDisplay?'<span class="mini-pick-thru">' + thruDisplay + '</span>':'') + '<span class="mini-pick-holes">' + holesDisp + '</span>' + ' ' + (ownP?'<span class="mini-pick-own">' + ownP + '</span>':'') + ' </div> </div> <div class="mini-pick-scores">' + gTodayHtml + '<span class="mini-pick-score ' + cls(g.score) + '">' + fmt(g.score) + '</span></div> </div>';
+      var gThru = '';
+      if (gd) {
+        if (gd.thru === 'F' || gd.thru === '18') gThru = 'F';
+        else if (gd.thru === 'WD' || gd.score === 12) gThru = 'WD';
+        else if (gd.thru === 'MC') gThru = 'MC';
+        else if (gd.thru && gd.thru !== '—') gThru = gd.thru;
+      }
+      return '<div class="mini-pick ' + (isTop?'is-top':'') + '"> <div class="mini-pick-left"> <div class="mini-pick-top"> ' + (isTop?'<span class="star">★</span>':'<span style="width:10px;display:inline-block"></span>') + ' <span class="mini-pick-name">' + (flag ? flag + ' ' : '') + g.name + '</span>' + (posDisplay ? ' <span class="mini-pick-pos">' + posDisplay + '</span>' : '') + ' </div> <div class="mini-pick-bottom"> ' + (rndsStr?'<span class="mini-pick-rounds">' + rndsStr + '</span>':'') + ' <span class="mini-pick-holes">' + holesDisp + '</span>' + ' ' + (ownP?'<span class="mini-pick-own">' + ownP + '</span>':'') + ' </div> </div> <div class="mini-pick-right"> <span class="mini-pick-today ' + gTodayCls + '">' + gTodayDisp + '</span> <span class="mini-pick-score ' + cls(g.score) + '">' + fmt(g.score) + '</span>' + (gThru ? ' <span class="mini-pick-thru-val">' + gThru + '</span>' : '') + ' </div> </div>';
     }).join('');
     var isTied = (i < ranked.length-1 && ranked[i].total === ranked[i+1].total) || (i > 0 && ranked[i].total === ranked[i-1].total);
     var tbFooter = (isTied && e.tb != null) ? '<span class="s-tb">TB: ' + e.tb + '</span> · ' : '';

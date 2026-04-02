@@ -863,16 +863,17 @@ html, body  {
   font-weight: 600;
 }
 
-.mini-pick-scores  {
+.mini-pick-right  {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1px;
+  align-items: center;
+  gap: 6px;
   flex-shrink: 0;
 }
 .mini-pick-today  {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
+  min-width: 22px;
+  text-align: right;
 }
 .mini-pick-today.neg { color: #52b788; }
 .mini-pick-today.pos { color: #ff7070; }
@@ -880,7 +881,15 @@ html, body  {
 .mini-pick-score  {
   font-size: 12px;
   font-weight: 800;
-  flex-shrink: 0;
+  min-width: 26px;
+  text-align: right;
+}
+.mini-pick-thru-val  {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text3);
+  min-width: 18px;
+  text-align: right;
 }
 
 .seg-wrap  {
@@ -2280,26 +2289,6 @@ to  {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-.s-golfers  {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1px 6px;
-  margin-top: 1px;
-}
-.sg-chip  {
-  font-size: 8px;
-  color: var(--text3);
-  font-weight: 600;
-  white-space: nowrap;
-}
-.sg-today  { font-weight: 700; }
-.sg-today.neg  { color: #52b788; }
-.sg-today.pos  { color: #ff7070; }
-.sg-today.eve  { color: var(--text3); }
-.sg-thru  {
-  color: var(--text3);
-  opacity: 0.6;
 }
 
 .s-tb  {
