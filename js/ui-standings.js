@@ -4,7 +4,6 @@ var _openPanelTeam = null;
 
 function renderStandings() {
   var ranked = getRanked();
-  document.getElementById('entry-count').textContent = ranked.length;
   updateHeaderTeam();
   var el = document.getElementById('standings-list');
   var ranks = [];
@@ -16,15 +15,26 @@ function renderStandings() {
 
   // Payout cards
   var cardsEl = document.getElementById('standings-cards');
+  var maxCompleted = 0;
+  if (TOURNAMENT_STARTED) {
+    Object.values(GOLFER_SCORES).forEach(function(gd) {
+      var cnt = [gd.r1,gd.r2,gd.r3,gd.r4].filter(function(r){return r!=null && r>50;}).length;
+      if (cnt > maxCompleted) maxCompleted = cnt;
+    });
+  }
+  var totalHolesLeft = ranked.length > 0 ? ranked.reduce(function(s, e) { return s + e.picks.reduce(function(s2, p) { return s2 + getHolesRemaining(p); }, 0); }, 0) : 999;
+  var tourneyDone = maxCompleted >= 4 && totalHolesLeft === 0;
   cardsEl.innerHTML = POOL_CONFIG.payouts.map(function(p, i) {
-    var holder = !TOURNAMENT_STARTED ? '—' : (ranked[i] ? ranked[i].team : '—');
-    if (TOURNAMENT_STARTED) {
-      var maxCompleted = 0;
-      Object.values(GOLFER_SCORES).forEach(function(gd) {
-        var cnt = [gd.r1,gd.r2,gd.r3,gd.r4].filter(function(r){return r!=null && r>50;}).length;
-        if (cnt > maxCompleted) maxCompleted = cnt;
-      });
-      if (maxCompleted < 2) holder = 'In Progress';
+    var holder = '—';
+    if (TOURNAMENT_STARTED && ranked[i]) {
+      if (tourneyDone) {
+        var tiedCount = ranked.filter(function(e) { return e.total === ranked[i].total; }).length;
+        holder = ranked[i].team + (tiedCount > 1 && ranks[i] === i + 1 ? '' : '');
+      } else if (maxCompleted >= 2) {
+        holder = ranked[i].team;
+      } else {
+        holder = 'In Progress';
+      }
     }
     var isGold = i === 0;
     return '<div class="payout-card ' + (isGold ? 'gold' : '') + '">' +
@@ -34,7 +44,7 @@ function renderStandings() {
     '</div>';
   }).join('');
   var actualPot = ENTRIES.length * POOL_CONFIG.buyIn;
-  document.getElementById('standings-pool-sub').textContent = ENTRIES.length + ' × $' + POOL_CONFIG.buyIn + ' = $' + actualPot.toLocaleString();
+  document.getElementById('standings-pool-sub').innerHTML = ENTRIES.length + ' entries · $' + POOL_CONFIG.buyIn + ' buy-in · <strong style="color:var(--gold)">$' + actualPot.toLocaleString() + ' pot</strong><br>Best 4 of 6 golfer scores combined over four rounds wins.';
 
   var heroHtml = '';
   if (currentUserEmail && currentUserTeams.length > 0) {

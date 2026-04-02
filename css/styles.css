@@ -763,8 +763,8 @@ html, body  {
 }
 
 .picks-panel-footer {
-  padding: 4px 10px;
-  font-size: 10px;
+  padding: 3px 8px;
+  font-size: 9px;
   color: var(--text3);
   border-top: 1px solid #0d1f12;
   display: flex;
@@ -775,10 +775,10 @@ html, body  {
   background: none;
   border: 1px solid var(--gold);
   color: var(--gold);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
   cursor: pointer;
   letter-spacing: 0.3px;
 }
@@ -798,9 +798,9 @@ html, body  {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px 8px 32px;
+  padding: 3px 8px 3px 20px;
   border-bottom: 1px solid #0d1f12;
-  font-size: 14px;
+  font-size: 11px;
 }
 
 .mini-pick:nth-child(odd)  {
@@ -823,29 +823,30 @@ html, body  {
 .mini-pick-left  {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   flex: 1;
   min-width: 0;
 }
 .mini-pick-top  {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 .mini-pick-bottom  {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding-left: 20px;
+  gap: 5px;
+  padding-left: 14px;
 }
 
 .star  {
-  font-size: 9px;
+  font-size: 8px;
   color: var(--gold);
 }
 
 .mini-pick-name  {
   font-weight: 600;
+  font-size: 11px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -861,7 +862,7 @@ html, body  {
 }
 
 .mini-pick-score  {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 800;
   flex-shrink: 0;
 }
@@ -2401,7 +2402,7 @@ to  {
 }
 
 .mini-pick-rounds  {
-  font-size: 10px;
+  font-size: 9px;
   color: var(--text3);
   flex-shrink: 0;
   font-weight: 600;
@@ -2409,7 +2410,7 @@ to  {
 }
 
 .mini-pick-own  {
-  font-size: 10px;
+  font-size: 9px;
   color: var(--gold);
   flex-shrink: 0;
   font-weight: 600;
@@ -2417,7 +2418,7 @@ to  {
 }
 
 .mini-pick-thru  {
-  font-size: 10px;
+  font-size: 9px;
   color: #4a8054;
   flex-shrink: 0;
 }
@@ -2459,14 +2460,14 @@ to  {
   align-items: center;
   gap: 0;
   background: rgba(212,168,67,0.10);
-  border: 1.5px solid var(--gold);
-  border-radius: 20px;
-  padding: 5px 14px;
+  border: 1px solid var(--gold);
+  border-radius: 10px;
+  padding: 2px 8px;
   color: var(--gold);
   font-family: inherit;
-  font-size: 10px;
+  font-size: 8px;
   font-weight: 800;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
   cursor: pointer;
   transition: all 0.2s;
