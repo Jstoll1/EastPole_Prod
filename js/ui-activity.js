@@ -107,9 +107,11 @@ function renderActivityList() {
     var ts = new Date(a.time);
     var timeStr = ts.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
     var typeCls = a.type ? ' act-' + a.type : '';
+    var ownE = a.player && OWNERSHIP_DATA ? OWNERSHIP_DATA.find(function(o) { return o.player === a.player; }) : null;
+    var ownTag = ownE ? '<span class="act-own">' + Math.round(ownE.pct * 100) + '%</span>' : '';
     return '<div class="act-item' + typeCls + '">' +
       '<div class="act-icon">' + a.icon + '</div>' +
-      '<div class="act-body"><div class="act-text">' + a.text + '</div>' +
+      '<div class="act-body"><div class="act-text">' + a.text + ownTag + '</div>' +
       '<div class="act-time">' + timeStr + ' · ' + timeAgo(a.time) + '</div></div></div>';
   }).join('');
 }

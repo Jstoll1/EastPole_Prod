@@ -159,7 +159,7 @@ function renderLeaderboard() {
   var rows = '';
   var cutInserted = false;
   var estCutInserted = false;
-  var estCutShow = currentRound >= 1 && currentRound <= 2 && lbSort === 'score' && lbFilter === 'all' && !lbSearch;
+  var estCutShow = currentRound === 2 && lbSort === 'score' && lbFilter === 'all' && !lbSearch;
   var estCutScore = null;
   if (estCutShow) { var cnt = 0; for (var ci = 0; ci < players.length; ci++) { var pp = players[ci]; if (pp.thru !== 'MC') { cnt++; if (cnt === 65) { estCutScore = pp.score; break; } } } }
   var arrowPlayers = new Map();
