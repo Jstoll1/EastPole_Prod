@@ -18,8 +18,17 @@ function renderAll() {
   var threshold = 80;
   var startY = 0, pulling = false, armed = false, refreshing = false;
 
+  function resetPtr() {
+    pulling = false;
+    armed = false;
+    refreshing = false;
+    ptr.style.height = '0px';
+    ptr.className = 'ptr-indicator';
+    ptrText.textContent = 'Pull to refresh';
+  }
+
   view.addEventListener('touchstart', function(e) {
-    if (refreshing || view.scrollTop > 0) return;
+    if (refreshing || view.scrollTop > 5) return;
     startY = e.touches[0].clientY;
     pulling = true;
     armed = false;
@@ -29,7 +38,7 @@ function renderAll() {
   view.addEventListener('touchmove', function(e) {
     if (!pulling || refreshing) return;
     var dy = Math.max(0, e.touches[0].clientY - startY);
-    if (dy === 0) return;
+    if (dy === 0) { pulling = false; return; }
     var dist = Math.min(dy * 0.5, 80);
     ptr.style.height = dist + 'px';
     if (dist >= threshold && !armed) {
@@ -63,10 +72,13 @@ function renderAll() {
       ptr.style.height = '40px';
       ptrText.textContent = 'Refreshing…';
       trackEvent('pull-to-refresh');
+      // Safety timeout: force reset after 10s if fetch hangs
+      var safetyTimer = setTimeout(resetPtr, 10000);
       var startTime = Date.now();
-      fetchESPN().finally(function() {
+      fetchESPN().catch(function() {}).then(function() {
+        clearTimeout(safetyTimer);
         var elapsed = Date.now() - startTime;
-        var delay = Math.max(0, 1000 - elapsed);
+        var delay = Math.max(0, 800 - elapsed);
         setTimeout(function() {
           refreshing = false;
           ptr.classList.add('releasing');
