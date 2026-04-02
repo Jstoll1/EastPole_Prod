@@ -1256,7 +1256,7 @@ html, body  {
 }
 .tv-score.neg { color: var(--gold); }
 .tv-score.pos { color: #ff6b6b; }
-.tv-score.eve { color: rgba(255,255,255,0.7); }
+.tv-score.eve { color: rgba(255,255,255,0.95); }
 .tv-score.mc { color: #ff6b6b; font-size: 10px; }
 
 .tv-today  {
@@ -1268,7 +1268,7 @@ html, body  {
 }
 .tv-today.neg { color: #66bb6a; }
 .tv-today.pos { color: var(--red); }
-.tv-today.eve { color: var(--text2); }
+.tv-today.eve { color: rgba(255,255,255,0.9); }
 
 .tv-thru  {
   width: 44px;
@@ -1279,7 +1279,7 @@ html, body  {
   flex-shrink: 0;
   color: #d4d4d4;
 }
-.tv-thru.active { color: #67b8e3; }
+.tv-thru.active { color: rgba(255,255,255,0.7); }
 
 .tv-rnd  {
   width: 26px;
