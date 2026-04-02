@@ -104,15 +104,13 @@ function renderActivityList() {
     return;
   }
   el.innerHTML = items.map(function(a) {
-    var ts = new Date(a.time);
-    var timeStr = ts.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
     var typeCls = a.type ? ' act-' + a.type : '';
     var ownE = a.player && OWNERSHIP_DATA ? OWNERSHIP_DATA.find(function(o) { return o.player === a.player; }) : null;
-    var ownTag = ownE ? '<span class="act-own">' + Math.round(ownE.pct * 100) + '%</span>' : '';
+    var ownTag = ownE ? ' <span class="act-own">' + Math.round(ownE.pct * 100) + '%</span>' : '';
     return '<div class="act-item' + typeCls + '">' +
       '<div class="act-icon">' + a.icon + '</div>' +
       '<div class="act-body"><div class="act-text">' + a.text + ownTag + '</div>' +
-      '<div class="act-time">' + timeStr + ' · ' + timeAgo(a.time) + '</div></div></div>';
+      '<div class="act-time">' + timeAgo(a.time) + '</div></div></div>';
   }).join('');
 }
 
@@ -154,11 +152,12 @@ function detectGolfActivity(freshScores) {
     else if (diff === 1) { icon = '🟡'; label = 'bogeys'; type = 'bogey'; }
     else if (diff === 2) { icon = '🔴'; label = 'double bogeys'; type = 'double'; }
     else { icon = '⛔'; label = '+' + diff + ' on'; type = 'worse'; }
-    var holeStr = holeNum ? ' #' + holeNum : '';
-    var parStr = holeNum ? ' <span style="color:var(--text3);font-size:12px">(Par ' + holePar + ')</span>' : '';
+    var holeStr = holeNum ? ' Hole ' + holeNum : '';
+    var parTag = holeNum ? ' <span class="act-meta">P' + holePar + '</span>' : '';
+    var scCls = d.score < 0 ? 'neg' : d.score > 0 ? 'pos' : 'eve';
     var todayStr = d.todayDisplay && d.todayDisplay !== '—' ? d.todayDisplay : '';
-    var statusStr = ' <span style="color:var(--text2)">—</span> <strong>' + fmt(d.score) + '</strong>' + (todayStr ? ' <span style="color:var(--text3);font-size:12px">(' + todayStr + ' today)</span>' : '');
-    addActivity(icon, '<strong>' + flag + ' ' + name + '</strong> ' + label + holeStr + parStr + statusStr, name, type);
+    var todayTag = todayStr ? ' <span class="act-meta">(' + todayStr + ' today)</span>' : '';
+    addActivity(icon, '<strong>' + flag + ' ' + name + '</strong> ' + label + holeStr + parTag + ': <span class="act-score ' + scCls + '">' + fmt(d.score) + '</span>' + todayTag, name, type);
   });
 }
 
