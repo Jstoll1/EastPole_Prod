@@ -996,6 +996,8 @@ html, body  {
   display: flex;
   align-items: center;
   text-transform: uppercase;
+  line-height: 1;
+  transform: translateY(1px);
 }
 .ticker-track {
   flex: 1;
@@ -1029,6 +1031,7 @@ html, body  {
   padding: 0 16px;
   font-size: 11px;
   line-height: 1;
+  transform: translateY(1px);
   font-weight: 600;
   color: var(--text);
   border-right: 1px solid rgba(255,255,255,0.08);
