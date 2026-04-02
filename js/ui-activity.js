@@ -99,41 +99,107 @@ function getLiveFilteredPicks() {
   return picks.size > 0 ? picks : null;
 }
 
-function renderActivityList() {
+var _actRendering = false;
+async function renderActivityList() {
   var el = document.getElementById('act-list');
-  if (!el) return;
-  var myPicks = getLiveFilteredPicks();
-  var items = myPicks
-    ? ACTIVITY_LOG.filter(function(a) { return myPicks.has(a.player); })
-    : ACTIVITY_LOG;
-  if (!items.length) {
-    var msg = !_roundLive
-      ? '<div class="act-empty">' +
-        '<div style="font-size:36px;margin-bottom:16px">⚡</div>' +
-        '<div style="font-weight:800;color:var(--text);margin-bottom:10px;font-size:16px">Live Hole-by-Hole Feed</div>' +
-        '<div style="line-height:1.6">Your entries\' golfers will show up here as they complete each hole during the round.</div></div>'
-      : '<div class="act-empty">' +
-        '<div style="font-size:36px;margin-bottom:16px">⚡</div>' +
-        '<div style="font-weight:800;color:var(--text);margin-bottom:10px;font-size:16px">Waiting for updates…</div>' +
-        '<div style="line-height:1.6">Scores will appear here as your golfers complete holes.</div></div>';
-    el.innerHTML = msg;
+  if (!el || _actRendering) return;
+  _actRendering = true;
+
+  var myPicks = getLiveFilteredPicks(); // Set of player names, or null for entire field
+  var playerNames = [];
+  if (myPicks) {
+    playerNames = Array.from(myPicks);
+  } else {
+    // Entire field: all active players (thru is a number or F)
+    Object.entries(GOLFER_SCORES).forEach(function(pair) {
+      var d = pair[1];
+      if (d.score === 11 || d.score === 12) return;
+      var t = parseInt(d.thru);
+      if ((!isNaN(t) && t >= 1) || d.thru === 'F' || d.thru === '18') playerNames.push(pair[0]);
+    });
+  }
+
+  if (!playerNames.length) {
+    el.innerHTML = '<div class="act-empty">' +
+      '<div style="font-size:36px;margin-bottom:16px">⚡</div>' +
+      '<div style="font-weight:800;color:var(--text);margin-bottom:10px;font-size:16px">' + (_roundLive ? 'Waiting for updates…' : 'Live Hole-by-Hole Feed') + '</div>' +
+      '<div style="line-height:1.6">Scores will appear here as golfers complete holes.</div></div>';
+    _actRendering = false;
     return;
   }
+
+  // Show loading if scorecards need fetching
+  var needFetch = playerNames.filter(function(n) { return !SCORECARD_CACHE[n] && ATHLETE_IDS[n]; });
+  if (needFetch.length > 0) {
+    el.innerHTML = '<div class="act-empty" style="padding:30px"><div style="font-size:11px;color:var(--text3)">Loading scorecards…</div></div>';
+    await fetchCourseHoles();
+    await Promise.all(needFetch.map(function(n) { return fetchPlayerScorecard(n); }));
+  }
+
+  // Build hole-by-hole items from scorecards, most recent hole first
+  var items = [];
+  playerNames.forEach(function(name) {
+    var rounds = SCORECARD_CACHE[name];
+    var gd = GOLFER_SCORES[name];
+    if (!rounds || !rounds.length || !gd) return;
+    var withHoles = rounds.filter(function(r) { return r.holes && r.holes.length > 0; });
+    var activeRound = withHoles.length ? withHoles[withHoles.length - 1] : null;
+    if (!activeRound) return;
+    var flag = FLAGS[name] || '';
+    var roundNum = withHoles.length;
+    // Running score-to-par through the round
+    var priorRoundsPar = 0;
+    for (var ri = 0; ri < roundNum - 1; ri++) {
+      if (rounds[ri] && rounds[ri].value && rounds[ri].value > 50) priorRoundsPar += (rounds[ri].value - COURSE_PAR);
+    }
+    var runningScore = priorRoundsPar;
+    activeRound.holes.forEach(function(h) {
+      if (!h.strokes || !h.par) return;
+      runningScore += (h.strokes - h.par);
+      var vs = h.strokes - h.par;
+      var icon, label, type;
+      if (vs <= -2) { icon = '🦅'; label = 'eagles'; type = 'eagle'; }
+      else if (vs === -1) { icon = '🐦'; label = 'birdies'; type = 'birdie'; }
+      else if (vs === 0) { icon = '⛳'; label = 'pars'; type = 'par'; }
+      else if (vs === 1) { icon = '🟡'; label = 'bogeys'; type = 'bogey'; }
+      else if (vs === 2) { icon = '🔴'; label = 'double bogeys'; type = 'double'; }
+      else { icon = '⛔'; label = '+' + vs + ' on'; type = 'worse'; }
+      var scCls = runningScore < 0 ? 'neg' : runningScore > 0 ? 'pos' : 'eve';
+      items.push({
+        player: name, hole: h.hole, type: type, icon: icon,
+        text: '<strong>' + flag + ' ' + name + '</strong> ' + label + ' Hole ' + h.hole + ' <span class="act-meta">P' + h.par + '</span>: <span class="act-score ' + scCls + '">' + fmt(runningScore) + '</span>',
+        sortKey: h.hole
+      });
+    });
+  });
+
+  // Sort: most recent hole first (highest hole number)
+  items.sort(function(a, b) { return b.sortKey - a.sortKey || a.player.localeCompare(b.player); });
+
+  if (!items.length) {
+    el.innerHTML = '<div class="act-empty">' +
+      '<div style="font-size:36px;margin-bottom:16px">⚡</div>' +
+      '<div style="font-weight:800;color:var(--text);margin-bottom:10px;font-size:16px">No holes completed yet</div>' +
+      '<div style="line-height:1.6">Scores will appear as golfers complete holes.</div></div>';
+    _actRendering = false;
+    return;
+  }
+
   el.innerHTML = items.map(function(a) {
     var typeCls = a.type ? ' act-' + a.type : '';
     var ownE = a.player && OWNERSHIP_DATA ? OWNERSHIP_DATA.find(function(o) { return o.player === a.player; }) : null;
     var ownTag = ownE ? ' <span class="act-own">' + Math.round(ownE.pct * 100) + '%</span>' : '';
-    var escapedPlayer = a.player ? a.player.replace(/'/g, "\\'") : '';
-    var clickAttr = escapedPlayer ? ' onclick="openScorecardPopup(\'' + escapedPlayer + '\')" style="cursor:pointer"' : '';
-    return '<div class="act-item' + typeCls + '"' + clickAttr + '>' +
+    var escapedPlayer = a.player.replace(/'/g, "\\'");
+    return '<div class="act-item' + typeCls + '" onclick="openScorecardPopup(\'' + escapedPlayer + '\')" style="cursor:pointer">' +
       '<div class="act-icon">' + a.icon + '</div>' +
       '<div class="act-body"><div class="act-text">' + a.text + ownTag + '</div>' +
-      '<div class="act-time">' + timeAgo(a.time) + '</div></div></div>';
+      '</div></div>';
   }).join('') + '<div class="act-end">You\'re all caught up</div>';
+  _actRendering = false;
 }
 
-// Update time-ago labels every 15s when drawer is open
-setInterval(function() { if (_actOpen) renderActivityList(); }, 15000);
+// Refresh feed every 30s when open
+setInterval(function() { if (_actOpen) renderActivityList(); }, 30000);
 
 function setRoundLive(isLive) {
   _roundLive = isLive;
