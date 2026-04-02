@@ -71,9 +71,14 @@ function renderLeaderboard() {
   var isMcWd = function(p) { return p.score === 11 || p.score === 12; };
   var activePlayers = players.filter(function(p) { return !isMcWd(p); });
   var mcPlayers = players.filter(isMcWd);
+  var allScheduled = activePlayers.every(function(p) { return p.thru === '—'; });
   if (lbSort === 'score') activePlayers.sort(function(a,b) {
     var aScheduled = a.thru === '—'; var bScheduled = b.thru === '—';
-    if (aScheduled && bScheduled) return (parseTeeTime(a) - parseTeeTime(b)) * dir;
+    if (aScheduled && bScheduled) {
+      var tt = parseTeeTime(a) - parseTeeTime(b);
+      if (tt !== 0) return tt * dir;
+      return a.name.localeCompare(b.name);
+    }
     if (aScheduled) return 1; if (bScheduled) return -1;
     var diff = a.score - b.score; if (diff !== 0) return diff * dir;
     return parseTeeTime(a) - parseTeeTime(b);
@@ -91,7 +96,12 @@ function renderLeaderboard() {
     if (aTee && bTee) return (parseTeeTime(a) - parseTeeTime(b)) * dir;
     if (aTee) return 1; if (bTee) return -1;
     var aWait = a.thru === '—', bWait = b.thru === '—';
-    if (aWait && bWait) return 0; if (aWait) return 1; if (bWait) return -1;
+    if (aWait && bWait) {
+      var tt = parseTeeTime(a) - parseTeeTime(b);
+      if (tt !== 0) return tt * dir;
+      return a.name.localeCompare(b.name);
+    }
+    if (aWait) return 1; if (bWait) return -1;
     return (aT - bT) * dir;
   });
   else if (lbSort === 'tot') activePlayers.sort(function(a,b) { return ((a.tot||9999) - (b.tot||9999)) * dir; });
