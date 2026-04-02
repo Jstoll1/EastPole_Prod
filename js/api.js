@@ -57,14 +57,16 @@ async function fetchESPN() {
       var wd = !isPreTournament && (state.includes('WD') || state.includes('WITHDRAW') || dispVal === 'WD' || stateDesc.includes('WITHDRAW') || posName === 'WD');
       var mc = !isPreTournament && !wd && state.includes('CUT');
       var scoreToPar = c.statistics?.find(function(s) { return s.name === 'scoreToPar'; });
-      var score = wd ? 12 : mc ? 11 : (scoreToPar ? scoreToPar.value : 0);
       var lines = c.linescores || [];
+      var computedPar = lines.reduce(function(s, l) { return (l.value && l.value > 50) ? s + (l.value - COURSE_PAR) : s; }, 0);
+      var score = wd ? 12 : mc ? 11 : (scoreToPar ? scoreToPar.value : computedPar);
       var teeTime = c.status?.teeTime || '';
       var thruRaw = c.status?.thru;
       var lastCompletedRound = lines.filter(function(l) { return l.value && l.value > 50; }).pop();
       var nextTeeStr = '';
       if (scheduled && lastCompletedRound && teeTime && teeTime.includes('T')) { try { nextTeeStr = new Date(teeTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); } catch(e) {} }
-      var thru = wd ? 'WD' : mc ? 'MC' : (scheduled ? (lastCompletedRound ? (nextTeeStr || '18') : '—') : (thruRaw > 0 ? String(thruRaw) : (c.status?.displayValue || 'F')));
+      var inProgress = state === 'STATUS_IN_PROGRESS';
+      var thru = wd ? 'WD' : mc ? 'MC' : (scheduled ? (lastCompletedRound ? (nextTeeStr || '18') : '—') : (inProgress && thruRaw != null ? (thruRaw > 0 ? String(thruRaw) : '1') : (thruRaw > 0 ? String(thruRaw) : (c.status?.displayValue || 'F'))));
       var startHole = c.status?.startHole || 1;
       var rval = function(idx) { var v = lines[idx]?.value; return (v && v > 50) ? v : null; };
       var tot = lines.reduce(function(s, l) { return (l.value && l.value > 50 ? s + l.value : s); }, 0) || null;
@@ -72,6 +74,17 @@ async function fetchESPN() {
       var todayRound = scheduled ? lastCompletedRound : lines[activeRndIdx >= 0 ? activeRndIdx : 0];
       var todayDisplay = todayRound?.displayValue || (todayRound?.value > 50 ? (function() { var tp = todayRound.value - COURSE_PAR; return tp === 0 ? 'E' : (tp > 0 ? '+' + tp : String(tp)); })() : '—');
       freshScores[name] = { pos: c.status?.position?.displayName || '—', score: wd ? 12 : mc ? 11 : score, thru: thru, teeTime: teeTime, startHole: startHole, tot: tot, todayDisplay: todayDisplay, r1: rval(0), r2: rval(1), r3: rval(2), r4: rval(3) };
+    });
+    // Debug: log first 3 non-scheduled players
+    var dbgCount = 0;
+    comps.forEach(function(c) {
+      if (dbgCount >= 3) return;
+      var st = c.status?.type?.name || '';
+      if (st !== 'STATUS_SCHEDULED') {
+        var n = resolvePlayerName(c.athlete?.displayName || '?');
+        console.log('🔍 ESPN', n, '| state:', st, '| thru:', c.status?.thru, '| disp:', c.status?.displayValue, '| scoreToPar:', c.statistics?.find(function(s){return s.name==='scoreToPar'})?.value, '| lines:', (c.linescores||[]).map(function(l){return l.value}).join(','));
+        dbgCount++;
+      }
     });
 
     // Detect score changes for animations
