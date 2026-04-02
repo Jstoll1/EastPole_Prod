@@ -1101,7 +1101,7 @@ html, body  {
 .tv-row  {
   display: flex;
   align-items: center;
-  padding: 7px 8px;
+  padding: 5px 8px;
   border-bottom: 1px solid rgba(26,51,38,0.4);
   border-left: 2px solid transparent;
 }
@@ -1143,8 +1143,8 @@ html, body  {
 }
 
 .tv-pos  {
-  width: 42px;
-  font-size: 13px;
+  width: 36px;
+  font-size: 12px;
   font-weight: 800;
   color: var(--text2);
   flex-shrink: 0;
@@ -1171,7 +1171,7 @@ html, body  {
 }
 
 .tv-name  {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: #ffffff;
   letter-spacing: 0.3px;
@@ -1202,8 +1202,8 @@ html, body  {
 }
 
 .tv-score  {
-  width: 48px;
-  font-size: 13px;
+  width: 42px;
+  font-size: 12px;
   font-weight: 800;
   text-align: center;
   flex-shrink: 0;
@@ -1214,8 +1214,8 @@ html, body  {
 .tv-score.mc { color: #ff6b6b; font-size: 10px; }
 
 .tv-today  {
-  width: 48px;
-  font-size: 12px;
+  width: 42px;
+  font-size: 11px;
   font-weight: 700;
   text-align: center;
   flex-shrink: 0;
@@ -1225,7 +1225,7 @@ html, body  {
 .tv-today.eve { color: var(--text2); }
 
 .tv-thru  {
-  width: 52px;
+  width: 44px;
   font-size: 11px;
   font-weight: 600;
   text-align: center;
