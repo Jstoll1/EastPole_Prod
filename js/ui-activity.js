@@ -162,23 +162,30 @@ function detectGolfActivity(freshScores) {
     var holePar = holeNum ? (pars[holeNum - 1] || 4) : 4;
     var flag = FLAGS[name] || '';
 
-    // Detect multi-hole jumps: if thru advanced by more than 1, this is a batch update
+    // Detect multi-hole batch: thru jumped by >1 OR no prior thru data
     var prevThru = PREV_THRU[name];
     var prevThruNum = prevThru ? parseInt(prevThru) : NaN;
     if (isNaN(prevThruNum) && prevThru === 'F') prevThruNum = 18;
     var thruNow = holeNum || 0;
-    var holesJumped = (!isNaN(prevThruNum) && thruNow > 0) ? thruNow - prevThruNum : 1;
-    if (holesJumped < 1) holesJumped = 1;
+    var holesJumped = (!isNaN(prevThruNum) && thruNow > 0) ? thruNow - prevThruNum : 0;
+
+    // Validate: on a single hole, max gain is ace = -(holePar-1), max loss ~+4
+    var isSingleHole = holesJumped === 1;
+    var maxGainOneHole = -(holePar - 1); // ace
+    if (isSingleHole && diff < maxGainOneHole) isSingleHole = false;
+    if (isSingleHole && diff > 4) isSingleHole = false;
+
+    // If no prev thru data, infer from diff magnitude
+    if (holesJumped === 0) {
+      isSingleHole = (diff >= -2 && diff <= 3);
+    }
 
     var icon, label, type;
-    if (holesJumped > 1) {
-      // Multi-hole batch: report net change, don't label as eagle/albatross
+    if (!isSingleHole) {
       if (diff < 0) { icon = '🔥'; label = 'moves to'; type = 'birdie'; }
       else { icon = '📉'; label = 'drops to'; type = 'bogey'; }
     } else {
-      // Single hole: use diff to determine shot type
-      if (diff <= -3) { icon = '🦅'; label = 'albatross on'; type = 'eagle'; }
-      else if (diff === -2) { icon = '🦅'; label = 'eagles'; type = 'eagle'; }
+      if (diff <= -2) { icon = '🦅'; label = 'eagles'; type = 'eagle'; }
       else if (diff === -1) { icon = '🐦'; label = 'birdies'; type = 'birdie'; }
       else if (diff === 1) { icon = '🟡'; label = 'bogeys'; type = 'bogey'; }
       else if (diff === 2) { icon = '🔴'; label = 'double bogeys'; type = 'double'; }
@@ -186,12 +193,12 @@ function detectGolfActivity(freshScores) {
     }
 
     var holeStr = holeNum ? ' Hole ' + holeNum : '';
-    var parTag = (holeNum && holesJumped <= 1) ? ' <span class="act-meta">P' + holePar + '</span>' : '';
+    var parTag = (holeNum && isSingleHole) ? ' <span class="act-meta">P' + holePar + '</span>' : '';
     var scCls = d.score < 0 ? 'neg' : d.score > 0 ? 'pos' : 'eve';
     var todayStr = d.todayDisplay && d.todayDisplay !== '—' ? d.todayDisplay : '';
     var todayTag = todayStr ? ' <span class="act-meta">(' + todayStr + ' today)</span>' : '';
-    var thruTag = holesJumped > 1 ? ' <span class="act-meta">thru ' + thruNow + '</span>' : '';
-    addActivity(icon, '<strong>' + flag + ' ' + name + '</strong> ' + label + (holesJumped > 1 ? '' : holeStr) + parTag + ': <span class="act-score ' + scCls + '">' + fmt(d.score) + '</span>' + todayTag + thruTag, name, type);
+    var thruTag = !isSingleHole ? ' <span class="act-meta">thru ' + thruNow + '</span>' : '';
+    addActivity(icon, '<strong>' + flag + ' ' + name + '</strong> ' + label + (!isSingleHole ? '' : holeStr) + parTag + ': <span class="act-score ' + scCls + '">' + fmt(d.score) + '</span>' + todayTag + thruTag, name, type);
   });
 }
 
