@@ -59,30 +59,35 @@ function updateLiveTab() {
 function populateLiveEntryFilter() {
   var sel = document.getElementById('live-entry-filter');
   if (!sel) return;
-  var opts = '<option value="all">All My Entries</option>';
-  if (currentUserTeams && currentUserTeams.length > 0) {
+  var hasTeams = currentUserTeams && currentUserTeams.length > 0;
+  var opts = '';
+  if (hasTeams) {
+    opts += '<option value="all">All My Entries</option>';
     currentUserTeams.forEach(function(t, i) {
       opts += '<option value="' + i + '">' + t.team + '</option>';
     });
   }
+  opts += '<option value="field"' + (!hasTeams ? ' selected' : '') + '>Entire Field</option>';
   sel.innerHTML = opts;
 }
 
 function getLiveFilteredPicks() {
   var sel = document.getElementById('live-entry-filter');
-  var val = sel ? sel.value : 'all';
+  var val = sel ? sel.value : 'field';
+  if (val === 'field') return null; // null = entire field
   if (val !== 'all' && currentUserTeams && currentUserTeams[parseInt(val)]) {
     trackEvent('live-filter-entry');
     return new Set(currentUserTeams[parseInt(val)].picks);
   }
-  return getActiveTeamPicks();
+  var picks = getActiveTeamPicks();
+  return picks.size > 0 ? picks : null;
 }
 
 function renderActivityList() {
   var el = document.getElementById('act-list');
   if (!el) return;
   var myPicks = getLiveFilteredPicks();
-  var items = myPicks.size > 0
+  var items = myPicks
     ? ACTIVITY_LOG.filter(function(a) { return myPicks.has(a.player); })
     : ACTIVITY_LOG;
   if (!items.length) {
@@ -128,12 +133,9 @@ function setRoundLive(isLive) {
 }
 
 function detectGolfActivity(freshScores) {
-  var myPicks = getActiveTeamPicks();
-  if (!myPicks.size) return;
   var pars = COURSE_HOLES ? COURSE_HOLES.map(function(h) { return h.par; }) : getDefaultPars();
   Object.entries(freshScores).forEach(function(pair) {
     var name = pair[0], d = pair[1];
-    if (!myPicks.has(name)) return;
     if (d.score === 11 || d.score === 12) return;
     var prev = PREV_SCORES[name];
     if (prev === undefined) return;
