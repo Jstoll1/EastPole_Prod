@@ -164,20 +164,18 @@ function renderLeaderboard() {
   if (estCutShow) { var cnt = 0; for (var ci = 0; ci < players.length; ci++) { var pp = players[ci]; if (pp.thru !== 'MC') { cnt++; if (cnt === 65) { estCutScore = pp.score; break; } } } }
   var arrowPlayers = new Map();
   if (!isPreT) {
-    var allDeltas = new Map();
     players.forEach(function(p) {
       if (p.score === 11 || p.score === 12) return;
       var cP = parsePos(p.pos); if (!cP) return;
+      // Only show arrows for active players (thru is a number, not tee time/F/MC)
+      var thruNum = parseInt(p.thru);
+      var isActive = !isNaN(thruNum) && thruNum >= 1 && thruNum < 18;
+      if (!isActive) return;
       var sP = ROUND_START_POSITIONS[p.name];
-      if (sP && sP !== cP) { allDeltas.set(p.name, sP - cP); return; }
+      if (sP && sP !== cP) { arrowPlayers.set(p.name, sP - cP); return; }
       var pP = PREV_POSITIONS[p.name];
-      if (pP && pP !== cP) allDeltas.set(p.name, pP - cP);
+      if (pP && pP !== cP) arrowPlayers.set(p.name, pP - cP);
     });
-    var sorted = Array.from(allDeltas.entries()).map(function(entry) { return { name: entry[0], delta: entry[1] }; });
-    var ups = sorted.filter(function(d) { return d.delta > 0; }).sort(function(a,b) { return b.delta - a.delta; }).slice(0, 10);
-    var dns = sorted.filter(function(d) { return d.delta < 0; }).sort(function(a,b) { return a.delta - b.delta; }).slice(0, 10);
-    ups.forEach(function(d) { arrowPlayers.set(d.name, d.delta); });
-    dns.forEach(function(d) { arrowPlayers.set(d.name, d.delta); });
   }
   var topMoverNames = isPreT ? new Map() : getTopMovers(arrowPlayers);
   var rowIdx = 0;
