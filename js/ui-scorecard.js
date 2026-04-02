@@ -269,56 +269,52 @@ async function openScorecardPopup(playerName) {
 }
 
 // ── Emoji Picker for Player Tags ──────────────────────────
-// Uses a hidden input to trigger the native OS emoji keyboard
 
 function openEmojiPicker(playerName) {
-  var currentEmoji = getPlayerEmoji(playerName);
+  var existing = document.getElementById('emoji-picker-popup');
+  if (existing) { existing.remove(); return; }
 
-  // If player already has an emoji, ask to remove or replace
+  var currentEmoji = getPlayerEmoji(playerName);
+  var escaped = playerName.replace(/'/g, "\\'");
+
+  var popup = document.createElement('div');
+  popup.id = 'emoji-picker-popup';
+  popup.onclick = function(e) { e.stopPropagation(); };
+
+  var html = '<div class="emoji-picker-title">Tag ' + playerName + '</div>';
+  html += '<input class="emoji-picker-input" type="text" placeholder="Tap here, then pick emoji ↗" autocomplete="off" maxlength="2">';
   if (currentEmoji) {
-    var existing = document.getElementById('emoji-picker-popup');
-    if (existing) { existing.remove(); return; }
-    var popup = document.createElement('div');
-    popup.id = 'emoji-picker-popup';
-    popup.innerHTML = '<button class="emoji-remove-btn" onclick="event.stopPropagation();selectPlayerEmoji(\'' + playerName.replace(/'/g, "\\'") + '\',\'\');this.parentElement.remove()">Remove ' + currentEmoji + '</button>'
-      + '<button class="emoji-remove-btn" style="margin-top:4px;color:var(--gold);border-color:var(--gold-dim,rgba(212,168,67,0.3))" onclick="event.stopPropagation();this.parentElement.remove();triggerEmojiKeyboard(\'' + playerName.replace(/'/g, "\\'") + '\')">Change Emoji</button>';
-    // Append next to the button
-    var btn = document.querySelector('.sc-emoji-btn');
-    if (btn) btn.insertAdjacentElement('afterend', popup);
-    else document.body.appendChild(popup);
-    return;
+    html += '<button class="emoji-remove-btn" style="margin-top:6px" onclick="event.stopPropagation();selectPlayerEmoji(\'' + escaped + '\',\'\');document.getElementById(\'emoji-picker-popup\').remove()">Remove ' + currentEmoji + '</button>';
+  }
+  popup.innerHTML = html;
+
+  // Insert into the open scorecard
+  var overlay = document.getElementById('sc-popup-overlay');
+  if (overlay) {
+    var wrap = overlay.querySelector('.sc-popup-wrap');
+    if (wrap) { wrap.appendChild(popup); }
+  } else if (_openScorecardIdx !== null) {
+    var panel = document.getElementById('sc-panel-' + _openScorecardIdx);
+    if (panel) { panel.appendChild(popup); }
+  } else {
+    document.body.appendChild(popup);
   }
 
-  triggerEmojiKeyboard(playerName);
-}
-
-function triggerEmojiKeyboard(playerName) {
-  var existing = document.getElementById('emoji-picker-input');
-  if (existing) existing.remove();
-
-  var input = document.createElement('input');
-  input.id = 'emoji-picker-input';
-  input.type = 'text';
-  input.inputMode = 'none';
-  input.style.cssText = 'position:fixed;top:40%;left:50%;opacity:0;width:1px;height:1px;';
-  document.body.appendChild(input);
-
-  input.addEventListener('input', function() {
-    var val = input.value.trim();
-    if (val) {
-      // Extract first emoji (handles multi-codepoint emoji like flags)
-      var segments = Array.from(new Intl.Segmenter({granularity: 'grapheme'}).segment(val));
-      var emoji = segments.length ? segments[0].segment : val;
-      selectPlayerEmoji(playerName, emoji);
+  var inp = popup.querySelector('.emoji-picker-input');
+  inp.addEventListener('input', function() {
+    var val = inp.value.trim();
+    if (!val) return;
+    // Grab the first grapheme (full emoji including modifiers/ZWJ)
+    var emoji;
+    if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+      var segs = Array.from(new Intl.Segmenter({granularity: 'grapheme'}).segment(val));
+      emoji = segs.length ? segs[0].segment : val;
+    } else {
+      emoji = Array.from(val)[0] || val;
     }
-    input.remove();
+    selectPlayerEmoji(playerName, emoji);
+    popup.remove();
   });
-
-  input.addEventListener('blur', function() {
-    setTimeout(function() { if (document.getElementById('emoji-picker-input')) input.remove(); }, 500);
-  });
-
-  input.focus();
 }
 
 function selectPlayerEmoji(playerName, emoji) {
