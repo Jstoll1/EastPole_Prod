@@ -153,7 +153,11 @@ function renderStandings() {
       var posDisplay = preT ? '' : pos;
       var flag = FLAGS[g.name] || '';
       var holesDisp = holesLeft > 0 ? holesLeft + ' holes left' : 'F';
-      return '<div class="mini-pick ' + (isTop?'is-top':'') + '"> <div class="mini-pick-left"> <div class="mini-pick-top"> ' + (isTop?'<span class="star">★</span>':'<span style="width:10px;display:inline-block"></span>') + ' <span class="mini-pick-name">' + (flag ? flag + ' ' : '') + g.name + '</span>' + (posDisplay ? ' <span class="mini-pick-pos">' + posDisplay + '</span>' : '') + ' </div> <div class="mini-pick-bottom"> ' + (rndsStr?'<span class="mini-pick-rounds">' + rndsStr + '</span>':'') + ' ' + (thruDisplay?'<span class="mini-pick-thru">' + thruDisplay + '</span>':'') + '<span class="mini-pick-holes">' + holesDisp + '</span>' + ' ' + (ownP?'<span class="mini-pick-own">' + ownP + '</span>':'') + ' </div> </div> <span class="mini-pick-score ' + cls(g.score) + '">' + fmt(g.score) + '</span> </div>';
+      var gToday = golferTodayScore(gd);
+      var gTodayDisp = gToday !== null ? (gToday > 0 ? '+' + gToday : gToday === 0 ? 'E' : '' + gToday) : '';
+      var gTodayCls = gToday !== null ? (gToday < 0 ? 'neg' : gToday > 0 ? 'pos' : 'eve') : '';
+      var gTodayHtml = gTodayDisp ? '<span class="mini-pick-today ' + gTodayCls + '">' + gTodayDisp + '</span>' : '';
+      return '<div class="mini-pick ' + (isTop?'is-top':'') + '"> <div class="mini-pick-left"> <div class="mini-pick-top"> ' + (isTop?'<span class="star">★</span>':'<span style="width:10px;display:inline-block"></span>') + ' <span class="mini-pick-name">' + (flag ? flag + ' ' : '') + g.name + '</span>' + (posDisplay ? ' <span class="mini-pick-pos">' + posDisplay + '</span>' : '') + ' </div> <div class="mini-pick-bottom"> ' + (rndsStr?'<span class="mini-pick-rounds">' + rndsStr + '</span>':'') + ' ' + (thruDisplay?'<span class="mini-pick-thru">' + thruDisplay + '</span>':'') + '<span class="mini-pick-holes">' + holesDisp + '</span>' + ' ' + (ownP?'<span class="mini-pick-own">' + ownP + '</span>':'') + ' </div> </div> <div class="mini-pick-scores">' + gTodayHtml + '<span class="mini-pick-score ' + cls(g.score) + '">' + fmt(g.score) + '</span></div> </div>';
     }).join('');
     var isTied = (i < ranked.length-1 && ranked[i].total === ranked[i+1].total) || (i > 0 && ranked[i].total === ranked[i-1].total);
     var tbFooter = (isTied && e.tb != null) ? '<span class="s-tb">TB: ' + e.tb + '</span> · ' : '';
