@@ -62,9 +62,14 @@ function renderStandings() {
           var d = prevRk - myRank;
           moveHtml = d > 0 ? '<span class="my-row-move up">▲' + d + '</span>' : '<span class="my-row-move dn">▼' + Math.abs(d) + '</span>';
         }
-        var pIdx = POOL_CONFIG.payouts.findIndex(function(p, pi) { return myRank === pi + 1; });
-        var payoutHtml = pIdx >= 0 ? '<span class="my-row-payout">$' + POOL_CONFIG.payouts[pIdx].amount + '</span>' : '';
-        rows += '<div class="my-row" onclick="setUser(\'' + myEntry.email + '\',' + currentUserTeams.indexOf(activeTeam) + ')"> <div class="my-row-rank">' + myRank + '</div> <div class="my-row-team">' + myEntry.team + '</div> ' + moveHtml + ' ' + payoutHtml + ' <div class="my-row-score ' + scc + '">' + fmtTeam(myEntry.total) + '</div> </div>';
+        var myHolesLeft = myEntry.picks.reduce(function(s, p) { return s + getHolesRemaining(p); }, 0);
+        var myPlayStarted = myHolesLeft < myEntry.picks.length * 72;
+        var myHolesTag = myPlayStarted ? '<span class="my-row-holes">' + myHolesLeft + 'h</span>' : '';
+        var myTeamToday = 0, myTodayCount = 0;
+        myEntry.top4.forEach(function(g) { var td = golferTodayScore(GOLFER_SCORES[g.name]); if (td !== null) { myTeamToday += td; myTodayCount++; } });
+        var myTodayDisp = myTodayCount > 0 ? (myTeamToday > 0 ? '+' + myTeamToday : myTeamToday === 0 ? 'E' : '' + myTeamToday) : '—';
+        var myTodayCls = myTeamToday < 0 ? 'neg' : myTeamToday > 0 ? 'pos' : 'eve';
+        rows += '<div class="my-row" onclick="setUser(\'' + myEntry.email + '\',' + currentUserTeams.indexOf(activeTeam) + ')"> <div class="my-row-rank">' + myRank + '</div> <div class="my-row-team">' + myEntry.team + '</div> ' + moveHtml + ' ' + myHolesTag + ' <div class="my-row-today ' + myTodayCls + '">' + myTodayDisp + '</div> <div class="my-row-score ' + scc + '">' + fmtTeam(myEntry.total) + '</div> </div>';
       }
     });
     var showAllBtn = (activeTeamIdx >= 0 && currentUserTeams.length > 1) ? '<div class="my-show-all" onclick="trackEvent(\'show-all-entries\');setUser(\'' + currentUserEmail + '\',-1)">Show All Entries</div>' : '';

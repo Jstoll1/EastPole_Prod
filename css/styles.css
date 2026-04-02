@@ -2216,12 +2216,22 @@ to  {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.my-row-payout {
-  font-size: 10px;
-  font-weight: 800;
-  color: #52b788;
+.my-row-holes {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text3);
   flex-shrink: 0;
 }
+.my-row-today {
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  min-width: 28px;
+  text-align: right;
+}
+.my-row-today.neg { color: #52b788; }
+.my-row-today.pos { color: #ff7070; }
+.my-row-today.eve { color: var(--text2); }
 .my-row-score {
   font-size: 14px;
   font-weight: 900;
