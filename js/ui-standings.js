@@ -33,7 +33,8 @@ function renderStandings() {
       '<div class="pc-who">' + holder + '</div>' +
     '</div>';
   }).join('');
-  document.getElementById('standings-pool-sub').textContent = ENTRIES.length + ' entries × $' + POOL_CONFIG.buyIn + ' = $' + POOL_CONFIG.pot + ' pool';
+  var actualPot = ENTRIES.length * POOL_CONFIG.buyIn;
+  document.getElementById('standings-pool-sub').textContent = ENTRIES.length + ' × $' + POOL_CONFIG.buyIn + ' = $' + actualPot.toLocaleString();
 
   var heroHtml = '';
   if (currentUserEmail && currentUserTeams.length > 0) {
@@ -84,7 +85,11 @@ function renderStandings() {
       if (mv >= 3) moveBadge = '<span class="s-mover up">🔥 +' + mv + '</span>';
       else if (mv <= -3) moveBadge = '<span class="s-mover dn">🧊 ' + mv + '</span>';
     }
-    html += ' <div class="standing-row ' + isMyTeam + cmpCls + cmpSelCls + '" onclick="' + rowClick + '"> <div class="s-rank">' + rank + '</div> <div class="s-info"> <div class="s-team">' + e.team + cmpBadge + moveBadge + '</div> <div class="s-name">' + e.name + tbTag + '</div> </div> <div class="s-score ' + scc + '">' + scf + '</div> <div class="s-arrow" id="arr-' + i + '">' + (compareMode ? '' : '›') + '</div> </div> <div class="picks-panel" id="panel-' + i + '"> ' + e.scores.map(function(g, j) {
+    var teamToday = 0, teamTodayCount = 0;
+    e.top4.forEach(function(g) { var td = golferTodayScore(GOLFER_SCORES[g.name]); if (td !== null) { teamToday += td; teamTodayCount++; } });
+    var todayDisp = teamTodayCount > 0 ? (teamToday > 0 ? '+' + teamToday : teamToday === 0 ? 'E' : '' + teamToday) : '—';
+    var todayCls = teamToday < 0 ? 'neg' : teamToday > 0 ? 'pos' : 'eve';
+    html += ' <div class="standing-row ' + isMyTeam + cmpCls + cmpSelCls + '" onclick="' + rowClick + '"> <div class="s-rank">' + rank + '</div> <div class="s-info"> <div class="s-team">' + e.team + cmpBadge + moveBadge + '</div> <div class="s-name">' + e.name + tbTag + '</div> </div> <div class="s-today ' + todayCls + '">' + todayDisp + '</div> <div class="s-score ' + scc + '">' + scf + '</div> <div class="s-arrow" id="arr-' + i + '">' + (compareMode ? '' : '›') + '</div> </div> <div class="picks-panel" id="panel-' + i + '"> ' + e.scores.map(function(g, j) {
       var isTop = j < 4;
       var gd = GOLFER_SCORES[g.name];
       var preT = !TOURNAMENT_STARTED;

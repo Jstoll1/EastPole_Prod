@@ -17,7 +17,7 @@
 <meta name="twitter:title" content="East Pole Golf Pool">
 <meta name="twitter:description" content="Live leaderboard and pool standings for the Valero Texas Open 2026.">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-<link rel="stylesheet" href="./css/styles.css?v=67">
+<link rel="stylesheet" href="./css/styles.css?v=68">
 <link rel="stylesheet" href="./css/theme.css">
 <script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -102,7 +102,7 @@
 <div class="tv-title">Pool Standings</div>
 </div>
 <div class="tv-header-bot" style="display:flex;align-items:center;justify-content:space-between">
-<div class="tv-sub">Valero Texas Open 2026 · <span id="entry-count">0</span> Entries</div>
+<div class="tv-sub"><span id="entry-count">0</span> Entries</div>
 </div>
 </div>
 <div id="standings-cards" style="display:flex;gap:6px;margin:8px 14px 0;"></div>
@@ -111,10 +111,11 @@
 <div id="h2h-inline-panel"></div>
 <div id="cmp-hint" style="display:none" class="cmp-hint">Tap two teams to compare</div>
 <div class="tv-col-hdr" style="margin-top:4px">
-<div style="width:30px">Rank</div>
+<div style="width:26px;font-size:8px">#</div>
 <div style="flex:1">Entry</div>
-<button class="cmp-toggle" id="cmp-toggle" onclick="toggleCompareMode()" style="margin-right:4px">⚔️ H2H</button>
-<div style="width:44px;text-align:right">Score</div>
+<button class="cmp-toggle" id="cmp-toggle" onclick="toggleCompareMode()" style="margin-right:2px">⚔️ H2H</button>
+<div style="width:32px;text-align:right;font-size:8px">Today</div>
+<div style="width:36px;text-align:right;font-size:8px">Total</div>
 </div>
 <div id="standings-list">
 </div>
@@ -276,18 +277,18 @@
 </div>
 
 <!-- Module Scripts (deferred) -->
-<script defer src="./js/state.js?v=67"></script>
-<script defer src="./js/utils.js?v=67"></script>
-<script defer src="./js/api.js?v=67"></script>
-<script defer src="./js/ui-header.js?v=67"></script>
-<script defer src="./js/ui-standings.js?v=67"></script>
-<script defer src="./js/ui-leaderboard.js?v=67"></script>
-<script defer src="./js/ui-scorecard.js?v=67"></script>
-<script defer src="./js/ui-compare.js?v=67"></script>
-<script defer src="./js/ui-ownership.js?v=67"></script>
-<script defer src="./js/ui-activity.js?v=67"></script>
-<script defer src="./js/ui-ticker.js?v=67"></script>
-<script defer src="./js/ui-debug.js?v=67"></script>
-<script defer src="./js/app.js?v=67"></script>
+<script defer src="./js/state.js?v=68"></script>
+<script defer src="./js/utils.js?v=68"></script>
+<script defer src="./js/api.js?v=68"></script>
+<script defer src="./js/ui-header.js?v=68"></script>
+<script defer src="./js/ui-standings.js?v=68"></script>
+<script defer src="./js/ui-leaderboard.js?v=68"></script>
+<script defer src="./js/ui-scorecard.js?v=68"></script>
+<script defer src="./js/ui-compare.js?v=68"></script>
+<script defer src="./js/ui-ownership.js?v=68"></script>
+<script defer src="./js/ui-activity.js?v=68"></script>
+<script defer src="./js/ui-ticker.js?v=68"></script>
+<script defer src="./js/ui-debug.js?v=68"></script>
+<script defer src="./js/app.js?v=68"></script>
 </body>
 </html>
