@@ -123,8 +123,9 @@ function renderStandings() {
     var teamHolesLeft = e.picks.reduce(function(sum, p) { return sum + getHolesRemaining(p); }, 0);
     var rowClick = compareMode ? 'cmpSelectTeam(' + entryIdx + ')' : 'togglePanel(this,' + i + ')';
     // Movement badge relative to round start
-    var startRk = ROUND_START_ENTRY_RANKS[e.team];
-    var refRk = startRk || PREV_RANKS[e.team];
+    var entryKey = e.team + '|' + e.email;
+    var startRk = ROUND_START_ENTRY_RANKS[entryKey];
+    var refRk = startRk || PREV_RANKS[entryKey];
     var moveBadge = '';
     if (refRk && refRk !== rank) {
       var mv = refRk - rank;
@@ -173,9 +174,9 @@ function renderStandings() {
   detectEntryActivity();
   // Seed round-start entry ranks if empty (first load)
   if (TOURNAMENT_STARTED && Object.keys(ROUND_START_ENTRY_RANKS).length === 0) {
-    ranked.forEach(function(e, i) { ROUND_START_ENTRY_RANKS[e.team] = ranks[i]; });
+    ranked.forEach(function(e, i) { ROUND_START_ENTRY_RANKS[e.team + '|' + e.email] = ranks[i]; });
   }
-  ranked.forEach(function(e, i) { PREV_RANKS[e.team] = ranks[i]; });
+  ranked.forEach(function(e, i) { PREV_RANKS[e.team + '|' + e.email] = ranks[i]; });
   document.getElementById('my-teams-container').innerHTML = heroHtml;
   el.innerHTML = html;
   var hasTies = ranks.some(function(r, i) { return i > 0 && r === ranks[i-1]; });

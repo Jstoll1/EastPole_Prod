@@ -273,6 +273,12 @@ var SPLASH_DATE_KEY = 'eastpole_splash_date';
 
 // Load round-start positions from localStorage
 try {
+  // Migrate: clear old entry ranks keyed by team name only
+  if (!localStorage.getItem('eastpole_rsr_v2')) {
+    var oldData = JSON.parse(localStorage.getItem('eastpole_round_start') || '{}');
+    if (oldData.entryRanks) { delete oldData.entryRanks; localStorage.setItem('eastpole_round_start', JSON.stringify(oldData)); }
+    localStorage.setItem('eastpole_rsr_v2', '1');
+  }
   var saved = JSON.parse(localStorage.getItem('eastpole_round_start') || '{}');
   var posAge = saved.timestamp ? Date.now() - saved.timestamp : Infinity;
   if (saved.round && saved.positions && posAge < 18 * 60 * 60 * 1000) { ROUND_START_POSITIONS = saved.positions; ROUND_START_ROUND = saved.round; if (saved.entryRanks) ROUND_START_ENTRY_RANKS = saved.entryRanks; }
@@ -291,7 +297,7 @@ function saveRoundStartPositions(round) {
   var rk = 1;
   ranked.forEach(function(e, i) {
     if (i > 0 && ranked[i].total !== ranked[i-1].total) rk = i + 1;
-    ROUND_START_ENTRY_RANKS[e.team] = rk;
+    ROUND_START_ENTRY_RANKS[e.team + '|' + e.email] = rk;
   });
   try { localStorage.setItem('eastpole_round_start', JSON.stringify({ round: round, positions: ROUND_START_POSITIONS, entryRanks: ROUND_START_ENTRY_RANKS, timestamp: Date.now() })); } catch(e) {}
 }
