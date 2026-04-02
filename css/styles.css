@@ -2168,8 +2168,10 @@ to  {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 2px;
   margin-right: 4px;
+}
+.tv-pill-slot .team-pill + .team-pill  {
+  margin-left: -6px;
 }
 
 .team-pill  {
@@ -2185,6 +2187,8 @@ to  {
   flex-shrink: 0;
   vertical-align: middle;
   line-height: 1;
+  border: 1.5px solid rgba(0,0,0,0.3);
+  box-sizing: border-box;
 }
 
 .pill-a  {
