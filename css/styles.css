@@ -860,6 +860,14 @@ html, body  {
   flex-shrink: 0;
   font-weight: 600;
 }
+.mini-pick-move  {
+  font-size: 8px;
+  font-weight: 700;
+  margin-left: 3px;
+  flex-shrink: 0;
+}
+.mini-pick-move.up  { color: #52b788; }
+.mini-pick-move.dn  { color: #ff7070; }
 
 .mini-pick-score  {
   font-size: 12px;
