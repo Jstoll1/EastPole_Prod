@@ -85,7 +85,15 @@ function renderLeaderboard() {
     if (aWaiting && bWaiting) return a.score - b.score;
     return (parseTodayVal(a) - parseTodayVal(b)) * dir;
   });
-  else if (lbSort === 'thru') activePlayers.sort(function(a,b) { return (parseThruVal(b) - parseThruVal(a)) * dir; });
+  else if (lbSort === 'thru') activePlayers.sort(function(a,b) {
+    var aT = parseThruVal(a), bT = parseThruVal(b);
+    var aTee = a.thru && a.thru.includes(':'), bTee = b.thru && b.thru.includes(':');
+    if (aTee && bTee) return (parseTeeTime(a) - parseTeeTime(b)) * dir;
+    if (aTee) return 1; if (bTee) return -1;
+    var aWait = a.thru === '—', bWait = b.thru === '—';
+    if (aWait && bWait) return 0; if (aWait) return 1; if (bWait) return -1;
+    return (aT - bT) * dir;
+  });
   else if (lbSort === 'tot') activePlayers.sort(function(a,b) { return ((a.tot||9999) - (b.tot||9999)) * dir; });
   mcPlayers.sort(function(a,b) { return a.score - b.score; });
   players = activePlayers.concat(mcPlayers);
