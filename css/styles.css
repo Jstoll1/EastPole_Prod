@@ -298,13 +298,13 @@ html, body  {
   flex: 1;
   background: rgba(201,168,76,0.07);
   border: 1px solid rgba(201,168,76,0.2);
-  border-radius: 10px;
-  padding: 10px 8px 8px;
+  border-radius: 8px;
+  padding: 6px 6px 5px;
   text-align: center;
 }
 
 .payout-card .pc-lbl  {
-  font-size: 10px;
+  font-size: 9px;
   color: var(--gold);
   font-weight: 700;
   letter-spacing: 0.4px;
@@ -312,14 +312,14 @@ html, body  {
 }
 
 .payout-card .pc-amt  {
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 900;
   color: #f5c518;
-  margin: 4px 0 3px;
+  margin: 1px 0 1px;
 }
 
 .payout-card .pc-who  {
-  font-size: 10px;
+  font-size: 9px;
   color: var(--text2);
   white-space: nowrap;
   overflow: hidden;
@@ -632,7 +632,7 @@ html, body  {
 .standing-row  {
   display: flex;
   align-items: center;
-  padding: 10px 14px;
+  padding: 7px 14px;
   border-bottom: 1px solid rgba(26,51,38,0.6);
   cursor: pointer;
   gap: 0;
@@ -652,8 +652,8 @@ html, body  {
 }
 
 .s-rank  {
-  width: 40px;
-  font-size: 15px;
+  width: 34px;
+  font-size: 13px;
   font-weight: 800;
   flex-shrink: 0;
   text-align: left;
@@ -666,7 +666,7 @@ html, body  {
 }
 
 .s-team  {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
@@ -686,16 +686,16 @@ html, body  {
 .s-email  {
   font-size: 10px;
   color: var(--text3);
-  margin-top: 2px;
+  margin-top: 1px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .s-score  {
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 900;
-  width: 52px;
+  width: 48px;
   text-align: right;
   flex-shrink: 0;
 }
@@ -2155,36 +2155,36 @@ to  {
 }
 
 .my-teams-block {
-  margin: 8px 14px 6px;
+  margin: 6px 14px 4px;
   background: linear-gradient(135deg, rgba(212,168,67,0.08), rgba(212,168,67,0.02));
   border: 1px solid rgba(212,168,67,0.25);
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
 }
 .my-teams-label {
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 800;
   letter-spacing: 1.5px;
   color: var(--gold);
-  padding: 6px 12px 0;
+  padding: 5px 10px 0;
 }
 .my-row {
   display: flex;
   align-items: center;
-  padding: 6px 12px;
-  gap: 8px;
+  padding: 3px 10px;
+  gap: 6px;
   cursor: pointer;
 }
 .my-row-rank {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 900;
   color: var(--gold);
-  width: 28px;
+  width: 24px;
   text-align: center;
   flex-shrink: 0;
 }
 .my-row-team {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: #fff;
   flex: 1;
@@ -2194,16 +2194,16 @@ to  {
   white-space: nowrap;
 }
 .my-row-payout {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
   color: #52b788;
   flex-shrink: 0;
 }
 .my-row-score {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 900;
   flex-shrink: 0;
-  min-width: 40px;
+  min-width: 36px;
   text-align: right;
 }
 .my-row-move {
