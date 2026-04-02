@@ -127,7 +127,7 @@ function renderActivityList() {
       '<div class="act-icon">' + a.icon + '</div>' +
       '<div class="act-body"><div class="act-text">' + a.text + ownTag + '</div>' +
       '<div class="act-time">' + timeAgo(a.time) + '</div></div></div>';
-  }).join('');
+  }).join('') + '<div class="act-end">You\'re all caught up</div>';
 }
 
 // Update time-ago labels every 15s when drawer is open
@@ -179,20 +179,17 @@ function detectGolfActivity(freshScores) {
 
 function detectEntryActivity() {}
 
-// Swipe to resize / close drawer
-(function() {
+// Swipe to resize / close drawer (header/handle area)
+document.addEventListener('DOMContentLoaded', function() {
   var drawer = document.getElementById('activity-drawer');
   if (!drawer) return;
+  var handle = drawer.querySelector('.act-handle');
+  var header = drawer.querySelector('.live-header');
   var startY = 0, currentY = 0, dragging = false, startH = 0;
-  var MIN_H = 45; // vh
-  var MAX_H = 90; // vh
+  var MAX_H = 92;
 
   function onStart(e) {
     if (!_actOpen) return;
-    // Only trigger from handle/header area, not scrollable list
-    var tgt = e.target;
-    var list = document.getElementById('act-list');
-    if (list && list.contains(tgt) && list.scrollTop > 0) return;
     startY = e.touches[0].clientY;
     currentY = startY;
     startH = drawer.offsetHeight;
@@ -203,29 +200,28 @@ function detectEntryActivity() {}
     if (!dragging) return;
     currentY = e.touches[0].clientY;
     var dy = currentY - startY;
-    // Swipe down: translate drawer down (to close)
     if (dy > 0) {
       drawer.style.transform = 'translateY(' + dy + 'px)';
-      e.preventDefault();
     } else {
-      // Swipe up: grow drawer height
-      var newH = Math.min(MAX_H, Math.max(MIN_H, (startH - dy) / window.innerHeight * 100));
+      var newH = Math.min(MAX_H, (startH - dy) / window.innerHeight * 100);
       drawer.style.maxHeight = newH + 'vh';
       drawer.style.transform = 'translateY(0)';
-      e.preventDefault();
     }
+    e.preventDefault();
   }
   function onEnd() {
     if (!dragging) return;
     dragging = false;
     drawer.style.transition = '';
     drawer.style.transform = '';
-    var dy = currentY - startY;
-    if (dy > 80) {
+    if (currentY - startY > 80) {
       toggleActivityDrawer();
     }
   }
-  drawer.addEventListener('touchstart', onStart, { passive: true });
-  drawer.addEventListener('touchmove', onMove, { passive: false });
-  drawer.addEventListener('touchend', onEnd);
-})();
+  [handle, header].forEach(function(el) {
+    if (!el) return;
+    el.addEventListener('touchstart', onStart, { passive: true });
+    el.addEventListener('touchmove', onMove, { passive: false });
+    el.addEventListener('touchend', onEnd);
+  });
+});
