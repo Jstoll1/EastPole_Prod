@@ -2988,6 +2988,8 @@ to  {
 .act-item:first-child { background:rgba(212,168,67,0.03); }
 .act-item.act-birdie .act-icon { color:#4ade80; }
 .act-item.act-eagle .act-icon { color:var(--gold); }
+.act-item.act-par .act-icon { color:var(--text3); }
+.act-item.act-par { opacity:0.7; }
 .act-item.act-bogey .act-icon { color:#fbbf24; }
 .act-item.act-double .act-icon { color:#f87171; }
 .act-item.act-worse .act-icon { color:#ef4444; }

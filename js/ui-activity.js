@@ -32,10 +32,10 @@ function _saveActivity() {
 }
 
 function addActivity(icon, text, playerName, type) {
-  // Dedup: skip if same player+type within last 3min
+  // Dedup: skip if same player + same text within last 3min
   var now = Date.now();
   var dup = ACTIVITY_LOG.some(function(a) {
-    return a.player === playerName && a.type === type && (now - a.time) < 180000;
+    return a.player === playerName && a.text === text && (now - a.time) < 180000;
   });
   if (dup) return;
   ACTIVITY_LOG.unshift({ icon: icon, text: text, player: playerName, type: type || '', time: now });
@@ -155,50 +155,44 @@ function detectGolfActivity(freshScores) {
     if (d.score === 11 || d.score === 12) return;
     var prev = PREV_SCORES[name];
     if (prev === undefined) return;
-    var diff = d.score - prev;
-    if (diff === 0) return;
-    var thruNum = parseInt(d.thru);
-    var holeNum = !isNaN(thruNum) && thruNum >= 1 ? thruNum : (d.thru === 'F' || d.thru === '18' ? 18 : null);
-    var holePar = holeNum ? (pars[holeNum - 1] || 4) : 4;
-    var flag = FLAGS[name] || '';
 
-    // Detect multi-hole batch: thru jumped by >1 OR no prior thru data
     var prevThru = PREV_THRU[name];
     var prevThruNum = prevThru ? parseInt(prevThru) : NaN;
     if (isNaN(prevThruNum) && prevThru === 'F') prevThruNum = 18;
-    var thruNow = holeNum || 0;
-    var holesJumped = (!isNaN(prevThruNum) && thruNow > 0) ? thruNow - prevThruNum : 0;
+    var thruNum = parseInt(d.thru);
+    var thruNow = !isNaN(thruNum) ? thruNum : (d.thru === 'F' || d.thru === '18' ? 18 : 0);
 
-    // Validate: on a single hole, max gain is ace = -(holePar-1), max loss ~+4
-    var isSingleHole = holesJumped === 1;
-    var maxGainOneHole = -(holePar - 1); // ace
-    if (isSingleHole && diff < maxGainOneHole) isSingleHole = false;
-    if (isSingleHole && diff > 4) isSingleHole = false;
+    // Only fire when thru advances (hole completed)
+    if (isNaN(prevThruNum) || thruNow <= prevThruNum) return;
 
-    // If no prev thru data, infer from diff magnitude
-    if (holesJumped === 0) {
-      isSingleHole = (diff >= -2 && diff <= 3);
-    }
-
-    var icon, label, type;
-    if (!isSingleHole) {
-      if (diff < 0) { icon = '🔥'; label = 'moves to'; type = 'birdie'; }
-      else { icon = '📉'; label = 'drops to'; type = 'bogey'; }
-    } else {
-      if (diff <= -2) { icon = '🦅'; label = 'eagles'; type = 'eagle'; }
-      else if (diff === -1) { icon = '🐦'; label = 'birdies'; type = 'birdie'; }
-      else if (diff === 1) { icon = '🟡'; label = 'bogeys'; type = 'bogey'; }
-      else if (diff === 2) { icon = '🔴'; label = 'double bogeys'; type = 'double'; }
-      else { icon = '⛔'; label = '+' + diff + ' on'; type = 'worse'; }
-    }
-
-    var holeStr = holeNum ? ' Hole ' + holeNum : '';
-    var parTag = (holeNum && isSingleHole) ? ' <span class="act-meta">P' + holePar + '</span>' : '';
+    var diff = d.score - prev;
+    var holesJumped = thruNow - prevThruNum;
+    var flag = FLAGS[name] || '';
     var scCls = d.score < 0 ? 'neg' : d.score > 0 ? 'pos' : 'eve';
     var todayStr = d.todayDisplay && d.todayDisplay !== '—' ? d.todayDisplay : '';
     var todayTag = todayStr ? ' <span class="act-meta">(' + todayStr + ' today)</span>' : '';
-    var thruTag = !isSingleHole ? ' <span class="act-meta">thru ' + thruNow + '</span>' : '';
-    addActivity(icon, '<strong>' + flag + ' ' + name + '</strong> ' + label + (!isSingleHole ? '' : holeStr) + parTag + ': <span class="act-score ' + scCls + '">' + fmt(d.score) + '</span>' + todayTag + thruTag, name, type);
+
+    if (holesJumped === 1) {
+      // Single hole completed — show what happened on that hole
+      var holeNum = thruNow;
+      var holePar = pars[holeNum - 1] || 4;
+      var icon, label, type;
+      if (diff <= -2) { icon = '🦅'; label = 'eagles'; type = 'eagle'; }
+      else if (diff === -1) { icon = '🐦'; label = 'birdies'; type = 'birdie'; }
+      else if (diff === 0) { icon = '⛳'; label = 'pars'; type = 'par'; }
+      else if (diff === 1) { icon = '🟡'; label = 'bogeys'; type = 'bogey'; }
+      else if (diff === 2) { icon = '🔴'; label = 'double bogeys'; type = 'double'; }
+      else { icon = '⛔'; label = '+' + diff + ' on'; type = 'worse'; }
+      addActivity(icon, '<strong>' + flag + ' ' + name + '</strong> ' + label + ' Hole ' + holeNum + ' <span class="act-meta">P' + holePar + '</span>: <span class="act-score ' + scCls + '">' + fmt(d.score) + '</span>' + todayTag, name, type);
+    } else {
+      // Multi-hole batch — report net movement
+      var icon2, label2, type2;
+      if (diff < 0) { icon2 = '🔥'; type2 = 'birdie'; }
+      else if (diff > 0) { icon2 = '📉'; type2 = 'bogey'; }
+      else { icon2 = '⛳'; type2 = 'par'; }
+      label2 = 'now at';
+      addActivity(icon2, '<strong>' + flag + ' ' + name + '</strong> ' + label2 + ': <span class="act-score ' + scCls + '">' + fmt(d.score) + '</span>' + todayTag + ' <span class="act-meta">thru ' + thruNow + '</span>', name, type2);
+    }
   });
 }
 
