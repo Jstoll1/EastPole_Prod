@@ -45,9 +45,7 @@ function renderTicker() {
       var scc = cls(p.score);
       var flag = FLAGS[p.name] || '';
       var dot = poolNames.has(p.name) ? '<span class="ticker-pool-dot"></span>' : '';
-      var odds = PRE_ODDS[p.name] ? PRE_ODDS[p.name][0] : '';
-      var oddsHtml = odds && !TOURNAMENT_STARTED ? ' <span style="color:var(--gold);font-size:9px">' + odds + '</span>' : '';
-      return '<span class="ticker-item"><span class="ticker-item-rank">' + p.pos + '</span> <span>' + flag + ' ' + p.name + dot + '</span>' + oddsHtml + ' <span class="ticker-item-score ' + scc + '">' + scf + '</span></span>';
+      return '<span class="ticker-item"><span class="ticker-item-rank">' + p.pos + '</span> <span>' + flag + ' ' + p.name + dot + '</span> <span class="ticker-item-score ' + scc + '">' + scf + '</span></span>';
     }).join('');
   } else {
     var ranked = getRanked();

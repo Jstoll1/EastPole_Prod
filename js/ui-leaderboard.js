@@ -121,40 +121,23 @@ function renderLeaderboard() {
   var anyStillPlaying = activePlayingLb.some(function(p) { return /^\d+$/.test(p.thru) && parseInt(p.thru) >= 1 && parseInt(p.thru) < 18; });
   var anyHaveTeeTime = activePlayingLb.some(function(p) { return p.thru && p.thru.includes(':'); });
   var currentRound = samplePlayer ? (anyStillPlaying ? (completedRoundCount + 1) || 1 : anyHaveTeeTime ? completedRoundCount + 1 : completedRoundCount) : 0;
-  var isPreT = currentRound === 0 && !TOURNAMENT_STARTED;
-  if (isPreT) {
-    var oddsIdx = lbSort === 't5' ? 1 : lbSort === 't10' ? 2 : 0;
-    var oddsDir = lbSortAsc ? 1 : -1;
-    players.sort(function(a,b) {
-      var oa = PRE_ODDS[a.name] ? parseInt(PRE_ODDS[a.name][oddsIdx].replace('+','')) : 999999;
-      var ob = PRE_ODDS[b.name] ? parseInt(PRE_ODDS[b.name][oddsIdx].replace('+','')) : 999999;
-      return (oa - ob) * oddsDir;
-    });
-  }
-  var roundLabels = ['PRE-TOURNAMENT ODDS','FIRST ROUND','SECOND ROUND','THIRD ROUND','FINAL ROUND'];
+  var isPreT = false;
+  var roundLabels = ['FIRST ROUND','FIRST ROUND','SECOND ROUND','THIRD ROUND','FINAL ROUND'];
   var endOfRoundLabels = ['','END OF ROUND 1','END OF ROUND 2','END OF ROUND 3','FINAL ROUND'];
   var tvTitle = document.getElementById('lb-round-title');
   if (tvTitle) {
     if (anyStillPlaying) { tvTitle.textContent = roundLabels[currentRound] || 'FIRST ROUND'; }
     else if (anyHaveTeeTime && currentRound > 0) { tvTitle.textContent = roundLabels[currentRound] || 'ROUND ' + currentRound; }
     else if (currentRound > 0) { tvTitle.textContent = endOfRoundLabels[currentRound] || roundLabels[currentRound]; }
-    else { tvTitle.textContent = TOURNAMENT_STARTED ? 'FIRST ROUND' : roundLabels[0]; }
+    else { tvTitle.textContent = 'FIRST ROUND'; }
   }
   var sortArrow = function(col) { return lbSort===col ? (lbSortAsc ? ' ▲' : ' ▼') : ''; };
   var sortCls = function(col) { return lbSort===col ? ' tv-h-active' : ''; };
-  var colHdr;
-  if (isPreT) {
-    colHdr = '<div class="tv-col-hdr"><div class="tv-h-pos">#</div><div class="tv-h-pill"></div><div class="tv-h-player">PLAYER</div>'
-      + '<div class="tv-h-odds tv-h-sort' + sortCls('win') + '" onclick="setLbSort(\'win\')">WIN' + sortArrow('win') + '</div>'
-      + '<div class="tv-h-odds tv-h-sort' + sortCls('t5') + '" onclick="setLbSort(\'t5\')">T5' + sortArrow('t5') + '</div>'
-      + '<div class="tv-h-odds tv-h-sort' + sortCls('t10') + '" onclick="setLbSort(\'t10\')">T10' + sortArrow('t10') + '</div></div>';
-  } else {
-    colHdr = '<div class="tv-col-hdr"><div class="tv-h-pos">POS</div><div class="tv-h-pill"></div><div class="tv-h-player">PLAYER</div>'
+  var colHdr = '<div class="tv-col-hdr"><div class="tv-h-pos">POS</div><div class="tv-h-pill"></div><div class="tv-h-player">PLAYER</div>'
       + '<div class="tv-h-score tv-h-sort' + sortCls('score') + '" onclick="setLbSort(\'score\')">SCORE' + sortArrow('score') + '</div>'
       + '<div class="tv-h-today tv-h-sort' + sortCls('today') + '" onclick="setLbSort(\'today\')">TODAY' + sortArrow('today') + '</div>'
       + '<div class="tv-h-thru tv-h-sort' + sortCls('thru') + '" onclick="setLbSort(\'thru\')">THRU' + sortArrow('thru') + '</div>'
       + '</div>';
-  }
   var rows = '';
   var cutInserted = false;
   var estCutInserted = false;
@@ -221,22 +204,7 @@ function renderLeaderboard() {
     var escapedName = p.name.replace(/'/g, "\\'");
     var scoreChange = SCORE_CHANGES[p.name] || '';
     var flashCls = scoreChange === 'birdie' ? ' birdie-flash' : scoreChange === 'bogey' ? ' bogey-flash' : scoreChange === 'eagle' ? ' eagle-flash' : '';
-    var oddsArr = PRE_ODDS[p.name] || ['','',''];
-    if (isPreT) {
-      rows += '<div class="tv-row' + (isMyPick?' is-my-team':'') + (isPrevWinner?' tv-prev-winner':'') + '" onclick="toggleScorecard(' + ri + ',\'' + escapedName + '\')" style="cursor:pointer">'
-        + '<div class="tv-pos">' + (ri + 1) + '</div>'
-        + '<div class="tv-pill-slot">' + pills + '</div>'
-        + '<div class="tv-player"><span class="tv-name ' + (isMyPick?'is-my-pick':'') + '">' + p.name + '</span> <span class="tv-country">' + flag + (cc?' '+cc:'') + '</span>'
-        + (isPrevWinner?'<span class="prev-winner-badge">Def. Champion</span>':'')
-        + (inPool&&!isMyPick?'<span class="tv-pool-dot"></span>':'')
-        + '</div>'
-        + '<div class="tv-odds">' + oddsArr[0] + '</div>'
-        + '<div class="tv-odds">' + oddsArr[1] + '</div>'
-        + '<div class="tv-odds">' + oddsArr[2] + '</div>'
-        + '</div>'
-        + '<div class="sc-panel" id="sc-panel-' + ri + '"></div>';
-    } else {
-      rows += '<div class="tv-row' + (mc?' tv-mc':'') + (isMyPick?' is-my-team':'') + (isPrevWinner?' tv-prev-winner':'') + flashCls + '" onclick="toggleScorecard(' + ri + ',\'' + escapedName + '\')" style="cursor:pointer">'
+    rows += '<div class="tv-row' + (mc?' tv-mc':'') + (isMyPick?' is-my-team':'') + (isPrevWinner?' tv-prev-winner':'') + flashCls + '" onclick="toggleScorecard(' + ri + ',\'' + escapedName + '\')" style="cursor:pointer">'
         + '<div class="tv-pos">' + (mc?(p.thru==='WD'||p.score===12?'WD':'MC'):p.pos) + moveHtml + '</div>'
         + '<div class="tv-pill-slot">' + pills + '</div>'
         + '<div class="tv-player"><span class="tv-name ' + (isMyPick?'is-my-pick':'') + '">' + p.name + '</span> <span class="tv-country">' + flag + (cc?' '+cc:'') + '</span>'
@@ -249,7 +217,6 @@ function renderLeaderboard() {
         + '<div class="tv-thru' + (!mc && !roundDone && !isTeeTime && !preT ? ' active' : '') + '">' + thruDisp + '</div>'
         + '</div>'
         + '<div class="sc-panel" id="sc-panel-' + ri + '"></div>';
-    }
   });
   document.getElementById('leaderboard-list').innerHTML = colHdr + rows;
   var _stickyH = document.querySelector('.lb-sticky-hdr');
