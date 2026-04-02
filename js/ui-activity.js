@@ -123,7 +123,9 @@ function renderActivityList() {
     var typeCls = a.type ? ' act-' + a.type : '';
     var ownE = a.player && OWNERSHIP_DATA ? OWNERSHIP_DATA.find(function(o) { return o.player === a.player; }) : null;
     var ownTag = ownE ? ' <span class="act-own">' + Math.round(ownE.pct * 100) + '%</span>' : '';
-    return '<div class="act-item' + typeCls + '">' +
+    var escapedPlayer = a.player ? a.player.replace(/'/g, "\\'") : '';
+    var clickAttr = escapedPlayer ? ' onclick="openScorecardPopup(\'' + escapedPlayer + '\')" style="cursor:pointer"' : '';
+    return '<div class="act-item' + typeCls + '"' + clickAttr + '>' +
       '<div class="act-icon">' + a.icon + '</div>' +
       '<div class="act-body"><div class="act-text">' + a.text + ownTag + '</div>' +
       '<div class="act-time">' + timeAgo(a.time) + '</div></div></div>';

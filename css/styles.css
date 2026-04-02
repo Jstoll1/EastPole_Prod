@@ -3052,6 +3052,33 @@ to  {
   letter-spacing:0.3px;
 }
 
+/* Scorecard popup overlay (from activity feed) */
+.sc-popup-overlay {
+  position:fixed; inset:0; z-index:1000;
+  background:rgba(0,0,0,0.7);
+  display:flex; align-items:flex-end; justify-content:center;
+  -webkit-backdrop-filter:blur(2px);
+  backdrop-filter:blur(2px);
+}
+.sc-popup-wrap {
+  width:100%; max-width:420px;
+  background:var(--card);
+  border-radius:16px 16px 0 0;
+  border-top:2px solid var(--gold);
+  max-height:80vh; overflow-y:auto;
+  padding-bottom:env(safe-area-inset-bottom);
+  -webkit-overflow-scrolling:touch;
+  position:relative;
+}
+.sc-popup-close {
+  position:absolute; top:10px; right:12px;
+  font-size:16px; color:var(--text3);
+  cursor:pointer; z-index:1;
+  padding:4px 8px;
+  opacity:0.6;
+}
+.sc-popup-close:active { opacity:1; }
+
 /* ── Live Feed Drawer ── */
 /* ── Headline Popup ── */
 /* ── Debug Panel ── */

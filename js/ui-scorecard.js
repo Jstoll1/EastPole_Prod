@@ -183,3 +183,78 @@ async function toggleScorecard(idx, playerName) {
   panel.innerHTML = html;
   bindOwnBadge(panel);
 }
+
+// Standalone scorecard popup (used from activity feed)
+async function openScorecardPopup(playerName) {
+  var existing = document.getElementById('sc-popup-overlay');
+  if (existing) existing.remove();
+
+  var overlay = document.createElement('div');
+  overlay.id = 'sc-popup-overlay';
+  overlay.className = 'sc-popup-overlay';
+  overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+
+  var wrap = document.createElement('div');
+  wrap.className = 'sc-popup-wrap';
+  wrap.innerHTML = '<div class="sc-loading">Loading scorecard…</div>';
+  overlay.appendChild(wrap);
+  document.body.appendChild(overlay);
+
+  await Promise.all([fetchCourseHoles(), fetchPlayerScorecard(playerName)]);
+
+  var rounds = SCORECARD_CACHE[playerName];
+  var gd = GOLFER_SCORES[playerName];
+  var ownEntry = OWNERSHIP_DATA.find(function(o) { return o.player === playerName; });
+  var ownPct = ownEntry ? Math.round(ownEntry.pct * 100) : 0;
+  var flag = FLAGS[playerName] || '';
+  var aid = ATHLETE_IDS[playerName];
+
+  var html = '<div class="sc-popup-close" onclick="document.getElementById(\'sc-popup-overlay\').remove()">✕</div>';
+  html += '<div class="sc-header">'
+    + (aid ? '<img class="sc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + aid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">' : '')
+    + '<span class="sc-player-name">' + flag + ' ' + playerName + '</span>';
+  if (gd) html += '<span class="sc-player-pos">' + gd.pos + '</span>';
+  html += '<span style="font-size:10px;color:var(--text3);font-weight:600;margin-left:auto">' + ownPct + '% owned</span>';
+  html += '</div>';
+
+  // Score summary
+  if (gd) {
+    html += '<div style="display:flex;gap:6px;padding:6px 12px;flex-wrap:wrap">';
+    html += '<div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:6px 10px;text-align:center;min-width:50px">'
+      + '<div style="font-size:8px;color:var(--text3);font-weight:700">TOTAL</div>'
+      + '<div style="font-size:16px;font-weight:900" class="' + cls(gd.score) + '">' + fmt(gd.score) + '</div></div>';
+    [{ l:'R1', v:gd.r1 },{ l:'R2', v:gd.r2 },{ l:'R3', v:gd.r3 },{ l:'R4', v:gd.r4 }].filter(function(r){ return r.v != null; }).forEach(function(r) {
+      var tp = r.v - COURSE_PAR;
+      html += '<div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:6px 10px;text-align:center;min-width:40px">'
+        + '<div style="font-size:8px;color:var(--text3);font-weight:700">' + r.l + '</div>'
+        + '<div style="font-size:14px;font-weight:800">' + r.v + '</div>'
+        + '<div style="font-size:9px;font-weight:700" class="' + (tp<0?'neg':tp>0?'pos':'eve') + '">' + (tp<0?''+tp:tp>0?'+'+tp:'E') + '</div></div>';
+    });
+    if (gd.thru && gd.thru !== '—') html += '<div style="align-self:center;font-size:10px;color:var(--text3);margin-left:auto">Thru ' + gd.thru + (gd.todayDisplay !== '—' ? ' · Today: ' + gd.todayDisplay : '') + '</div>';
+    html += '</div>';
+  }
+
+  // Hole-by-hole grid
+  if (rounds && rounds.length) {
+    var roundsWithData = rounds.map(function(r, i) { return { round: r, idx: i }; }).filter(function(obj) { return obj.round.holes && obj.round.holes.length > 0; });
+    var activeRound = roundsWithData.length ? roundsWithData[roundsWithData.length - 1] : null;
+    if (activeRound) {
+      var r = activeRound.round;
+      var holeMap = {};
+      r.holes.forEach(function(h) { holeMap[h.hole] = h; });
+      html += '<div class="sc-grid" style="margin-top:4px">';
+      html += '<div class="sc-nine"><div class="sc-nine-label">OUT</div><div class="sc-row sc-row-hdr">';
+      for (var hn=1;hn<=9;hn++) html += '<div class="sc-cell">' + hn + '</div>';
+      html += '</div><div class="sc-row sc-row-score">';
+      for (var hn=1;hn<=9;hn++) { var hd=holeMap[hn]; var par=getHolePar(hn); var scC=hd&&hd.strokes?scorecardClass(hd.strokes,par):''; html += '<div class="sc-cell ' + scC + '"><span class="sc-num">' + (hd&&hd.strokes?hd.strokes:'–') + '</span></div>'; }
+      html += '</div></div>';
+      html += '<div class="sc-nine"><div class="sc-nine-label">IN</div><div class="sc-row sc-row-hdr">';
+      for (var hn=10;hn<=18;hn++) html += '<div class="sc-cell">' + hn + '</div>';
+      html += '</div><div class="sc-row sc-row-score">';
+      for (var hn=10;hn<=18;hn++) { var hd=holeMap[hn]; var par=getHolePar(hn); var scC=hd&&hd.strokes?scorecardClass(hd.strokes,par):''; html += '<div class="sc-cell ' + scC + '"><span class="sc-num">' + (hd&&hd.strokes?hd.strokes:'–') + '</span></div>'; }
+      html += '</div></div></div>';
+    }
+  }
+
+  wrap.innerHTML = html;
+}
