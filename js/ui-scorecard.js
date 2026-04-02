@@ -48,6 +48,7 @@ async function toggleScorecard(idx, playerName) {
     if (prev) { prev.classList.remove('open'); prev.innerHTML = ''; }
   }
   _openScorecardIdx = idx;
+  var escapedName = playerName.replace(/'/g, "\\'");
   panel.innerHTML = '<div class="sc-loading">Loading scorecard…</div>';
   panel.classList.add('open');
   panel.onclick = function() { panel.classList.remove('open'); panel.innerHTML = ''; panel.onclick = null; _openScorecardIdx = null; };
@@ -73,7 +74,9 @@ async function toggleScorecard(idx, playerName) {
   // Fallback: round-level summary if no hole-by-hole data
   if (!rounds || !rounds.length || !rounds.some(function(r) { return r.holes && r.holes.length > 0; })) {
     var fbAid = ATHLETE_IDS[playerName];
+    var fbEmoji = getPlayerEmoji(playerName);
     var fb = '<div class="sc-header">' + (fbAid ? '<img class="sc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + fbAid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">' : '') + '<span class="sc-player-name">' + playerName + '</span>';
+    fb += '<button class="sc-emoji-btn" onclick="event.stopPropagation();openEmojiPicker(\'' + escapedName + '\')">' + (fbEmoji || '+') + '</button>';
     if (gd) fb += '<span class="sc-player-pos">' + gd.pos + '</span>';
     fb += buildOwnBadge();
     fb += '</div><div style="padding:8px 12px 12px;">';
@@ -110,7 +113,9 @@ async function toggleScorecard(idx, playerName) {
   }
 
   var scAid = ATHLETE_IDS[playerName];
+  var scEmoji = getPlayerEmoji(playerName);
   var html = '<div class="sc-header">' + (scAid ? '<img class="sc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + scAid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">' : '') + '<span class="sc-player-name">' + playerName + '</span>';
+  html += '<button class="sc-emoji-btn" onclick="event.stopPropagation();openEmojiPicker(\'' + escapedName + '\')">' + (scEmoji || '+') + '</button>';
   if (gd) html += '<span class="sc-player-pos">' + gd.pos + '</span>';
   html += buildOwnBadge();
   html += '</div>';
@@ -281,10 +286,15 @@ function openEmojiPicker(playerName) {
     + '</div>'
     + (currentEmoji ? '<button class="emoji-remove-btn" onclick="selectPlayerEmoji(\'' + playerName.replace(/'/g, "\\'") + '\',\'\')">Remove Tag</button>' : '');
 
+  // Append to whichever scorecard is open (popup or inline panel)
   var overlay = document.getElementById('sc-popup-overlay');
   if (overlay) {
     var wrap = overlay.querySelector('.sc-popup-wrap');
     if (wrap) { wrap.appendChild(picker); return; }
+  }
+  if (_openScorecardIdx !== null) {
+    var panel = document.getElementById('sc-panel-' + _openScorecardIdx);
+    if (panel) { panel.appendChild(picker); return; }
   }
   document.body.appendChild(picker);
 }
@@ -293,11 +303,24 @@ function selectPlayerEmoji(playerName, emoji) {
   setPlayerEmoji(playerName, emoji);
   var picker = document.getElementById('emoji-picker-popup');
   if (picker) picker.remove();
-  // Update the button in the scorecard header
-  var btn = document.querySelector('.sc-emoji-btn');
-  if (btn) btn.textContent = emoji || '+';
-  // Re-render leaderboard to show updated emoji
-  if (typeof renderLeaderboard === 'function') renderLeaderboard();
+  // Update all emoji buttons visible on the page
+  document.querySelectorAll('.sc-emoji-btn').forEach(function(btn) {
+    btn.textContent = emoji || '+';
+  });
+  // Update leaderboard emoji tags without full re-render (avoids collapsing open scorecard)
+  document.querySelectorAll('.tv-emoji-tag').forEach(function(el) { el.remove(); });
+  if (emoji) {
+    document.querySelectorAll('.tv-player').forEach(function(row) {
+      var nameEl = row.querySelector('.tv-name');
+      if (nameEl && nameEl.textContent === playerName) {
+        var tag = document.createElement('span');
+        tag.className = 'tv-emoji-tag';
+        tag.textContent = emoji;
+        var country = row.querySelector('.tv-country');
+        if (country) country.insertAdjacentElement('afterend', tag);
+      }
+    });
+  }
   // Re-render activity feed if open
   if (typeof renderActivityList === 'function' && _actOpen) renderActivityList();
 }
