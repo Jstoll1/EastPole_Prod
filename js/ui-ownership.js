@@ -1,6 +1,13 @@
 // ── Ownership View ──
 
 var ownFilter='most';
+function ownBarColor(pct) {
+  var p = pct * 100;
+  if (p >= 30) return 'linear-gradient(90deg, #d4a843, #f5c518)';
+  if (p >= 20) return 'linear-gradient(90deg, #52b788, #d4a843)';
+  if (p >= 10) return 'linear-gradient(90deg, #2d6a4f, #52b788)';
+  return 'linear-gradient(90deg, #1b4332, #2d6a4f)';
+}
 var _ownSearchTimer = null;
 function debouncedOwnSearch() {
   clearTimeout(_ownSearchTimer);
@@ -24,6 +31,10 @@ function renderOwnership() {
   Object.entries(GOLFER_SCORES).forEach(([n, g]) => gdMap[n] = g);
   let data = [...OWNERSHIP_DATA];
   if (!data.length) { document.getElementById('ownership-list').innerHTML = '<div class="empty-state">No entries yet</div>'; return; }
+  var fcEl = document.getElementById('own-field-count');
+  var ecEl = document.getElementById('own-entry-count');
+  if (fcEl) fcEl.textContent = Object.keys(GOLFER_SCORES).length || data.length;
+  if (ecEl) ecEl.textContent = ENTRIES.length;
   const searchVal = (document.getElementById('own-search')?.value || '').trim().toLowerCase();
   if (searchVal) data = data.filter(d => d.player.toLowerCase().includes(searchVal));
   const maxPct = OWNERSHIP_DATA[0].pct;
@@ -94,7 +105,7 @@ function renderOwnership() {
           '<span class="own-pct">' + (d.pct * 100).toFixed(0) + '%</span>' +
         '</div>' +
       '</div>' +
-      '<div class="own-bar-bg"><div class="own-bar" style="width:' + (d.pct / maxPct * 100).toFixed(1) + '%"></div></div>' +
+      '<div class="own-bar-bg"><div class="own-bar" style="width:' + (d.pct / maxPct * 100).toFixed(1) + '%;background:' + ownBarColor(d.pct) + '"></div></div>' +
       '<div class="own-sub">' +
         '<span>' + d.entries + ' of ' + ENTRIES.length + ' entries' + (todayDisp !== '—' ? ' · Today: <span class="own-today ' + todayCls + '">' + todayDisp + '</span>' : '') + '</span>' +
         '<span class="own-thru">' + (thruDisp !== '—' && thruDisp !== 'MC' && thruDisp !== 'WD' ? (ownRoundDone && ownLastRound ? 'Shot ' + thruDisp : 'Thru ' + thruDisp) : '') + '</span>' +

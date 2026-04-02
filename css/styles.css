@@ -907,8 +907,8 @@ html, body  {
 
 .seg-btn  {
   flex: 1;
-  padding: 6px 4px;
-  font-size: 11px;
+  padding: 4px 4px;
+  font-size: 10px;
   font-weight: 700;
   border: none;
   background: none;
@@ -1300,7 +1300,7 @@ html, body  {
 }
 
 .own-row  {
-  padding: 12px 16px;
+  padding: 6px 12px;
   border-bottom: 1px solid #0d1f12;
   cursor: pointer;
   transition: background 0.15s;
@@ -1322,12 +1322,12 @@ html, body  {
 .own-hdr  {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 6px;
+  align-items: center;
+  margin-bottom: 3px;
 }
 
 .own-name  {
-  font-size: 15px;
+  font-size: 12px;
   font-weight: 700;
   color: #fff;
 }
@@ -1335,48 +1335,50 @@ html, body  {
 .own-right  {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .own-pct  {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 900;
   color: var(--gold);
+  min-width: 32px;
+  text-align: right;
 }
 
 .own-score-tag  {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 800;
 }
 
 .own-bar-bg  {
-  background: rgba(255,255,255,0.08);
-  border-radius: 5px;
-  height: 5px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 4px;
+  height: 4px;
   overflow: hidden;
 }
 
 .own-bar  {
-  background: linear-gradient(90deg, var(--green), var(--gold));
   height: 100%;
-  border-radius: 5px;
+  border-radius: 4px;
+  transition: width 0.3s ease;
 }
 
 .own-sub  {
-  font-size: 10px;
+  font-size: 9px;
   color: #4a8054;
-  margin-top: 4px;
+  margin-top: 2px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 .own-thru {
-  font-size: 10px;
+  font-size: 9px;
   color: var(--text3);
   font-weight: 600;
 }
 .own-today {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
 }
 .own-today.neg { color: #52b788; }
@@ -1393,28 +1395,28 @@ html, body  {
 }
 .own-detail.open {
   max-height: 400px;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 .own-detail-team {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 12px;
-  font-size: 12px;
+  padding: 3px 10px;
+  font-size: 10px;
   color: var(--text2);
   border-left: 2px solid var(--border);
   margin-left: 2px;
 }
 .own-detail-team .own-team-name { font-weight: 600; }
-.own-detail-team .own-team-rank { font-size: 10px; color: var(--text3); }
+.own-detail-team .own-team-rank { font-size: 9px; color: var(--text3); }
 .own-search {
-  margin: 10px 14px 0;
+  margin: 6px 14px 0;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 9px 14px;
+  border-radius: 8px;
+  padding: 6px 12px;
   color: var(--text);
-  font-size: 13px;
+  font-size: 11px;
   width: calc(100% - 28px);
   outline: none;
 }
