@@ -161,19 +161,37 @@ function detectGolfActivity(freshScores) {
     var holeNum = !isNaN(thruNum) && thruNum >= 1 ? thruNum : (d.thru === 'F' || d.thru === '18' ? 18 : null);
     var holePar = holeNum ? (pars[holeNum - 1] || 4) : 4;
     var flag = FLAGS[name] || '';
+
+    // Detect multi-hole jumps: if thru advanced by more than 1, this is a batch update
+    var prevThru = PREV_THRU[name];
+    var prevThruNum = prevThru ? parseInt(prevThru) : NaN;
+    if (isNaN(prevThruNum) && prevThru === 'F') prevThruNum = 18;
+    var thruNow = holeNum || 0;
+    var holesJumped = (!isNaN(prevThruNum) && thruNow > 0) ? thruNow - prevThruNum : 1;
+    if (holesJumped < 1) holesJumped = 1;
+
     var icon, label, type;
-    if (diff <= -3) { icon = '🦅'; label = 'albatross'; type = 'eagle'; }
-    else if (diff === -2) { icon = '🦅'; label = 'eagles'; type = 'eagle'; }
-    else if (diff === -1) { icon = '🐦'; label = 'birdies'; type = 'birdie'; }
-    else if (diff === 1) { icon = '🟡'; label = 'bogeys'; type = 'bogey'; }
-    else if (diff === 2) { icon = '🔴'; label = 'double bogeys'; type = 'double'; }
-    else { icon = '⛔'; label = '+' + diff + ' on'; type = 'worse'; }
+    if (holesJumped > 1) {
+      // Multi-hole batch: report net change, don't label as eagle/albatross
+      if (diff < 0) { icon = '🔥'; label = 'moves to'; type = 'birdie'; }
+      else { icon = '📉'; label = 'drops to'; type = 'bogey'; }
+    } else {
+      // Single hole: use diff to determine shot type
+      if (diff <= -3) { icon = '🦅'; label = 'albatross on'; type = 'eagle'; }
+      else if (diff === -2) { icon = '🦅'; label = 'eagles'; type = 'eagle'; }
+      else if (diff === -1) { icon = '🐦'; label = 'birdies'; type = 'birdie'; }
+      else if (diff === 1) { icon = '🟡'; label = 'bogeys'; type = 'bogey'; }
+      else if (diff === 2) { icon = '🔴'; label = 'double bogeys'; type = 'double'; }
+      else { icon = '⛔'; label = '+' + diff + ' on'; type = 'worse'; }
+    }
+
     var holeStr = holeNum ? ' Hole ' + holeNum : '';
-    var parTag = holeNum ? ' <span class="act-meta">P' + holePar + '</span>' : '';
+    var parTag = (holeNum && holesJumped <= 1) ? ' <span class="act-meta">P' + holePar + '</span>' : '';
     var scCls = d.score < 0 ? 'neg' : d.score > 0 ? 'pos' : 'eve';
     var todayStr = d.todayDisplay && d.todayDisplay !== '—' ? d.todayDisplay : '';
     var todayTag = todayStr ? ' <span class="act-meta">(' + todayStr + ' today)</span>' : '';
-    addActivity(icon, '<strong>' + flag + ' ' + name + '</strong> ' + label + holeStr + parTag + ': <span class="act-score ' + scCls + '">' + fmt(d.score) + '</span>' + todayTag, name, type);
+    var thruTag = holesJumped > 1 ? ' <span class="act-meta">thru ' + thruNow + '</span>' : '';
+    addActivity(icon, '<strong>' + flag + ' ' + name + '</strong> ' + label + (holesJumped > 1 ? '' : holeStr) + parTag + ': <span class="act-score ' + scCls + '">' + fmt(d.score) + '</span>' + todayTag + thruTag, name, type);
   });
 }
 

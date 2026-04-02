@@ -39,7 +39,7 @@ async function fetchESPN() {
       var n = pair[0], d = pair[1];
       var p = parsePos(d.pos);
       if (p) PREV_POSITIONS[n] = p;
-      if (d.score !== 11 && d.score !== 12) PREV_SCORES[n] = d.score;
+      if (d.score !== 11 && d.score !== 12) { PREV_SCORES[n] = d.score; PREV_THRU[n] = d.thru; }
     });
 
     var freshScores = {};
