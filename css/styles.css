@@ -299,7 +299,7 @@ html, body  {
   background: rgba(201,168,76,0.07);
   border: 1px solid rgba(201,168,76,0.2);
   border-radius: 8px;
-  padding: 6px 6px 5px;
+  padding: 5px 6px 4px;
   text-align: center;
 }
 
@@ -312,10 +312,10 @@ html, body  {
 }
 
 .payout-card .pc-amt  {
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 900;
   color: #f5c518;
-  margin: 1px 0 1px;
+  margin: 1px 0 0;
 }
 
 .payout-card .pc-who  {
@@ -2189,7 +2189,7 @@ to  {
   font-weight: 800;
   letter-spacing: 1.5px;
   color: var(--gold);
-  padding: 5px 10px 0;
+  padding: 4px 10px 0;
 }
 .my-row {
   display: flex;
@@ -2199,15 +2199,15 @@ to  {
   cursor: pointer;
 }
 .my-row-rank {
-  font-size: 15px;
+  font-size: 12px;
   font-weight: 900;
   color: var(--gold);
-  width: 24px;
+  width: 20px;
   text-align: center;
   flex-shrink: 0;
 }
 .my-row-team {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: #fff;
   flex: 1;
@@ -2233,10 +2233,10 @@ to  {
 .my-row-today.pos { color: #ff7070; }
 .my-row-today.eve { color: var(--text2); }
 .my-row-score {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 900;
   flex-shrink: 0;
-  min-width: 36px;
+  min-width: 30px;
   text-align: right;
 }
 .my-row-move {
@@ -2276,9 +2276,12 @@ to  {
 }
 .s-holes  {
   font-size: 8px;
-  color: var(--text3);
+  color: #c07040;
   margin-left: 5px;
   font-weight: 600;
+}
+.s-holes.done  {
+  color: #52b788;
 }
 
 .s-mover {
@@ -2450,8 +2453,9 @@ to  {
 }
 .mini-pick-holes  {
   font-size: 9px;
-  color: var(--text3);
+  color: #c07040;
   flex-shrink: 0;
+  font-weight: 600;
 }
 
 #lb-legend  {
