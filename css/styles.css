@@ -2492,16 +2492,16 @@ to  {
   flex-shrink: 0;
 }
 .h2h-prob-wrap {
-  margin: 18px 14px 0;
-  padding: 14px;
+  margin: 10px 14px 0;
+  padding: 10px;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 10px;
 }
 .h2h-prob-labels {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 .h2h-prob-name {
   font-size: 11px;
@@ -2517,10 +2517,10 @@ to  {
 .h2h-prob-pcts {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 .h2h-prob-pct {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 900;
   letter-spacing: -0.5px;
 }
@@ -2528,8 +2528,8 @@ to  {
 .h2h-prob-pct.right { color: #52b788; }
 .h2h-prob-pct.losing { color: var(--text3); }
 .h2h-bar-track {
-  height: 28px;
-  border-radius: 14px;
+  height: 22px;
+  border-radius: 11px;
   overflow: hidden;
   position: relative;
   background: var(--card2);
@@ -2588,12 +2588,12 @@ to  {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 10px;
-  padding-top: 10px;
+  margin-top: 8px;
+  padding-top: 8px;
   border-top: 1px solid var(--border);
 }
 .h2h-score-big {
-  font-size: 26px;
+  font-size: 22px;
   font-weight: 900;
   letter-spacing: -1px;
 }
@@ -2607,14 +2607,14 @@ to  {
 }
 .h2h-momentum {
   text-align: center;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--text2);
-  padding: 6px 12px;
-  margin: 6px 0 0;
+  padding: 4px 8px;
+  margin: 4px 0 0;
   background: rgba(82,183,136,0.06);
   border: 1px solid rgba(82,183,136,0.15);
-  border-radius: 8px;
+  border-radius: 6px;
 }
 .h2h-tied-badge {
   background: rgba(212,168,67,0.15);
@@ -2627,7 +2627,7 @@ to  {
   border: 1px solid rgba(212,168,67,0.3);
 }
 .h2h-matchups {
-  margin: 16px 14px 0;
+  margin: 8px 14px 0;
 }
 .h2h-team-holes {
   font-size: 10px;
@@ -2637,21 +2637,21 @@ to  {
 }
 .h2h-vs-label {
   text-align: center;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--gold);
-  margin: 16px 14px 0;
+  margin: 8px 14px 0;
 }
 .h2h-vs-hdr {
   display: flex;
-  margin: 8px 14px 0;
+  margin: 4px 14px 0;
   gap: 28px;
 }
 .h2h-vs-team {
   flex: 1;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   color: var(--text);
   overflow: hidden;
@@ -2663,12 +2663,12 @@ to  {
   display: flex;
   align-items: center;
   margin: 0 14px;
-  padding: 6px 0;
+  padding: 3px 0;
   border-bottom: 1px solid rgba(26,51,38,0.4);
-  gap: 4px;
+  gap: 2px;
 }
 .h2h-vs-row:last-child { border-bottom: none; }
-.h2h-vs-row.is-top { background: rgba(82,183,136,0.04); border-radius: 6px; padding: 6px 4px; }
+.h2h-vs-row.is-top { background: rgba(82,183,136,0.04); border-radius: 4px; padding: 3px 4px; }
 .h2h-vs-row.is-bench { opacity: 0.45; }
 .h2h-vs-rank {
   width: 20px;
@@ -2698,7 +2698,7 @@ to  {
 }
 .h2h-vs-cell.right .h2h-vs-info { text-align: right; }
 .h2h-vs-name {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--text);
   overflow: hidden;
@@ -2728,7 +2728,7 @@ to  {
 .h2h-close-bar {
   display: flex;
   justify-content: center;
-  padding: 10px 14px 0;
+  padding: 6px 14px 0;
 }
 .h2h-close-btn {
   background: rgba(217,83,79,0.12);

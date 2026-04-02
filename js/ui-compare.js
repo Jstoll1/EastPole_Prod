@@ -166,8 +166,11 @@ function renderH2HInline() {
   var rdA = teamRoundScore(cA.top4);
   var rdB = teamRoundScore(cB.top4);
   var fmtRd = function(v) { return v > 0 ? '+' + v : v === 0 ? 'E' : '' + v; };
+  var holesA = cA.picks.reduce(function(s, p) { return s + getHolesRemaining(p); }, 0);
+  var holesB = cB.picks.reduce(function(s, p) { return s + getHolesRemaining(p); }, 0);
+
   html += '<div class="h2h-score-summary">';
-  html += '<div style="text-align:left"><div class="h2h-score-big ' + cls(cA.total) + '">' + fmtTeam(cA.total) + '</div><div class="h2h-score-lbl">Total</div>';
+  html += '<div style="text-align:left"><div class="h2h-score-big ' + cls(cA.total) + '">' + fmtTeam(cA.total) + '</div><div class="h2h-score-lbl">Total · ' + holesA + 'h left</div>';
   if (rdA.count > 0) html += '<div style="font-size:11px;font-weight:700;margin-top:3px;color:' + (rdA.sum < 0 ? '#52b788' : rdA.sum > 0 ? '#ff7070' : 'var(--text2)') + '">Today: ' + fmtRd(rdA.sum) + '</div>';
   html += '</div>';
   if (cA.total === cB.total) {
@@ -176,7 +179,7 @@ function renderH2HInline() {
     var gap = Math.abs(cA.total - cB.total);
     html += '<div style="text-align:center;color:var(--text3);font-size:10px;font-weight:700">' + gap + ' stroke' + (gap > 1 ? 's' : '') + '</div>';
   }
-  html += '<div style="text-align:right"><div class="h2h-score-big ' + cls(cB.total) + '">' + fmtTeam(cB.total) + '</div><div class="h2h-score-lbl">Total</div>';
+  html += '<div style="text-align:right"><div class="h2h-score-big ' + cls(cB.total) + '">' + fmtTeam(cB.total) + '</div><div class="h2h-score-lbl">Total · ' + holesB + 'h left</div>';
   if (rdB.count > 0) html += '<div style="font-size:11px;font-weight:700;margin-top:3px;color:' + (rdB.sum < 0 ? '#52b788' : rdB.sum > 0 ? '#ff7070' : 'var(--text2)') + '">Today: ' + fmtRd(rdB.sum) + '</div>';
   html += '</div>';
   html += '</div>';
@@ -210,13 +213,11 @@ function renderH2HInline() {
   }
   html += '</div>';
 
-  var holesA = cA.picks.reduce(function(s, p) { return s + getHolesRemaining(p); }, 0);
-  var holesB = cB.picks.reduce(function(s, p) { return s + getHolesRemaining(p); }, 0);
   html += '<div class="h2h-matchups">';
-  html += '<div class="h2h-vs-label">Head to Head</div>';
+  html += '<div class="h2h-vs-label" style="text-align:center">Head to Head</div>';
   html += '<div class="h2h-vs-hdr">';
-  html += '<div class="h2h-vs-team left">' + cA.team + '<span class="h2h-team-holes">' + holesA + 'h left</span></div>';
-  html += '<div class="h2h-vs-team right">' + cB.team + '<span class="h2h-team-holes">' + holesB + 'h left</span></div>';
+  html += '<div class="h2h-vs-team left">' + cA.team + '</div>';
+  html += '<div class="h2h-vs-team right">' + cB.team + '</div>';
   html += '</div>';
   var maxLen = Math.max(cA.scores.length, cB.scores.length);
   for (var r = 0; r < maxLen; r++) {
@@ -241,19 +242,19 @@ function buildH2HCell(g, side, isTop) {
   var isWD = thru === 'WD' || (gd && gd.score === 12);
   var mc = thru === 'MC';
   var holesLeft = getHolesRemaining(g.name);
-  var rdTag = '';
   var todayScore = golferTodayScore(gd);
+  var todayTag = '';
   if (todayScore !== null) {
     var todayFmt = todayScore > 0 ? '+' + todayScore : todayScore === 0 ? 'E' : '' + todayScore;
     var todayColor = todayScore < 0 ? '#52b788' : todayScore > 0 ? '#ff7070' : 'var(--text2)';
-    rdTag = ' <span style="color:' + todayColor + ';font-weight:700">(' + todayFmt + ')</span>';
+    todayTag = '<span style="color:' + todayColor + ';font-size:10px;font-weight:700">' + todayFmt + '</span>';
   }
-  var detail = isWD ? 'WD' : mc ? 'MC' : (holesLeft > 0 ? holesLeft + ' holes left' : 'Complete');
+  var statusTag = isWD ? '<span style="color:var(--red);font-size:9px">WD</span>' : mc ? '<span style="color:var(--red);font-size:9px">MC</span>' : (holesLeft > 0 ? '<span style="color:var(--text3);font-size:9px">' + holesLeft + 'h</span>' : '<span style="color:var(--text3);font-size:9px">F</span>');
   var html = '<div class="h2h-vs-cell ' + side + '">';
   html += '<div class="h2h-vs-score ' + cls(g.score) + '">' + fmt(g.score) + '</div>';
   html += '<div class="h2h-vs-info">';
   html += '<div class="h2h-vs-name">' + g.name + '</div>';
-  html += '<div class="h2h-vs-meta">' + (rdTag ? '<span>' + rdTag.trim() + '</span>' : '') + '<span class="h2h-vs-detail">' + detail + '</span></div>';
+  html += '<div class="h2h-vs-meta" style="display:flex;gap:4px;align-items:center">' + (todayTag || '') + statusTag + '</div>';
   html += '</div>';
   html += '</div>';
   return html;
