@@ -92,8 +92,8 @@ function renderStandings() {
     var moveBadge = '';
     if (TOURNAMENT_STARTED && prevRk && prevRk !== rank) {
       var mv = prevRk - rank;
-      if (mv >= 3) moveBadge = '<span class="s-mover up">🔥 +' + mv + '</span>';
-      else if (mv <= -3) moveBadge = '<span class="s-mover dn">🧊 ' + mv + '</span>';
+      if (mv > 0) moveBadge = '<span class="s-move up">&#9650;' + mv + '</span>';
+      else if (mv < 0) moveBadge = '<span class="s-move dn">&#9660;' + Math.abs(mv) + '</span>';
     }
     var teamToday = 0, teamTodayCount = 0;
     e.top4.forEach(function(g) { var td = golferTodayScore(GOLFER_SCORES[g.name]); if (td !== null) { teamToday += td; teamTodayCount++; } });

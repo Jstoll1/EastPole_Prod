@@ -2287,6 +2287,13 @@ to  {
   color: var(--red);
   background: rgba(217,83,79,0.12);
 }
+.s-move {
+  font-size: 8px;
+  font-weight: 700;
+  margin-left: 4px;
+}
+.s-move.up { color: #52b788; }
+.s-move.dn { color: #ff7070; }
 
 .pos-move  {
   font-size: 7px;
