@@ -271,6 +271,15 @@ Object.defineProperty(window, 'currentTeamEmail', { get: function() { return cur
 
 var STORAGE_KEY = 'eastpole_v2';
 var SPLASH_DATE_KEY = 'eastpole_splash_date';
+var PLAYER_EMOJI_KEY = 'eastpole_player_emoji';
+var PLAYER_EMOJI = {};
+try { PLAYER_EMOJI = JSON.parse(localStorage.getItem(PLAYER_EMOJI_KEY) || '{}'); } catch(e) {}
+
+function getPlayerEmoji(name) { return PLAYER_EMOJI[name] || ''; }
+function setPlayerEmoji(name, emoji) {
+  if (emoji) PLAYER_EMOJI[name] = emoji; else delete PLAYER_EMOJI[name];
+  try { localStorage.setItem(PLAYER_EMOJI_KEY, JSON.stringify(PLAYER_EMOJI)); } catch(e) {}
+}
 
 // Load round-start positions from localStorage
 try {

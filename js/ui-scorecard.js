@@ -210,9 +210,13 @@ async function openScorecardPopup(playerName) {
   var aid = ATHLETE_IDS[playerName];
 
   var html = '<div class="sc-popup-close" onclick="document.getElementById(\'sc-popup-overlay\').remove()">✕</div>';
+  var pEmoji = getPlayerEmoji(playerName);
+  var escapedForEmoji = playerName.replace(/'/g, "\\'");
   html += '<div class="sc-header">'
     + (aid ? '<img class="sc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + aid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">' : '')
     + '<span class="sc-player-name">' + flag + ' ' + playerName + '</span>';
+  html += '<button class="sc-emoji-btn" onclick="event.stopPropagation();openEmojiPicker(\'' + escapedForEmoji + '\')" title="Tag with emoji">'
+    + (pEmoji || '+') + '</button>';
   if (gd) html += '<span class="sc-player-pos">' + gd.pos + '</span>';
   html += '<span style="font-size:10px;color:var(--text3);font-weight:600;margin-left:auto">' + ownPct + '% owned</span>';
   html += '</div>';
@@ -257,4 +261,43 @@ async function openScorecardPopup(playerName) {
   }
 
   wrap.innerHTML = html;
+}
+
+// ── Emoji Picker for Player Tags ──────────────────────────
+var EMOJI_CHOICES = ['⭐','🔥','💎','👑','💰','🎯','🏆','💪','🤞','🍀','❤️','⚡','🦈','🐅','🐻','🦁','🚀','💣','🎩','🌊'];
+
+function openEmojiPicker(playerName) {
+  var existing = document.getElementById('emoji-picker-popup');
+  if (existing) existing.remove();
+
+  var currentEmoji = getPlayerEmoji(playerName);
+  var picker = document.createElement('div');
+  picker.id = 'emoji-picker-popup';
+  picker.innerHTML = '<div class="emoji-picker-title">Tag ' + playerName + '</div>'
+    + '<div class="emoji-picker-grid">'
+    + EMOJI_CHOICES.map(function(e) {
+        return '<button class="emoji-pick-btn' + (e === currentEmoji ? ' selected' : '') + '" onclick="selectPlayerEmoji(\'' + playerName.replace(/'/g, "\\'") + '\',\'' + e + '\')">' + e + '</button>';
+      }).join('')
+    + '</div>'
+    + (currentEmoji ? '<button class="emoji-remove-btn" onclick="selectPlayerEmoji(\'' + playerName.replace(/'/g, "\\'") + '\',\'\')">Remove Tag</button>' : '');
+
+  var overlay = document.getElementById('sc-popup-overlay');
+  if (overlay) {
+    var wrap = overlay.querySelector('.sc-popup-wrap');
+    if (wrap) { wrap.appendChild(picker); return; }
+  }
+  document.body.appendChild(picker);
+}
+
+function selectPlayerEmoji(playerName, emoji) {
+  setPlayerEmoji(playerName, emoji);
+  var picker = document.getElementById('emoji-picker-popup');
+  if (picker) picker.remove();
+  // Update the button in the scorecard header
+  var btn = document.querySelector('.sc-emoji-btn');
+  if (btn) btn.textContent = emoji || '+';
+  // Re-render leaderboard to show updated emoji
+  if (typeof renderLeaderboard === 'function') renderLeaderboard();
+  // Re-render activity feed if open
+  if (typeof renderActivityList === 'function' && _actOpen) renderActivityList();
 }

@@ -160,6 +160,8 @@ async function renderActivityList() {
     var activeRound = withHoles.length ? withHoles[withHoles.length - 1] : null;
     if (!activeRound) return;
     var flag = FLAGS[name] || '';
+    var pEmoji = getPlayerEmoji(name);
+    var emojiTag = pEmoji ? '<span class="act-emoji-tag">' + pEmoji + '</span>' : '';
     var roundNum = withHoles.length;
     // Running score-to-par through the round
     var priorRoundsPar = 0;
@@ -181,7 +183,7 @@ async function renderActivityList() {
       var scCls = runningScore < 0 ? 'neg' : runningScore > 0 ? 'pos' : 'eve';
       items.push({
         player: name, hole: h.hole, type: type, icon: icon,
-        text: '<strong>' + flag + ' ' + name + '</strong> ' + label + ' Hole ' + h.hole + ' <span class="act-meta">P' + h.par + '</span>: <span class="act-score ' + scCls + '">' + fmt(runningScore) + '</span>',
+        text: '<strong>' + flag + ' ' + name + '</strong>' + emojiTag + ' ' + label + ' Hole ' + h.hole + ' <span class="act-meta">P' + h.par + '</span>: <span class="act-score ' + scCls + '">' + fmt(runningScore) + '</span>',
         sortKey: h.hole
       });
     });
