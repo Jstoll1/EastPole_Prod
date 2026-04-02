@@ -15,12 +15,12 @@ var _ACT_SEEN_KEY = 'eastpole_activity_seen';
   try {
     var saved = JSON.parse(localStorage.getItem(_ACT_STORAGE_KEY) || '[]');
     var cutoff = Date.now() - 96 * 60 * 60 * 1000;
-    // Filter old entries and deduplicate by player+type within 90s windows
+    // Filter old entries and deduplicate by player+type within 3min windows
     var filtered = saved.filter(function(a) { return a.time > cutoff; });
     var deduped = [];
     filtered.forEach(function(a) {
       var isDup = deduped.some(function(d) {
-        return d.player === a.player && d.type === a.type && Math.abs(d.time - a.time) < 90000;
+        return d.player === a.player && d.type === a.type && Math.abs(d.time - a.time) < 180000;
       });
       if (!isDup) deduped.push(a);
     });
@@ -36,10 +36,10 @@ function _saveActivity() {
 }
 
 function addActivity(icon, text, playerName, type) {
-  // Dedup: skip if same player+type within last 90s
+  // Dedup: skip if same player+type within last 3min
   var now = Date.now();
   var dup = ACTIVITY_LOG.some(function(a) {
-    return a.player === playerName && a.type === type && (now - a.time) < 90000;
+    return a.player === playerName && a.type === type && (now - a.time) < 180000;
   });
   if (dup) return;
   ACTIVITY_LOG.unshift({ icon: icon, text: text, player: playerName, type: type || '', time: now });
@@ -178,3 +178,44 @@ function detectGolfActivity(freshScores) {
 }
 
 function detectEntryActivity() {}
+
+// Swipe down to close drawer
+(function() {
+  var drawer = document.getElementById('activity-drawer');
+  if (!drawer) return;
+  var startY = 0, currentY = 0, dragging = false;
+  var handle = drawer.querySelector('.act-handle');
+  var header = drawer.querySelector('.live-header');
+
+  function onStart(e) {
+    var t = e.touches[0];
+    startY = t.clientY;
+    currentY = startY;
+    dragging = true;
+    drawer.style.transition = 'none';
+  }
+  function onMove(e) {
+    if (!dragging) return;
+    currentY = e.touches[0].clientY;
+    var dy = currentY - startY;
+    if (dy > 0) {
+      drawer.style.transform = 'translateY(' + dy + 'px)';
+      e.preventDefault();
+    }
+  }
+  function onEnd() {
+    if (!dragging) return;
+    dragging = false;
+    drawer.style.transition = '';
+    var dy = currentY - startY;
+    if (dy > 80) {
+      toggleActivityDrawer();
+    } else {
+      drawer.style.transform = _actOpen ? 'translateY(0)' : 'translateY(100%)';
+    }
+  }
+  if (handle) { handle.addEventListener('touchstart', onStart, { passive: true }); }
+  if (header) { header.addEventListener('touchstart', onStart, { passive: true }); }
+  drawer.addEventListener('touchmove', onMove, { passive: false });
+  drawer.addEventListener('touchend', onEnd);
+})();
