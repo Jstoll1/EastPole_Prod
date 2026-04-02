@@ -167,10 +167,6 @@ function renderLeaderboard() {
     players.forEach(function(p) {
       if (p.score === 11 || p.score === 12) return;
       var cP = parsePos(p.pos); if (!cP) return;
-      // Only show arrows for active players (thru is a number, not tee time/F/MC)
-      var thruNum = parseInt(p.thru);
-      var isActive = !isNaN(thruNum) && thruNum >= 1 && thruNum < 18;
-      if (!isActive) return;
       var sP = ROUND_START_POSITIONS[p.name];
       if (sP && sP !== cP) { arrowPlayers.set(p.name, sP - cP); return; }
       var pP = PREV_POSITIONS[p.name];
