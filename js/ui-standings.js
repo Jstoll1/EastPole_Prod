@@ -1,17 +1,49 @@
 // ── Standings View ──
 
 var _openPanelTeam = null;
+var standingsSort = 'total';
+var standingsSortDir = 1; // 1 = asc for score, toggled on re-click
+
+function toggleStandingsSort(col) {
+  if (standingsSort === col) {
+    standingsSortDir *= -1;
+  } else {
+    standingsSort = col;
+    standingsSortDir = 1;
+  }
+  renderStandings();
+}
 
 function renderStandings() {
   var ranked = getRanked();
   updateHeaderTeam();
   var el = document.getElementById('standings-list');
-  var ranks = [];
+  // Compute true ranks based on total score
+  var rankMap = {};
   var rk = 1;
   ranked.forEach(function(e, i) {
     if (i > 0 && ranked[i].total !== ranked[i-1].total) rk = i + 1;
-    ranks.push(rk);
+    rankMap[e.team + '|' + e.email] = rk;
   });
+  // Apply display sort if not default
+  if (standingsSort !== 'total') {
+    ranked.sort(function(a, b) {
+      var dir = standingsSortDir;
+      if (standingsSort === 'today') {
+        var todayA = 0, todayB = 0;
+        a.top4.forEach(function(g) { var t = golferTodayScore(GOLFER_SCORES[g.name]); if (t !== null) todayA += t; });
+        b.top4.forEach(function(g) { var t = golferTodayScore(GOLFER_SCORES[g.name]); if (t !== null) todayB += t; });
+        return (todayA - todayB) * dir || a.total - b.total;
+      }
+      if (standingsSort === 'entry') {
+        return a.team.localeCompare(b.team) * dir;
+      }
+      return 0;
+    });
+  } else if (standingsSortDir === -1) {
+    ranked.reverse();
+  }
+  var ranks = ranked.map(function(e) { return rankMap[e.team + '|' + e.email]; });
 
   // Payout cards
   var cardsEl = document.getElementById('standings-cards');
@@ -63,13 +95,13 @@ function renderStandings() {
           moveHtml = d > 0 ? '<span class="my-row-move up">▲' + d + '</span>' : '<span class="my-row-move dn">▼' + Math.abs(d) + '</span>';
         }
         var myHolesLeft = myEntry.picks.reduce(function(s, p) { return s + getHolesRemaining(p); }, 0);
-        var myPlayStarted = myHolesLeft < myEntry.picks.length * 72;
-        var myHolesTag = myPlayStarted ? '<span class="my-row-holes">' + myHolesLeft + 'h</span>' : '';
+        var myHolesTag = '<span class="my-row-holes">' + myHolesLeft + ' holes</span>';
         var myTeamToday = 0, myTodayCount = 0;
         myEntry.top4.forEach(function(g) { var td = golferTodayScore(GOLFER_SCORES[g.name]); if (td !== null) { myTeamToday += td; myTodayCount++; } });
         var myTodayDisp = myTodayCount > 0 ? (myTeamToday > 0 ? '+' + myTeamToday : myTeamToday === 0 ? 'E' : '' + myTeamToday) : '—';
         var myTodayCls = myTeamToday < 0 ? 'neg' : myTeamToday > 0 ? 'pos' : 'eve';
-        rows += '<div class="my-row" onclick="setUser(\'' + myEntry.email + '\',' + currentUserTeams.indexOf(activeTeam) + ')"> <div class="my-row-rank">' + myRank + '</div> <div class="my-row-team">' + myEntry.team + '</div> ' + moveHtml + ' ' + myHolesTag + ' <div class="my-row-today ' + myTodayCls + '">' + myTodayDisp + '</div> <div class="my-row-score ' + scc + '">' + fmtTeam(myEntry.total) + '</div> </div>';
+        var safeTeam = myEntry.team.replace(/'/g, "\\'");
+        rows += '<div class="my-row" onclick="jumpToEntry(\'' + safeTeam + '\')"> <div class="my-row-rank">' + myRank + '</div> <div class="my-row-team">' + myEntry.team + '</div> ' + moveHtml + ' ' + myHolesTag + ' <div class="my-row-today ' + myTodayCls + '">' + myTodayDisp + '</div> <div class="my-row-score ' + scc + '">' + fmtTeam(myEntry.total) + '</div> </div>';
       }
     });
     var showAllBtn = (activeTeamIdx >= 0 && currentUserTeams.length > 1) ? '<div class="my-show-all" onclick="trackEvent(\'show-all-entries\');setUser(\'' + currentUserEmail + '\',-1)">Show All Entries</div>' : '';
@@ -103,7 +135,7 @@ function renderStandings() {
     e.top4.forEach(function(g) { var td = golferTodayScore(GOLFER_SCORES[g.name]); if (td !== null) { teamToday += td; teamTodayCount++; } });
     var todayDisp = teamTodayCount > 0 ? (teamToday > 0 ? '+' + teamToday : teamToday === 0 ? 'E' : '' + teamToday) : '—';
     var todayCls = teamToday < 0 ? 'neg' : teamToday > 0 ? 'pos' : 'eve';
-    var holesTag = teamHolesLeft > 0 ? '<span class="s-holes">' + teamHolesLeft + 'h</span>' : '<span class="s-holes done">F</span>';
+    var holesTag = teamHolesLeft > 0 ? '<span class="s-holes">' + teamHolesLeft + ' holes</span>' : '<span class="s-holes done">F</span>';
     html += ' <div class="standing-row ' + isMyTeam + cmpCls + cmpSelCls + '" onclick="' + rowClick + '"> <div class="s-rank">' + rank + '</div> <div class="s-info"> <div class="s-team">' + e.team + cmpBadge + moveBadge + '</div> <div class="s-name">' + e.name + ' ' + holesTag + '</div> </div> <div class="s-today ' + todayCls + '">' + todayDisp + '</div> <div class="s-score ' + scc + '">' + scf + '</div> <div class="s-arrow" id="arr-' + i + '">' + (compareMode ? '' : '›') + '</div> </div> <div class="picks-panel" id="panel-' + i + '"> ' + e.scores.map(function(g, j) {
       var isTop = j < 4;
       var gd = GOLFER_SCORES[g.name];
@@ -120,7 +152,7 @@ function renderStandings() {
       var thruDisplay = preT ? '' : ((gd && (gd.thru === 'WD' || gd.score === 12)) ? '' : (stRoundDone ? (stLastRound ? 'Shot ' + stLastRound : '') : (thruVal && thruVal !== '—' ? 'Thru ' + thruVal : '')));
       var posDisplay = preT ? '' : pos;
       var flag = FLAGS[g.name] || '';
-      var holesDisp = holesLeft > 0 ? holesLeft + 'h' : 'F';
+      var holesDisp = holesLeft > 0 ? holesLeft + ' holes' : 'F';
       return '<div class="mini-pick ' + (isTop?'is-top':'') + '"> <div class="mini-pick-left"> <div class="mini-pick-top"> ' + (isTop?'<span class="star">★</span>':'<span style="width:10px;display:inline-block"></span>') + ' <span class="mini-pick-name">' + (flag ? flag + ' ' : '') + g.name + '</span>' + (posDisplay ? ' <span class="mini-pick-pos">' + posDisplay + '</span>' : '') + ' </div> <div class="mini-pick-bottom"> ' + (rndsStr?'<span class="mini-pick-rounds">' + rndsStr + '</span>':'') + ' ' + (thruDisplay?'<span class="mini-pick-thru">' + thruDisplay + '</span>':'') + '<span class="mini-pick-holes">' + holesDisp + '</span>' + ' ' + (ownP?'<span class="mini-pick-own">' + ownP + '</span>':'') + ' </div> </div> <span class="mini-pick-score ' + cls(g.score) + '">' + fmt(g.score) + '</span> </div>';
     }).join('');
     var isTied = (i < ranked.length-1 && ranked[i].total === ranked[i+1].total) || (i > 0 && ranked[i].total === ranked[i-1].total);
