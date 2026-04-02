@@ -87,13 +87,15 @@ function renderStandings() {
     var cmpBadge = isCmpSelected ? '<span class="cmp-badge">' + cmpNum + '</span>' : '';
     var teamHolesLeft = e.picks.reduce(function(sum, p) { return sum + getHolesRemaining(p); }, 0);
     var rowClick = compareMode ? 'cmpSelectTeam(' + entryIdx + ')' : 'togglePanel(this,' + i + ')';
-    // Movement badge within current round
-    var prevRk = PREV_RANKS[e.team];
+    // Movement badge relative to round start
+    var startRk = ROUND_START_ENTRY_RANKS[e.team];
+    var refRk = startRk || PREV_RANKS[e.team];
     var moveBadge = '';
-    if (TOURNAMENT_STARTED && prevRk && prevRk !== rank) {
-      var mv = prevRk - rank;
+    if (TOURNAMENT_STARTED && refRk) {
+      var mv = refRk - rank;
       if (mv > 0) moveBadge = '<span class="s-move up">&#9650;' + mv + '</span>';
       else if (mv < 0) moveBadge = '<span class="s-move dn">&#9660;' + Math.abs(mv) + '</span>';
+      else moveBadge = '<span class="s-move eve">—</span>';
     }
     var teamToday = 0, teamTodayCount = 0;
     e.top4.forEach(function(g) { var td = golferTodayScore(GOLFER_SCORES[g.name]); if (td !== null) { teamToday += td; teamTodayCount++; } });
@@ -120,6 +122,10 @@ function renderStandings() {
   });
 
   detectEntryActivity();
+  // Seed round-start entry ranks if empty (first load)
+  if (TOURNAMENT_STARTED && Object.keys(ROUND_START_ENTRY_RANKS).length === 0) {
+    ranked.forEach(function(e, i) { ROUND_START_ENTRY_RANKS[e.team] = ranks[i]; });
+  }
   ranked.forEach(function(e, i) { PREV_RANKS[e.team] = ranks[i]; });
   document.getElementById('my-teams-container').innerHTML = heroHtml;
   el.innerHTML = html;

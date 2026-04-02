@@ -2286,6 +2286,7 @@ to  {
 }
 .s-move.up { color: #52b788; }
 .s-move.dn { color: #ff7070; }
+.s-move.eve { color: var(--text3); font-size: 7px; }
 
 .pos-move  {
   font-size: 7px;

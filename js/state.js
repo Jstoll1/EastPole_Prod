@@ -246,6 +246,7 @@ var allTeamEmails = [];
 var PREV_POSITIONS = {};
 var PREV_RANKS = {};
 var ROUND_START_POSITIONS = {};
+var ROUND_START_ENTRY_RANKS = {};
 var ROUND_START_ROUND = 0;
 var PREV_SCORES = {};
 var SCORE_CHANGES = {};
@@ -274,7 +275,7 @@ var SPLASH_DATE_KEY = 'eastpole_splash_date';
 try {
   var saved = JSON.parse(localStorage.getItem('eastpole_round_start') || '{}');
   var posAge = saved.timestamp ? Date.now() - saved.timestamp : Infinity;
-  if (saved.round && saved.positions && posAge < 18 * 60 * 60 * 1000) { ROUND_START_POSITIONS = saved.positions; ROUND_START_ROUND = saved.round; }
+  if (saved.round && saved.positions && posAge < 18 * 60 * 60 * 1000) { ROUND_START_POSITIONS = saved.positions; ROUND_START_ROUND = saved.round; if (saved.entryRanks) ROUND_START_ENTRY_RANKS = saved.entryRanks; }
 } catch(e) {}
 
 function saveRoundStartPositions(round) {
@@ -284,7 +285,15 @@ function saveRoundStartPositions(round) {
     var p = parsePos(pair[1].pos);
     if (p) ROUND_START_POSITIONS[pair[0]] = p;
   });
-  try { localStorage.setItem('eastpole_round_start', JSON.stringify({ round: round, positions: ROUND_START_POSITIONS, timestamp: Date.now() })); } catch(e) {}
+  // Snapshot entry ranks at round start
+  ROUND_START_ENTRY_RANKS = {};
+  var ranked = getRanked();
+  var rk = 1;
+  ranked.forEach(function(e, i) {
+    if (i > 0 && ranked[i].total !== ranked[i-1].total) rk = i + 1;
+    ROUND_START_ENTRY_RANKS[e.team] = rk;
+  });
+  try { localStorage.setItem('eastpole_round_start', JSON.stringify({ round: round, positions: ROUND_START_POSITIONS, entryRanks: ROUND_START_ENTRY_RANKS, timestamp: Date.now() })); } catch(e) {}
 }
 
 function shouldShowSplash() {
