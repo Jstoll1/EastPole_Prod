@@ -233,7 +233,7 @@ var PRE_ODDS = {
   'Austin Wylie':['+500000','+49000','+17500'],'Chan Kim':['+2500','+1050','']
 };
 
-var POOL_CONFIG = { buyIn: 100, entries: 120, payouts: [ { place: '1st', amount: 1800 }, { place: '2nd', amount: 1175 }, { place: '3rd', amount: 25 } ] };
+var POOL_CONFIG = { buyIn: 100, entries: 120, payouts: [ { place: '1st', amount: 900 }, { place: '2nd', amount: 500 }, { place: '3rd', amount: 200 } ] };
 POOL_CONFIG.pot = POOL_CONFIG.buyIn * POOL_CONFIG.entries;
 
 var PILL_CLASSES = ['pill-a', 'pill-b', 'pill-c'];
