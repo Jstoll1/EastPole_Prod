@@ -15,7 +15,17 @@ var _ACT_SEEN_KEY = 'eastpole_activity_seen';
   try {
     var saved = JSON.parse(localStorage.getItem(_ACT_STORAGE_KEY) || '[]');
     var cutoff = Date.now() - 96 * 60 * 60 * 1000;
-    ACTIVITY_LOG = saved.filter(function(a) { return a.time > cutoff; });
+    // Filter old entries and deduplicate by player+type within 90s windows
+    var filtered = saved.filter(function(a) { return a.time > cutoff; });
+    var deduped = [];
+    filtered.forEach(function(a) {
+      var isDup = deduped.some(function(d) {
+        return d.player === a.player && d.type === a.type && Math.abs(d.time - a.time) < 90000;
+      });
+      if (!isDup) deduped.push(a);
+    });
+    ACTIVITY_LOG = deduped;
+    _saveActivity();
     var lastSeen = parseInt(localStorage.getItem(_ACT_SEEN_KEY) || '0');
     _actUnseen = ACTIVITY_LOG.filter(function(a) { return a.time > lastSeen; }).length;
   } catch(e) { ACTIVITY_LOG = []; }
@@ -26,7 +36,13 @@ function _saveActivity() {
 }
 
 function addActivity(icon, text, playerName, type) {
-  ACTIVITY_LOG.unshift({ icon: icon, text: text, player: playerName, type: type || '', time: Date.now() });
+  // Dedup: skip if same player+type within last 90s
+  var now = Date.now();
+  var dup = ACTIVITY_LOG.some(function(a) {
+    return a.player === playerName && a.type === type && (now - a.time) < 90000;
+  });
+  if (dup) return;
+  ACTIVITY_LOG.unshift({ icon: icon, text: text, player: playerName, type: type || '', time: now });
   if (ACTIVITY_LOG.length > MAX_ACTIVITY) ACTIVITY_LOG = ACTIVITY_LOG.slice(0, MAX_ACTIVITY);
   _saveActivity();
   if (!_actOpen) _actUnseen++;
