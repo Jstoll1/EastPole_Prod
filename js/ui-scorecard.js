@@ -269,40 +269,60 @@ async function openScorecardPopup(playerName) {
 }
 
 // ── Emoji Picker for Player Tags ──────────────────────────
-var EMOJI_CHOICES = ['⭐','🔥','💎','👑','💰','🎯','🏆','💪','🤞','🍀','❤️','⚡','🦈','🐅','🐻','🦁','🚀','💣','🎩','🌊'];
+// Uses a hidden input to trigger the native OS emoji keyboard
 
 function openEmojiPicker(playerName) {
-  var existing = document.getElementById('emoji-picker-popup');
+  var currentEmoji = getPlayerEmoji(playerName);
+
+  // If player already has an emoji, ask to remove or replace
+  if (currentEmoji) {
+    var existing = document.getElementById('emoji-picker-popup');
+    if (existing) { existing.remove(); return; }
+    var popup = document.createElement('div');
+    popup.id = 'emoji-picker-popup';
+    popup.innerHTML = '<button class="emoji-remove-btn" onclick="event.stopPropagation();selectPlayerEmoji(\'' + playerName.replace(/'/g, "\\'") + '\',\'\');this.parentElement.remove()">Remove ' + currentEmoji + '</button>'
+      + '<button class="emoji-remove-btn" style="margin-top:4px;color:var(--gold);border-color:var(--gold-dim,rgba(212,168,67,0.3))" onclick="event.stopPropagation();this.parentElement.remove();triggerEmojiKeyboard(\'' + playerName.replace(/'/g, "\\'") + '\')">Change Emoji</button>';
+    // Append next to the button
+    var btn = document.querySelector('.sc-emoji-btn');
+    if (btn) btn.insertAdjacentElement('afterend', popup);
+    else document.body.appendChild(popup);
+    return;
+  }
+
+  triggerEmojiKeyboard(playerName);
+}
+
+function triggerEmojiKeyboard(playerName) {
+  var existing = document.getElementById('emoji-picker-input');
   if (existing) existing.remove();
 
-  var currentEmoji = getPlayerEmoji(playerName);
-  var picker = document.createElement('div');
-  picker.id = 'emoji-picker-popup';
-  picker.innerHTML = '<div class="emoji-picker-title">Tag ' + playerName + '</div>'
-    + '<div class="emoji-picker-grid">'
-    + EMOJI_CHOICES.map(function(e) {
-        return '<button class="emoji-pick-btn' + (e === currentEmoji ? ' selected' : '') + '" onclick="selectPlayerEmoji(\'' + playerName.replace(/'/g, "\\'") + '\',\'' + e + '\')">' + e + '</button>';
-      }).join('')
-    + '</div>'
-    + (currentEmoji ? '<button class="emoji-remove-btn" onclick="selectPlayerEmoji(\'' + playerName.replace(/'/g, "\\'") + '\',\'\')">Remove Tag</button>' : '');
+  var input = document.createElement('input');
+  input.id = 'emoji-picker-input';
+  input.type = 'text';
+  input.inputMode = 'none';
+  input.style.cssText = 'position:fixed;top:40%;left:50%;opacity:0;width:1px;height:1px;';
+  document.body.appendChild(input);
 
-  // Append to whichever scorecard is open (popup or inline panel)
-  var overlay = document.getElementById('sc-popup-overlay');
-  if (overlay) {
-    var wrap = overlay.querySelector('.sc-popup-wrap');
-    if (wrap) { wrap.appendChild(picker); return; }
-  }
-  if (_openScorecardIdx !== null) {
-    var panel = document.getElementById('sc-panel-' + _openScorecardIdx);
-    if (panel) { panel.appendChild(picker); return; }
-  }
-  document.body.appendChild(picker);
+  input.addEventListener('input', function() {
+    var val = input.value.trim();
+    if (val) {
+      // Extract first emoji (handles multi-codepoint emoji like flags)
+      var segments = Array.from(new Intl.Segmenter({granularity: 'grapheme'}).segment(val));
+      var emoji = segments.length ? segments[0].segment : val;
+      selectPlayerEmoji(playerName, emoji);
+    }
+    input.remove();
+  });
+
+  input.addEventListener('blur', function() {
+    setTimeout(function() { if (document.getElementById('emoji-picker-input')) input.remove(); }, 500);
+  });
+
+  input.focus();
 }
 
 function selectPlayerEmoji(playerName, emoji) {
   setPlayerEmoji(playerName, emoji);
-  var picker = document.getElementById('emoji-picker-popup');
-  if (picker) picker.remove();
   // Update all emoji buttons visible on the page
   document.querySelectorAll('.sc-emoji-btn').forEach(function(btn) {
     btn.textContent = emoji || '+';
