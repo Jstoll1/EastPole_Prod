@@ -818,7 +818,7 @@ html, body  {
 
 .mini-pick.is-top  {
   background: rgba(212,168,67,0.08) !important;
-  border-left: 3px solid rgba(212,168,67,0.5);
+  border-left: 2px solid rgba(212,168,67,0.5);
 }
 
 .mini-pick-left  {
@@ -837,7 +837,8 @@ html, body  {
   display: flex;
   align-items: center;
   gap: 5px;
-  padding-left: 14px;
+  padding-left: 10px;
+  font-size: 9px;
 }
 
 .star  {
