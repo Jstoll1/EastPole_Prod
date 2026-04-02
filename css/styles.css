@@ -791,7 +791,8 @@ html, body  {
   cursor: pointer;
 }
 .h2h-picker-row:active { background: rgba(198,160,60,0.1); }
-.h2h-picker-team { font-size: 12px; font-weight: 600; color: var(--text); }
+.h2h-picker-rank { font-size: 10px; font-weight: 700; color: var(--text3); min-width: 22px; }
+.h2h-picker-team { font-size: 12px; font-weight: 600; color: var(--text); flex: 1; }
 .h2h-picker-score { font-size: 12px; font-weight: 800; }
 
 .mini-pick  {

@@ -12,12 +12,17 @@ function openH2HPicker(targetIdx) {
   var targetTeam = ENTRIES[targetIdx].team;
   var html = '<div style="font-size:12px;font-weight:800;color:var(--gold);margin-bottom:10px;text-transform:uppercase;">Compare vs ' + targetTeam + '</div>';
   if (currentUserTeams.length > 0) {
+    var rnk = getRanked();
+    var rnkMap = {}; var rk = 1;
+    rnk.forEach(function(re, ri) { if (ri > 0 && rnk[ri].total !== rnk[ri-1].total) rk = ri + 1; rnkMap[re.team + '|' + re.email] = rk; });
     html += '<div style="font-size:9px;font-weight:700;color:var(--text3);margin-bottom:4px;text-transform:uppercase;">Your Entries</div>';
     currentUserTeams.forEach(function(e) {
       var idx = ENTRIES.findIndex(function(x) { return x.team === e.team && x.email === e.email; });
       if (idx === targetIdx) return;
       var c = calcEntry(e);
+      var myRk = rnkMap[e.team + '|' + e.email] || '';
       html += '<div class="h2h-picker-row" onclick="selectH2H(' + idx + ',' + targetIdx + ')">'
+        + '<span class="h2h-picker-rank">' + myRk + '</span>'
         + '<span class="h2h-picker-team">' + e.team + '</span>'
         + '<span class="h2h-picker-score ' + cls(c.total) + '">' + fmtTeam(c.total) + '</span></div>';
     });
@@ -41,11 +46,14 @@ function buildH2HPickerList(targetIdx, query) {
   var ranked = getRanked();
   var q = query.toLowerCase();
   var html = '';
-  ranked.forEach(function(e) {
+  var rk = 1;
+  ranked.forEach(function(e, i) {
+    if (i > 0 && ranked[i].total !== ranked[i-1].total) rk = i + 1;
     var idx = ENTRIES.findIndex(function(x) { return x.team === e.team && x.email === e.email; });
     if (idx === targetIdx) return;
     if (q && e.team.toLowerCase().indexOf(q) === -1 && e.name.toLowerCase().indexOf(q) === -1) return;
     html += '<div class="h2h-picker-row" onclick="selectH2H(' + idx + ',' + targetIdx + ')">'
+      + '<span class="h2h-picker-rank">' + rk + '</span>'
       + '<span class="h2h-picker-team">' + e.team + '</span>'
       + '<span class="h2h-picker-score ' + cls(e.total) + '">' + fmtTeam(e.total) + '</span></div>';
   });
