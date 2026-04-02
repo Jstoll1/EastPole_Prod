@@ -128,6 +128,20 @@ async function renderActivityList() {
     return;
   }
 
+  // Invalidate stale scorecards: if player's thru has advanced beyond cached holes, re-fetch
+  playerNames.forEach(function(n) {
+    var gd = GOLFER_SCORES[n];
+    if (!gd || !SCORECARD_CACHE[n]) return;
+    var thruNow = parseInt(gd.thru);
+    if (isNaN(thruNow) && (gd.thru === 'F' || gd.thru === '18')) thruNow = 18;
+    if (isNaN(thruNow)) return;
+    var rounds = SCORECARD_CACHE[n];
+    var withHoles = rounds.filter(function(r) { return r.holes && r.holes.length > 0; });
+    var activeRound = withHoles.length ? withHoles[withHoles.length - 1] : null;
+    var cachedHoles = activeRound ? activeRound.holes.filter(function(h) { return h.strokes > 0; }).length : 0;
+    if (thruNow > cachedHoles) delete SCORECARD_CACHE[n];
+  });
+
   // Show loading if scorecards need fetching
   var needFetch = playerNames.filter(function(n) { return !SCORECARD_CACHE[n] && ATHLETE_IDS[n]; });
   if (needFetch.length > 0) {
@@ -146,6 +160,8 @@ async function renderActivityList() {
     var activeRound = withHoles.length ? withHoles[withHoles.length - 1] : null;
     if (!activeRound) return;
     var flag = FLAGS[name] || '';
+    var pEmoji = getPlayerEmoji(name);
+    var emojiTag = pEmoji ? '<span class="act-emoji-tag">' + pEmoji + '</span>' : '';
     var roundNum = withHoles.length;
     // Running score-to-par through the round
     var priorRoundsPar = 0;
@@ -167,7 +183,7 @@ async function renderActivityList() {
       var scCls = runningScore < 0 ? 'neg' : runningScore > 0 ? 'pos' : 'eve';
       items.push({
         player: name, hole: h.hole, type: type, icon: icon,
-        text: '<strong>' + flag + ' ' + name + '</strong> ' + label + ' Hole ' + h.hole + ' <span class="act-meta">P' + h.par + '</span>: <span class="act-score ' + scCls + '">' + fmt(runningScore) + '</span>',
+        text: '<strong>' + flag + ' ' + name + '</strong>' + emojiTag + ' ' + label + ' Hole ' + h.hole + ' <span class="act-meta">P' + h.par + '</span>: <span class="act-score ' + scCls + '">' + fmt(runningScore) + '</span>',
         sortKey: h.hole
       });
     });
@@ -273,14 +289,8 @@ async function detectGolfActivity(freshScores) {
         else if (vs === 2) { icon = '🔴'; label = 'double bogeys'; type = 'double'; }
         else { icon = '⛔'; label = '+' + vs + ' on'; type = 'worse'; }
       } else {
-        // Fallback to diff if no scorecard data
-        var diff = d.score - u.prev;
-        if (diff <= -2) { icon = '🦅'; label = 'eagles'; type = 'eagle'; }
-        else if (diff === -1) { icon = '🐦'; label = 'birdies'; type = 'birdie'; }
-        else if (diff === 0) { icon = '⛳'; label = 'pars'; type = 'par'; }
-        else if (diff === 1) { icon = '🟡'; label = 'bogeys'; type = 'bogey'; }
-        else if (diff === 2) { icon = '🔴'; label = 'double bogeys'; type = 'double'; }
-        else { icon = '⛔'; label = '+' + diff + ' on'; type = 'worse'; }
+        // No scorecard data — use neutral message instead of guessing from score delta
+        icon = '⛳'; label = 'completes'; type = 'par';
       }
       addActivity(icon, '<strong>' + flag + ' ' + name + '</strong> ' + label + ' Hole ' + holeNum + ' <span class="act-meta">P' + holePar + '</span>: <span class="act-score ' + scCls + '">' + fmt(d.score) + '</span>' + todayTag, name, type);
     } else {
@@ -304,10 +314,8 @@ async function detectGolfActivity(freshScores) {
         }
       }
       if (!reported) {
-        var diff = d.score - u.prev;
-        var icon2 = diff < 0 ? '🔥' : diff > 0 ? '📉' : '⛳';
-        var type2 = diff < 0 ? 'birdie' : diff > 0 ? 'bogey' : 'par';
-        addActivity(icon2, '<strong>' + flag + ' ' + name + '</strong> now at: <span class="act-score ' + scCls + '">' + fmt(d.score) + '</span>' + todayTag + ' <span class="act-meta">thru ' + thruNow + '</span>', name, type2);
+        // No scorecard data — show neutral progress update instead of guessing from score delta
+        addActivity('⛳', '<strong>' + flag + ' ' + name + '</strong> now at: <span class="act-score ' + scCls + '">' + fmt(d.score) + '</span>' + todayTag + ' <span class="act-meta">thru ' + thruNow + '</span>', name, 'par');
       }
     }
   });

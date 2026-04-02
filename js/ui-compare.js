@@ -2,7 +2,6 @@
 
 var compareMode = false;
 var cmpSelections = [];
-var _cmpJustActivated = false;
 
 function openH2HPicker(targetIdx) {
   var existing = document.getElementById('h2h-picker');
@@ -67,14 +66,13 @@ function filterH2HPicker(targetIdx) {
 }
 
 function selectH2H(myIdx, theirIdx) {
+  _cmpClickLock = true;
   trackEvent('h2h-compare');
   var popup = document.getElementById('h2h-picker');
   var backdrop = document.getElementById('h2h-picker-backdrop');
   if (popup) popup.remove();
   if (backdrop) backdrop.remove();
   compareMode = true;
-  _cmpJustActivated = true;
-  setTimeout(function() { _cmpJustActivated = false; }, 300);
   cmpSelections = [myIdx, theirIdx];
   document.getElementById('cmp-toggle').classList.add('active');
   document.getElementById('cmp-hint').style.display = 'none';
@@ -87,10 +85,9 @@ function selectH2H(myIdx, theirIdx) {
 }
 
 function toggleCompareMode() {
+  _cmpClickLock = true;
   compareMode = !compareMode;
   cmpSelections = [];
-  _cmpJustActivated = compareMode;
-  if (compareMode) setTimeout(function() { _cmpJustActivated = false; }, 300);
   document.getElementById('cmp-toggle').classList.toggle('active', compareMode);
   document.getElementById('cmp-hint').style.display = compareMode ? 'block' : 'none';
   document.getElementById('h2h-inline-panel').innerHTML = '';
@@ -107,25 +104,31 @@ function exitCompareMode() {
 }
 
 // Click outside H2H panel or standings list closes compare mode
+// Use a flag to prevent the click-outside handler from firing on the
+// same click that triggered a selection (since renderStandings removes
+// the clicked element from the DOM, making contains() return false).
+var _cmpClickLock = false;
 document.addEventListener('click', function(e) {
-  if (!compareMode || _cmpJustActivated) return;
-  // Don't close if clicking inside picker popup
-  var picker = document.getElementById('h2h-picker');
-  if (picker && picker.contains(e.target)) return;
+  if (!compareMode) return;
+  if (_cmpClickLock) { _cmpClickLock = false; return; }
   var panel = document.getElementById('h2h-inline-panel');
   var list = document.getElementById('standings-list');
   var toggle = document.getElementById('cmp-toggle');
-  var standingsView = document.getElementById('view-standings');
+  var picker = document.getElementById('h2h-picker');
+  var backdrop = document.getElementById('h2h-picker-backdrop');
+  var hint = document.getElementById('cmp-hint');
   if (panel && panel.contains(e.target)) return;
   if (list && list.contains(e.target)) return;
   if (toggle && toggle.contains(e.target)) return;
-  // Only close if clicking outside the standings view entirely
-  if (standingsView && standingsView.contains(e.target)) return;
+  if (picker && picker.contains(e.target)) return;
+  if (backdrop && backdrop.contains(e.target)) return;
+  if (hint && hint.contains(e.target)) return;
   exitCompareMode();
 });
 
 function cmpSelectTeam(entryIdx) {
   if (!compareMode) return;
+  _cmpClickLock = true;
   var pos = cmpSelections.indexOf(entryIdx);
   if (pos >= 0) {
     cmpSelections.splice(pos, 1);

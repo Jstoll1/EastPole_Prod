@@ -224,6 +224,7 @@ function renderLeaderboard() {
         + '<div class="tv-pos">' + (mc?(p.thru==='WD'||p.score===12?'WD':'MC'):p.pos) + moveHtml + '</div>'
         + '<div class="tv-pill-slot">' + pills + '</div>'
         + '<div class="tv-player"><span class="tv-name ' + (isMyPick?'is-my-pick':'') + '">' + p.name + '</span> <span class="tv-country">' + flag + (cc?' '+cc:'') + '</span>'
+        + (getPlayerEmoji(p.name) ? '<span class="tv-emoji-tag">' + getPlayerEmoji(p.name) + '</span>' : '')
         + (isMover ? (moverInfo.sign === 'up' ? '<span class="top-mover"><span class="mover-arrow">\uD83D\uDD25</span>' + Math.abs(roundDelta) + '</span>' : '<span class="top-mover down"><span class="mover-arrow">\uD83E\uDDCA</span>' + Math.abs(roundDelta) + '</span>') : '')
         + (isPrevWinner?'<span class="prev-winner-badge">Def. Champion</span>':'')
         + (inPool&&!isMyPick?'<span class="tv-pool-dot"></span>':'')
