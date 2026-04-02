@@ -752,8 +752,8 @@ html, body  {
 }
 
 .picks-panel-footer {
-  padding: 8px 16px;
-  font-size: 11px;
+  padding: 4px 10px;
+  font-size: 10px;
   color: var(--text3);
   border-top: 1px solid #0d1f12;
   display: flex;
@@ -1465,9 +1465,9 @@ html, body  {
 .pick-row  {
   display: flex;
   align-items: center;
-  padding: 11px 14px;
+  padding: 4px 10px;
   border-bottom: 1px solid #0d1f12;
-  gap: 10px;
+  gap: 6px;
 }
 
 .pick-row:nth-child(odd)  {
@@ -1483,8 +1483,8 @@ html, body  {
 }
 
 .pick-n  {
-  width: 22px;
-  font-size: 12px;
+  width: 16px;
+  font-size: 10px;
   color: #4a8054;
   font-weight: 700;
   flex-shrink: 0;
@@ -1496,15 +1496,15 @@ html, body  {
 }
 
 .pick-name  {
-  font-size: 15px;
+  font-size: 12px;
   font-weight: 700;
   color: #fff;
 }
 
 .pick-pos  {
-  font-size: 11px;
+  font-size: 9px;
   color: #4a8054;
-  margin-top: 2px;
+  margin-top: 0;
 }
 
 .pick-badge  {
@@ -1519,7 +1519,7 @@ html, body  {
 }
 
 .pick-score  {
-  font-size: 20px;
+  font-size: 14px;
   font-weight: 900;
   flex-shrink: 0;
 }
