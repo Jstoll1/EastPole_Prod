@@ -48,7 +48,11 @@ function addActivity(icon, text, playerName, type) {
 function toggleActivityDrawer() {
   if (!_actOpen) trackEvent('activity-open');
   _actOpen = !_actOpen;
-  document.getElementById('activity-drawer').classList.toggle('open', _actOpen);
+  var dr = document.getElementById('activity-drawer');
+  dr.style.transform = '';
+  dr.style.transition = '';
+  dr.style.maxHeight = '';
+  dr.classList.toggle('open', _actOpen);
   document.getElementById('activity-overlay').classList.toggle('open', _actOpen);
   if (_actOpen) {
     _actUnseen = 0;
@@ -175,18 +179,23 @@ function detectGolfActivity(freshScores) {
 
 function detectEntryActivity() {}
 
-// Swipe down to close drawer
+// Swipe to resize / close drawer
 (function() {
   var drawer = document.getElementById('activity-drawer');
   if (!drawer) return;
-  var startY = 0, currentY = 0, dragging = false;
-  var handle = drawer.querySelector('.act-handle');
-  var header = drawer.querySelector('.live-header');
+  var startY = 0, currentY = 0, dragging = false, startH = 0;
+  var MIN_H = 45; // vh
+  var MAX_H = 90; // vh
 
   function onStart(e) {
-    var t = e.touches[0];
-    startY = t.clientY;
+    if (!_actOpen) return;
+    // Only trigger from handle/header area, not scrollable list
+    var tgt = e.target;
+    var list = document.getElementById('act-list');
+    if (list && list.contains(tgt) && list.scrollTop > 0) return;
+    startY = e.touches[0].clientY;
     currentY = startY;
+    startH = drawer.offsetHeight;
     dragging = true;
     drawer.style.transition = 'none';
   }
@@ -194,8 +203,15 @@ function detectEntryActivity() {}
     if (!dragging) return;
     currentY = e.touches[0].clientY;
     var dy = currentY - startY;
+    // Swipe down: translate drawer down (to close)
     if (dy > 0) {
       drawer.style.transform = 'translateY(' + dy + 'px)';
+      e.preventDefault();
+    } else {
+      // Swipe up: grow drawer height
+      var newH = Math.min(MAX_H, Math.max(MIN_H, (startH - dy) / window.innerHeight * 100));
+      drawer.style.maxHeight = newH + 'vh';
+      drawer.style.transform = 'translateY(0)';
       e.preventDefault();
     }
   }
@@ -203,15 +219,13 @@ function detectEntryActivity() {}
     if (!dragging) return;
     dragging = false;
     drawer.style.transition = '';
+    drawer.style.transform = '';
     var dy = currentY - startY;
     if (dy > 80) {
       toggleActivityDrawer();
-    } else {
-      drawer.style.transform = _actOpen ? 'translateY(0)' : 'translateY(100%)';
     }
   }
-  if (handle) { handle.addEventListener('touchstart', onStart, { passive: true }); }
-  if (header) { header.addEventListener('touchstart', onStart, { passive: true }); }
+  drawer.addEventListener('touchstart', onStart, { passive: true });
   drawer.addEventListener('touchmove', onMove, { passive: false });
   drawer.addEventListener('touchend', onEnd);
 })();
