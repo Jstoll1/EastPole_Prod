@@ -982,6 +982,7 @@ html, body  {
   border-bottom: 1px solid rgba(212,168,67,0.15);
   overflow: hidden;
   height: 28px;
+  box-sizing: content-box;
 }
 .ticker-label {
   flex-shrink: 0;
@@ -1023,7 +1024,7 @@ html, body  {
 .ticker-item {
   display: inline-flex;
   align-items: center;
-  height: 28px;
+  height: 100%;
   gap: 6px;
   padding: 0 16px;
   font-size: 11px;
