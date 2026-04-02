@@ -2891,8 +2891,8 @@ to  {
   border-top:2px solid var(--gold);
   border-radius:16px 16px 0 0;
   transform:translateY(100%);
-  transition:transform 0.35s cubic-bezier(0.16,1,0.3,1);
-  max-height:75vh;
+  transition:transform 0.35s cubic-bezier(0.16,1,0.3,1), max-height 0.3s ease;
+  max-height:40vh;
   display:flex; flex-direction:column;
   box-shadow:0 -8px 40px rgba(0,0,0,0.6);
   padding-bottom:env(safe-area-inset-bottom);
@@ -2970,9 +2970,8 @@ to  {
 
 /* Activity list */
 .act-list {
-  flex:1; overflow-y:scroll; padding:0 10px 12px;
+  flex:1; overflow-y:auto; padding:0 10px 12px;
   -webkit-overflow-scrolling:touch;
-  overscroll-behavior:contain;
   min-height:0;
 }
 .act-item {

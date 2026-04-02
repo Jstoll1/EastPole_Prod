@@ -180,39 +180,49 @@ function detectGolfActivity(freshScores) {
 function detectEntryActivity() {}
 
 // Swipe to resize / close drawer
-var _dragAct = { active: false, startY: 0, curY: 0, startH: 0 };
+var _dragAct = { on: false, y0: 0, yNow: 0, h0: 0 };
 
 function actDragStart(e) {
   if (!_actOpen) return;
-  _dragAct.active = true;
-  _dragAct.startY = e.touches[0].clientY;
-  _dragAct.curY = _dragAct.startY;
-  _dragAct.startH = document.getElementById('activity-drawer').offsetHeight;
-  document.getElementById('activity-drawer').style.transition = 'none';
+  _dragAct.on = true;
+  _dragAct.y0 = e.touches[0].clientY;
+  _dragAct.yNow = _dragAct.y0;
+  var dr = document.getElementById('activity-drawer');
+  _dragAct.h0 = dr.offsetHeight;
+  dr.style.transition = 'none';
 }
 
 document.addEventListener('touchmove', function(e) {
-  if (!_dragAct.active) return;
-  _dragAct.curY = e.touches[0].clientY;
-  var dy = _dragAct.curY - _dragAct.startY;
-  var drawer = document.getElementById('activity-drawer');
+  if (!_dragAct.on) return;
+  _dragAct.yNow = e.touches[0].clientY;
+  var dy = _dragAct.yNow - _dragAct.y0;
+  var dr = document.getElementById('activity-drawer');
   if (dy > 0) {
-    drawer.style.transform = 'translateY(' + dy + 'px)';
+    // Swiping down — slide drawer down to dismiss
+    dr.style.transform = 'translateY(' + dy + 'px)';
   } else {
-    var newH = Math.min(92, (_dragAct.startH - dy) / window.innerHeight * 100);
-    drawer.style.maxHeight = newH + 'vh';
-    drawer.style.transform = 'translateY(0)';
+    // Swiping up — grow taller
+    var px = _dragAct.h0 - dy;
+    var vh = Math.min(92, px / window.innerHeight * 100);
+    dr.style.maxHeight = vh + 'vh';
+    dr.style.transform = '';
   }
   e.preventDefault();
 }, { passive: false });
 
 document.addEventListener('touchend', function() {
-  if (!_dragAct.active) return;
-  _dragAct.active = false;
-  var drawer = document.getElementById('activity-drawer');
-  drawer.style.transition = '';
-  drawer.style.transform = '';
-  if (_dragAct.curY - _dragAct.startY > 80) {
+  if (!_dragAct.on) return;
+  _dragAct.on = false;
+  var dr = document.getElementById('activity-drawer');
+  var dy = _dragAct.yNow - _dragAct.y0;
+  if (dy > 80) {
+    // Close
+    dr.style.transition = '';
+    dr.style.transform = '';
     toggleActivityDrawer();
+  } else {
+    // Snap — keep the new height, clear transform
+    dr.style.transform = '';
+    dr.style.transition = '';
   }
 });
