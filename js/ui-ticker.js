@@ -105,8 +105,32 @@ function initTickerTouch() {
     clearTimeout(_tickerResumeT);
     _tickerPaused = false;
   }
-  track.addEventListener('touchstart', pause, { passive: true });
-  track.addEventListener('touchend', function() { clearTimeout(_tickerResumeT); _tickerPaused = false; }, { passive: true });
+  var _touchLastX = 0, _touchLastTime = 0, _touchVelocity = 0;
+  track.addEventListener('touchstart', function(e) {
+    pause();
+    if (e.touches.length) {
+      _touchLastX = e.touches[0].clientX;
+      _touchLastTime = Date.now();
+      _touchVelocity = 0;
+    }
+  }, { passive: true });
+  track.addEventListener('touchmove', function(e) {
+    if (!e.touches.length) return;
+    var now = Date.now();
+    var dt = now - _touchLastTime || 1;
+    _touchVelocity = (_touchLastX - e.touches[0].clientX) / dt * 16;
+    _touchLastX = e.touches[0].clientX;
+    _touchLastTime = now;
+  }, { passive: true });
+  track.addEventListener('touchend', function() {
+    clearTimeout(_tickerResumeT);
+    if (Math.abs(_touchVelocity) > 2) {
+      _tickerVelocity = _touchVelocity;
+      tickerMomentum(track);
+    } else {
+      _tickerPaused = false;
+    }
+  }, { passive: true });
   track.addEventListener('touchcancel', function() { clearTimeout(_tickerResumeT); _tickerPaused = false; }, { passive: true });
   track.addEventListener('mousedown', function(e) {
     _tickerMouseDrag = true;
