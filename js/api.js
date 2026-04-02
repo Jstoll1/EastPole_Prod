@@ -8,6 +8,7 @@ async function fetchESPN() {
     if (!res.ok) { ErrorTracker.api('ESPN leaderboard fetch failed', { status: res.status, statusText: res.statusText }); throw new Error(); }
     var data = await res.json();
     var comps = data.events?.[0]?.competitions?.[0]?.competitors || [];
+    EVENT_ID = data.events?.[0]?.id || EVENT_ID || null;
     if (!comps.length) {
       console.log('⚠️ ESPN API returned event but no competitors — field not published yet');
       setApiStatus('scheduled', 'Pre-Tournament');
@@ -25,7 +26,6 @@ async function fetchESPN() {
     var wasPre = !TOURNAMENT_STARTED;
     if (!TOURNAMENT_STARTED && !isPreTournament) TOURNAMENT_STARTED = true;
     if (wasPre && TOURNAMENT_STARTED) console.log('🏌️ TOURNAMENT_STARTED flipped to true — event status:', evStatus);
-    EVENT_ID = data.events?.[0]?.id || null;
     var fullName = data.events[0].name || 'Valero Texas Open';
     var parts = fullName.split(' ');
     var openIdx = parts.findIndex(function(w) { return w.toLowerCase() === 'open'; });
