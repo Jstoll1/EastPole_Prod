@@ -467,8 +467,8 @@ html, body  {
 
 /* Emoji tag button in scorecard header */
 .sc-emoji-btn {
-  background: rgba(255,255,255,0.08);
-  border: 1.5px dashed var(--border);
+  background: rgba(212,168,67,0.12);
+  border: 1.5px dashed var(--gold-dim, rgba(212,168,67,0.4));
   border-radius: 8px;
   font-size: 14px;
   width: 28px;
@@ -479,11 +479,11 @@ html, body  {
   cursor: pointer;
   margin-left: 6px;
   padding: 0;
-  color: var(--text3);
+  color: var(--gold);
   transition: border-color 0.15s, background 0.15s;
   flex-shrink: 0;
 }
-.sc-emoji-btn:hover { border-color: var(--gold); background: rgba(212,168,67,0.1); }
+.sc-emoji-btn:hover, .sc-emoji-btn:active { border-color: var(--gold); background: rgba(212,168,67,0.2); }
 
 /* Emoji picker popup */
 #emoji-picker-popup {
