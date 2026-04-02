@@ -150,50 +150,99 @@ function setRoundLive(isLive) {
   }
 }
 
-function detectGolfActivity(freshScores) {
+async function detectGolfActivity(freshScores) {
   var pars = COURSE_HOLES ? COURSE_HOLES.map(function(h) { return h.par; }) : getDefaultPars();
+  // Collect players whose thru advanced
+  var updates = [];
   Object.entries(freshScores).forEach(function(pair) {
     var name = pair[0], d = pair[1];
     if (d.score === 11 || d.score === 12) return;
     var prev = PREV_SCORES[name];
     if (prev === undefined) return;
-
     var prevThru = PREV_THRU[name];
     var prevThruNum = prevThru ? parseInt(prevThru) : NaN;
     if (isNaN(prevThruNum) && prevThru === 'F') prevThruNum = 18;
     var thruNum = parseInt(d.thru);
     var thruNow = !isNaN(thruNum) ? thruNum : (d.thru === 'F' || d.thru === '18' ? 18 : 0);
-
-    // Only fire when thru advances (hole completed)
     if (isNaN(prevThruNum) || thruNow <= prevThruNum) return;
+    updates.push({ name: name, d: d, prev: prev, prevThruNum: prevThruNum, thruNow: thruNow });
+  });
+  if (!updates.length) return;
 
-    var diff = d.score - prev;
+  // Fetch scorecards for players who advanced (clear cache first)
+  updates.forEach(function(u) { delete SCORECARD_CACHE[u.name]; });
+  await fetchCourseHoles();
+  await Promise.all(updates.map(function(u) { return fetchPlayerScorecard(u.name); }));
+
+  updates.forEach(function(u) {
+    var name = u.name, d = u.d, thruNow = u.thruNow, prevThruNum = u.prevThruNum;
     var holesJumped = thruNow - prevThruNum;
     var flag = FLAGS[name] || '';
     var scCls = d.score < 0 ? 'neg' : d.score > 0 ? 'pos' : 'eve';
     var todayStr = d.todayDisplay && d.todayDisplay !== '—' ? d.todayDisplay : '';
     var todayTag = todayStr ? ' <span class="act-meta">(' + todayStr + ' today)</span>' : '';
 
+    // Get actual hole data from scorecard
+    var rounds = SCORECARD_CACHE[name];
+    var activeRound = null;
+    if (rounds && rounds.length) {
+      var withHoles = rounds.filter(function(r) { return r.holes && r.holes.length > 0; });
+      activeRound = withHoles.length ? withHoles[withHoles.length - 1] : null;
+    }
+    var holeMap = {};
+    if (activeRound) activeRound.holes.forEach(function(h) { holeMap[h.hole] = h; });
+
     if (holesJumped === 1) {
-      // Single hole completed — show what happened on that hole
       var holeNum = thruNow;
-      var holePar = pars[holeNum - 1] || 4;
+      var hd = holeMap[holeNum];
+      var holePar = (hd && hd.par) ? hd.par : (pars[holeNum - 1] || 4);
+      var strokes = hd ? hd.strokes : null;
       var icon, label, type;
-      if (diff <= -2) { icon = '🦅'; label = 'eagles'; type = 'eagle'; }
-      else if (diff === -1) { icon = '🐦'; label = 'birdies'; type = 'birdie'; }
-      else if (diff === 0) { icon = '⛳'; label = 'pars'; type = 'par'; }
-      else if (diff === 1) { icon = '🟡'; label = 'bogeys'; type = 'bogey'; }
-      else if (diff === 2) { icon = '🔴'; label = 'double bogeys'; type = 'double'; }
-      else { icon = '⛔'; label = '+' + diff + ' on'; type = 'worse'; }
+      if (strokes && holePar) {
+        var vs = strokes - holePar;
+        if (vs <= -2) { icon = '🦅'; label = 'eagles'; type = 'eagle'; }
+        else if (vs === -1) { icon = '🐦'; label = 'birdies'; type = 'birdie'; }
+        else if (vs === 0) { icon = '⛳'; label = 'pars'; type = 'par'; }
+        else if (vs === 1) { icon = '🟡'; label = 'bogeys'; type = 'bogey'; }
+        else if (vs === 2) { icon = '🔴'; label = 'double bogeys'; type = 'double'; }
+        else { icon = '⛔'; label = '+' + vs + ' on'; type = 'worse'; }
+      } else {
+        // Fallback to diff if no scorecard data
+        var diff = d.score - u.prev;
+        if (diff <= -2) { icon = '🦅'; label = 'eagles'; type = 'eagle'; }
+        else if (diff === -1) { icon = '🐦'; label = 'birdies'; type = 'birdie'; }
+        else if (diff === 0) { icon = '⛳'; label = 'pars'; type = 'par'; }
+        else if (diff === 1) { icon = '🟡'; label = 'bogeys'; type = 'bogey'; }
+        else if (diff === 2) { icon = '🔴'; label = 'double bogeys'; type = 'double'; }
+        else { icon = '⛔'; label = '+' + diff + ' on'; type = 'worse'; }
+      }
       addActivity(icon, '<strong>' + flag + ' ' + name + '</strong> ' + label + ' Hole ' + holeNum + ' <span class="act-meta">P' + holePar + '</span>: <span class="act-score ' + scCls + '">' + fmt(d.score) + '</span>' + todayTag, name, type);
     } else {
-      // Multi-hole batch — report net movement
-      var icon2, label2, type2;
-      if (diff < 0) { icon2 = '🔥'; type2 = 'birdie'; }
-      else if (diff > 0) { icon2 = '📉'; type2 = 'bogey'; }
-      else { icon2 = '⛳'; type2 = 'par'; }
-      label2 = 'now at';
-      addActivity(icon2, '<strong>' + flag + ' ' + name + '</strong> ' + label2 + ': <span class="act-score ' + scCls + '">' + fmt(d.score) + '</span>' + todayTag + ' <span class="act-meta">thru ' + thruNow + '</span>', name, type2);
+      // Multi-hole: report each hole if we have scorecard data
+      var reported = false;
+      if (activeRound) {
+        for (var h = prevThruNum + 1; h <= thruNow; h++) {
+          var hd = holeMap[h];
+          if (hd && hd.strokes && hd.par) {
+            var vs = hd.strokes - hd.par;
+            var icon, label, type;
+            if (vs <= -2) { icon = '🦅'; label = 'eagles'; type = 'eagle'; }
+            else if (vs === -1) { icon = '🐦'; label = 'birdies'; type = 'birdie'; }
+            else if (vs === 0) { icon = '⛳'; label = 'pars'; type = 'par'; }
+            else if (vs === 1) { icon = '🟡'; label = 'bogeys'; type = 'bogey'; }
+            else if (vs === 2) { icon = '🔴'; label = 'double bogeys'; type = 'double'; }
+            else { icon = '⛔'; label = '+' + vs + ' on'; type = 'worse'; }
+            addActivity(icon, '<strong>' + flag + ' ' + name + '</strong> ' + label + ' Hole ' + h + ' <span class="act-meta">P' + hd.par + '</span>: <span class="act-score ' + scCls + '">' + fmt(d.score) + '</span>' + todayTag, name, type);
+            reported = true;
+          }
+        }
+      }
+      if (!reported) {
+        var diff = d.score - u.prev;
+        var icon2 = diff < 0 ? '🔥' : diff > 0 ? '📉' : '⛳';
+        var type2 = diff < 0 ? 'birdie' : diff > 0 ? 'bogey' : 'par';
+        addActivity(icon2, '<strong>' + flag + ' ' + name + '</strong> now at: <span class="act-score ' + scCls + '">' + fmt(d.score) + '</span>' + todayTag + ' <span class="act-meta">thru ' + thruNow + '</span>', name, type2);
+      }
     }
   });
 }

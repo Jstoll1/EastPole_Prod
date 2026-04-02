@@ -117,7 +117,7 @@ async function fetchESPN() {
       });
     }
 
-    detectGolfActivity(freshScores);
+    await detectGolfActivity(freshScores);
     GOLFER_SCORES = freshScores;
     ATHLETE_IDS = freshAthleteIds;
     lastFetchTime = Date.now();
