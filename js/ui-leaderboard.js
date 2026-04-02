@@ -121,7 +121,7 @@ function renderLeaderboard() {
   var anyStillPlaying = activePlayingLb.some(function(p) { return /^\d+$/.test(p.thru) && parseInt(p.thru) >= 1 && parseInt(p.thru) < 18; });
   var anyHaveTeeTime = activePlayingLb.some(function(p) { return p.thru && p.thru.includes(':'); });
   var currentRound = samplePlayer ? (anyStillPlaying ? (completedRoundCount + 1) || 1 : anyHaveTeeTime ? completedRoundCount + 1 : completedRoundCount) : 0;
-  var isPreT = currentRound === 0;
+  var isPreT = currentRound === 0 && !TOURNAMENT_STARTED;
   if (isPreT) {
     var oddsIdx = lbSort === 't5' ? 1 : lbSort === 't10' ? 2 : 0;
     var oddsDir = lbSortAsc ? 1 : -1;
@@ -138,7 +138,7 @@ function renderLeaderboard() {
     if (anyStillPlaying) { tvTitle.textContent = roundLabels[currentRound] || 'FIRST ROUND'; }
     else if (anyHaveTeeTime && currentRound > 0) { tvTitle.textContent = roundLabels[currentRound] || 'ROUND ' + currentRound; }
     else if (currentRound > 0) { tvTitle.textContent = endOfRoundLabels[currentRound] || roundLabels[currentRound]; }
-    else { tvTitle.textContent = roundLabels[0]; }
+    else { tvTitle.textContent = TOURNAMENT_STARTED ? 'FIRST ROUND' : roundLabels[0]; }
   }
   var sortArrow = function(col) { return lbSort===col ? (lbSortAsc ? ' ▲' : ' ▼') : ''; };
   var sortCls = function(col) { return lbSort===col ? ' tv-h-active' : ''; };
