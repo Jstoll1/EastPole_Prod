@@ -66,6 +66,7 @@ function filterH2HPicker(targetIdx) {
 }
 
 function selectH2H(myIdx, theirIdx) {
+  _cmpClickLock = true;
   trackEvent('h2h-compare');
   var popup = document.getElementById('h2h-picker');
   var backdrop = document.getElementById('h2h-picker-backdrop');
@@ -84,6 +85,7 @@ function selectH2H(myIdx, theirIdx) {
 }
 
 function toggleCompareMode() {
+  _cmpClickLock = true;
   compareMode = !compareMode;
   cmpSelections = [];
   document.getElementById('cmp-toggle').classList.toggle('active', compareMode);
@@ -102,19 +104,31 @@ function exitCompareMode() {
 }
 
 // Click outside H2H panel or standings list closes compare mode
+// Use a flag to prevent the click-outside handler from firing on the
+// same click that triggered a selection (since renderStandings removes
+// the clicked element from the DOM, making contains() return false).
+var _cmpClickLock = false;
 document.addEventListener('click', function(e) {
   if (!compareMode) return;
+  if (_cmpClickLock) { _cmpClickLock = false; return; }
   var panel = document.getElementById('h2h-inline-panel');
   var list = document.getElementById('standings-list');
   var toggle = document.getElementById('cmp-toggle');
+  var picker = document.getElementById('h2h-picker');
+  var backdrop = document.getElementById('h2h-picker-backdrop');
+  var hint = document.getElementById('cmp-hint');
   if (panel && panel.contains(e.target)) return;
   if (list && list.contains(e.target)) return;
   if (toggle && toggle.contains(e.target)) return;
+  if (picker && picker.contains(e.target)) return;
+  if (backdrop && backdrop.contains(e.target)) return;
+  if (hint && hint.contains(e.target)) return;
   exitCompareMode();
 });
 
 function cmpSelectTeam(entryIdx) {
   if (!compareMode) return;
+  _cmpClickLock = true;
   var pos = cmpSelections.indexOf(entryIdx);
   if (pos >= 0) {
     cmpSelections.splice(pos, 1);
