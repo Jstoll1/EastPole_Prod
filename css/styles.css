@@ -632,7 +632,7 @@ html, body  {
 .standing-row  {
   display: flex;
   align-items: center;
-  padding: 7px 14px;
+  padding: 5px 12px;
   border-bottom: 1px solid rgba(26,51,38,0.6);
   cursor: pointer;
   gap: 0;
@@ -666,7 +666,7 @@ html, body  {
 }
 
 .s-team  {
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
@@ -684,18 +684,18 @@ html, body  {
 }
 
 .s-email  {
-  font-size: 10px;
+  font-size: 9.5px;
   color: var(--text3);
-  margin-top: 1px;
+  margin-top: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .s-score  {
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 900;
-  width: 48px;
+  width: 44px;
   text-align: right;
   flex-shrink: 0;
 }
