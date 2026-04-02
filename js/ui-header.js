@@ -289,3 +289,81 @@ function searchTeam() {
     }).join('') + ' </div>';
   }).join('');
 }
+
+// ── Hidden "Who's Watching" Easter Egg ──
+// Long-press (800ms) on Filter Entry / header team area
+(function() {
+  var _lpTimer = null;
+  var target = null;
+
+  document.addEventListener('DOMContentLoaded', function() {
+    target = document.getElementById('hdr-team-display') || document.getElementById('hdr-join-btn');
+    if (!target) return;
+
+    target.addEventListener('touchstart', function(e) {
+      _lpTimer = setTimeout(function() {
+        e.preventDefault();
+        showViewers();
+      }, 800);
+    }, { passive: false });
+    target.addEventListener('touchend', function() { clearTimeout(_lpTimer); });
+    target.addEventListener('touchmove', function() { clearTimeout(_lpTimer); });
+
+    target.addEventListener('mousedown', function() {
+      _lpTimer = setTimeout(showViewers, 800);
+    });
+    target.addEventListener('mouseup', function() { clearTimeout(_lpTimer); });
+    target.addEventListener('mouseleave', function() { clearTimeout(_lpTimer); });
+  });
+
+  function showViewers() {
+    trackEvent('easter-egg-viewers');
+    var existing = document.getElementById('viewers-popup');
+    if (existing) { existing.remove(); var bd2 = document.getElementById('viewers-backdrop'); if (bd2) bd2.remove(); return; }
+
+    var popup = document.createElement('div');
+    popup.id = 'viewers-popup';
+    popup.style.cssText = 'position:fixed;z-index:9999;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(6,18,12,0.97);border:1px solid var(--gold);border-radius:14px;padding:20px 24px;box-shadow:0 12px 48px rgba(0,0,0,0.7);text-align:center;min-width:220px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)';
+    popup.innerHTML = '<div style="font-size:10px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:12px">Who\'s Watching</div>'
+      + '<div id="viewers-count" style="font-size:42px;font-weight:900;color:var(--text);line-height:1;margin-bottom:4px">…</div>'
+      + '<div id="viewers-label" style="font-size:11px;color:var(--text3);font-weight:600">loading</div>'
+      + '<div style="margin-top:14px;font-size:9px;color:var(--text3);opacity:0.4">tap outside to close</div>';
+    document.body.appendChild(popup);
+
+    var bd = document.createElement('div');
+    bd.id = 'viewers-backdrop';
+    bd.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.4)';
+    bd.onclick = function() { popup.remove(); bd.remove(); };
+    document.body.appendChild(bd);
+
+    fetchViewerCount();
+  }
+
+  async function fetchViewerCount() {
+    var countEl = document.getElementById('viewers-count');
+    var labelEl = document.getElementById('viewers-label');
+    if (!countEl) return;
+    try {
+      var res = await fetch('https://calcutta.goatcounter.com/counter/' + encodeURIComponent(location.pathname || '/') + '.json');
+      if (res.ok) {
+        var data = await res.json();
+        var total = parseInt(data.count) || 0;
+        countEl.textContent = total.toLocaleString();
+        labelEl.textContent = 'views today';
+        var activeEst = Math.max(1, Math.round(total * 0.08));
+        setTimeout(function() {
+          if (!document.getElementById('viewers-count')) return;
+          countEl.style.transition = 'all 0.3s ease';
+          countEl.textContent = activeEst;
+          labelEl.innerHTML = 'estimated active<div style="margin-top:10px;font-size:22px;font-weight:800;color:var(--text2)">' + total.toLocaleString() + '</div><div style="font-size:10px;color:var(--text3)">total views today</div>';
+        }, 1500);
+      } else {
+        countEl.textContent = '—';
+        labelEl.textContent = 'unavailable';
+      }
+    } catch(e) {
+      countEl.textContent = '—';
+      labelEl.textContent = 'offline';
+    }
+  }
+})();
