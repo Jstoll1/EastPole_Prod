@@ -347,25 +347,29 @@ function selectPlayerEmoji(playerName, emoji) {
 }
 
 // Triple-tap header logo to clear all emoji tags
-(function() {
-  var tapCount = 0;
-  var tapTimer = null;
+var _logoTapCount = 0;
+var _logoTapTimer = null;
+
+function _handleLogoTap() {
+  _logoTapCount++;
+  if (_logoTapCount === 3) {
+    _logoTapCount = 0;
+    clearTimeout(_logoTapTimer);
+    if (Object.keys(PLAYER_EMOJI).length === 0) return;
+    PLAYER_EMOJI = {};
+    try { localStorage.removeItem(PLAYER_EMOJI_KEY); } catch(e) {}
+    if (typeof renderLeaderboard === 'function') renderLeaderboard();
+    if (typeof renderActivityList === 'function' && _actOpen) renderActivityList();
+  } else {
+    clearTimeout(_logoTapTimer);
+    _logoTapTimer = setTimeout(function() { _logoTapCount = 0; }, 800);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
   var logo = document.querySelector('.hdr-logo-center');
-  if (!logo) return;
-  logo.addEventListener('click', function(e) {
-    tapCount++;
-    if (tapCount === 3) {
-      tapCount = 0;
-      clearTimeout(tapTimer);
-      if (Object.keys(PLAYER_EMOJI).length === 0) return;
-      PLAYER_EMOJI = {};
-      try { localStorage.removeItem(PLAYER_EMOJI_KEY); } catch(e) {}
-      // Refresh leaderboard to clear tags
-      if (typeof renderLeaderboard === 'function') renderLeaderboard();
-      if (typeof renderActivityList === 'function' && _actOpen) renderActivityList();
-    } else {
-      clearTimeout(tapTimer);
-      tapTimer = setTimeout(function() { tapCount = 0; }, 600);
-    }
-  });
-})();
+  if (logo) {
+    logo.addEventListener('touchend', function(e) { e.preventDefault(); _handleLogoTap(); });
+    logo.addEventListener('click', _handleLogoTap);
+  }
+});
