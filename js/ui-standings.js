@@ -136,7 +136,26 @@ function renderStandings() {
     var todayDisp = teamTodayCount > 0 ? (teamToday > 0 ? '+' + teamToday : teamToday === 0 ? 'E' : '' + teamToday) : '—';
     var todayCls = teamToday < 0 ? 'neg' : teamToday > 0 ? 'pos' : 'eve';
     var holesTag = teamHolesLeft > 0 ? '<span class="s-holes">' + teamHolesLeft + ' holes left</span>' : '<span class="s-holes done">F</span>';
-    html += ' <div class="standing-row ' + isMyTeam + cmpCls + cmpSelCls + '" onclick="' + rowClick + '"> <div class="s-rank">' + rank + '</div> <div class="s-info"> <div class="s-team">' + e.team + cmpBadge + moveBadge + '</div> <div class="s-name">' + e.name + ' ' + holesTag + '</div> </div> <div class="s-today ' + todayCls + '">' + todayDisp + '</div> <div class="s-score ' + scc + '">' + scf + '</div> <div class="s-arrow" id="arr-' + i + '">' + (compareMode ? '' : '›') + '</div> </div> <div class="picks-panel" id="panel-' + i + '"> ' + e.scores.map(function(g, j) {
+    var golferLine = e.top4.map(function(g) {
+      var gd = GOLFER_SCORES[g.name];
+      var lastName = g.name.split(' ').pop();
+      var gt = golferTodayScore(gd);
+      var gtDisp = gt !== null ? (gt > 0 ? '+' + gt : gt === 0 ? 'E' : '' + gt) : '';
+      var gtCls = gt !== null ? (gt < 0 ? 'neg' : gt > 0 ? 'pos' : 'eve') : '';
+      var thru = gd ? gd.thru : '';
+      var thruDisp = '';
+      if (thru && thru !== '—') {
+        if (thru === 'F' || thru === '18') thruDisp = 'F';
+        else if (thru === 'WD' || (gd && gd.score === 12)) thruDisp = 'WD';
+        else if (thru === 'MC') thruDisp = 'MC';
+        else thruDisp = thru;
+      }
+      var parts = [];
+      if (gtDisp) parts.push('<span class="sg-today ' + gtCls + '">' + gtDisp + '</span>');
+      if (thruDisp) parts.push('<span class="sg-thru">' + thruDisp + '</span>');
+      return '<span class="sg-chip">' + lastName + (parts.length ? ' ' + parts.join(' ') : '') + '</span>';
+    }).join(' ');
+    html += ' <div class="standing-row ' + isMyTeam + cmpCls + cmpSelCls + '" onclick="' + rowClick + '"> <div class="s-rank">' + rank + '</div> <div class="s-info"> <div class="s-team">' + e.team + cmpBadge + moveBadge + '</div> <div class="s-name">' + e.name + ' ' + holesTag + '</div> <div class="s-golfers">' + golferLine + '</div> </div> <div class="s-today ' + todayCls + '">' + todayDisp + '</div> <div class="s-score ' + scc + '">' + scf + '</div> <div class="s-arrow" id="arr-' + i + '">' + (compareMode ? '' : '›') + '</div> </div> <div class="picks-panel" id="panel-' + i + '"> ' + e.scores.map(function(g, j) {
       var isTop = j < 4;
       var gd = GOLFER_SCORES[g.name];
       var preT = !TOURNAMENT_STARTED;
