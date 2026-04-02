@@ -74,9 +74,8 @@ async function toggleScorecard(idx, playerName) {
   // Fallback: round-level summary if no hole-by-hole data
   if (!rounds || !rounds.length || !rounds.some(function(r) { return r.holes && r.holes.length > 0; })) {
     var fbAid = ATHLETE_IDS[playerName];
-    var fbEmoji = getPlayerEmoji(playerName);
     var fb = '<div class="sc-header">' + (fbAid ? '<img class="sc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + fbAid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">' : '') + '<span class="sc-player-name">' + playerName + '</span>';
-    fb += '<button class="sc-emoji-btn" onclick="event.stopPropagation();openEmojiPicker(\'' + escapedName + '\')">' + (fbEmoji || '+') + '</button>';
+    fb += emojiButtonHtml(escapedName);
     if (gd) fb += '<span class="sc-player-pos">' + gd.pos + '</span>';
     fb += buildOwnBadge();
     fb += '</div><div style="padding:8px 12px 12px;">';
@@ -113,9 +112,8 @@ async function toggleScorecard(idx, playerName) {
   }
 
   var scAid = ATHLETE_IDS[playerName];
-  var scEmoji = getPlayerEmoji(playerName);
   var html = '<div class="sc-header">' + (scAid ? '<img class="sc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + scAid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">' : '') + '<span class="sc-player-name">' + playerName + '</span>';
-  html += '<button class="sc-emoji-btn" onclick="event.stopPropagation();openEmojiPicker(\'' + escapedName + '\')">' + (scEmoji || '+') + '</button>';
+  html += emojiButtonHtml(escapedName);
   if (gd) html += '<span class="sc-player-pos">' + gd.pos + '</span>';
   html += buildOwnBadge();
   html += '</div>';
@@ -215,13 +213,11 @@ async function openScorecardPopup(playerName) {
   var aid = ATHLETE_IDS[playerName];
 
   var html = '<div class="sc-popup-close" onclick="document.getElementById(\'sc-popup-overlay\').remove()">✕</div>';
-  var pEmoji = getPlayerEmoji(playerName);
   var escapedForEmoji = playerName.replace(/'/g, "\\'");
   html += '<div class="sc-header">'
     + (aid ? '<img class="sc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + aid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">' : '')
     + '<span class="sc-player-name">' + flag + ' ' + playerName + '</span>';
-  html += '<button class="sc-emoji-btn" onclick="event.stopPropagation();openEmojiPicker(\'' + escapedForEmoji + '\')" title="Tag with emoji">'
-    + (pEmoji || '+') + '</button>';
+  html += emojiButtonHtml(escapedForEmoji);
   if (gd) html += '<span class="sc-player-pos">' + gd.pos + '</span>';
   html += '<span style="font-size:10px;color:var(--text3);font-weight:600;margin-left:auto">' + ownPct + '% owned</span>';
   html += '</div>';
@@ -270,41 +266,30 @@ async function openScorecardPopup(playerName) {
 
 // ── Emoji Picker for Player Tags ──────────────────────────
 
+function emojiButtonHtml(escapedName) {
+  var em = getPlayerEmoji(escapedName.replace(/\\'/g, "'"));
+  var html = '<button class="sc-emoji-btn" onclick="event.stopPropagation();openEmojiPicker(\'' + escapedName + '\')">' + (em || '+') + '</button>';
+  if (em) html += '<button class="sc-emoji-clear" onclick="event.stopPropagation();selectPlayerEmoji(\'' + escapedName + '\',\'\')">✕</button>';
+  return html;
+}
+
 function openEmojiPicker(playerName) {
-  var existing = document.getElementById('emoji-picker-popup');
-  if (existing) { existing.remove(); return; }
-
+  // Find the button that was tapped and swap it for an input
+  var btn = document.querySelector('.sc-emoji-btn');
+  if (!btn) return;
   var currentEmoji = getPlayerEmoji(playerName);
-  var escaped = playerName.replace(/'/g, "\\'");
 
-  var popup = document.createElement('div');
-  popup.id = 'emoji-picker-popup';
-  popup.onclick = function(e) { e.stopPropagation(); };
+  var input = document.createElement('input');
+  input.className = 'sc-emoji-input';
+  input.type = 'text';
+  input.autocomplete = 'off';
+  input.maxLength = 2;
+  input.value = '';
+  btn.replaceWith(input);
 
-  var html = '<div class="emoji-picker-title">Tag ' + playerName + '</div>';
-  html += '<input class="emoji-picker-input" type="text" placeholder="Tap here, then pick emoji ↗" autocomplete="off" maxlength="2">';
-  if (currentEmoji) {
-    html += '<button class="emoji-remove-btn" style="margin-top:6px" onclick="event.stopPropagation();selectPlayerEmoji(\'' + escaped + '\',\'\');document.getElementById(\'emoji-picker-popup\').remove()">Remove ' + currentEmoji + '</button>';
-  }
-  popup.innerHTML = html;
-
-  // Insert into the open scorecard
-  var overlay = document.getElementById('sc-popup-overlay');
-  if (overlay) {
-    var wrap = overlay.querySelector('.sc-popup-wrap');
-    if (wrap) { wrap.appendChild(popup); }
-  } else if (_openScorecardIdx !== null) {
-    var panel = document.getElementById('sc-panel-' + _openScorecardIdx);
-    if (panel) { panel.appendChild(popup); }
-  } else {
-    document.body.appendChild(popup);
-  }
-
-  var inp = popup.querySelector('.emoji-picker-input');
-  inp.addEventListener('input', function() {
-    var val = inp.value.trim();
+  input.addEventListener('input', function() {
+    var val = input.value.trim();
     if (!val) return;
-    // Grab the first grapheme (full emoji including modifiers/ZWJ)
     var emoji;
     if (typeof Intl !== 'undefined' && Intl.Segmenter) {
       var segs = Array.from(new Intl.Segmenter({granularity: 'grapheme'}).segment(val));
@@ -313,8 +298,28 @@ function openEmojiPicker(playerName) {
       emoji = Array.from(val)[0] || val;
     }
     selectPlayerEmoji(playerName, emoji);
-    popup.remove();
+    // Replace input back with the button showing the emoji
+    var newBtn = document.createElement('button');
+    newBtn.className = 'sc-emoji-btn';
+    newBtn.textContent = emoji;
+    newBtn.onclick = function(e) { e.stopPropagation(); openEmojiPicker(playerName); };
+    input.replaceWith(newBtn);
   });
+
+  input.addEventListener('blur', function() {
+    // If they dismiss without picking, restore the button
+    setTimeout(function() {
+      if (input.parentNode) {
+        var newBtn = document.createElement('button');
+        newBtn.className = 'sc-emoji-btn';
+        newBtn.textContent = currentEmoji || '+';
+        newBtn.onclick = function(e) { e.stopPropagation(); openEmojiPicker(playerName); };
+        input.replaceWith(newBtn);
+      }
+    }, 200);
+  });
+
+  input.focus();
 }
 
 function selectPlayerEmoji(playerName, emoji) {
