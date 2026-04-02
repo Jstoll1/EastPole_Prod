@@ -2292,6 +2292,20 @@ to  {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.s-golfer-line  {
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.s-golfer  {
+  font-size: 9px;
+  color: var(--text3);
+  font-weight: 500;
+}
+.s-golfer .neg  { color: #52b788; font-weight: 700; }
+.s-golfer .pos  { color: #ff7070; font-weight: 700; }
+.s-golfer .eve  { color: var(--text3); font-weight: 700; }
 
 .s-tb  {
   font-size: 8px;
