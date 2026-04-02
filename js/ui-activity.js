@@ -179,49 +179,40 @@ function detectGolfActivity(freshScores) {
 
 function detectEntryActivity() {}
 
-// Swipe to resize / close drawer (header/handle area)
-document.addEventListener('DOMContentLoaded', function() {
-  var drawer = document.getElementById('activity-drawer');
-  if (!drawer) return;
-  var handle = drawer.querySelector('.act-handle');
-  var header = drawer.querySelector('.live-header');
-  var startY = 0, currentY = 0, dragging = false, startH = 0;
-  var MAX_H = 92;
+// Swipe to resize / close drawer
+var _dragAct = { active: false, startY: 0, curY: 0, startH: 0 };
 
-  function onStart(e) {
-    if (!_actOpen) return;
-    startY = e.touches[0].clientY;
-    currentY = startY;
-    startH = drawer.offsetHeight;
-    dragging = true;
-    drawer.style.transition = 'none';
+function actDragStart(e) {
+  if (!_actOpen) return;
+  _dragAct.active = true;
+  _dragAct.startY = e.touches[0].clientY;
+  _dragAct.curY = _dragAct.startY;
+  _dragAct.startH = document.getElementById('activity-drawer').offsetHeight;
+  document.getElementById('activity-drawer').style.transition = 'none';
+}
+
+document.addEventListener('touchmove', function(e) {
+  if (!_dragAct.active) return;
+  _dragAct.curY = e.touches[0].clientY;
+  var dy = _dragAct.curY - _dragAct.startY;
+  var drawer = document.getElementById('activity-drawer');
+  if (dy > 0) {
+    drawer.style.transform = 'translateY(' + dy + 'px)';
+  } else {
+    var newH = Math.min(92, (_dragAct.startH - dy) / window.innerHeight * 100);
+    drawer.style.maxHeight = newH + 'vh';
+    drawer.style.transform = 'translateY(0)';
   }
-  function onMove(e) {
-    if (!dragging) return;
-    currentY = e.touches[0].clientY;
-    var dy = currentY - startY;
-    if (dy > 0) {
-      drawer.style.transform = 'translateY(' + dy + 'px)';
-    } else {
-      var newH = Math.min(MAX_H, (startH - dy) / window.innerHeight * 100);
-      drawer.style.maxHeight = newH + 'vh';
-      drawer.style.transform = 'translateY(0)';
-    }
-    e.preventDefault();
+  e.preventDefault();
+}, { passive: false });
+
+document.addEventListener('touchend', function() {
+  if (!_dragAct.active) return;
+  _dragAct.active = false;
+  var drawer = document.getElementById('activity-drawer');
+  drawer.style.transition = '';
+  drawer.style.transform = '';
+  if (_dragAct.curY - _dragAct.startY > 80) {
+    toggleActivityDrawer();
   }
-  function onEnd() {
-    if (!dragging) return;
-    dragging = false;
-    drawer.style.transition = '';
-    drawer.style.transform = '';
-    if (currentY - startY > 80) {
-      toggleActivityDrawer();
-    }
-  }
-  [handle, header].forEach(function(el) {
-    if (!el) return;
-    el.addEventListener('touchstart', onStart, { passive: true });
-    el.addEventListener('touchmove', onMove, { passive: false });
-    el.addEventListener('touchend', onEnd);
-  });
 });

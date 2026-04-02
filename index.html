@@ -17,7 +17,7 @@
 <meta name="twitter:title" content="East Pole Golf Pool">
 <meta name="twitter:description" content="Live leaderboard and pool standings for the Valero Texas Open 2026.">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-<link rel="stylesheet" href="./css/styles.css?v=102">
+<link rel="stylesheet" href="./css/styles.css?v=103">
 <link rel="stylesheet" href="./css/theme.css">
 <script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -223,9 +223,9 @@
 <button id="activity-fab" onclick="toggleActivityDrawer()">⚡</button>
 <div id="activity-overlay" onclick="toggleActivityDrawer()"></div>
 <div id="activity-drawer">
-<div class="act-handle"></div>
+<div class="act-handle" ontouchstart="actDragStart(event)"></div>
 <div class="live-header">
-<div class="live-header-top">
+<div class="live-header-top" ontouchstart="actDragStart(event)">
 <div class="live-title">⚡ Live Feed</div>
 <div style="display:flex;align-items:center;gap:8px">
 <div class="live-status" id="live-status-pill">Pre-Tournament</div>
@@ -264,18 +264,18 @@
 </div>
 
 <!-- Module Scripts (deferred) -->
-<script defer src="./js/state.js?v=102"></script>
-<script defer src="./js/utils.js?v=102"></script>
-<script defer src="./js/api.js?v=102"></script>
-<script defer src="./js/ui-header.js?v=102"></script>
-<script defer src="./js/ui-standings.js?v=102"></script>
-<script defer src="./js/ui-leaderboard.js?v=102"></script>
-<script defer src="./js/ui-scorecard.js?v=102"></script>
-<script defer src="./js/ui-compare.js?v=102"></script>
-<script defer src="./js/ui-ownership.js?v=102"></script>
-<script defer src="./js/ui-activity.js?v=102"></script>
-<script defer src="./js/ui-ticker.js?v=102"></script>
-<script defer src="./js/ui-debug.js?v=102"></script>
-<script defer src="./js/app.js?v=102"></script>
+<script defer src="./js/state.js?v=103"></script>
+<script defer src="./js/utils.js?v=103"></script>
+<script defer src="./js/api.js?v=103"></script>
+<script defer src="./js/ui-header.js?v=103"></script>
+<script defer src="./js/ui-standings.js?v=103"></script>
+<script defer src="./js/ui-leaderboard.js?v=103"></script>
+<script defer src="./js/ui-scorecard.js?v=103"></script>
+<script defer src="./js/ui-compare.js?v=103"></script>
+<script defer src="./js/ui-ownership.js?v=103"></script>
+<script defer src="./js/ui-activity.js?v=103"></script>
+<script defer src="./js/ui-ticker.js?v=103"></script>
+<script defer src="./js/ui-debug.js?v=103"></script>
+<script defer src="./js/app.js?v=103"></script>
 </body>
 </html>
