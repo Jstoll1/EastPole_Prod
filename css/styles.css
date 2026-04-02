@@ -632,7 +632,7 @@ html, body  {
 .standing-row  {
   display: flex;
   align-items: center;
-  padding: 5px 12px;
+  padding: 3px 10px;
   border-bottom: 1px solid rgba(26,51,38,0.6);
   cursor: pointer;
   gap: 0;
@@ -652,8 +652,8 @@ html, body  {
 }
 
 .s-rank  {
-  width: 34px;
-  font-size: 13px;
+  width: 28px;
+  font-size: 12px;
   font-weight: 800;
   flex-shrink: 0;
   text-align: left;
@@ -666,7 +666,7 @@ html, body  {
 }
 
 .s-team  {
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
@@ -684,7 +684,7 @@ html, body  {
 }
 
 .s-email  {
-  font-size: 9.5px;
+  font-size: 9px;
   color: var(--text3);
   margin-top: 0;
   white-space: nowrap;
@@ -693,9 +693,9 @@ html, body  {
 }
 
 .s-score  {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 900;
-  width: 44px;
+  width: 40px;
   text-align: right;
   flex-shrink: 0;
 }
