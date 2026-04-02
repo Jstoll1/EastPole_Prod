@@ -84,6 +84,8 @@ var _prevTab = 'leaderboard';
 
 function switchTab(name, btn) {
   trackEvent('tab-' + name);
+  // Exit H2H compare mode on any tab switch
+  if (compareMode) exitCompareMode();
   // Remember previous tab (but not feedback itself)
   var cur = document.querySelector('.view.active');
   if (cur && cur.id !== 'view-feedback') {

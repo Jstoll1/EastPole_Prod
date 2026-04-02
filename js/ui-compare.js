@@ -101,6 +101,18 @@ function exitCompareMode() {
   renderStandings();
 }
 
+// Click outside H2H panel or standings list closes compare mode
+document.addEventListener('click', function(e) {
+  if (!compareMode) return;
+  var panel = document.getElementById('h2h-inline-panel');
+  var list = document.getElementById('standings-list');
+  var toggle = document.getElementById('cmp-toggle');
+  if (panel && panel.contains(e.target)) return;
+  if (list && list.contains(e.target)) return;
+  if (toggle && toggle.contains(e.target)) return;
+  exitCompareMode();
+});
+
 function cmpSelectTeam(entryIdx) {
   if (!compareMode) return;
   var pos = cmpSelections.indexOf(entryIdx);
