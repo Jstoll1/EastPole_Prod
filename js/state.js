@@ -95,7 +95,8 @@ var ENTRIES = [
   { team:'Iranian Bunker Lies', name:'Jordan', email:'woodsjordan@gmail.com', picks:['Ludvig Aberg','Sepp Straka','Stephan Jaeger','Brian Harman','Adrien Dumont De Chassart','Michael Kim'], tb:-8 },
   { team:'Huskies4Three', name:'Kyle Harteker', email:'dukeblue234@yahoo.com', picks:['Robert MacIntyre','Michael Thorbjornsen','John Keefer','Patrick Rodgers','Adrien Dumont De Chassart','Ryan Palmer'], tb:-17 },
   { team:"Tiger's Driver", name:'Luke R', email:'ungate329@outlook.com', picks:['Tommy Fleetwood','Michael Thorbjornsen','Davis Thompson','Rico Hoey','Andrew Novak','Kevin Yu'], tb:-10 },
-  { team:'Ayatollah Shot Calls', name:'Jordan', email:'woodsjordan@gmail.com', picks:['Russell Henley','Rickie Fowler','Thorbjorn Olesen','Sudarshan Yellamaraju','Chris Kirk','Beau Hossler'], tb:-9 }
+  { team:'Ayatollah Shot Calls', name:'Jordan', email:'woodsjordan@gmail.com', picks:['Russell Henley','Rickie Fowler','Thorbjorn Olesen','Sudarshan Yellamaraju','Chris Kirk','Beau Hossler'], tb:-9 },
+  { team:'Fleetwood Mac & Cheese', name:'Ben', email:'bss@bensbar.com', picks:['Tommy Fleetwood','Sepp Straka','Denny McCarthy','Brian Harman','Chris Kirk','Mackenzie Hughes'], tb:-13 }
 ];
 
 var FLAGS = {
