@@ -990,7 +990,7 @@ html, body  {
   font-size: 9px;
   font-weight: 800;
   letter-spacing: 1.5px;
-  padding: 2px 10px 0;
+  padding: 0 10px;
   height: 100%;
   display: flex;
   align-items: center;
@@ -1025,7 +1025,7 @@ html, body  {
   align-items: center;
   height: 28px;
   gap: 6px;
-  padding: 2px 16px 0;
+  padding: 0 16px;
   font-size: 11px;
   line-height: 28px;
   font-weight: 600;
