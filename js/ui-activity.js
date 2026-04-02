@@ -10,21 +10,17 @@ var _roundLive = false;
 var _ACT_STORAGE_KEY = 'eastpole_activity';
 var _ACT_SEEN_KEY = 'eastpole_activity_seen';
 
-// Load persisted activity on startup
+// One-time clear of old-format activity, then load
 (function() {
   try {
+    var migrated = localStorage.getItem('eastpole_act_v2');
+    if (!migrated) {
+      localStorage.removeItem(_ACT_STORAGE_KEY);
+      localStorage.setItem('eastpole_act_v2', '1');
+    }
     var saved = JSON.parse(localStorage.getItem(_ACT_STORAGE_KEY) || '[]');
     var cutoff = Date.now() - 96 * 60 * 60 * 1000;
-    // Filter old entries and deduplicate by player+type within 3min windows
-    var filtered = saved.filter(function(a) { return a.time > cutoff; });
-    var deduped = [];
-    filtered.forEach(function(a) {
-      var isDup = deduped.some(function(d) {
-        return d.player === a.player && d.type === a.type && Math.abs(d.time - a.time) < 180000;
-      });
-      if (!isDup) deduped.push(a);
-    });
-    ACTIVITY_LOG = deduped;
+    ACTIVITY_LOG = saved.filter(function(a) { return a.time > cutoff; });
     _saveActivity();
     var lastSeen = parseInt(localStorage.getItem(_ACT_SEEN_KEY) || '0');
     _actUnseen = ACTIVITY_LOG.filter(function(a) { return a.time > lastSeen; }).length;
