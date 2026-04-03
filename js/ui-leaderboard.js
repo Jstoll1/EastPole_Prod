@@ -138,28 +138,34 @@ function renderLeaderboard() {
   var activePlayingLb = players.filter(function(p) { return p.thru !== '—' && p.thru !== 'MC' && p.thru !== 'WD' && p.score !== 11 && p.score !== 12; });
   var anyStillPlaying = activePlayingLb.some(function(p) { return /^\d+$/.test(p.thru) && parseInt(p.thru) >= 1 && parseInt(p.thru) < 18; });
   var anyHaveTeeTime = activePlayingLb.some(function(p) { return p.thru && p.thru.includes(':'); });
-  // Use ESPN period if available; fallback uses active players' completed rounds (not max across all)
-  var fallbackRound = 0;
+  // Determine current round: count how many rounds have a FULLY completed score (thru=18/F)
+  // ESPN rval gives in-progress rounds a value > 50 too, so r1/r2/r3/r4 non-null doesn't mean completed
+  // Instead: for active on-course players (thru 1-17), the number of round fields they have IS
+  // the round they're playing (r1+r2 present = in R2, since the last one is in-progress)
+  var currentRound = 0;
   if (samplePlayer) {
     if (anyStillPlaying) {
-      // Find round that active (mid-round) players are in by checking THEIR completed rounds
       var activeOnCourse = activePlayingLb.filter(function(p) { return /^\d+$/.test(p.thru) && parseInt(p.thru) >= 1 && parseInt(p.thru) < 18; });
-      var activeCompleted = 0;
       if (activeOnCourse.length > 0) {
-        activeCompleted = [activeOnCourse[0].r1, activeOnCourse[0].r2, activeOnCourse[0].r3, activeOnCourse[0].r4].filter(function(r) { return r != null; }).length;
+        // Count how many round fields exist (non-null) — this IS the round they're in
+        var roundFields = [activeOnCourse[0].r1, activeOnCourse[0].r2, activeOnCourse[0].r3, activeOnCourse[0].r4].filter(function(r) { return r != null; }).length;
+        currentRound = roundFields || 1;
+      } else {
+        currentRound = 1;
       }
-      fallbackRound = (activeCompleted + 1) || 1;
     } else if (anyHaveTeeTime) {
-      // Between rounds — players with tee times haven't started yet
+      // Between rounds: find a waiting player, count their completed rounds
       var waitingPlayer = activePlayingLb.find(function(p) { return p.thru && p.thru.includes(':'); });
-      var waitCompleted = waitingPlayer ? [waitingPlayer.r1, waitingPlayer.r2, waitingPlayer.r3, waitingPlayer.r4].filter(function(r) { return r != null; }).length : completedRoundCount;
-      fallbackRound = waitCompleted + 1;
+      if (waitingPlayer) {
+        var waitRounds = [waitingPlayer.r1, waitingPlayer.r2, waitingPlayer.r3, waitingPlayer.r4].filter(function(r) { return r != null; }).length;
+        currentRound = waitRounds + 1;
+      } else {
+        currentRound = completedRoundCount + 1;
+      }
     } else {
-      fallbackRound = completedRoundCount;
+      currentRound = completedRoundCount;
     }
   }
-  // ESPN status.period is unreliable for golf (returns wrong round); use computed fallback
-  var currentRound = fallbackRound;
   var isPreT = false;
   var roundLabels = ['FIRST ROUND','FIRST ROUND','SECOND ROUND','THIRD ROUND','FINAL ROUND'];
   var endOfRoundLabels = ['','END OF ROUND 1','END OF ROUND 2','END OF ROUND 3','FINAL ROUND'];
