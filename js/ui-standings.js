@@ -111,7 +111,7 @@ function renderStandings() {
         var myTodayCls = myTeamToday < 0 ? 'neg' : myTeamToday > 0 ? 'pos' : 'eve';
         var safeTeam = myEntry.team.replace(/'/g, "\\'");
         myRows += '<div class="my-hero-row" onclick="jumpToEntry(\'' + safeTeam + '\')">'
-            + '<div class="my-hero-rank">' + myRank + moveHtml + '</div>'
+            + '<div class="my-hero-rank">' + myRank + '</div>'
             + '<div class="my-hero-name">' + myEntry.team + '</div>'
             + '<div class="my-hero-today ' + myTodayCls + '">' + myTodayDisp + '</div>'
             + '<div class="my-hero-score ' + scc + '">' + fmtTeam(myEntry.total) + '</div>'
@@ -166,7 +166,7 @@ function renderStandings() {
     var todayCls = teamToday < 0 ? 'neg' : teamToday > 0 ? 'pos' : 'eve';
     var holesTag = ROUND_START_ROUND >= 4 ? (teamHolesLeft > 0 ? '<span class="s-holes">' + teamHolesLeft + '</span>' : '') : '';
     html += '<div class="tv-row st-row' + isMyTeam + cmpCls + cmpSelCls + '" onclick="' + rowClick + '" style="cursor:pointer">'
-        + '<div class="tv-pos">' + rank + moveHtml + '</div>'
+        + '<div class="tv-pos">' + rank + '</div>'
         + '<div class="tv-player"><span class="st-expand-arrow">▾</span><span class="tv-name' + (isMyTeam ? ' is-my-pick' : '') + '">' + e.team + '</span>' + cmpBadge + ' <span class="tv-country">' + e.name + '</span>' + holesTag + '</div>'
         + '<div class="tv-thru"></div>'
         + '<div class="tv-today ' + todayCls + '">' + todayDisp + '</div>'
