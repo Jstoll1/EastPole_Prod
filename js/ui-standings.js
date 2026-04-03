@@ -234,7 +234,8 @@ function renderStandings() {
       }
       var isMc = gd && (gd.thru === 'MC' || gd.thru === 'WD' || gd.score === 11 || gd.score === 12);
       var escapedGName = g.name.replace(/'/g, "\\'");
-      return '<div class="tv-row st-pick-row ' + (isTop ? 'is-top' : 'is-bench') + '" onclick="event.stopPropagation();jumpToPlayer(\'' + escapedGName + '\')" style="cursor:pointer">'
+      var stScId = 'st-sc-' + i + '-' + j;
+      return '<div class="tv-row st-pick-row ' + (isTop ? 'is-top' : 'is-bench') + '" onclick="event.stopPropagation();toggleStandingsScorecard(\'' + stScId + '\',\'' + escapedGName + '\')" style="cursor:pointer">'
           + '<div class="tv-pos" style="font-size:10px">' + (isTop ? '★' : '') + '</div>'
           + '<div class="tv-player"><span class="st-pick-name">' + (flag ? flag + ' ' : '') + g.name + '</span>'
           + '<div class="st-pick-sub">' + (ownP ? '<span class="mini-pick-own">' + ownP + '</span>' : '') + '</div>'
@@ -242,7 +243,8 @@ function renderStandings() {
           + '<div class="tv-thru">' + thruDisp + '</div>'
           + '<div class="tv-today ' + gTodayCls + '">' + gTodayDisp + '</div>'
           + '<div class="tv-score ' + (isMc ? 'mc' : cls(g.score)) + '">' + (isMc ? (gd.thru === 'WD' || gd.score === 12 ? 'WD' : 'MC') : fmt(g.score)) + '</div>'
-          + '</div>';
+          + '</div>'
+          + '<div class="sc-panel" id="' + stScId + '"></div>';
     }).join('');
     var isTied = (i < displayRanked.length-1 && displayRanked[i].total === displayRanked[i+1].total) || (i > 0 && displayRanked[i].total === displayRanked[i-1].total);
     var tbFooter2 = (isTied && e.tb != null) ? ' · TB: ' + e.tb : '';
