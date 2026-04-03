@@ -275,6 +275,13 @@ function renderStandings() {
 
 function togglePanel(row, i) {
   trackEvent('standings-expand');
+  // If a golfer scorecard is open inside standings, just close that first
+  if (_openStScorecardId !== null) {
+    var scPanel = document.getElementById(_openStScorecardId);
+    if (scPanel) { scPanel.classList.remove('open'); scPanel.innerHTML = ''; }
+    _openStScorecardId = null;
+    return;
+  }
   var panel = document.getElementById('panel-'+i);
   var prevOpen = document.querySelector('.picks-panel.open');
   if (prevOpen && prevOpen !== panel) {
