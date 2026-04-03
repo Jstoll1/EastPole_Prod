@@ -166,6 +166,8 @@ function renderLeaderboard() {
   if (!isPreT) {
     players.forEach(function(p) {
       if (p.score === 11 || p.score === 12) return;
+      // Only show arrows for players actively on the course
+      if (p.thru === '—' || (p.thru && p.thru.includes(':'))) return;
       var cP = parsePos(p.pos); if (!cP) return;
       var sP = ROUND_START_POSITIONS[p.name];
       if (sP && sP !== cP) { arrowPlayers.set(p.name, sP - cP); return; }
