@@ -1196,7 +1196,7 @@ html, body  {
   z-index: 5;
 }
 
-.tv-h-pos { width: 40px; flex-shrink: 0; }
+.tv-h-pos { width: 52px; flex-shrink: 0; }
 .tv-h-pill { width: 18px; flex-shrink: 0; }
 .tv-h-player { flex: 1; min-width: 0; }
 .tv-h-score { width: 40px; text-align: center; flex-shrink: 0; }
@@ -1259,13 +1259,12 @@ html, body  {
 }
 
 .tv-pos  {
-  width: 40px;
+  width: 52px;
   font-size: 12px;
   font-weight: 800;
   color: var(--text2);
   flex-shrink: 0;
   white-space: nowrap;
-  line-height: 1.1;
 }
 
 .tv-row.tv-mc .tv-pos  {
@@ -2420,8 +2419,9 @@ to  {
 .pos-move  {
   font-size: 7px;
   font-weight: 900;
-  display: block;
-  line-height: 1;
+  display: inline;
+  margin-left: 2px;
+  vertical-align: middle;
 }
 
 .pos-move.up  {
