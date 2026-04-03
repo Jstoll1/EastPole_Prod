@@ -17,7 +17,7 @@
 <meta name="twitter:title" content="East Pole Golf Pool">
 <meta name="twitter:description" content="Live leaderboard and pool standings for the Valero Texas Open 2026.">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-<link rel="stylesheet" href="./css/styles.css?v=125">
+<link rel="stylesheet" href="./css/styles.css?v=126">
 <link rel="stylesheet" href="./css/theme.css">
 <script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -140,22 +140,6 @@
 <div id="leaderboard-list">
 </div>
 </div>
-<div class="view" id="view-ownership" style="padding-bottom:100px">
-<div style="padding:6px 14px;text-align:center">
-<div style="font-size:10px;color:var(--text3);line-height:1.4" id="ownership-sub">Pick popularity across <span id="own-field-count">0</span> field players · <span id="own-entry-count">0</span> entries</div>
-</div>
-<div class="seg-wrap" style="padding:4px 14px 4px">
-<div class="seg">
-<button class="seg-btn active" onclick="setOwnFilter('most',this)">Most</button>
-<button class="seg-btn" onclick="setOwnFilter('least',this)">Least</button>
-<button class="seg-btn" onclick="setOwnFilter('score',this)">Score</button>
-<button class="seg-btn" onclick="setOwnFilter('today',this)">Today</button>
-</div>
-</div>
-<input class="own-search" id="own-search" type="text" placeholder="Search players…" oninput="debouncedOwnSearch()">
-<div id="ownership-list">
-</div>
-</div>
 <div class="view" id="view-feedback" style="padding-bottom:100px">
 <div class="fb-view-header">
 <span class="fb-view-title">Feedback</span>
@@ -209,12 +193,7 @@
 <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
 <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
 </svg> Standings </button>
-<button class="nav-btn" onclick="switchTab('ownership',this)">
-<svg viewBox="0 0 24 24">
-<path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z"/>
-<circle cx="12" cy="12" r="3"/>
-<circle cx="12" cy="12" r="7" stroke-dasharray="4 3"/>
-</svg> Owned </button>
+
 <button class="nav-btn" onclick="switchTab('feedback',this)">
 <svg viewBox="0 0 24 24">
 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -264,18 +243,18 @@
 </div>
 
 <!-- Module Scripts (deferred) -->
-<script defer src="./js/state.js?v=125"></script>
-<script defer src="./js/utils.js?v=125"></script>
-<script defer src="./js/api.js?v=125"></script>
-<script defer src="./js/ui-header.js?v=125"></script>
-<script defer src="./js/ui-standings.js?v=125"></script>
-<script defer src="./js/ui-leaderboard.js?v=125"></script>
-<script defer src="./js/ui-scorecard.js?v=125"></script>
-<script defer src="./js/ui-compare.js?v=125"></script>
-<script defer src="./js/ui-ownership.js?v=125"></script>
-<script defer src="./js/ui-activity.js?v=125"></script>
-<script defer src="./js/ui-ticker.js?v=125"></script>
-<script defer src="./js/ui-debug.js?v=125"></script>
-<script defer src="./js/app.js?v=125"></script>
+<script defer src="./js/state.js?v=126"></script>
+<script defer src="./js/utils.js?v=126"></script>
+<script defer src="./js/api.js?v=126"></script>
+<script defer src="./js/ui-header.js?v=126"></script>
+<script defer src="./js/ui-standings.js?v=126"></script>
+<script defer src="./js/ui-leaderboard.js?v=126"></script>
+<script defer src="./js/ui-scorecard.js?v=126"></script>
+<script defer src="./js/ui-compare.js?v=126"></script>
+
+<script defer src="./js/ui-activity.js?v=126"></script>
+<script defer src="./js/ui-ticker.js?v=126"></script>
+<script defer src="./js/ui-debug.js?v=126"></script>
+<script defer src="./js/app.js?v=126"></script>
 </body>
 </html>
