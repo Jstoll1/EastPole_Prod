@@ -162,14 +162,31 @@ function renderLeaderboard() {
   var estCutShow = currentRound === 2 && lbSort === 'score' && lbFilter === 'all' && !lbSearch;
   var estCutScore = null;
   if (estCutShow) { var cnt = 0; for (var ci = 0; ci < players.length; ci++) { var pp = players[ci]; if (pp.thru !== 'MC') { cnt++; if (cnt === 65) { estCutScore = pp.score; break; } } } }
+  // Compute round-start positions from prior-round scores
+  var priorPosMap = {};
+  if (!isPreT && currentRound >= 2) {
+    var priorScores = players
+      .filter(function(p) { return p.score !== 11 && p.score !== 12; })
+      .map(function(p) {
+        var today = golferTodayScore(GOLFER_SCORES[p.name]);
+        var priorScore = today !== null ? p.score - today : p.score;
+        return { name: p.name, prior: priorScore };
+      })
+      .sort(function(a, b) { return a.prior - b.prior; });
+    var pRk = 1;
+    priorScores.forEach(function(ps, idx) {
+      if (idx > 0 && ps.prior !== priorScores[idx - 1].prior) pRk = idx + 1;
+      priorPosMap[ps.name] = pRk;
+    });
+  }
   var arrowPlayers = new Map();
-  if (!isPreT && ROUND_START_ROUND >= 2) {
+  if (!isPreT && currentRound >= 2) {
     players.forEach(function(p) {
       if (p.score === 11 || p.score === 12) return;
       // Only show arrows for players actively on the course
       if (p.thru === '—' || (p.thru && p.thru.includes(':'))) return;
       var cP = parsePos(p.pos); if (!cP) return;
-      var sP = ROUND_START_POSITIONS[p.name];
+      var sP = priorPosMap[p.name];
       if (sP && sP !== cP) { arrowPlayers.set(p.name, sP - cP); }
     });
   }
@@ -196,8 +213,7 @@ function renderLeaderboard() {
     var todayCls = todayDisp === '—' ? '' : (todayVal < 0 ? 'neg' : todayVal > 0 ? 'pos' : 'eve');
     var prevP = PREV_POSITIONS[p.name];
     var currP = parsePos(p.pos);
-    var startP = ROUND_START_POSITIONS[p.name];
-    var refP = startP || prevP;
+    var refP = priorPosMap[p.name];
     var roundDelta = (refP && currP) ? refP - currP : 0;
     var moveHtml = '';
     var arrowDelta = arrowPlayers.has(p.name) ? arrowPlayers.get(p.name) : 0;
