@@ -70,6 +70,7 @@ async function renderLive() {
     var thruNum = parseInt(gd.thru);
     var isActive = !isNaN(thruNum) && thruNum >= 1 && thruNum <= 17;
     var isFinished = gd.thru === 'F' || gd.thru === '18';
+    var isTeeTime = gd.thru && /[AP]M/i.test(gd.thru);
     var isMC = gd.score === 11;
     var isWD = gd.score === 12;
     var startHole = gd.startHole || 1;
@@ -135,6 +136,7 @@ async function renderLive() {
     else if (isFinished) html += ' <span class="ld-thru">· F</span>';
     else if (isMC) html += ' <span class="ld-thru ld-mc-label">· MC</span>';
     else if (isWD) html += ' <span class="ld-thru ld-mc-label">· WD</span>';
+    else if (isTeeTime) html += ' <span class="ld-thru">· Tees ' + gd.thru + '</span>';
     if (todayStr) html += ' <span class="ld-today">· Today ' + todayStr + '</span>';
     html += '</div>';
     html += '</div>';
@@ -147,9 +149,21 @@ async function renderLive() {
       var callCls = lastResult.vs < 0 ? 'ld-call-good' : lastResult.vs > 0 ? 'ld-call-bad' : 'ld-call-par';
       var lastName = name.split(' ').pop();
       html += '<div class="ld-callout ' + callCls + '">' + lastName + ' ' + lastResult.verb + ' ' + lastResult.hole + '</div>';
+    } else if (isTeeTime) {
+      // Between rounds — show tee time + last round result if available
+      var teeLabel = 'Tees off ' + gd.thru;
+      if (lastResult) {
+        var lastName = name.split(' ').pop();
+        var callCls = lastResult.vs < 0 ? 'ld-call-good' : lastResult.vs > 0 ? 'ld-call-bad' : 'ld-call-par';
+        html += '<div class="ld-callout ' + callCls + '">Last: ' + lastName + ' ' + lastResult.verb + ' ' + lastResult.hole + ' · Next: ' + gd.thru + '</div>';
+      } else {
+        html += '<div class="ld-callout ld-call-par">' + teeLabel + '</div>';
+      }
+    } else if (!isMC && !isWD && gd.thru === '—') {
+      html += '<div class="ld-callout ld-call-par">Waiting to tee off</div>';
     }
 
-    // Scorecard grid (compact 18 holes)
+    // Scorecard grid (compact 18 holes) — show for active, finished, and tee-time (previous round)
     if (!isMC && !isWD) {
       html += '<div class="ld-grid">';
       // Front 9
