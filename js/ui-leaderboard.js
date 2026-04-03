@@ -184,7 +184,7 @@ function renderLeaderboard() {
       tvTitle.textContent = 'FIRST ROUND';
     }
   }
-  console.log('🏌️ Round debug: ESPN_ROUND=' + ESPN_ROUND + ' fallback=' + fallbackRound + ' currentRound=' + currentRound + ' anyStillPlaying=' + anyStillPlaying + ' anyHaveTeeTime=' + anyHaveTeeTime);
+  console.log('🏌️ Round debug: ESPN_ROUND=' + ESPN_ROUND + ' currentRound=' + currentRound + ' anyStillPlaying=' + anyStillPlaying + ' anyHaveTeeTime=' + anyHaveTeeTime + ' completedRoundCount=' + completedRoundCount);
   var sortArrow = function(col) { return lbSort===col ? (lbSortAsc ? ' ▲' : ' ▼') : ''; };
   var sortCls = function(col) { return lbSort===col ? ' tv-h-active' : ''; };
   var colHdr = '<div class="tv-col-hdr"><div class="tv-h-pos">POS</div><div class="tv-h-pill"></div><div class="tv-h-player">PLAYER</div>'
