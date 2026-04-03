@@ -191,9 +191,10 @@ function renderH2HInline() {
   function teamRoundScore(top4) {
     var sum = 0, count = 0;
     top4.forEach(function(g) {
-      var today = golferTodayScore(GOLFER_SCORES[g.name]);
-      if (today === null) return;
-      sum += today; count++;
+      var gd = GOLFER_SCORES[g.name];
+      var td = gd ? gd.todayDisplay : null;
+      if (!td || td === '—') return;
+      sum += td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0; count++;
     });
     return { sum: sum, count: count };
   }
@@ -224,8 +225,9 @@ function renderH2HInline() {
     top4.forEach(function(g) {
       var gd = GOLFER_SCORES[g.name];
       if (!gd) return;
-      var today = golferTodayScore(gd);
-      if (today === null) return;
+      var td = gd ? gd.todayDisplay : null;
+      if (!td || td === '—') return;
+      var today = td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0;
       sum += today; count++;
     });
     return { sum: sum, count: count };
@@ -277,7 +279,8 @@ function buildH2HCell(g, side, isTop) {
   var isWD = thru === 'WD' || (gd && gd.score === 12);
   var mc = thru === 'MC';
   var holesLeft = getHolesRemaining(g.name);
-  var todayScore = golferTodayScore(gd);
+  var todayRaw = gd ? gd.todayDisplay : null;
+  var todayScore = (!todayRaw || todayRaw === '—') ? null : (todayRaw === 'E' ? 0 : parseInt(todayRaw.replace('+', '')) || 0);
   var todayTag = '';
   if (todayScore !== null) {
     var todayFmt = todayScore > 0 ? '+' + todayScore : todayScore === 0 ? 'E' : '' + todayScore;
