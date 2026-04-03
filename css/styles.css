@@ -1342,6 +1342,7 @@ html, body  {
   color: #d4d4d4;
 }
 .tv-thru.active { color: rgba(255,255,255,0.7); }
+.tv-thru.tv-thru-score { color: var(--gold); font-weight: 700; }
 
 .tv-rnd  {
   width: 26px;

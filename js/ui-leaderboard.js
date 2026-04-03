@@ -227,7 +227,7 @@ function renderLeaderboard() {
         + '</div>'
         + '<div class="tv-score ' + scClass + '">' + (preT?'—':mc?(p.thru==='WD'||p.score===12?'WD':'MC'):(scoreChange ? '<span class="score-pulse">' + scf + '</span>' : scf)) + '</div>'
         + '<div class="tv-today ' + todayCls + '">' + todayDisp + '</div>'
-        + '<div class="tv-thru' + (!mc && !roundDone && !isTeeTime && !preT ? ' active' : '') + '">' + thruDisp + '</div>'
+        + '<div class="tv-thru' + (!mc && !isTeeTime && !preT && roundDone && lastRoundScore ? ' tv-thru-score' : '') + (!mc && !roundDone && !isTeeTime && !preT ? ' active' : '') + '">' + thruDisp + '</div>'
         + '</div>'
         + '<div class="sc-panel" id="sc-panel-' + ri + '"></div>';
   });
