@@ -164,11 +164,20 @@ function renderLeaderboard() {
   var endOfRoundLabels = ['','END OF ROUND 1','END OF ROUND 2','END OF ROUND 3','FINAL ROUND'];
   var tvTitle = document.getElementById('lb-round-title');
   if (tvTitle) {
-    if (anyStillPlaying) { tvTitle.textContent = roundLabels[currentRound] || 'ROUND ' + currentRound; }
-    else if (anyHaveTeeTime && currentRound > 0) { tvTitle.textContent = roundLabels[currentRound] || 'ROUND ' + currentRound; }
-    else if (currentRound > 0) { tvTitle.textContent = endOfRoundLabels[currentRound] || roundLabels[currentRound]; }
-    else { tvTitle.textContent = 'FIRST ROUND'; }
+    if (anyStillPlaying) {
+      tvTitle.textContent = roundLabels[currentRound] || 'ROUND ' + currentRound;
+    } else if (anyHaveTeeTime && currentRound > 0) {
+      // Between rounds: nobody playing, tee times posted for next round
+      // Show end-of-previous-round label (currentRound is the upcoming round)
+      var prevRound = currentRound - 1;
+      tvTitle.textContent = prevRound > 0 ? (endOfRoundLabels[prevRound] || 'END OF ROUND ' + prevRound) : roundLabels[currentRound];
+    } else if (currentRound > 0) {
+      tvTitle.textContent = endOfRoundLabels[currentRound] || roundLabels[currentRound];
+    } else {
+      tvTitle.textContent = 'FIRST ROUND';
+    }
   }
+  console.log('🏌️ Round debug: ESPN_ROUND=' + ESPN_ROUND + ' fallback=' + fallbackRound + ' currentRound=' + currentRound + ' anyStillPlaying=' + anyStillPlaying + ' anyHaveTeeTime=' + anyHaveTeeTime);
   var sortArrow = function(col) { return lbSort===col ? (lbSortAsc ? ' ▲' : ' ▼') : ''; };
   var sortCls = function(col) { return lbSort===col ? ' tv-h-active' : ''; };
   var colHdr = '<div class="tv-col-hdr"><div class="tv-h-pos">POS</div><div class="tv-h-pill"></div><div class="tv-h-player">PLAYER</div>'
