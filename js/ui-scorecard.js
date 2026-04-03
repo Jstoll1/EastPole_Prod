@@ -47,6 +47,8 @@ async function toggleScorecard(idx, playerName) {
   if (_openScorecardIdx !== null) {
     var prev = document.getElementById('sc-panel-' + _openScorecardIdx);
     if (prev) { prev.classList.remove('open'); prev.innerHTML = ''; }
+    _openScorecardIdx = null;
+    return;
   }
   _openScorecardIdx = idx;
   var escapedName = playerName.replace(/'/g, "\\'");
@@ -201,6 +203,8 @@ async function toggleStandingsScorecard(panelId, playerName) {
   if (_openStScorecardId !== null) {
     var prev = document.getElementById(_openStScorecardId);
     if (prev) { prev.classList.remove('open'); prev.innerHTML = ''; }
+    _openStScorecardId = null;
+    return;
   }
   _openStScorecardId = panelId;
   panel.innerHTML = '<div class="sc-loading">Loading scorecard…</div>';
