@@ -6,7 +6,6 @@ function renderAll() {
   renderLeaderboard();
   renderTicker();
   if (compareMode && cmpSelections.length === 2) renderH2HInline();
-  renderLive();
   if (_debugOpen) renderDebugPanel();
 }
 

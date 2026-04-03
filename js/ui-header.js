@@ -105,10 +105,6 @@ function switchTab(name, btn) {
     renderLeaderboard();
     document.getElementById('view-leaderboard').scrollTo({ top: 0, behavior: 'smooth' });
   }
-  if (name === 'live') {
-    trackEvent('live-dashboard');
-    renderLive();
-  }
 }
 
 function closeFeedback() {
