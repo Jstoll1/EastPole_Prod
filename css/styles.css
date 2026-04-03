@@ -2275,7 +2275,7 @@ to  {
 }
 
 .my-teams-block {
-  margin: 6px 14px 4px;
+  margin: 4px 10px 2px;
   background: linear-gradient(135deg, rgba(212,168,67,0.08), rgba(212,168,67,0.02));
   border: 1px solid rgba(212,168,67,0.25);
   border-radius: 8px;
@@ -2286,13 +2286,13 @@ to  {
   font-weight: 800;
   letter-spacing: 1.5px;
   color: var(--gold);
-  padding: 4px 10px 0;
+  padding: 3px 10px 0;
 }
 .my-row {
   display: flex;
   align-items: center;
-  padding: 3px 10px;
-  gap: 6px;
+  padding: 2px 10px;
+  gap: 5px;
   cursor: pointer;
 }
 .my-row-rank {
@@ -2346,7 +2346,7 @@ to  {
 .my-row-move.dn { color: var(--red); }
 .my-show-all {
   text-align: center;
-  padding: 8px 0 4px;
+  padding: 4px 0 3px;
   font-size: 11px;
   font-weight: 600;
   color: var(--gold);
