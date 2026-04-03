@@ -2285,8 +2285,8 @@ to  {
 }
 .my-entry-hdr { position: static; border-bottom: none; padding: 4px 8px 0; }
 .my-entry-row { border-bottom: none; padding: 3px 8px; }
-.my-entry-row .tv-score { color: var(--text); }
-.my-entry-row .tv-name { color: var(--text); }
+.my-entry-row .tv-score { color: var(--gold); }
+.my-entry-row .tv-name { color: var(--text); font-weight: 700; }
 .my-show-all {
   text-align: center;
   padding: 4px 0 3px;
