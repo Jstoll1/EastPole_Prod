@@ -138,27 +138,22 @@ function renderLeaderboard() {
   var activePlayingLb = players.filter(function(p) { return p.thru !== '—' && p.thru !== 'MC' && p.thru !== 'WD' && p.score !== 11 && p.score !== 12; });
   var anyStillPlaying = activePlayingLb.some(function(p) { return /^\d+$/.test(p.thru) && parseInt(p.thru) >= 1 && parseInt(p.thru) < 18; });
   var anyHaveTeeTime = activePlayingLb.some(function(p) { return p.thru && p.thru.includes(':'); });
-  // Determine current round: count how many rounds have a FULLY completed score (thru=18/F)
-  // ESPN rval gives in-progress rounds a value > 50 too, so r1/r2/r3/r4 non-null doesn't mean completed
-  // Instead: for active on-course players (thru 1-17), the number of round fields they have IS
-  // the round they're playing (r1+r2 present = in R2, since the last one is in-progress)
+  // Determine current round using roundCount (raw linescore count from ESPN, not filtered by >50)
   var currentRound = 0;
   if (samplePlayer) {
     if (anyStillPlaying) {
       var activeOnCourse = activePlayingLb.filter(function(p) { return /^\d+$/.test(p.thru) && parseInt(p.thru) >= 1 && parseInt(p.thru) < 18; });
       if (activeOnCourse.length > 0) {
-        // Count how many round fields exist (non-null) — this IS the round they're in
-        var roundFields = [activeOnCourse[0].r1, activeOnCourse[0].r2, activeOnCourse[0].r3, activeOnCourse[0].r4].filter(function(r) { return r != null; }).length;
-        currentRound = roundFields || 1;
+        var gd = GOLFER_SCORES[activeOnCourse[0].name];
+        currentRound = (gd && gd.roundCount) ? gd.roundCount : 1;
       } else {
         currentRound = 1;
       }
     } else if (anyHaveTeeTime) {
-      // Between rounds: find a waiting player, count their completed rounds
       var waitingPlayer = activePlayingLb.find(function(p) { return p.thru && p.thru.includes(':'); });
       if (waitingPlayer) {
-        var waitRounds = [waitingPlayer.r1, waitingPlayer.r2, waitingPlayer.r3, waitingPlayer.r4].filter(function(r) { return r != null; }).length;
-        currentRound = waitRounds + 1;
+        var wgd = GOLFER_SCORES[waitingPlayer.name];
+        currentRound = (wgd && wgd.roundCount) ? wgd.roundCount + 1 : completedRoundCount + 1;
       } else {
         currentRound = completedRoundCount + 1;
       }
