@@ -2283,6 +2283,19 @@ to  {
   border-radius: 8px;
   overflow: hidden;
 }
+.my-col-labels {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+  padding: 0 10px;
+  font-size: 7px;
+  font-weight: 800;
+  color: var(--text3);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+.my-col-labels span:first-child { min-width: 30px; text-align: right; }
+.my-col-labels span:last-child { min-width: 28px; text-align: right; }
 .my-teams-label {
   font-size: 8px;
   font-weight: 800;

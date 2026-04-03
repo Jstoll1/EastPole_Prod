@@ -112,11 +112,11 @@ function renderStandings() {
         var myTodayDisp = myTodayCount > 0 ? (myTeamToday > 0 ? '+' + myTeamToday : myTeamToday === 0 ? 'E' : '' + myTeamToday) : '—';
         var myTodayCls = myTeamToday < 0 ? 'neg' : myTeamToday > 0 ? 'pos' : 'eve';
         var safeTeam = myEntry.team.replace(/'/g, "\\'");
-        rows += '<div class="my-row" onclick="jumpToEntry(\'' + safeTeam + '\')"> <div class="my-row-rank">' + myRank + '</div> <div class="my-row-team">' + myEntry.team + '</div> ' + moveHtml + ' ' + myHolesTag + ' <div class="my-row-today ' + myTodayCls + '">' + myTodayDisp + '</div> <div class="my-row-score ' + scc + '">' + fmtTeam(myEntry.total) + '</div> </div>';
+        rows += '<div class="my-row" onclick="jumpToEntry(\'' + safeTeam + '\')"> <div class="my-row-rank">' + myRank + '</div> <div class="my-row-team">' + myEntry.team + '</div> ' + moveHtml + ' ' + myHolesTag + ' <div class="my-row-score ' + scc + '">' + fmtTeam(myEntry.total) + '</div> <div class="my-row-today ' + myTodayCls + '">' + myTodayDisp + '</div> </div>';
       }
     });
     var showAllBtn = (activeTeamIdx >= 0 && currentUserTeams.length > 1) ? '<div class="my-show-all" onclick="trackEvent(\'show-all-entries\');setUser(\'' + currentUserEmail + '\',-1)">Show All Entries</div>' : '';
-    if (rows) heroHtml = '<div class="my-teams-block"><div class="my-teams-label">YOUR ENTRIES</div>' + rows + showAllBtn + '</div>';
+    if (rows) heroHtml = '<div class="my-teams-block"><div class="my-teams-label">YOUR ENTRIES</div><div class="my-col-labels"><span>TOT</span><span>TODAY</span></div>' + rows + showAllBtn + '</div>';
   }
 
   // Apply search filter
