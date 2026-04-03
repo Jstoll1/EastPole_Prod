@@ -100,23 +100,30 @@ function renderStandings() {
         var moveHtml = '';
         if (prevRk && prevRk !== myRank) {
           var d = prevRk - myRank;
-          moveHtml = d > 0 ? '<span class="my-row-move up">▲' + d + '</span>' : '<span class="my-row-move dn">▼' + Math.abs(d) + '</span>';
+          moveHtml = d > 0 ? '<div class="pos-move up">▲' + d + '</div>' : '<div class="pos-move dn">▼' + Math.abs(d) + '</div>';
         }
         var myHolesTag = '';
         if (ROUND_START_ROUND >= 4) {
           var myHolesLeft = myEntry.top4.reduce(function(s, g) { return s + getHolesRemaining(g.name); }, 0);
-          myHolesTag = '<span class="my-row-holes">' + myHolesLeft + ' holes left</span>';
+          myHolesTag = '<span class="s-holes">' + myHolesLeft + '</span>';
         }
         var myTeamToday = 0, myTodayCount = 0;
         myEntry.top4.forEach(function(g) { var td = golferTodayScore(GOLFER_SCORES[g.name]); if (td !== null) { myTeamToday += td; myTodayCount++; } });
         var myTodayDisp = myTodayCount > 0 ? (myTeamToday > 0 ? '+' + myTeamToday : myTeamToday === 0 ? 'E' : '' + myTeamToday) : '—';
         var myTodayCls = myTeamToday < 0 ? 'neg' : myTeamToday > 0 ? 'pos' : 'eve';
         var safeTeam = myEntry.team.replace(/'/g, "\\'");
-        rows += '<div class="my-row" onclick="jumpToEntry(\'' + safeTeam + '\')"> <div class="my-row-rank">' + myRank + '</div> <div class="my-row-team">' + myEntry.team + '</div> ' + moveHtml + ' ' + myHolesTag + ' <div class="my-row-score ' + scc + '">' + fmtTeam(myEntry.total) + '</div> <div class="my-row-today ' + myTodayCls + '">' + myTodayDisp + '</div> </div>';
+        rows += '<div class="tv-row my-entry-row" onclick="jumpToEntry(\'' + safeTeam + '\')" style="cursor:pointer">'
+            + '<div class="tv-pos">' + myRank + moveHtml + '</div>'
+            + '<div class="tv-player"><span class="tv-name is-my-pick">' + myEntry.team + '</span>' + myHolesTag + '</div>'
+            + '<div class="tv-score ' + scc + '">' + fmtTeam(myEntry.total) + '</div>'
+            + '<div class="tv-today ' + myTodayCls + '">' + myTodayDisp + '</div>'
+            + '</div>';
       }
     });
     var showAllBtn = (activeTeamIdx >= 0 && currentUserTeams.length > 1) ? '<div class="my-show-all" onclick="trackEvent(\'show-all-entries\');setUser(\'' + currentUserEmail + '\',-1)">Show All Entries</div>' : '';
-    if (rows) heroHtml = '<div class="my-teams-block"><div class="my-teams-label">YOUR ENTRIES</div><div class="my-col-labels"><span>TOT</span><span>TODAY</span></div>' + rows + showAllBtn + '</div>';
+    if (rows) heroHtml = '<div class="my-teams-block">'
+        + '<div class="tv-col-hdr my-entry-hdr"><div class="tv-h-pos"></div><div class="tv-h-player" style="font-size:8px;color:var(--gold)">YOUR ENTRIES</div><div class="tv-h-score">TOT</div><div class="tv-h-today">TODAY</div></div>'
+        + rows + showAllBtn + '</div>';
   }
 
   // Apply search filter
