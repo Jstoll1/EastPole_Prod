@@ -281,6 +281,8 @@ function togglePanel(row, i) {
     prevOpen.classList.remove('open');
     var prevRow = prevOpen.previousElementSibling;
     if (prevRow) prevRow.classList.remove('panel-open');
+    _openPanelTeam = null;
+    return;
   }
   var open = panel.classList.toggle('open');
   var standingRow = panel.previousElementSibling;
