@@ -4,7 +4,6 @@ function renderAll() {
   _renderCount++;
   renderStandings();
   renderLeaderboard();
-  renderOwnership();
   renderTicker();
   if (compareMode && cmpSelections.length === 2) renderH2HInline();
   if (_debugOpen) renderDebugPanel();
