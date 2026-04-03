@@ -163,16 +163,14 @@ function renderLeaderboard() {
   var estCutScore = null;
   if (estCutShow) { var cnt = 0; for (var ci = 0; ci < players.length; ci++) { var pp = players[ci]; if (pp.thru !== 'MC') { cnt++; if (cnt === 65) { estCutScore = pp.score; break; } } } }
   var arrowPlayers = new Map();
-  if (!isPreT) {
+  if (!isPreT && ROUND_START_ROUND >= 2) {
     players.forEach(function(p) {
       if (p.score === 11 || p.score === 12) return;
       // Only show arrows for players actively on the course
       if (p.thru === '—' || (p.thru && p.thru.includes(':'))) return;
       var cP = parsePos(p.pos); if (!cP) return;
       var sP = ROUND_START_POSITIONS[p.name];
-      if (sP && sP !== cP) { arrowPlayers.set(p.name, sP - cP); return; }
-      var pP = PREV_POSITIONS[p.name];
-      if (pP && pP !== cP) arrowPlayers.set(p.name, pP - cP);
+      if (sP && sP !== cP) { arrowPlayers.set(p.name, sP - cP); }
     });
   }
   var topMoverNames = isPreT ? new Map() : getTopMovers(arrowPlayers);
