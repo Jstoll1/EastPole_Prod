@@ -233,7 +233,8 @@ function renderStandings() {
         else if (gd.thru) thruDisp = gd.thru + (gd.startHole === 10 && parseInt(gd.thru) > 0 ? '*' : '');
       }
       var isMc = gd && (gd.thru === 'MC' || gd.thru === 'WD' || gd.score === 11 || gd.score === 12);
-      return '<div class="tv-row st-pick-row ' + (isTop ? 'is-top' : 'is-bench') + '">'
+      var escapedGName = g.name.replace(/'/g, "\\'");
+      return '<div class="tv-row st-pick-row ' + (isTop ? 'is-top' : 'is-bench') + '" onclick="event.stopPropagation();jumpToPlayer(\'' + escapedGName + '\')" style="cursor:pointer">'
           + '<div class="tv-pos" style="font-size:10px">' + (isTop ? '★' : '') + '</div>'
           + '<div class="tv-player"><span class="st-pick-name">' + (flag ? flag + ' ' : '') + g.name + '</span>'
           + '<div class="st-pick-sub">' + (ownP ? '<span class="mini-pick-own">' + ownP + '</span>' : '') + '</div>'

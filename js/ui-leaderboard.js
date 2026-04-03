@@ -5,6 +5,29 @@ var lbSearch = '';
 var lbSort = 'score';
 var lbSortAsc = true;
 
+function jumpToPlayer(playerName) {
+  // Switch to leaderboard tab
+  var lbBtn = document.querySelector('.nav-btn[onclick*="leaderboard"]');
+  if (lbBtn) switchTab('leaderboard', lbBtn);
+  // Reset filters so player is visible
+  lbFilter = 'all'; lbSearch = ''; lbSort = 'score'; lbSortAsc = true;
+  var search = document.getElementById('lb-search');
+  if (search) search.value = '';
+  updateLbSeg();
+  renderLeaderboard();
+  // Find the player's row index by scanning sc-panel IDs
+  var rows = document.querySelectorAll('#leaderboard-list .tv-row');
+  for (var i = 0; i < rows.length; i++) {
+    var panel = document.getElementById('sc-panel-' + i);
+    var row = rows[i];
+    if (row && row.textContent.indexOf(playerName) !== -1) {
+      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      toggleScorecard(i, playerName);
+      return;
+    }
+  }
+}
+
 function filterLeaderboardSearch() {
   var v = document.getElementById('lb-search').value || '';
   lbSearch = v.trim().toLowerCase();
