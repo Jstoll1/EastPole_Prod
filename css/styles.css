@@ -2759,6 +2759,14 @@ to  {
   padding-top: 8px;
   border-top: 1px solid var(--border);
 }
+.h2h-score-lbl-top {
+  font-size: 8px;
+  color: var(--text3);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1px;
+}
 .h2h-score-big {
   font-size: 22px;
   font-weight: 900;

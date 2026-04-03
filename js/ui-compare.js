@@ -200,11 +200,12 @@ function renderH2HInline() {
   var rdA = teamRoundScore(cA.top4);
   var rdB = teamRoundScore(cB.top4);
   var fmtRd = function(v) { return v > 0 ? '+' + v : v === 0 ? 'E' : '' + v; };
-  var holesA = cA.picks.reduce(function(s, p) { return s + getHolesRemaining(p); }, 0);
-  var holesB = cB.picks.reduce(function(s, p) { return s + getHolesRemaining(p); }, 0);
+  var holesA = cA.top4.reduce(function(s, g) { return s + getHolesRemaining(g.name); }, 0);
+  var holesB = cB.top4.reduce(function(s, g) { return s + getHolesRemaining(g.name); }, 0);
+  var showHoles = ROUND_START_ROUND >= 4;
 
   html += '<div class="h2h-score-summary">';
-  html += '<div style="text-align:left"><div class="h2h-score-big ' + cls(cA.total) + '">' + fmtTeam(cA.total) + '</div><div class="h2h-score-lbl">Total · ' + holesA + 'h left</div>';
+  html += '<div style="text-align:left"><div class="h2h-score-lbl-top">TOT</div><div class="h2h-score-big ' + cls(cA.total) + '">' + fmtTeam(cA.total) + '</div><div class="h2h-score-lbl">' + (showHoles ? 'Total · ' + holesA + 'h left' : 'Total') + '</div>';
   if (rdA.count > 0) html += '<div style="font-size:11px;font-weight:700;margin-top:3px;color:' + (rdA.sum < 0 ? '#52b788' : rdA.sum > 0 ? '#ff7070' : 'var(--text2)') + '">Today: ' + fmtRd(rdA.sum) + '</div>';
   html += '</div>';
   if (cA.total === cB.total) {
@@ -213,7 +214,7 @@ function renderH2HInline() {
     var gap = Math.abs(cA.total - cB.total);
     html += '<div style="text-align:center;color:var(--text3);font-size:10px;font-weight:700">' + gap + ' stroke' + (gap > 1 ? 's' : '') + '</div>';
   }
-  html += '<div style="text-align:right"><div class="h2h-score-big ' + cls(cB.total) + '">' + fmtTeam(cB.total) + '</div><div class="h2h-score-lbl">Total · ' + holesB + 'h left</div>';
+  html += '<div style="text-align:right"><div class="h2h-score-lbl-top">TOT</div><div class="h2h-score-big ' + cls(cB.total) + '">' + fmtTeam(cB.total) + '</div><div class="h2h-score-lbl">' + (showHoles ? 'Total · ' + holesB + 'h left' : 'Total') + '</div>';
   if (rdB.count > 0) html += '<div style="font-size:11px;font-weight:700;margin-top:3px;color:' + (rdB.sum < 0 ? '#52b788' : rdB.sum > 0 ? '#ff7070' : 'var(--text2)') + '">Today: ' + fmtRd(rdB.sum) + '</div>';
   html += '</div>';
   html += '</div>';
@@ -231,7 +232,7 @@ function renderH2HInline() {
   }
   var momA = todayRelPar(cA.top4);
   var momB = todayRelPar(cB.top4);
-  var totalHolesLeft = cA.picks.reduce(function(s, p) { return s + getHolesRemaining(p); }, 0) + cB.picks.reduce(function(s, p) { return s + getHolesRemaining(p); }, 0);
+  var totalHolesLeft = cA.top4.reduce(function(s, g) { return s + getHolesRemaining(g.name); }, 0) + cB.top4.reduce(function(s, g) { return s + getHolesRemaining(g.name); }, 0);
   if (totalHolesLeft > 0 && (momA.count > 0 || momB.count > 0)) {
     var fmtPar = function(v) { return v > 0 ? '+' + v : v === 0 ? 'E' : '' + v; };
     var momDiff = momA.sum - momB.sum;
@@ -283,7 +284,7 @@ function buildH2HCell(g, side, isTop) {
     var todayColor = todayScore < 0 ? '#52b788' : todayScore > 0 ? '#ff7070' : 'var(--text2)';
     todayTag = '<span style="color:' + todayColor + ';font-size:10px;font-weight:700">' + todayFmt + '</span>';
   }
-  var statusTag = isWD ? '<span style="color:var(--red);font-size:9px">WD</span>' : mc ? '<span style="color:var(--red);font-size:9px">MC</span>' : (holesLeft > 0 ? '<span style="color:var(--text3);font-size:9px">' + holesLeft + 'h</span>' : '<span style="color:var(--text3);font-size:9px">F</span>');
+  var statusTag = isWD ? '<span style="color:var(--red);font-size:9px">WD</span>' : mc ? '<span style="color:var(--red);font-size:9px">MC</span>' : (ROUND_START_ROUND >= 4 ? (holesLeft > 0 ? '<span style="color:var(--text3);font-size:9px">' + holesLeft + 'h</span>' : '<span style="color:var(--text3);font-size:9px">F</span>') : '');
   var html = '<div class="h2h-vs-cell ' + side + '">';
   html += '<div class="h2h-vs-score ' + cls(g.score) + '">' + fmt(g.score) + '</div>';
   html += '<div class="h2h-vs-info">';
