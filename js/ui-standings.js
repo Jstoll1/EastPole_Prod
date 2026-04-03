@@ -236,8 +236,7 @@ function renderStandings() {
       return '<div class="tv-row st-pick-row ' + (isTop ? 'is-top' : 'is-bench') + '">'
           + '<div class="tv-pos" style="font-size:10px">' + (isTop ? '★' : '') + '</div>'
           + '<div class="tv-player"><span class="st-pick-name">' + (flag ? flag + ' ' : '') + g.name + '</span>'
-          + (posDisplay ? ' <span class="mini-pick-pos">' + posDisplay + '</span>' : '')
-          + '<div class="st-pick-sub">' + (rndsStr ? '<span class="mini-pick-rounds">' + rndsStr + '</span>' : '') + (ownP ? ' <span class="mini-pick-own">' + ownP + '</span>' : '') + '</div>'
+          + '<div class="st-pick-sub">' + (ownP ? '<span class="mini-pick-own">' + ownP + '</span>' : '') + '</div>'
           + '</div>'
           + '<div class="tv-thru">' + thruDisp + '</div>'
           + '<div class="tv-today ' + gTodayCls + '">' + gTodayDisp + '</div>'
