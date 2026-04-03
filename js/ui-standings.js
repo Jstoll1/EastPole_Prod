@@ -122,7 +122,7 @@ function renderStandings() {
     });
     var showAllBtn = (activeTeamIdx >= 0 && currentUserTeams.length > 1) ? '<div class="my-show-all" onclick="trackEvent(\'show-all-entries\');setUser(\'' + currentUserEmail + '\',-1)">Show All Entries</div>' : '';
     if (rows) heroHtml = '<div class="my-teams-block">'
-        + '<div class="tv-col-hdr my-entry-hdr"><div class="tv-h-pos"></div><div class="tv-h-player" style="font-size:8px;color:var(--gold)">YOUR ENTRIES</div><div class="tv-h-score">TOT</div><div class="tv-h-today">TODAY</div></div>'
+        + '<div class="tv-col-hdr my-entry-hdr"><div class="tv-h-pos"></div><div class="tv-h-player"></div><div class="tv-h-score">TOT</div><div class="tv-h-today">TODAY</div></div>'
         + rows + showAllBtn + '</div>';
   }
 
