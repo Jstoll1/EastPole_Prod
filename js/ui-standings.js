@@ -167,7 +167,7 @@ function renderStandings() {
     var holesTag = ROUND_START_ROUND >= 4 ? (teamHolesLeft > 0 ? '<span class="s-holes">' + teamHolesLeft + '</span>' : '') : '';
     html += '<div class="tv-row st-row' + isMyTeam + cmpCls + cmpSelCls + '" onclick="' + rowClick + '" style="cursor:pointer">'
         + '<div class="tv-pos">' + rank + moveHtml + '</div>'
-        + '<div class="tv-player"><span class="tv-name' + (isMyTeam ? ' is-my-pick' : '') + '">' + e.team + '</span>' + cmpBadge + ' <span class="tv-country">' + e.name + '</span>' + holesTag + '</div>'
+        + '<div class="tv-player"><span class="st-expand-arrow">▾</span><span class="tv-name' + (isMyTeam ? ' is-my-pick' : '') + '">' + e.team + '</span>' + cmpBadge + ' <span class="tv-country">' + e.name + '</span>' + holesTag + '</div>'
         + '<div class="tv-thru"></div>'
         + '<div class="tv-today ' + todayCls + '">' + todayDisp + '</div>'
         + '<div class="tv-score ' + scc + '">' + scf + '</div>'
