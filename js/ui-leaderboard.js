@@ -168,8 +168,15 @@ function renderLeaderboard() {
     var priorScores = players
       .filter(function(p) { return p.score !== 11 && p.score !== 12; })
       .map(function(p) {
-        var today = golferTodayScore(GOLFER_SCORES[p.name]);
-        var priorScore = today !== null ? p.score - today : p.score;
+        // Parse today's score from ESPN todayDisplay field
+        var td = p.todayDisplay;
+        var todayVal = 0;
+        var hasToday = false;
+        if (td && td !== '—') {
+          hasToday = true;
+          todayVal = td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0;
+        }
+        var priorScore = hasToday ? p.score - todayVal : p.score;
         return { name: p.name, prior: priorScore };
       })
       .sort(function(a, b) { return a.prior - b.prior; });
