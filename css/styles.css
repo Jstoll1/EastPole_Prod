@@ -2278,6 +2278,14 @@ to  {
 
 .pinned-entry { background: rgba(212,168,67,0.06) !important; }
 .pinned-divider { height: 2px; background: var(--gold); opacity: 0.3; }
+.st-pick-row { padding: 4px 8px 4px 8px; border-left: 3px solid var(--gold); background: rgba(13,31,18,0.5) !important; }
+.st-pick-row.is-bench { opacity: 0.5; }
+.st-pick-row .tv-pos { color: var(--gold); font-size: 10px; }
+.st-pick-name { font-size: 11px; font-weight: 700; color: var(--text); }
+.st-pick-sub { font-size: 9px; color: var(--text3); margin-top: 1px; }
+.st-pick-row .tv-score { font-size: 11px; }
+.st-pick-row .tv-today { font-size: 10px; }
+.st-pick-row .tv-thru { font-size: 10px; }
 .my-show-all {
   text-align: center;
   padding: 4px 0 3px;

@@ -122,6 +122,7 @@ function renderStandings() {
             + '<div class="tv-player"><span class="tv-name is-my-pick">' + myEntry.team + '</span>' + cmpBadge + ' <span class="tv-country">' + myEntry.name + '</span>' + holesTag + '</div>'
             + '<div class="tv-score ' + scc + '">' + fmtTeam(myEntry.total) + '</div>'
             + '<div class="tv-today ' + myTodayCls + '">' + myTodayDisp + '</div>'
+            + '<div class="tv-thru"></div>'
             + '</div>';
       }
     });
@@ -176,6 +177,7 @@ function renderStandings() {
         + '<div class="tv-player"><span class="tv-name' + (isMyTeam ? ' is-my-pick' : '') + '">' + e.team + '</span>' + cmpBadge + ' <span class="tv-country">' + e.name + '</span>' + holesTag + '</div>'
         + '<div class="tv-score ' + scc + '">' + scf + '</div>'
         + '<div class="tv-today ' + todayCls + '">' + todayDisp + '</div>'
+        + '<div class="tv-thru"></div>'
         + '</div>'
         + '<div class="picks-panel" id="panel-' + i + '"> ' + e.scores.map(function(g, j) {
       var isTop = j < 4;
@@ -204,7 +206,28 @@ function renderStandings() {
         else if (gd.thru === 'MC') gThru = 'MC';
         else if (gd.thru && gd.thru !== '—') gThru = gd.thru;
       }
-      return '<div class="mini-pick ' + (isTop?'is-top':'') + '"> <div class="mini-pick-left"> <div class="mini-pick-top"> ' + (isTop?'<span class="star">★</span>':'<span style="width:10px;display:inline-block"></span>') + ' <span class="mini-pick-name">' + (flag ? flag + ' ' : '') + g.name + '</span>' + (posDisplay ? ' <span class="mini-pick-pos">' + posDisplay + '</span>' : '') + ' </div> <div class="mini-pick-bottom"> ' + (rndsStr?'<span class="mini-pick-rounds">' + rndsStr + '</span>':'') + ' <span class="mini-pick-holes">' + holesDisp + '</span>' + ' ' + (ownP?'<span class="mini-pick-own">' + ownP + '</span>':'') + ' </div> </div> <div class="mini-pick-right"> <span class="mini-pick-today ' + gTodayCls + '">' + gTodayDisp + '</span> <span class="mini-pick-score ' + cls(g.score) + '">' + fmt(g.score) + '</span>' + (gThru ? ' <span class="mini-pick-thru-val">' + gThru + '</span>' : '') + ' </div> </div>';
+      var teeStr = '';
+      if (gd && gd.teeTime && gd.teeTime.includes('T')) { try { teeStr = new Date(gd.teeTime).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}); } catch(ex){} }
+      var thruDisp = '';
+      if (gd) {
+        if (gd.thru === 'WD' || gd.score === 12) thruDisp = 'WD';
+        else if (gd.thru === 'MC') thruDisp = 'MC';
+        else if (gd.thru === 'F' || gd.thru === '18') thruDisp = stLastRound || 'F';
+        else if (gd.thru && gd.thru.includes(':')) thruDisp = gd.thru;
+        else if (gd.thru === '—') thruDisp = teeStr || '—';
+        else if (gd.thru) thruDisp = gd.thru + (gd.startHole === 10 && parseInt(gd.thru) > 0 ? '*' : '');
+      }
+      var isMc = gd && (gd.thru === 'MC' || gd.thru === 'WD' || gd.score === 11 || gd.score === 12);
+      return '<div class="tv-row st-pick-row ' + (isTop ? 'is-top' : 'is-bench') + '">'
+          + '<div class="tv-pos" style="font-size:10px">' + (isTop ? '★' : '') + '</div>'
+          + '<div class="tv-player"><span class="st-pick-name">' + (flag ? flag + ' ' : '') + g.name + '</span>'
+          + (posDisplay ? ' <span class="mini-pick-pos">' + posDisplay + '</span>' : '')
+          + '<div class="st-pick-sub">' + (rndsStr ? '<span class="mini-pick-rounds">' + rndsStr + '</span>' : '') + (ownP ? ' <span class="mini-pick-own">' + ownP + '</span>' : '') + '</div>'
+          + '</div>'
+          + '<div class="tv-score ' + (isMc ? 'mc' : cls(g.score)) + '">' + (isMc ? (gd.thru === 'WD' || gd.score === 12 ? 'WD' : 'MC') : fmt(g.score)) + '</div>'
+          + '<div class="tv-today ' + gTodayCls + '">' + gTodayDisp + '</div>'
+          + '<div class="tv-thru">' + thruDisp + '</div>'
+          + '</div>';
     }).join('');
     var isTied = (i < displayRanked.length-1 && displayRanked[i].total === displayRanked[i+1].total) || (i > 0 && displayRanked[i].total === displayRanked[i-1].total);
     var tbFooter2 = (isTied && e.tb != null) ? ' · TB: ' + e.tb : '';
