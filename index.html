@@ -17,7 +17,7 @@
 <meta name="twitter:title" content="East Pole Golf Pool">
 <meta name="twitter:description" content="Live leaderboard and pool standings for the Valero Texas Open 2026.">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-<link rel="stylesheet" href="./css/styles.css?v=128">
+<link rel="stylesheet" href="./css/styles.css?v=129">
 <link rel="stylesheet" href="./css/theme.css">
 <script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -140,6 +140,13 @@
 <div id="leaderboard-list">
 </div>
 </div>
+<div class="view" id="view-live">
+<div class="ld-view-header">
+<span class="ld-view-title">Live Scorecards</span>
+<span class="ld-view-team" id="live-dash-team"></span>
+</div>
+<div id="live-dash-list"></div>
+</div>
 <div class="view" id="view-feedback" style="padding-bottom:100px">
 <div class="fb-view-header">
 <span class="fb-view-title">Feedback</span>
@@ -194,6 +201,12 @@
 <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
 </svg> Standings </button>
 
+<button class="nav-btn" onclick="switchTab('live',this)">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+<rect x="2" y="3" width="20" height="14" rx="2"/>
+<path d="M8 21h8"/><path d="M12 17v4"/>
+<circle cx="12" cy="10" r="2"/>
+</svg> Live </button>
 <button class="nav-btn" onclick="switchTab('feedback',this)">
 <svg viewBox="0 0 24 24">
 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -243,18 +256,19 @@
 </div>
 
 <!-- Module Scripts (deferred) -->
-<script defer src="./js/state.js?v=128"></script>
-<script defer src="./js/utils.js?v=128"></script>
-<script defer src="./js/api.js?v=128"></script>
-<script defer src="./js/ui-header.js?v=128"></script>
-<script defer src="./js/ui-standings.js?v=128"></script>
-<script defer src="./js/ui-leaderboard.js?v=128"></script>
-<script defer src="./js/ui-scorecard.js?v=128"></script>
-<script defer src="./js/ui-compare.js?v=128"></script>
+<script defer src="./js/state.js?v=129"></script>
+<script defer src="./js/utils.js?v=129"></script>
+<script defer src="./js/api.js?v=129"></script>
+<script defer src="./js/ui-header.js?v=129"></script>
+<script defer src="./js/ui-standings.js?v=129"></script>
+<script defer src="./js/ui-leaderboard.js?v=129"></script>
+<script defer src="./js/ui-scorecard.js?v=129"></script>
+<script defer src="./js/ui-compare.js?v=129"></script>
+<script defer src="./js/ui-live.js?v=129"></script>
 
-<script defer src="./js/ui-activity.js?v=128"></script>
-<script defer src="./js/ui-ticker.js?v=128"></script>
-<script defer src="./js/ui-debug.js?v=128"></script>
-<script defer src="./js/app.js?v=128"></script>
+<script defer src="./js/ui-activity.js?v=129"></script>
+<script defer src="./js/ui-ticker.js?v=129"></script>
+<script defer src="./js/ui-debug.js?v=129"></script>
+<script defer src="./js/app.js?v=129"></script>
 </body>
 </html>
