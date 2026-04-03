@@ -203,6 +203,26 @@ async function openScorecardPopup(playerName) {
   overlay.appendChild(wrap);
   document.body.appendChild(overlay);
 
+  // Swipe down to close
+  var _sY = 0, _cY = 0, _dragging = false;
+  wrap.addEventListener('touchstart', function(e) {
+    if (wrap.scrollTop > 0) return;
+    _sY = e.touches[0].clientY; _cY = _sY; _dragging = true;
+    wrap.style.transition = 'none';
+  }, { passive: true });
+  wrap.addEventListener('touchmove', function(e) {
+    if (!_dragging) return;
+    _cY = e.touches[0].clientY;
+    var dy = _cY - _sY;
+    if (dy > 0) { wrap.style.transform = 'translateY(' + dy + 'px)'; wrap.style.opacity = Math.max(0.3, 1 - dy / 300); e.preventDefault(); }
+  }, { passive: false });
+  wrap.addEventListener('touchend', function() {
+    if (!_dragging) return;
+    _dragging = false;
+    wrap.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+    if (_cY - _sY > 80) { overlay.remove(); } else { wrap.style.transform = ''; wrap.style.opacity = ''; }
+  });
+
   await Promise.all([fetchCourseHoles(), fetchPlayerScorecard(playerName)]);
 
   var rounds = SCORECARD_CACHE[playerName];
