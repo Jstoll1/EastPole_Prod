@@ -88,6 +88,7 @@ function renderStandings() {
 
   // Build pinned "my entries" rows to insert at top of standings list
   var pinnedHtml = '';
+  var pinnedKeys = new Set();
   if (currentUserEmail && currentUserTeams.length > 0 && !stSearch) {
     var teamsToShow = activeTeamIdx >= 0 ? [currentUserTeams[activeTeamIdx]].filter(Boolean) : currentUserTeams;
     var pinnedRows = '';
@@ -124,6 +125,7 @@ function renderStandings() {
             + '<div class="tv-today ' + myTodayCls + '">' + myTodayDisp + '</div>'
             + '<div class="tv-thru"></div>'
             + '</div>';
+        pinnedKeys.add(myEntry.team + '|' + myEntry.email);
       }
     });
     if (pinnedRows) pinnedHtml = pinnedRows + '<div class="pinned-divider"></div>';
@@ -147,6 +149,7 @@ function renderStandings() {
 
   var html = '';
   displayRanked.forEach(function(e, i) {
+    if (pinnedKeys.has(e.team + '|' + e.email)) return;
     var rank = displayRanks[i];
     var sc = e.total, scf = fmtTeam(sc), scc = cls(sc);
     var isMyTeam = e.email === currentTeamEmail ? ' is-my-team' : '';
