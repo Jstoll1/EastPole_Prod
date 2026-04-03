@@ -31,7 +31,7 @@ function renderTicker() {
       });
     }
     var active = players.filter(function(p) { return p.score < 11; });
-    active.sort(function(a, b) { return a.score - b.score; });
+    active.sort(function(a, b) { return b.score - a.score; });
     items = active.map(function(p) {
       var scf = fmt(p.score);
       var scc = cls(p.score);
@@ -46,10 +46,12 @@ function renderTicker() {
       if (i === 0) ranks.push(1);
       else ranks.push(e.total === ranked[i - 1].total ? ranks[i - 1] : i + 1);
     });
-    items = ranked.map(function(e, i) {
+    // Reverse: worst first, best last (ticker scrolls left, so leader appears at end)
+    var reversed = ranked.map(function(e, i) { return { entry: e, rank: ranks[i] }; }).reverse();
+    items = reversed.map(function(obj) {
+      var e = obj.entry, rank = obj.rank;
       var scf = fmtTeam(e.total);
       var scc = cls(e.total);
-      var rank = ranks[i];
       var money = rank <= 3 ? ' 💰' : '';
       var nameStyle = rank <= 3 ? ' style="color:var(--gold)"' : '';
       return '<span class="ticker-item"><span class="ticker-item-rank">' + rank + '.</span> <span' + nameStyle + '>' + e.team + '</span> <span class="ticker-item-score ' + scc + '">' + scf + '</span>' + money + '</span>';
