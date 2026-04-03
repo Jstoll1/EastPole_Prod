@@ -158,7 +158,8 @@ function renderLeaderboard() {
       fallbackRound = completedRoundCount;
     }
   }
-  var currentRound = ESPN_ROUND || fallbackRound;
+  // ESPN status.period is unreliable for golf (returns wrong round); use computed fallback
+  var currentRound = fallbackRound;
   var isPreT = false;
   var roundLabels = ['FIRST ROUND','FIRST ROUND','SECOND ROUND','THIRD ROUND','FINAL ROUND'];
   var endOfRoundLabels = ['','END OF ROUND 1','END OF ROUND 2','END OF ROUND 3','FINAL ROUND'];
