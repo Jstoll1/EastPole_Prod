@@ -189,9 +189,10 @@ function renderStandings() {
       var posDisplay = preT ? '' : pos;
       var flag = FLAGS[g.name] || '';
       var holesDisp = ROUND_START_ROUND >= 4 ? (holesLeft > 0 ? holesLeft + ' holes left' : 'F') : '';
-      var gToday = golferTodayScore(gd);
-      var gTodayDisp = gToday !== null ? (gToday > 0 ? '+' + gToday : gToday === 0 ? 'E' : '' + gToday) : '—';
-      var gTodayCls = gToday !== null ? (gToday < 0 ? 'neg' : gToday > 0 ? 'pos' : 'eve') : '';
+      var gTodayRaw = gd ? gd.todayDisplay : null;
+      var gTodayDisp = gTodayRaw && gTodayRaw !== '—' ? gTodayRaw : '—';
+      var gTodayVal = gTodayDisp === '—' ? null : (gTodayDisp === 'E' ? 0 : parseInt(gTodayDisp.replace('+', '')) || 0);
+      var gTodayCls = gTodayVal !== null ? (gTodayVal < 0 ? 'neg' : gTodayVal > 0 ? 'pos' : 'eve') : '';
       var gThru = '';
       if (gd) {
         if (gd.thru === 'F' || gd.thru === '18') gThru = 'F';
