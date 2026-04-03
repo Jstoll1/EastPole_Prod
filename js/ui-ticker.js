@@ -30,16 +30,8 @@ function renderTicker() {
         }
       });
     }
-    players.sort(function(a, b) {
-      // Sort by odds pre-tournament if available
-      if (PRE_ODDS[a.name] && PRE_ODDS[b.name]) {
-        var oa = parseInt(PRE_ODDS[a.name][0].replace('+','')) || 999999;
-        var ob = parseInt(PRE_ODDS[b.name][0].replace('+','')) || 999999;
-        if (oa !== ob) return oa - ob;
-      }
-      return a.score - b.score;
-    });
     var active = players.filter(function(p) { return p.score < 11; });
+    active.sort(function(a, b) { return a.score - b.score; });
     items = active.map(function(p) {
       var scf = fmt(p.score);
       var scc = cls(p.score);
@@ -49,12 +41,18 @@ function renderTicker() {
     }).join('');
   } else {
     var ranked = getRanked();
+    var ranks = [];
+    ranked.forEach(function(e, i) {
+      if (i === 0) ranks.push(1);
+      else ranks.push(e.total === ranked[i - 1].total ? ranks[i - 1] : i + 1);
+    });
     items = ranked.map(function(e, i) {
       var scf = fmtTeam(e.total);
       var scc = cls(e.total);
-      var money = i < 3 ? ' 💰' : '';
-      var nameStyle = i < 3 ? ' style="color:var(--gold)"' : '';
-      return '<span class="ticker-item"><span class="ticker-item-rank">' + (i + 1) + '.</span> <span' + nameStyle + '>' + e.team + '</span> <span class="ticker-item-score ' + scc + '">' + scf + '</span>' + money + '</span>';
+      var rank = ranks[i];
+      var money = rank <= 3 ? ' 💰' : '';
+      var nameStyle = rank <= 3 ? ' style="color:var(--gold)"' : '';
+      return '<span class="ticker-item"><span class="ticker-item-rank">' + rank + '.</span> <span' + nameStyle + '>' + e.team + '</span> <span class="ticker-item-score ' + scc + '">' + scf + '</span>' + money + '</span>';
     }).join('');
   }
   if (!items) items = '<span class="ticker-item">No data yet</span>';
