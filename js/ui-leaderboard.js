@@ -138,13 +138,13 @@ function renderLeaderboard() {
   var activePlayingLb = players.filter(function(p) { return p.thru !== '—' && p.thru !== 'MC' && p.thru !== 'WD' && p.score !== 11 && p.score !== 12; });
   var anyStillPlaying = activePlayingLb.some(function(p) { return /^\d+$/.test(p.thru) && parseInt(p.thru) >= 1 && parseInt(p.thru) < 18; });
   var anyHaveTeeTime = activePlayingLb.some(function(p) { return p.thru && p.thru.includes(':'); });
-  var currentRound = samplePlayer ? (anyStillPlaying ? (completedRoundCount + 1) || 1 : anyHaveTeeTime ? completedRoundCount + 1 : completedRoundCount) : 0;
+  var currentRound = ESPN_ROUND || (samplePlayer ? (anyStillPlaying ? (completedRoundCount + 1) || 1 : anyHaveTeeTime ? completedRoundCount + 1 : completedRoundCount) : 0);
   var isPreT = false;
   var roundLabels = ['FIRST ROUND','FIRST ROUND','SECOND ROUND','THIRD ROUND','FINAL ROUND'];
   var endOfRoundLabels = ['','END OF ROUND 1','END OF ROUND 2','END OF ROUND 3','FINAL ROUND'];
   var tvTitle = document.getElementById('lb-round-title');
   if (tvTitle) {
-    if (anyStillPlaying) { tvTitle.textContent = roundLabels[currentRound] || 'FIRST ROUND'; }
+    if (anyStillPlaying) { tvTitle.textContent = roundLabels[currentRound] || 'ROUND ' + currentRound; }
     else if (anyHaveTeeTime && currentRound > 0) { tvTitle.textContent = roundLabels[currentRound] || 'ROUND ' + currentRound; }
     else if (currentRound > 0) { tvTitle.textContent = endOfRoundLabels[currentRound] || roundLabels[currentRound]; }
     else { tvTitle.textContent = 'FIRST ROUND'; }

@@ -253,6 +253,7 @@ var PREV_THRU = {};
 var SCORE_CHANGES = {};
 var OWNERSHIP_DATA = [];
 var TOURNAMENT_STARTED = true;
+var ESPN_ROUND = 0;
 var ATHLETE_IDS = {};
 var EVENT_ID = null;
 var SCORECARD_CACHE = {};

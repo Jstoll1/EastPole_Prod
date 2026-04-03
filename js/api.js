@@ -22,6 +22,8 @@ async function fetchESPN() {
       return;
     }
     var evStatus = data.events?.[0]?.status?.type?.name || '';
+    var espnRoundNumber = data.events?.[0]?.status?.period || 0;
+    if (espnRoundNumber > 0) ESPN_ROUND = espnRoundNumber;
     var isPreTournament = evStatus === 'STATUS_SCHEDULED';
     var wasPre = !TOURNAMENT_STARTED;
     if (!TOURNAMENT_STARTED && !isPreTournament) TOURNAMENT_STARTED = true;
