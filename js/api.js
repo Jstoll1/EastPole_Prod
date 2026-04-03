@@ -1,6 +1,6 @@
 // ── API / Data Fetching ────────────────────────────────────
 
-var _scorecardFetchPromise = null;
+var _scorecardInflight = {};
 
 async function fetchESPN() {
   try {
@@ -193,6 +193,12 @@ function refreshData() { setApiStatus('', 'Refreshing…'); fetchESPN(); }
 
 var _autoRefresh = null;
 
+function _onVisibilityChange() {
+  if (!document.hidden && lastFetchTime && (Date.now() - lastFetchTime > 30000)) {
+    fetchESPN();
+  }
+}
+
 function startAutoRefresh() {
   if (_autoRefresh) return;
   _autoRefresh = setInterval(function() {
@@ -201,14 +207,14 @@ function startAutoRefresh() {
   }, 60000);
 
   // Refresh immediately when user returns to tab
-  document.addEventListener('visibilitychange', function() {
-    if (!document.hidden && lastFetchTime && (Date.now() - lastFetchTime > 30000)) {
-      fetchESPN();
-    }
-  });
+  document.addEventListener('visibilitychange', _onVisibilityChange);
 }
 
-function stopAutoRefresh() { clearInterval(_autoRefresh); _autoRefresh = null; }
+function stopAutoRefresh() {
+  clearInterval(_autoRefresh);
+  _autoRefresh = null;
+  document.removeEventListener('visibilitychange', _onVisibilityChange);
+}
 
 function startAgeTimer() {
   setInterval(function() {
@@ -239,8 +245,15 @@ async function fetchCourseHoles() {
 
 async function fetchPlayerScorecard(playerName) {
   if (SCORECARD_CACHE[playerName]) return SCORECARD_CACHE[playerName];
+  // Share inflight request — prevents concurrent fetches for same player
+  if (_scorecardInflight[playerName]) return _scorecardInflight[playerName];
   var playerId = ATHLETE_IDS[playerName];
   if (!playerId || !EVENT_ID) return null;
+  _scorecardInflight[playerName] = _fetchScorecardImpl(playerName, playerId);
+  try { return await _scorecardInflight[playerName]; } finally { delete _scorecardInflight[playerName]; }
+}
+
+async function _fetchScorecardImpl(playerName, playerId) {
   try {
     var url = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga/events/' + EVENT_ID + '/competitions/' + EVENT_ID + '/competitors/' + playerId + '/linescores?lang=en&region=us&limit=100';
     var res = await fetch(url);
