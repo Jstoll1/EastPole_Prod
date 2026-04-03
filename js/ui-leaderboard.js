@@ -138,7 +138,27 @@ function renderLeaderboard() {
   var activePlayingLb = players.filter(function(p) { return p.thru !== '—' && p.thru !== 'MC' && p.thru !== 'WD' && p.score !== 11 && p.score !== 12; });
   var anyStillPlaying = activePlayingLb.some(function(p) { return /^\d+$/.test(p.thru) && parseInt(p.thru) >= 1 && parseInt(p.thru) < 18; });
   var anyHaveTeeTime = activePlayingLb.some(function(p) { return p.thru && p.thru.includes(':'); });
-  var currentRound = ESPN_ROUND || (samplePlayer ? (anyStillPlaying ? (completedRoundCount + 1) || 1 : anyHaveTeeTime ? completedRoundCount + 1 : completedRoundCount) : 0);
+  // Use ESPN period if available; fallback uses active players' completed rounds (not max across all)
+  var fallbackRound = 0;
+  if (samplePlayer) {
+    if (anyStillPlaying) {
+      // Find round that active (mid-round) players are in by checking THEIR completed rounds
+      var activeOnCourse = activePlayingLb.filter(function(p) { return /^\d+$/.test(p.thru) && parseInt(p.thru) >= 1 && parseInt(p.thru) < 18; });
+      var activeCompleted = 0;
+      if (activeOnCourse.length > 0) {
+        activeCompleted = [activeOnCourse[0].r1, activeOnCourse[0].r2, activeOnCourse[0].r3, activeOnCourse[0].r4].filter(function(r) { return r != null; }).length;
+      }
+      fallbackRound = (activeCompleted + 1) || 1;
+    } else if (anyHaveTeeTime) {
+      // Between rounds — players with tee times haven't started yet
+      var waitingPlayer = activePlayingLb.find(function(p) { return p.thru && p.thru.includes(':'); });
+      var waitCompleted = waitingPlayer ? [waitingPlayer.r1, waitingPlayer.r2, waitingPlayer.r3, waitingPlayer.r4].filter(function(r) { return r != null; }).length : completedRoundCount;
+      fallbackRound = waitCompleted + 1;
+    } else {
+      fallbackRound = completedRoundCount;
+    }
+  }
+  var currentRound = ESPN_ROUND || fallbackRound;
   var isPreT = false;
   var roundLabels = ['FIRST ROUND','FIRST ROUND','SECOND ROUND','THIRD ROUND','FINAL ROUND'];
   var endOfRoundLabels = ['','END OF ROUND 1','END OF ROUND 2','END OF ROUND 3','FINAL ROUND'];
