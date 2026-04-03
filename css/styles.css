@@ -2276,8 +2276,58 @@ to  {
   color: #1a0530;
 }
 
-.pinned-entry { background: rgba(212,168,67,0.06) !important; }
-.pinned-divider { height: 2px; background: var(--gold); opacity: 0.3; }
+.my-hero-block {
+  margin: 4px 10px 6px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.my-hero-row {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  gap: 8px;
+  cursor: pointer;
+}
+.my-hero-row + .my-hero-row { border-top: 1px solid var(--border); }
+.my-hero-rank {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--text2);
+  width: 28px;
+  flex-shrink: 0;
+}
+.my-hero-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.my-hero-score {
+  font-size: 13px;
+  font-weight: 900;
+  flex-shrink: 0;
+  min-width: 30px;
+  text-align: right;
+}
+.my-hero-score.neg { color: var(--gold); }
+.my-hero-score.pos { color: #ff6b6b; }
+.my-hero-score.eve { color: var(--text); }
+.my-hero-today {
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  min-width: 24px;
+  text-align: right;
+}
+.my-hero-today.neg { color: #52b788; }
+.my-hero-today.pos { color: #ff7070; }
+.my-hero-today.eve { color: var(--text2); }
 .st-pick-row { padding: 4px 8px 4px 8px; border-left: 3px solid var(--gold); background: rgba(13,31,18,0.5) !important; }
 .st-pick-row.is-bench { opacity: 0.5; }
 .st-pick-row .tv-pos { color: var(--gold); font-size: 10px; }

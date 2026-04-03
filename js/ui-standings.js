@@ -86,26 +86,17 @@ function renderStandings() {
   var actualPot = ENTRIES.length * POOL_CONFIG.buyIn;
   document.getElementById('standings-pool-sub').innerHTML = ENTRIES.length + ' entries · $' + POOL_CONFIG.buyIn + ' buy-in · <strong style="color:var(--gold)">$' + actualPot.toLocaleString() + ' pot</strong><br>Best 4 of 6 golfer scores combined over four rounds wins.';
 
-  // Build pinned "my entries" rows to insert at top of standings list
-  var pinnedHtml = '';
-  var pinnedKeys = new Set();
-  if (currentUserEmail && currentUserTeams.length > 0 && !stSearch) {
+  // Build floating "my entries" box above standings
+  var heroHtml = '';
+  if (currentUserEmail && currentUserTeams.length > 0) {
     var teamsToShow = activeTeamIdx >= 0 ? [currentUserTeams[activeTeamIdx]].filter(Boolean) : currentUserTeams;
-    var pinnedRows = '';
+    var myRows = '';
     teamsToShow.forEach(function(activeTeam) {
       var myIdx = ranked.findIndex(function(e) { return e.email === activeTeam.email && e.team === activeTeam.team; });
       if (myIdx >= 0) {
         var myEntry = ranked[myIdx];
         var myRank = ranks[myIdx];
         var scc = cls(myEntry.total);
-        var entryIdx = ENTRIES.findIndex(function(x) { return x.team === myEntry.team && x.email === myEntry.email; });
-        var rowClick = compareMode ? 'cmpSelectTeam(' + entryIdx + ')' : 'togglePanel(this,\'pinned-' + myIdx + '\')';
-        var isCmpSelected = compareMode && cmpSelections.includes(entryIdx);
-        var cmpCls = compareMode ? ' cmp-mode' : '';
-        var cmpSelCls = isCmpSelected ? ' cmp-selected' : '';
-        var cmpBadge = isCmpSelected ? '<span class="cmp-badge">' + (cmpSelections.indexOf(entryIdx) + 1) + '</span>' : '';
-        var teamHolesLeft = ROUND_START_ROUND >= 4 ? myEntry.top4.reduce(function(sum, g) { return sum + getHolesRemaining(g.name); }, 0) : 0;
-        var holesTag = ROUND_START_ROUND >= 4 ? (teamHolesLeft > 0 ? '<span class="s-holes">' + teamHolesLeft + '</span>' : '') : '';
         var entryKey = myEntry.team + '|' + myEntry.email;
         var startRk = ROUND_START_ENTRY_RANKS[entryKey];
         var refRk = startRk || PREV_RANKS[entryKey];
@@ -118,17 +109,17 @@ function renderStandings() {
         myEntry.top4.forEach(function(g) { var td = golferTodayScore(GOLFER_SCORES[g.name]); if (td !== null) { myTeamToday += td; myTodayCount++; } });
         var myTodayDisp = myTodayCount > 0 ? (myTeamToday > 0 ? '+' + myTeamToday : myTeamToday === 0 ? 'E' : '' + myTeamToday) : '—';
         var myTodayCls = myTeamToday < 0 ? 'neg' : myTeamToday > 0 ? 'pos' : 'eve';
-        pinnedRows += '<div class="tv-row st-row is-my-team pinned-entry' + cmpCls + cmpSelCls + '" onclick="' + rowClick + '" style="cursor:pointer">'
-            + '<div class="tv-pos">' + myRank + moveHtml + '</div>'
-            + '<div class="tv-player"><span class="tv-name is-my-pick">' + myEntry.team + '</span>' + cmpBadge + ' <span class="tv-country">' + myEntry.name + '</span>' + holesTag + '</div>'
-            + '<div class="tv-score ' + scc + '">' + fmtTeam(myEntry.total) + '</div>'
-            + '<div class="tv-today ' + myTodayCls + '">' + myTodayDisp + '</div>'
-            + '<div class="tv-thru"></div>'
+        var safeTeam = myEntry.team.replace(/'/g, "\\'");
+        myRows += '<div class="my-hero-row" onclick="jumpToEntry(\'' + safeTeam + '\')">'
+            + '<div class="my-hero-rank">' + myRank + moveHtml + '</div>'
+            + '<div class="my-hero-name">' + myEntry.team + '</div>'
+            + '<div class="my-hero-score ' + scc + '">' + fmtTeam(myEntry.total) + '</div>'
+            + '<div class="my-hero-today ' + myTodayCls + '">' + myTodayDisp + '</div>'
             + '</div>';
-        pinnedKeys.add(myEntry.team + '|' + myEntry.email);
       }
     });
-    if (pinnedRows) pinnedHtml = pinnedRows + '<div class="pinned-divider"></div>';
+    var showAllBtn = (activeTeamIdx >= 0 && currentUserTeams.length > 1) ? '<div class="my-show-all" onclick="trackEvent(\'show-all-entries\');setUser(\'' + currentUserEmail + '\',-1)">Show All Entries</div>' : '';
+    if (myRows) heroHtml = '<div class="my-hero-block">' + myRows + showAllBtn + '</div>';
   }
 
   // Apply search filter
@@ -149,7 +140,6 @@ function renderStandings() {
 
   var html = '';
   displayRanked.forEach(function(e, i) {
-    if (pinnedKeys.has(e.team + '|' + e.email)) return;
     var rank = displayRanks[i];
     var sc = e.total, scf = fmtTeam(sc), scc = cls(sc);
     var isMyTeam = e.email === currentTeamEmail ? ' is-my-team' : '';
@@ -244,8 +234,8 @@ function renderStandings() {
     ranked.forEach(function(e, i) { ROUND_START_ENTRY_RANKS[e.team + '|' + e.email] = ranks[i]; });
   }
   ranked.forEach(function(e, i) { PREV_RANKS[e.team + '|' + e.email] = ranks[i]; });
-  document.getElementById('my-teams-container').innerHTML = '';
-  el.innerHTML = pinnedHtml + html;
+  document.getElementById('my-teams-container').innerHTML = heroHtml;
+  el.innerHTML = html;
   var hasTies = ranks.some(function(r, i) { return i > 0 && r === ranks[i-1]; });
   document.getElementById('standings-footnote').style.display = hasTies ? 'block' : 'none';
 
