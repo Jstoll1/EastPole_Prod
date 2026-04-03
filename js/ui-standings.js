@@ -113,8 +113,8 @@ function renderStandings() {
         myRows += '<div class="my-hero-row" onclick="jumpToEntry(\'' + safeTeam + '\')">'
             + '<div class="my-hero-rank">' + myRank + moveHtml + '</div>'
             + '<div class="my-hero-name">' + myEntry.team + '</div>'
-            + '<div class="my-hero-score ' + scc + '">' + fmtTeam(myEntry.total) + '</div>'
             + '<div class="my-hero-today ' + myTodayCls + '">' + myTodayDisp + '</div>'
+            + '<div class="my-hero-score ' + scc + '">' + fmtTeam(myEntry.total) + '</div>'
             + '</div>';
       }
     });
@@ -168,9 +168,9 @@ function renderStandings() {
     html += '<div class="tv-row st-row' + isMyTeam + cmpCls + cmpSelCls + '" onclick="' + rowClick + '" style="cursor:pointer">'
         + '<div class="tv-pos">' + rank + moveHtml + '</div>'
         + '<div class="tv-player"><span class="tv-name' + (isMyTeam ? ' is-my-pick' : '') + '">' + e.team + '</span>' + cmpBadge + ' <span class="tv-country">' + e.name + '</span>' + holesTag + '</div>'
-        + '<div class="tv-score ' + scc + '">' + scf + '</div>'
-        + '<div class="tv-today ' + todayCls + '">' + todayDisp + '</div>'
         + '<div class="tv-thru"></div>'
+        + '<div class="tv-today ' + todayCls + '">' + todayDisp + '</div>'
+        + '<div class="tv-score ' + scc + '">' + scf + '</div>'
         + '</div>'
         + '<div class="picks-panel" id="panel-' + i + '"> ' + e.scores.map(function(g, j) {
       var isTop = j < 4;
@@ -217,9 +217,9 @@ function renderStandings() {
           + (posDisplay ? ' <span class="mini-pick-pos">' + posDisplay + '</span>' : '')
           + '<div class="st-pick-sub">' + (rndsStr ? '<span class="mini-pick-rounds">' + rndsStr + '</span>' : '') + (ownP ? ' <span class="mini-pick-own">' + ownP + '</span>' : '') + '</div>'
           + '</div>'
-          + '<div class="tv-score ' + (isMc ? 'mc' : cls(g.score)) + '">' + (isMc ? (gd.thru === 'WD' || gd.score === 12 ? 'WD' : 'MC') : fmt(g.score)) + '</div>'
-          + '<div class="tv-today ' + gTodayCls + '">' + gTodayDisp + '</div>'
           + '<div class="tv-thru">' + thruDisp + '</div>'
+          + '<div class="tv-today ' + gTodayCls + '">' + gTodayDisp + '</div>'
+          + '<div class="tv-score ' + (isMc ? 'mc' : cls(g.score)) + '">' + (isMc ? (gd.thru === 'WD' || gd.score === 12 ? 'WD' : 'MC') : fmt(g.score)) + '</div>'
           + '</div>';
     }).join('');
     var isTied = (i < displayRanked.length-1 && displayRanked[i].total === displayRanked[i+1].total) || (i > 0 && displayRanked[i].total === displayRanked[i-1].total);
