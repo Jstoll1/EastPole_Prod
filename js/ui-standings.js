@@ -94,8 +94,11 @@ function renderStandings() {
           var d = prevRk - myRank;
           moveHtml = d > 0 ? '<span class="my-row-move up">▲' + d + '</span>' : '<span class="my-row-move dn">▼' + Math.abs(d) + '</span>';
         }
-        var myHolesLeft = myEntry.picks.reduce(function(s, p) { return s + getHolesRemaining(p); }, 0);
-        var myHolesTag = '<span class="my-row-holes">' + myHolesLeft + ' holes left</span>';
+        var myHolesTag = '';
+        if (ROUND_START_ROUND >= 4) {
+          var myHolesLeft = myEntry.top4.reduce(function(s, g) { return s + getHolesRemaining(g.name); }, 0);
+          myHolesTag = '<span class="my-row-holes">' + myHolesLeft + ' holes left</span>';
+        }
         var myTeamToday = 0, myTodayCount = 0;
         myEntry.top4.forEach(function(g) { var td = golferTodayScore(GOLFER_SCORES[g.name]); if (td !== null) { myTeamToday += td; myTodayCount++; } });
         var myTodayDisp = myTodayCount > 0 ? (myTeamToday > 0 ? '+' + myTeamToday : myTeamToday === 0 ? 'E' : '' + myTeamToday) : '—';
@@ -120,7 +123,7 @@ function renderStandings() {
     var cmpCls = compareMode ? ' cmp-mode' : '';
     var cmpSelCls = isCmpSelected ? ' cmp-selected' : '';
     var cmpBadge = isCmpSelected ? '<span class="cmp-badge">' + cmpNum + '</span>' : '';
-    var teamHolesLeft = e.picks.reduce(function(sum, p) { return sum + getHolesRemaining(p); }, 0);
+    var teamHolesLeft = ROUND_START_ROUND >= 4 ? e.top4.reduce(function(sum, g) { return sum + getHolesRemaining(g.name); }, 0) : 0;
     var rowClick = compareMode ? 'cmpSelectTeam(' + entryIdx + ')' : 'togglePanel(this,' + i + ')';
     // Movement badge relative to round start
     var entryKey = e.team + '|' + e.email;
@@ -136,7 +139,7 @@ function renderStandings() {
     e.top4.forEach(function(g) { var td = golferTodayScore(GOLFER_SCORES[g.name]); if (td !== null) { teamToday += td; teamTodayCount++; } });
     var todayDisp = teamTodayCount > 0 ? (teamToday > 0 ? '+' + teamToday : teamToday === 0 ? 'E' : '' + teamToday) : '—';
     var todayCls = teamToday < 0 ? 'neg' : teamToday > 0 ? 'pos' : 'eve';
-    var holesTag = teamHolesLeft > 0 ? '<span class="s-holes">' + teamHolesLeft + ' holes left</span>' : '<span class="s-holes done">F</span>';
+    var holesTag = ROUND_START_ROUND >= 4 ? (teamHolesLeft > 0 ? '<span class="s-holes">' + teamHolesLeft + ' holes left</span>' : '<span class="s-holes done">F</span>') : '';
     html += ' <div class="standing-row ' + isMyTeam + cmpCls + cmpSelCls + '" onclick="' + rowClick + '"> <div class="s-rank">' + rank + '</div> <div class="s-info"> <div class="s-team">' + e.team + cmpBadge + moveBadge + '</div> <div class="s-name">' + e.name + ' ' + holesTag + '</div> </div> <div class="s-today ' + todayCls + '">' + todayDisp + '</div> <div class="s-score ' + scc + '">' + scf + '</div> <div class="s-arrow" id="arr-' + i + '">' + (compareMode ? '' : '›') + '</div> </div> <div class="picks-panel" id="panel-' + i + '"> ' + e.scores.map(function(g, j) {
       var isTop = j < 4;
       var gd = GOLFER_SCORES[g.name];
@@ -153,7 +156,7 @@ function renderStandings() {
       var thruDisplay = preT ? '' : ((gd && (gd.thru === 'WD' || gd.score === 12)) ? '' : (stRoundDone ? (stLastRound ? 'Shot ' + stLastRound : '') : (thruVal && thruVal !== '—' ? 'Thru ' + thruVal : '')));
       var posDisplay = preT ? '' : pos;
       var flag = FLAGS[g.name] || '';
-      var holesDisp = holesLeft > 0 ? holesLeft + ' holes left' : 'F';
+      var holesDisp = ROUND_START_ROUND >= 4 ? (holesLeft > 0 ? holesLeft + ' holes left' : 'F') : '';
       var gToday = golferTodayScore(gd);
       var gTodayDisp = gToday !== null ? (gToday > 0 ? '+' + gToday : gToday === 0 ? 'E' : '' + gToday) : '—';
       var gTodayCls = gToday !== null ? (gToday < 0 ? 'neg' : gToday > 0 ? 'pos' : 'eve') : '';
@@ -168,7 +171,8 @@ function renderStandings() {
     }).join('');
     var isTied = (i < ranked.length-1 && ranked[i].total === ranked[i+1].total) || (i > 0 && ranked[i].total === ranked[i-1].total);
     var tbFooter2 = (isTied && e.tb != null) ? ' · TB: ' + e.tb : '';
-    html += '<div class="picks-panel-footer"><span>' + e.name + tbFooter2 + ' · ' + teamHolesLeft + ' holes left</span><button class="h2h-quick-btn" onclick="event.stopPropagation();openH2HPicker(' + entryIdx + ')">⚔️ H2H</button></div> </div>';
+    var footerHoles = ROUND_START_ROUND >= 4 ? ' · ' + teamHolesLeft + ' holes left' : '';
+    html += '<div class="picks-panel-footer"><span>' + e.name + tbFooter2 + footerHoles + '</span><button class="h2h-quick-btn" onclick="event.stopPropagation();openH2HPicker(' + entryIdx + ')">⚔️ H2H</button></div> </div>';
   });
 
   detectEntryActivity();
