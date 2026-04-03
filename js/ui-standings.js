@@ -86,6 +86,29 @@ function renderStandings() {
   var actualPot = ENTRIES.length * POOL_CONFIG.buyIn;
   document.getElementById('standings-pool-sub').innerHTML = ENTRIES.length + ' entries · $' + POOL_CONFIG.buyIn + ' buy-in · <strong style="color:var(--gold)">$' + actualPot.toLocaleString() + ' pot</strong><br>Best 4 of 6 golfer scores combined over four rounds wins.';
 
+  // Compute prior-round entry ranks dynamically (same logic as leaderboard)
+  var priorEntryRanks = {};
+  if (TOURNAMENT_STARTED) {
+    var priorEntries = ranked.map(function(e) {
+      var priorTotal = 0;
+      e.top4.forEach(function(g) {
+        var gd = GOLFER_SCORES[g.name];
+        var td = gd ? gd.todayDisplay : null;
+        var todayVal = 0;
+        if (td && td !== '—') {
+          todayVal = td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0;
+        }
+        priorTotal += g.score - todayVal;
+      });
+      return { key: e.team + '|' + e.email, prior: priorTotal };
+    }).sort(function(a, b) { return a.prior - b.prior; });
+    var pRk = 1;
+    priorEntries.forEach(function(pe, idx) {
+      if (idx > 0 && pe.prior !== priorEntries[idx - 1].prior) pRk = idx + 1;
+      priorEntryRanks[pe.key] = pRk;
+    });
+  }
+
   // Build floating "my entries" box above standings
   var heroHtml = '';
   if (currentUserEmail && currentUserTeams.length > 0) {
@@ -98,11 +121,10 @@ function renderStandings() {
         var myRank = ranks[myIdx];
         var scc = cls(myEntry.total);
         var entryKey = myEntry.team + '|' + myEntry.email;
-        var startRk = ROUND_START_ENTRY_RANKS[entryKey];
-        var refRk = startRk || PREV_RANKS[entryKey];
+        var priorRk = priorEntryRanks[entryKey];
         var moveHtml = '';
-        if (refRk && refRk !== myRank) {
-          var mv = refRk - myRank;
+        if (priorRk && priorRk !== myRank) {
+          var mv = priorRk - myRank;
           moveHtml = mv > 0 ? '<div class="pos-move up">▲' + mv + '</div>' : '<div class="pos-move dn">▼' + Math.abs(mv) + '</div>';
         }
         var myTeamToday = 0, myTodayCount = 0;
@@ -153,11 +175,10 @@ function renderStandings() {
     var rowClick = compareMode ? 'cmpSelectTeam(' + entryIdx + ')' : 'togglePanel(this,' + i + ')';
     // Movement badge
     var entryKey = e.team + '|' + e.email;
-    var startRk = ROUND_START_ENTRY_RANKS[entryKey];
-    var refRk = startRk || PREV_RANKS[entryKey];
+    var priorRk = priorEntryRanks[entryKey];
     var moveHtml = '';
-    if (refRk && refRk !== rank) {
-      var mv = refRk - rank;
+    if (priorRk && priorRk !== rank) {
+      var mv = priorRk - rank;
       moveHtml = mv > 0 ? '<div class="pos-move up">▲' + mv + '</div>' : '<div class="pos-move dn">▼' + Math.abs(mv) + '</div>';
     }
     var teamToday = 0, teamTodayCount = 0;
