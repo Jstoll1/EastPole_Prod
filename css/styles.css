@@ -1197,9 +1197,9 @@ html, body  {
 .tv-h-pos { width: 42px; flex-shrink: 0; }
 .tv-h-pill { width: 18px; flex-shrink: 0; }
 .tv-h-player { flex: 1; min-width: 0; }
-.tv-h-score { width: 42px; text-align: center; flex-shrink: 0; }
-.tv-h-today { width: 42px; text-align: center; flex-shrink: 0; color: var(--gold); }
-.tv-h-thru { width: 44px; text-align: center; flex-shrink: 0; }
+.tv-h-score { width: 36px; text-align: right; flex-shrink: 0; }
+.tv-h-today { width: 36px; text-align: right; flex-shrink: 0; color: var(--gold); }
+.tv-h-thru { width: 38px; text-align: right; flex-shrink: 0; }
 .tv-h-odds { width: 48px; text-align: right; flex-shrink: 0; font-size: 8px; }
 .tv-odds {
   width: 48px; text-align: right; flex-shrink: 0;
@@ -1316,10 +1316,10 @@ html, body  {
 }
 
 .tv-score  {
-  width: 42px;
+  width: 36px;
   font-size: 12px;
   font-weight: 800;
-  text-align: center;
+  text-align: right;
   flex-shrink: 0;
 }
 .tv-score.neg { color: var(--gold); }
@@ -1328,10 +1328,10 @@ html, body  {
 .tv-score.mc { color: #ff6b6b; font-size: 10px; }
 
 .tv-today  {
-  width: 42px;
+  width: 36px;
   font-size: 11px;
   font-weight: 700;
-  text-align: center;
+  text-align: right;
   flex-shrink: 0;
 }
 .tv-today.neg { color: #66bb6a; }
@@ -1339,10 +1339,10 @@ html, body  {
 .tv-today.eve { color: rgba(255,255,255,0.9); }
 
 .tv-thru  {
-  width: 44px;
+  width: 38px;
   font-size: 11px;
   font-weight: 600;
-  text-align: center;
+  text-align: right;
   white-space: nowrap;
   flex-shrink: 0;
   color: #d4d4d4;
