@@ -232,7 +232,11 @@ function buildObList(filter) {
     people[e.email].teams.push(e.team);
   });
   var list = Object.values(people)
-    .filter(function(p) { return !filter || p.name.toLowerCase().includes(filter.toLowerCase()); })
+    .filter(function(p) {
+      if (!filter) return true;
+      var q = filter.toLowerCase();
+      return p.name.toLowerCase().includes(q) || p.email.toLowerCase().includes(q) || p.teams.some(function(t) { return t.toLowerCase().includes(q); });
+    })
     .sort(function(a, b) { return a.name.localeCompare(b.name); });
   var el = document.getElementById('ob-list');
   if (!list.length) { el.innerHTML = '<div class="empty-state">No results</div>'; return; }
