@@ -807,15 +807,21 @@ html, body  {
   border-bottom: 1px solid #0d1f12;
 }
 
-.standing-row.panel-open {
-  background: rgba(13,31,18,0.8);
+/* Standings sticky header */
+.st-sticky-hdr {
+  position:sticky; top:0; z-index:5;
+  background:var(--bg); padding-top:4px;
+}
+
+.tv-row.st-row.panel-open {
+  background: rgba(13,31,18,0.8) !important;
   border-left: 3px solid var(--gold);
   border-bottom-color: transparent;
   border-radius: 8px 8px 0 0;
   margin-top: 4px;
 }
-.standing-row.panel-open .s-team { color: var(--gold); }
-.standing-row.panel-open .s-rank { color: var(--gold); }
+.tv-row.st-row.panel-open .tv-name { color: var(--gold); }
+.tv-row.st-row.panel-open .tv-pos { color: var(--gold); }
 .picks-panel.open  {
   display: block;
   background: rgba(13,31,18,0.5);
@@ -2632,12 +2638,12 @@ to  {
   background: rgba(212,168,67,0.06);
   border-bottom: 1px solid var(--border);
 }
-.standing-row.cmp-mode { cursor: pointer; transition: background 0.15s, border-color 0.15s; }
-.standing-row.cmp-selected {
+.st-row.cmp-mode { cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+.st-row.cmp-selected {
   background: rgba(212,168,67,0.08) !important;
   border-left: 3px solid var(--gold);
 }
-.standing-row.cmp-selected .s-rank { color: var(--gold); }
+.st-row.cmp-selected .tv-pos { color: var(--gold); }
 .cmp-badge {
   display: inline-flex;
   align-items: center;

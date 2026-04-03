@@ -3,6 +3,7 @@
 var _openPanelTeam = null;
 var standingsSort = 'total';
 var standingsSortDir = 1; // 1 = asc for score, toggled on re-click
+var stSearch = '';
 
 function toggleStandingsSort(col) {
   if (standingsSort === col) {
@@ -11,6 +12,13 @@ function toggleStandingsSort(col) {
     standingsSort = col;
     standingsSortDir = 1;
   }
+  renderStandings();
+}
+
+function filterStandingsSearch() {
+  var v = document.getElementById('st-search').value || '';
+  stSearch = v.trim().toLowerCase();
+  document.getElementById('st-search-clear').style.display = v.length ? 'block' : 'none';
   renderStandings();
 }
 
@@ -111,12 +119,27 @@ function renderStandings() {
     if (rows) heroHtml = '<div class="my-teams-block"><div class="my-teams-label">YOUR ENTRIES</div>' + rows + showAllBtn + '</div>';
   }
 
+  // Apply search filter
+  var displayRanked = ranked;
+  var displayRanks = ranks;
+  if (stSearch) {
+    var filtered = [];
+    var filteredRanks = [];
+    ranked.forEach(function(e, i) {
+      if (e.team.toLowerCase().indexOf(stSearch) !== -1 || e.name.toLowerCase().indexOf(stSearch) !== -1 || e.email.toLowerCase().indexOf(stSearch) !== -1) {
+        filtered.push(e);
+        filteredRanks.push(ranks[i]);
+      }
+    });
+    displayRanked = filtered;
+    displayRanks = filteredRanks;
+  }
+
   var html = '';
-  ranked.forEach(function(e, i) {
-    var rank = ranks[i];
+  displayRanked.forEach(function(e, i) {
+    var rank = displayRanks[i];
     var sc = e.total, scf = fmtTeam(sc), scc = cls(sc);
-    var top4Str = e.top4.map(function(g) { return fmt(g.score); }).join(' ');
-    var isMyTeam = e.email === currentTeamEmail ? 'is-my-team' : '';
+    var isMyTeam = e.email === currentTeamEmail ? ' is-my-team' : '';
     var entryIdx = ENTRIES.findIndex(function(x) { return x.team === e.team && x.email === e.email; });
     var isCmpSelected = compareMode && cmpSelections.includes(entryIdx);
     var cmpNum = isCmpSelected ? (cmpSelections.indexOf(entryIdx) + 1) : 0;
@@ -125,22 +148,27 @@ function renderStandings() {
     var cmpBadge = isCmpSelected ? '<span class="cmp-badge">' + cmpNum + '</span>' : '';
     var teamHolesLeft = ROUND_START_ROUND >= 4 ? e.top4.reduce(function(sum, g) { return sum + getHolesRemaining(g.name); }, 0) : 0;
     var rowClick = compareMode ? 'cmpSelectTeam(' + entryIdx + ')' : 'togglePanel(this,' + i + ')';
-    // Movement badge relative to round start
+    // Movement badge
     var entryKey = e.team + '|' + e.email;
     var startRk = ROUND_START_ENTRY_RANKS[entryKey];
     var refRk = startRk || PREV_RANKS[entryKey];
-    var moveBadge = '';
+    var moveHtml = '';
     if (refRk && refRk !== rank) {
       var mv = refRk - rank;
-      if (mv > 0) moveBadge = '<span class="s-move up">&#9650;' + mv + '</span>';
-      else if (mv < 0) moveBadge = '<span class="s-move dn">&#9660;' + Math.abs(mv) + '</span>';
+      moveHtml = mv > 0 ? '<div class="pos-move up">▲' + mv + '</div>' : '<div class="pos-move dn">▼' + Math.abs(mv) + '</div>';
     }
     var teamToday = 0, teamTodayCount = 0;
     e.top4.forEach(function(g) { var td = golferTodayScore(GOLFER_SCORES[g.name]); if (td !== null) { teamToday += td; teamTodayCount++; } });
     var todayDisp = teamTodayCount > 0 ? (teamToday > 0 ? '+' + teamToday : teamToday === 0 ? 'E' : '' + teamToday) : '—';
     var todayCls = teamToday < 0 ? 'neg' : teamToday > 0 ? 'pos' : 'eve';
-    var holesTag = ROUND_START_ROUND >= 4 ? (teamHolesLeft > 0 ? '<span class="s-holes">' + teamHolesLeft + ' holes left</span>' : '<span class="s-holes done">F</span>') : '';
-    html += ' <div class="standing-row ' + isMyTeam + cmpCls + cmpSelCls + '" onclick="' + rowClick + '"> <div class="s-rank">' + rank + '</div> <div class="s-info"> <div class="s-team">' + e.team + cmpBadge + moveBadge + '</div> <div class="s-name">' + e.name + ' ' + holesTag + '</div> </div> <div class="s-today ' + todayCls + '">' + todayDisp + '</div> <div class="s-score ' + scc + '">' + scf + '</div> <div class="s-arrow" id="arr-' + i + '">' + (compareMode ? '' : '›') + '</div> </div> <div class="picks-panel" id="panel-' + i + '"> ' + e.scores.map(function(g, j) {
+    var holesTag = ROUND_START_ROUND >= 4 ? (teamHolesLeft > 0 ? '<span class="s-holes">' + teamHolesLeft + '</span>' : '') : '';
+    html += '<div class="tv-row st-row' + isMyTeam + cmpCls + cmpSelCls + '" onclick="' + rowClick + '" style="cursor:pointer">'
+        + '<div class="tv-pos">' + rank + moveHtml + '</div>'
+        + '<div class="tv-player"><span class="tv-name' + (isMyTeam ? ' is-my-pick' : '') + '">' + e.team + '</span>' + cmpBadge + ' <span class="tv-country">' + e.name + '</span>' + holesTag + '</div>'
+        + '<div class="tv-today ' + todayCls + '">' + todayDisp + '</div>'
+        + '<div class="tv-score ' + scc + '">' + scf + '</div>'
+        + '</div>'
+        + '<div class="picks-panel" id="panel-' + i + '"> ' + e.scores.map(function(g, j) {
       var isTop = j < 4;
       var gd = GOLFER_SCORES[g.name];
       var preT = !TOURNAMENT_STARTED;
@@ -169,7 +197,7 @@ function renderStandings() {
       }
       return '<div class="mini-pick ' + (isTop?'is-top':'') + '"> <div class="mini-pick-left"> <div class="mini-pick-top"> ' + (isTop?'<span class="star">★</span>':'<span style="width:10px;display:inline-block"></span>') + ' <span class="mini-pick-name">' + (flag ? flag + ' ' : '') + g.name + '</span>' + (posDisplay ? ' <span class="mini-pick-pos">' + posDisplay + '</span>' : '') + ' </div> <div class="mini-pick-bottom"> ' + (rndsStr?'<span class="mini-pick-rounds">' + rndsStr + '</span>':'') + ' <span class="mini-pick-holes">' + holesDisp + '</span>' + ' ' + (ownP?'<span class="mini-pick-own">' + ownP + '</span>':'') + ' </div> </div> <div class="mini-pick-right"> <span class="mini-pick-today ' + gTodayCls + '">' + gTodayDisp + '</span> <span class="mini-pick-score ' + cls(g.score) + '">' + fmt(g.score) + '</span>' + (gThru ? ' <span class="mini-pick-thru-val">' + gThru + '</span>' : '') + ' </div> </div>';
     }).join('');
-    var isTied = (i < ranked.length-1 && ranked[i].total === ranked[i+1].total) || (i > 0 && ranked[i].total === ranked[i-1].total);
+    var isTied = (i < displayRanked.length-1 && displayRanked[i].total === displayRanked[i+1].total) || (i > 0 && displayRanked[i].total === displayRanked[i-1].total);
     var tbFooter2 = (isTied && e.tb != null) ? ' · TB: ' + e.tb : '';
     var footerHoles = ROUND_START_ROUND >= 4 ? ' · ' + teamHolesLeft + ' holes left' : '';
     html += '<div class="picks-panel-footer"><span>' + e.name + tbFooter2 + footerHoles + '</span><button class="h2h-quick-btn" onclick="event.stopPropagation();openH2HPicker(' + entryIdx + ')">⚔️ H2H</button></div> </div>';
@@ -188,12 +216,10 @@ function renderStandings() {
 
   // Restore open panel after re-render
   if (_openPanelTeam) {
-    var restoreIdx = ranked.findIndex(function(e) { return e.team === _openPanelTeam; });
+    var restoreIdx = displayRanked.findIndex(function(e) { return e.team === _openPanelTeam; });
     if (restoreIdx >= 0) {
       var panel = document.getElementById('panel-' + restoreIdx);
-      var arr = document.getElementById('arr-' + restoreIdx);
       if (panel) { panel.classList.add('open'); var sRow = panel.previousElementSibling; if (sRow) sRow.classList.add('panel-open'); }
-      if (arr) arr.textContent = '⌄';
     }
   }
 }
@@ -201,15 +227,13 @@ function renderStandings() {
 function togglePanel(row, i) {
   trackEvent('standings-expand');
   var panel = document.getElementById('panel-'+i);
-  var arr = document.getElementById('arr-'+i);
   var prevOpen = document.querySelector('.picks-panel.open');
   if (prevOpen && prevOpen !== panel) {
     prevOpen.classList.remove('open');
     var prevRow = prevOpen.previousElementSibling;
-    if (prevRow) { prevRow.classList.remove('panel-open'); var prevArr = prevRow.querySelector('.s-arrow'); if (prevArr) prevArr.textContent = '›'; }
+    if (prevRow) prevRow.classList.remove('panel-open');
   }
   var open = panel.classList.toggle('open');
-  arr.textContent = open ? '⌄' : '›';
   var standingRow = panel.previousElementSibling;
   if (standingRow) { if (open) standingRow.classList.add('panel-open'); else standingRow.classList.remove('panel-open'); }
   if (open) {

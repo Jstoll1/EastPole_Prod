@@ -17,7 +17,7 @@
 <meta name="twitter:title" content="East Pole Golf Pool">
 <meta name="twitter:description" content="Live leaderboard and pool standings for the Valero Texas Open 2026.">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-<link rel="stylesheet" href="./css/styles.css?v=130">
+<link rel="stylesheet" href="./css/styles.css?v=131">
 <link rel="stylesheet" href="./css/theme.css">
 <script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -102,12 +102,20 @@
 <div id="my-teams-container"></div>
 <div id="h2h-inline-panel"></div>
 <div id="cmp-hint" style="display:none" class="cmp-hint">Tap two teams to compare</div>
-<div class="tv-col-hdr" style="margin-top:4px">
-<div style="width:26px;font-size:8px">#</div>
-<div style="flex:1;cursor:pointer" onclick="toggleStandingsSort('entry')">Entry</div>
-<button class="cmp-toggle" id="cmp-toggle" onclick="toggleCompareMode()" style="margin-right:2px">⚔️ H2H</button>
-<div style="width:32px;text-align:right;font-size:8px;cursor:pointer" onclick="toggleStandingsSort('today')">Today</div>
-<div style="width:36px;text-align:right;font-size:8px;cursor:pointer" onclick="toggleStandingsSort('total')">Total</div>
+<div class="st-sticky-hdr">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:0 14px 4px">
+<button class="cmp-toggle" id="cmp-toggle" onclick="toggleCompareMode()">⚔️ H2H</button>
+<div style="position:relative;width:110px">
+<input type="text" id="st-search" placeholder="Search…" oninput="filterStandingsSearch()" autocorrect="off" autocapitalize="off" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:4px 24px 4px 8px;font-size:10px;color:var(--text);font-family:inherit;outline:none;letter-spacing:0.2px">
+<span id="st-search-clear" onclick="document.getElementById('st-search').value='';filterStandingsSearch();document.getElementById('st-search').focus()" style="display:none;position:absolute;right:4px;top:50%;transform:translateY(-50%);width:16px;height:16px;line-height:16px;text-align:center;font-size:11px;color:rgba(255,255,255,0.4);cursor:pointer;border-radius:50%;background:rgba(255,255,255,0.1)">✕</span>
+</div>
+</div>
+<div class="tv-col-hdr" style="margin-top:0">
+<div class="tv-h-pos tv-h-sort" onclick="toggleStandingsSort('total')">#</div>
+<div class="tv-h-player tv-h-sort" onclick="toggleStandingsSort('entry')">ENTRY</div>
+<div class="tv-h-today tv-h-sort" onclick="toggleStandingsSort('today')">TODAY</div>
+<div class="tv-h-score tv-h-sort" onclick="toggleStandingsSort('total')">TOTAL</div>
+</div>
 </div>
 <div id="standings-list">
 </div>
@@ -243,18 +251,18 @@
 </div>
 
 <!-- Module Scripts (deferred) -->
-<script defer src="./js/state.js?v=130"></script>
-<script defer src="./js/utils.js?v=130"></script>
-<script defer src="./js/api.js?v=130"></script>
-<script defer src="./js/ui-header.js?v=130"></script>
-<script defer src="./js/ui-standings.js?v=130"></script>
-<script defer src="./js/ui-leaderboard.js?v=130"></script>
-<script defer src="./js/ui-scorecard.js?v=130"></script>
-<script defer src="./js/ui-compare.js?v=130"></script>
+<script defer src="./js/state.js?v=131"></script>
+<script defer src="./js/utils.js?v=131"></script>
+<script defer src="./js/api.js?v=131"></script>
+<script defer src="./js/ui-header.js?v=131"></script>
+<script defer src="./js/ui-standings.js?v=131"></script>
+<script defer src="./js/ui-leaderboard.js?v=131"></script>
+<script defer src="./js/ui-scorecard.js?v=131"></script>
+<script defer src="./js/ui-compare.js?v=131"></script>
 
-<script defer src="./js/ui-activity.js?v=130"></script>
-<script defer src="./js/ui-ticker.js?v=130"></script>
-<script defer src="./js/ui-debug.js?v=130"></script>
-<script defer src="./js/app.js?v=130"></script>
+<script defer src="./js/ui-activity.js?v=131"></script>
+<script defer src="./js/ui-ticker.js?v=131"></script>
+<script defer src="./js/ui-debug.js?v=131"></script>
+<script defer src="./js/app.js?v=131"></script>
 </body>
 </html>
