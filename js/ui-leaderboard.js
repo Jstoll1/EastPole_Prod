@@ -159,7 +159,7 @@ function renderLeaderboard() {
   var rows = '';
   var cutInserted = false;
   var estCutInserted = false;
-  var estCutShow = currentRound === 2 && lbSort === 'score' && lbFilter === 'all' && !lbSearch;
+  var estCutShow = currentRound === 2 && lbSort === 'score' && lbSortAsc && lbFilter === 'all' && !lbSearch;
   var estCutScore = null;
   if (estCutShow) { var cnt = 0; for (var ci = 0; ci < players.length; ci++) { var pp = players[ci]; if (pp.thru !== 'MC') { cnt++; if (cnt === 65) { estCutScore = pp.score; break; } } } }
   // Compute round-start positions from prior-round scores
@@ -201,7 +201,7 @@ function renderLeaderboard() {
   var rowIdx = 0;
   players.forEach(function(p) {
     var mc = p.thru==='MC'||p.thru==='WD'||p.score===11||p.score===12, inPool = poolNames.has(p.name);
-    if (!cutInserted && mc && currentRound >= 2) { rows += '<div class="cut-line-row"><div class="cut-line-label">── Cut Line ──</div></div>'; cutInserted = true; }
+    if (!cutInserted && mc && currentRound >= 2 && lbSort === 'score' && lbSortAsc) { rows += '<div class="cut-line-row"><div class="cut-line-label">── Cut Line ──</div></div>'; cutInserted = true; }
     if (lbSort === 'score' && !estCutInserted && !cutInserted && estCutScore !== null && !mc && p.score > estCutScore) { rows += '<div class="est-cut-line-row"><div class="est-cut-line-label">── Estimated Cut Line ──</div></div>'; estCutInserted = true; }
     var sc = p.score, scf = fmt(sc);
     var scClass = mc ? 'mc' : sc < 0 ? 'neg' : sc > 0 ? 'pos' : 'eve';
