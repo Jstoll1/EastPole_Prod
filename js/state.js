@@ -315,14 +315,21 @@ function saveRoundStartPositions(round) {
 
 function shouldShowSplash() {
   try {
-    var lastShown = localStorage.getItem(SPLASH_DATE_KEY);
+    var data = JSON.parse(localStorage.getItem(SPLASH_DATE_KEY) || '{}');
     var today = new Date().toISOString().slice(0, 10);
-    return lastShown !== today;
+    if (data.date !== today) return true;
+    return (data.count || 0) < 3;
   } catch(e) { return true; }
 }
 
 function markSplashSeen() {
-  try { localStorage.setItem(SPLASH_DATE_KEY, new Date().toISOString().slice(0, 10)); } catch(e) {}
+  try {
+    var today = new Date().toISOString().slice(0, 10);
+    var data = JSON.parse(localStorage.getItem(SPLASH_DATE_KEY) || '{}');
+    if (data.date !== today) data = { date: today, count: 0 };
+    data.count = (data.count || 0) + 1;
+    localStorage.setItem(SPLASH_DATE_KEY, JSON.stringify(data));
+  } catch(e) {}
 }
 
 function saveUser() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ email: currentUserEmail, activeTeamIdx: activeTeamIdx })); } catch(e) {} }
