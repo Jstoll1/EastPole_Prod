@@ -259,8 +259,8 @@ async function fetchCourseHoles() {
   } catch(e) { ErrorTracker.api('Course holes fetch failed', { error: e.message }); console.error('❌ Course holes fetch error:', e.message); }
 }
 
-async function fetchPlayerScorecard(playerName) {
-  if (SCORECARD_CACHE[playerName]) return SCORECARD_CACHE[playerName];
+async function fetchPlayerScorecard(playerName, forceRefresh) {
+  if (!forceRefresh && SCORECARD_CACHE[playerName]) return SCORECARD_CACHE[playerName];
   // Share inflight request — prevents concurrent fetches for same player
   if (_scorecardInflight[playerName]) return _scorecardInflight[playerName];
   var playerId = ATHLETE_IDS[playerName];
