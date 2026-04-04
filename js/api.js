@@ -35,7 +35,7 @@ async function fetchESPN() {
     // Fallback: golf doesn't happen at night — San Antonio is CT (UTC-5/-6)
     var nowUTC = new Date();
     var ctHour = (nowUTC.getUTCHours() - 5 + 24) % 24; // CDT = UTC-5
-    var isNightTime = ctHour >= 21 || ctHour < 6; // 9 PM - 6 AM CT
+    var isNightTime = ctHour >= 21 || ctHour < 5; // 9 PM - 5 AM CT
     var isSuspended = isSuspendedByESPN || isNightTime;
     console.log('📡 Event status:', evStatus, '| detail:', evDetail, '| compStatus:', compStatus, '| compDetail:', compDetail, '| ctHour:', ctHour, '| nightTime:', isNightTime, '| suspended:', isSuspended);
     var wasPre = !TOURNAMENT_STARTED;
