@@ -286,6 +286,46 @@ function renderLeaderboard() {
         + '<div class="sc-panel" id="sc-panel-' + ri + '"></div>';
   });
   document.getElementById('leaderboard-list').innerHTML = colHdr + rows;
+
+  // Build "My Entries" banner above leaderboard
+  var lbMyEl = document.getElementById('lb-my-entries');
+  if (lbMyEl) {
+    var myHtml = '';
+    if (currentUserEmail && currentUserTeams.length > 0) {
+      var ranked = getRanked();
+      var entryRanks = [];
+      ranked.forEach(function(e, idx) {
+        if (idx === 0) entryRanks.push(1);
+        else entryRanks.push(e.total === ranked[idx - 1].total ? entryRanks[idx - 1] : idx + 1);
+      });
+      var teamsToShow = activeTeamIdx >= 0 ? [currentUserTeams[activeTeamIdx]].filter(Boolean) : currentUserTeams;
+      var myRows = '';
+      teamsToShow.forEach(function(activeTeam) {
+        var myIdx = ranked.findIndex(function(e) { return e.email === activeTeam.email && e.team === activeTeam.team; });
+        if (myIdx < 0) return;
+        var myEntry = ranked[myIdx];
+        var myRank = entryRanks[myIdx];
+        var scc = cls(myEntry.total);
+        var myTeamToday = 0, myTodayCount = 0;
+        myEntry.top4.forEach(function(g) {
+          var gd = GOLFER_SCORES[g.name];
+          var td = gd ? gd.todayDisplay : null;
+          if (td && td !== '—') { myTeamToday += td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0; myTodayCount++; }
+        });
+        var myTodayDisp = myTodayCount > 0 ? (myTeamToday > 0 ? '+' + myTeamToday : myTeamToday === 0 ? 'E' : '' + myTeamToday) : '—';
+        var myTodayCls = myTeamToday < 0 ? 'neg' : myTeamToday > 0 ? 'pos' : 'eve';
+        myRows += '<div class="lb-my-row">'
+            + '<span class="lb-my-rank">' + myRank + '</span>'
+            + '<span class="lb-my-name">' + myEntry.team + '</span>'
+            + '<span class="lb-my-today ' + myTodayCls + '">' + myTodayDisp + '</span>'
+            + '<span class="lb-my-total ' + scc + '">' + fmtTeam(myEntry.total) + '</span>'
+            + '</div>';
+      });
+      if (myRows) myHtml = '<div class="lb-my-entries-box">' + myRows + '</div>';
+    }
+    lbMyEl.innerHTML = myHtml;
+  }
+
   var _stickyH = document.querySelector('.lb-sticky-hdr');
   var _colH = document.querySelector('#leaderboard-list .tv-col-hdr');
   if (_stickyH && _colH) _colH.style.top = _stickyH.offsetHeight + 'px';

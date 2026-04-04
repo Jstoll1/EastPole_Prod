@@ -2330,6 +2330,59 @@ to  {
 .my-hero-today.neg { color: #52b788; }
 .my-hero-today.pos { color: #ff7070; }
 .my-hero-today.eve { color: var(--text2); }
+/* Leaderboard My Entries banner */
+.lb-my-entries-box {
+  margin: 4px 10px 6px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.lb-my-row {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  gap: 8px;
+}
+.lb-my-row + .lb-my-row { border-top: 1px solid var(--border); }
+.lb-my-rank {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--text2);
+  width: 24px;
+  flex-shrink: 0;
+}
+.lb-my-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lb-my-today {
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  min-width: 24px;
+  text-align: right;
+}
+.lb-my-today.neg { color: #52b788; }
+.lb-my-today.pos { color: #ff7070; }
+.lb-my-today.eve { color: var(--text2); }
+.lb-my-total {
+  font-size: 13px;
+  font-weight: 900;
+  flex-shrink: 0;
+  min-width: 30px;
+  text-align: right;
+}
+.lb-my-total.neg { color: var(--gold); }
+.lb-my-total.pos { color: #ff6b6b; }
+.lb-my-total.eve { color: var(--text); }
+
 .st-pick-row { padding: 4px 8px 4px 8px; border-left: 3px solid var(--gold); background: rgba(13,31,18,0.5) !important; }
 .st-pick-row.is-bench { opacity: 0.5; }
 .st-pick-row .tv-pos { color: var(--gold); font-size: 10px; }
