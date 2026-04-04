@@ -156,6 +156,12 @@ async function renderActivityList() {
     var rounds = SCORECARD_CACHE[name];
     var gd = GOLFER_SCORES[name];
     if (!rounds || !rounds.length || !gd) return;
+    if (gd.score === 11 || gd.score === 12 || gd.thru === 'MC' || gd.thru === 'WD') return;
+    // Only show holes from the current round (not previous rounds)
+    var thruNum = parseInt(gd.thru);
+    var isOnCourse = !isNaN(thruNum) && thruNum >= 1 && thruNum <= 17;
+    var isFinished = gd.thru === 'F' || gd.thru === '18';
+    if (!isOnCourse && !isFinished) return;
     var withHoles = rounds.filter(function(r) { return r.holes && r.holes.length > 0; });
     var activeRound = withHoles.length ? withHoles[withHoles.length - 1] : null;
     if (!activeRound) return;
