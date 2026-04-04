@@ -79,9 +79,9 @@ async function fetchESPN() {
       var thruRaw = c.status?.thru;
       var lastCompletedRound = lines.filter(function(l) { return l.value && l.value > 50; }).pop();
       var nextTeeStr = '';
-      if (scheduled && lastCompletedRound && teeTime && teeTime.includes('T')) { try { nextTeeStr = new Date(teeTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); } catch(e) {} }
+      if (scheduled && teeTime && teeTime.includes('T')) { try { nextTeeStr = new Date(teeTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); } catch(e) {} }
       var inProgress = state === 'STATUS_IN_PROGRESS';
-      var thru = wd ? 'WD' : mc ? 'MC' : (scheduled ? (lastCompletedRound ? (nextTeeStr || '18') : '—') : (inProgress && thruRaw != null ? (thruRaw > 0 ? String(thruRaw) : '1') : (thruRaw > 0 ? String(thruRaw) : (c.status?.displayValue || 'F'))));
+      var thru = wd ? 'WD' : mc ? 'MC' : (scheduled ? (nextTeeStr || (c.status?.displayValue || 'F')) : (inProgress && thruRaw != null ? (thruRaw > 0 ? String(thruRaw) : '1') : (thruRaw > 0 ? String(thruRaw) : (c.status?.displayValue || 'F'))));
       var startHole = c.status?.startHole || 1;
       var rval = function(idx) { var v = lines[idx]?.value; return (v && v > 50) ? v : null; };
       var tot = lines.reduce(function(s, l) { return (l.value && l.value > 50 ? s + l.value : s); }, 0) || null;
@@ -95,7 +95,10 @@ async function fetchESPN() {
     comps.slice(0, 5).forEach(function(c) {
       var n = resolvePlayerName(c.athlete?.displayName || '?');
       var st = c.status?.type?.name || '';
-      console.log('🔍 ESPN', n, '| state:', st, '| thru:', c.status?.thru, '| disp:', c.status?.displayValue, '| teeTime:', c.status?.teeTime, '| lines:', (c.linescores||[]).map(function(l){return l.value}).join(','));
+      var sched = st === 'STATUS_SCHEDULED';
+      var lines = c.linescores || [];
+      var lastComp = lines.filter(function(l) { return l.value && l.value > 50; }).pop();
+      console.log('🔍 ESPN', n, '| state:', st, '| thru:', c.status?.thru, '| disp:', c.status?.displayValue, '| teeTime:', c.status?.teeTime, '| scheduled:', sched, '| lastCompRound:', lastComp?.value, '| lines:', lines.map(function(l){return l.value}).join(','));
     });
 
     // Detect score changes for animations
