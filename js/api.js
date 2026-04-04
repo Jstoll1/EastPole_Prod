@@ -150,14 +150,14 @@ async function fetchESPN() {
         var maxComp = 0;
         activePlayers.forEach(function(g) { var cnt = [g.r1, g.r2, g.r3, g.r4].filter(function(r) { return r != null; }).length; if (cnt > maxComp) maxComp = cnt; });
         var nextRound = maxComp + 1;
-        setApiStatus('live', 'Rd ' + nextRound + ' Tee Times');
+        setApiStatus('between', 'Rd ' + nextRound);
         if (ROUND_START_ROUND < nextRound) {
           saveRoundStartPositions(nextRound);
           console.log('📌 Saved round-start positions for Rd', nextRound);
         }
       } else if (allDone) {
         var completedRound = [activePlayers[0]?.r4 ? 4 : 0, activePlayers[0]?.r3 ? 3 : 0, activePlayers[0]?.r2 ? 2 : 0, activePlayers[0]?.r1 ? 1 : 0].find(function(r) { return r > 0; }) || 1;
-        setApiStatus('between', 'End of Rd ' + completedRound);
+        setApiStatus('between', 'Rd ' + completedRound + ' Done');
         if (ROUND_START_ROUND < completedRound + 1) {
           saveRoundStartPositions(completedRound + 1);
           console.log('📌 Saved round-start positions for Rd', completedRound + 1);
@@ -176,7 +176,7 @@ async function fetchESPN() {
         if (anyMidRound) {
           setApiStatus('live', 'Live');
         } else {
-          setApiStatus('between', 'Pending');
+          setApiStatus('between', 'Rd ' + (maxCompleted || 1));
         }
       }
     }
