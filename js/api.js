@@ -83,8 +83,6 @@ async function fetchESPN() {
       var st = c.status?.type?.name || '';
       console.log('🔍 ESPN', n, '| state:', st, '| thru:', c.status?.thru, '| disp:', c.status?.displayValue, '| teeTime:', c.status?.teeTime, '| lines:', (c.linescores||[]).map(function(l){return l.value}).join(','));
     });
-      }
-    });
 
     // Detect score changes for animations
     var newChanges = {};
