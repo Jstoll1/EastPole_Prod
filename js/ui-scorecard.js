@@ -42,19 +42,18 @@ async function toggleScorecard(idx, playerName) {
     panel.classList.remove('open');
     panel.innerHTML = '';
     _openScorecardIdx = null;
+    if (_pendingLbRender) renderLeaderboard();
     return;
   }
   if (_openScorecardIdx !== null) {
     var prev = document.getElementById('sc-panel-' + _openScorecardIdx);
     if (prev) { prev.classList.remove('open'); prev.innerHTML = ''; }
     _openScorecardIdx = null;
-    return;
   }
   _openScorecardIdx = idx;
   var escapedName = playerName.replace(/'/g, "\\'");
   panel.innerHTML = '<div class="sc-loading">Loading scorecard…</div>';
   panel.classList.add('open');
-  panel.onclick = function() { panel.classList.remove('open'); panel.innerHTML = ''; panel.onclick = null; _openScorecardIdx = null; };
 
   delete SCORECARD_CACHE[playerName];
   await Promise.all([fetchCourseHoles(), fetchPlayerScorecard(playerName)]);

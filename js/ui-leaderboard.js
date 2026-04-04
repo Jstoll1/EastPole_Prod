@@ -4,6 +4,7 @@ var lbFilter = 'all';
 var lbSearch = '';
 var lbSort = 'score';
 var lbSortAsc = true;
+var _pendingLbRender = false;
 
 function filterLeaderboardSearch() {
   var v = document.getElementById('lb-search').value || '';
@@ -43,7 +44,9 @@ function updateLbSeg() {
 }
 
 function renderLeaderboard() {
-  _openScorecardIdx = null;
+  // Don't re-render while a scorecard is open — it would destroy the panel
+  if (_openScorecardIdx !== null) { _pendingLbRender = true; return; }
+  _pendingLbRender = false;
   var poolNames = new Set(ENTRIES.flatMap(function(e) { return e.picks; }));
   var myPicksMap = getMyPicksMap();
   var myAllPicks = getActiveTeamPicks();
