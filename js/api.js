@@ -77,26 +77,12 @@ async function fetchESPN() {
       var todayDisplay = todayRound?.displayValue || (todayRound?.value > 50 ? (function() { var tp = todayRound.value - COURSE_PAR; return tp === 0 ? 'E' : (tp > 0 ? '+' + tp : String(tp)); })() : '—');
       freshScores[name] = { pos: c.status?.position?.displayName || '—', score: wd ? 12 : mc ? 11 : score, thru: thru, teeTime: teeTime, startHole: startHole, tot: tot, todayDisplay: todayDisplay, r1: rval(0), r2: rval(1), r3: rval(2), r4: rval(3), roundCount: lines.filter(function(l) { return l.value != null; }).length };
     });
-    // Debug: log first 3 non-scheduled players
-    var dbgCount = 0;
-    comps.forEach(function(c) {
-      if (dbgCount >= 3) return;
+    // Debug: log first 5 players with all status fields
+    comps.slice(0, 5).forEach(function(c) {
+      var n = resolvePlayerName(c.athlete?.displayName || '?');
       var st = c.status?.type?.name || '';
-      if (st !== 'STATUS_SCHEDULED') {
-        var n = resolvePlayerName(c.athlete?.displayName || '?');
-        console.log('🔍 ESPN', n, '| state:', st, '| thru:', c.status?.thru, '| disp:', c.status?.displayValue, '| scoreToPar:', c.statistics?.find(function(s){return s.name==='scoreToPar'})?.value, '| lines:', (c.linescores||[]).map(function(l){return l.value}).join(','));
-        dbgCount++;
-      }
+      console.log('🔍 ESPN', n, '| state:', st, '| thru:', c.status?.thru, '| disp:', c.status?.displayValue, '| teeTime:', c.status?.teeTime, '| lines:', (c.linescores||[]).map(function(l){return l.value}).join(','));
     });
-    // Debug: log first 2 scheduled players to check tee times
-    var dbgSch = 0;
-    comps.forEach(function(c) {
-      if (dbgSch >= 2) return;
-      var st = c.status?.type?.name || '';
-      if (st === 'STATUS_SCHEDULED') {
-        var n = resolvePlayerName(c.athlete?.displayName || '?');
-        console.log('🕐 ESPN scheduled', n, '| teeTime:', c.status?.teeTime, '| thru:', c.status?.thru, '| lines:', (c.linescores||[]).map(function(l){return l.value}).join(','));
-        dbgSch++;
       }
     });
 
