@@ -1210,9 +1210,10 @@ html, body  {
 }
 .tv-h-rnd { width: 26px; text-align: right; flex-shrink: 0; color: var(--text3); }
 .tv-h-tot { width: 30px; text-align: right; flex-shrink: 0; }
-.tv-h-sort { cursor: pointer; -webkit-user-select: none; user-select: none; white-space: nowrap; }
+.tv-h-sort { cursor: pointer; -webkit-user-select: none; user-select: none; white-space: nowrap; overflow: hidden; }
 .tv-h-sort:active { opacity: 0.6; }
 .tv-h-active { color: var(--gold) !important; }
+.sort-arrow { font-size: 5px; vertical-align: super; margin-left: 1px; }
 
 .tv-row  {
   display: flex;
