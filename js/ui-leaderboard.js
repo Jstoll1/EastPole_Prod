@@ -298,6 +298,26 @@ function renderLeaderboard() {
         if (idx === 0) entryRanks.push(1);
         else entryRanks.push(e.total === ranked[idx - 1].total ? entryRanks[idx - 1] : idx + 1);
       });
+      // Compute prior-round entry ranks for position arrows
+      var priorEntryRanks = {};
+      if (TOURNAMENT_STARTED) {
+        var priorEntries = ranked.map(function(e) {
+          var priorTotal = 0;
+          e.top4.forEach(function(g) {
+            var gd = GOLFER_SCORES[g.name];
+            var td = gd ? gd.todayDisplay : null;
+            var todayVal = 0;
+            if (td && td !== '—') todayVal = td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0;
+            priorTotal += g.score - todayVal;
+          });
+          return { key: e.team + '|' + e.email, prior: priorTotal };
+        }).sort(function(a, b) { return a.prior - b.prior; });
+        var pRk = 1;
+        priorEntries.forEach(function(pe, idx) {
+          if (idx > 0 && pe.prior !== priorEntries[idx - 1].prior) pRk = idx + 1;
+          priorEntryRanks[pe.key] = pRk;
+        });
+      }
       var teamsToShow = activeTeamIdx >= 0 ? [currentUserTeams[activeTeamIdx]].filter(Boolean) : currentUserTeams;
       var myRows = '';
       teamsToShow.forEach(function(activeTeam) {
@@ -306,6 +326,13 @@ function renderLeaderboard() {
         var myEntry = ranked[myIdx];
         var myRank = entryRanks[myIdx];
         var scc = cls(myEntry.total);
+        var entryKey = myEntry.team + '|' + myEntry.email;
+        var priorRk = priorEntryRanks[entryKey];
+        var moveHtml = '';
+        if (priorRk && priorRk !== myRank) {
+          var mv = priorRk - myRank;
+          moveHtml = mv > 0 ? '<span class="pos-move up">▲' + mv + '</span>' : '<span class="pos-move dn">▼' + Math.abs(mv) + '</span>';
+        }
         var myTeamToday = 0, myTodayCount = 0;
         myEntry.top4.forEach(function(g) {
           var gd = GOLFER_SCORES[g.name];
@@ -315,7 +342,7 @@ function renderLeaderboard() {
         var myTodayDisp = myTodayCount > 0 ? (myTeamToday > 0 ? '+' + myTeamToday : myTeamToday === 0 ? 'E' : '' + myTeamToday) : '—';
         var myTodayCls = myTeamToday < 0 ? 'neg' : myTeamToday > 0 ? 'pos' : 'eve';
         myRows += '<div class="lb-my-row">'
-            + '<span class="lb-my-rank">' + myRank + '</span>'
+            + '<span class="lb-my-rank">' + myRank + moveHtml + '</span>'
             + '<span class="lb-my-name">' + myEntry.team + '</span>'
             + '<span class="lb-my-today ' + myTodayCls + '">' + myTodayDisp + '</span>'
             + '<span class="lb-my-total ' + scc + '">' + fmtTeam(myEntry.total) + '</span>'
