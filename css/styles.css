@@ -1354,6 +1354,11 @@ html, body  {
 }
 .tv-thru.active { color: rgba(255,255,255,0.7); }
 
+/* Tight columns when no tee times — all on course or finished */
+.no-tee-times .tv-h-thru, .no-tee-times .tv-thru { width: 32px; }
+.no-tee-times .tv-h-score, .no-tee-times .tv-score { width: 40px; }
+.no-tee-times .tv-h-today, .no-tee-times .tv-today { width: 40px; margin-left: 4px; }
+
 .tv-rnd  {
   width: 26px;
   font-size: 10px;

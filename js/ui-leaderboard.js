@@ -281,7 +281,10 @@ function renderLeaderboard() {
         + '</div>'
         + '<div class="sc-panel" id="sc-panel-' + ri + '"></div>';
   });
-  document.getElementById('leaderboard-list').innerHTML = colHdr + rows;
+  var lbList = document.getElementById('leaderboard-list');
+  lbList.innerHTML = colHdr + rows;
+  if (anyHaveTeeTime) { lbList.classList.add('has-tee-times'); lbList.classList.remove('no-tee-times'); }
+  else { lbList.classList.add('no-tee-times'); lbList.classList.remove('has-tee-times'); }
 
   var _stickyH = document.querySelector('.lb-sticky-hdr');
   var _colH = document.querySelector('#leaderboard-list .tv-col-hdr');
