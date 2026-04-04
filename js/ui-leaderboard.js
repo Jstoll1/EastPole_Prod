@@ -107,6 +107,25 @@ function renderLeaderboard() {
   else if (lbSort === 'tot') activePlayers.sort(function(a,b) { return ((a.tot||9999) - (b.tot||9999)) * dir; });
   mcPlayers.sort(function(a,b) { return a.score - b.score; });
   players = activePlayers.concat(mcPlayers);
+  // Compute prior positions from FULL field before filtering
+  var fullFieldPriorPosMap = {};
+  if (!isPreT && currentRound >= 2) {
+    var fullPriorScores = players
+      .filter(function(p) { return p.score !== 11 && p.score !== 12; })
+      .map(function(p) {
+        var td = p.todayDisplay;
+        var todayVal = 0;
+        var hasToday = false;
+        if (td && td !== '—') { hasToday = true; todayVal = td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0; }
+        return { name: p.name, prior: hasToday ? p.score - todayVal : p.score };
+      })
+      .sort(function(a, b) { return a.prior - b.prior; });
+    var fpRk = 1;
+    fullPriorScores.forEach(function(ps, idx) {
+      if (idx > 0 && ps.prior !== fullPriorScores[idx - 1].prior) fpRk = idx + 1;
+      fullFieldPriorPosMap[ps.name] = fpRk;
+    });
+  }
   if (lbFilter==='pool') players = players.filter(function(p) { return poolNames.has(p.name); });
   if (lbFilter==='myPicks') players = players.filter(function(p) { return myAllPicks.has(p.name); });
   if (lbSearch) players = players.filter(function(p) { return p.name.toLowerCase().indexOf(lbSearch) !== -1; });
@@ -193,38 +212,14 @@ function renderLeaderboard() {
   var estCutShow = currentRound === 2 && lbSort === 'score' && lbSortAsc && lbFilter === 'all' && !lbSearch;
   var estCutScore = null;
   if (estCutShow) { var cnt = 0; for (var ci = 0; ci < players.length; ci++) { var pp = players[ci]; if (pp.thru !== 'MC') { cnt++; if (cnt === 65) { estCutScore = pp.score; break; } } } }
-  // Compute round-start positions from prior-round scores
-  var priorPosMap = {};
-  if (!isPreT && currentRound >= 2) {
-    var priorScores = players
-      .filter(function(p) { return p.score !== 11 && p.score !== 12; })
-      .map(function(p) {
-        // Parse today's score from ESPN todayDisplay field
-        var td = p.todayDisplay;
-        var todayVal = 0;
-        var hasToday = false;
-        if (td && td !== '—') {
-          hasToday = true;
-          todayVal = td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0;
-        }
-        var priorScore = hasToday ? p.score - todayVal : p.score;
-        return { name: p.name, prior: priorScore };
-      })
-      .sort(function(a, b) { return a.prior - b.prior; });
-    var pRk = 1;
-    priorScores.forEach(function(ps, idx) {
-      if (idx > 0 && ps.prior !== priorScores[idx - 1].prior) pRk = idx + 1;
-      priorPosMap[ps.name] = pRk;
-    });
-  }
+  // Use full-field prior positions for arrows (consistent across filters)
   var arrowPlayers = new Map();
   if (!isPreT && currentRound >= 2) {
     players.forEach(function(p) {
       if (p.score === 11 || p.score === 12) return;
-      // Only show arrows for players actively on the course
       if (p.thru === '—' || (p.thru && p.thru.includes(':'))) return;
       var cP = parsePos(p.pos); if (!cP) return;
-      var sP = priorPosMap[p.name];
+      var sP = fullFieldPriorPosMap[p.name];
       if (sP && sP !== cP) { arrowPlayers.set(p.name, sP - cP); }
     });
   }
