@@ -2048,7 +2048,7 @@ to  {
 .ob-title  {
   font-size: 20px;
   font-weight: 900;
-  color: #fff;
+  color: var(--text);
   letter-spacing: -0.3px;
 }
 
@@ -2119,7 +2119,7 @@ to  {
   justify-content: space-between;
   background: none;
   border: none;
-  color: #fff;
+  color: var(--text);
   font-size: 13px;
   font-weight: 700;
   font-family: inherit;

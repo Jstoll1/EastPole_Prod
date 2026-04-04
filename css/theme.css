@@ -1,123 +1,123 @@
 [data-theme="light"] {
-  --bg: #f5f2eb;
-  --card: #ffffff;
-  --card2: #f0f5f0;
-  --text: #1a2e1a;
-  --text2: #5a6b5a;
-  --text3: #8a9a8a;
-  --border: #d4ddd6;
+  --bg: #f4f1e8;
+  --card: #faf8f3;
+  --card2: #f0ede4;
+  --text: #2c2c2c;
+  --text2: #6b6b60;
+  --text3: #9a9a8e;
+  --border: #ddd8cc;
   --green: #006747;
   --green-light: #1a8a5c;
   --green-bright: #006747;
   --gold-bg: rgba(198,160,60,0.06);
   --gold-dim: rgba(212,168,67,0.4);
-  --red: #c0392b;
+  --red: #b53525;
 }
 [data-theme="light"] .app-header {
   background: #006747;
   border-bottom-color: rgba(212,168,67,0.3);
 }
 [data-theme="light"] .nav-bar {
-  background: #ffffff;
-  border-top-color: #d4ddd6;
+  background: #faf8f3;
+  border-top-color: #ddd8cc;
 }
-[data-theme="light"] .nav-btn { color: #5a6b5a; }
+[data-theme="light"] .nav-btn { color: #9a9a8e; }
 [data-theme="light"] .nav-btn.active { color: #006747; }
 [data-theme="light"] .nav-btn.active::after { background: #006747; }
 [data-theme="light"] .ticker-wrap {
   background: #006747;
 }
-[data-theme="light"] .ticker-label { color: #1a2e1a; }
+[data-theme="light"] .ticker-label { color: #2c2c2c; }
 [data-theme="light"] .ticker-content { color: #ffffff; }
-[data-theme="light"] .seg-btn { background: #f0f5f0; color: #5a6b5a; border-color: #d4ddd6; }
+[data-theme="light"] .seg-btn { background: #f0ede4; color: #6b6b60; border-color: #ddd8cc; }
 [data-theme="light"] .seg-btn.active { background: #006747; color: #ffffff; border-color: #006747; }
-[data-theme="light"] .standing-row { border-bottom-color: #e8ede8; }
+[data-theme="light"] .standing-row { border-bottom-color: #e8e4da; }
 [data-theme="light"] .standing-row.is-my-team { background: rgba(0,103,71,0.04); }
-[data-theme="light"] .tv-row:nth-child(odd) { background: #f8faf8; }
-[data-theme="light"] .tv-row:nth-child(even) { background: #ffffff; }
+[data-theme="light"] .tv-row:nth-child(odd) { background: #faf8f3; }
+[data-theme="light"] .tv-row:nth-child(even) { background: #f4f1e8; }
 [data-theme="light"] .tv-row.tv-mc { opacity: 0.5; }
-[data-theme="light"] .tv-row.is-my-team { background: rgba(0,103,71,0.06); }
-[data-theme="light"] .standing-row.panel-open { background: rgba(0,103,71,0.08); border-left-color: #006747; border-bottom-color: transparent; }
+[data-theme="light"] .tv-row.is-my-team { background: rgba(0,103,71,0.05); }
+[data-theme="light"] .standing-row.panel-open { background: rgba(0,103,71,0.06); border-left-color: #006747; border-bottom-color: transparent; }
 [data-theme="light"] .standing-row.panel-open .s-team { color: #006747; }
 [data-theme="light"] .standing-row.panel-open .s-rank { color: #006747; }
-[data-theme="light"] .picks-panel.open { background: #f5f8f5; border-left-color: #006747; }
-[data-theme="light"] .mini-pick:nth-child(odd) { background: #f0f5f0; }
-[data-theme="light"] .mini-pick:nth-child(even) { background: #ffffff; }
+[data-theme="light"] .picks-panel.open { background: #f7f5ee; border-left-color: #006747; }
+[data-theme="light"] .mini-pick:nth-child(odd) { background: #f0ede4; }
+[data-theme="light"] .mini-pick:nth-child(even) { background: #faf8f3; }
 [data-theme="light"] .mini-pick.is-top { border-left-color: #006747; }
-[data-theme="light"] .sc-nine { background: #ffffff; border-color: #d4ddd6; }
+[data-theme="light"] .sc-nine { background: #faf8f3; border-color: #ddd8cc; }
 [data-theme="light"] .sc-birdie .sc-num { background: #006747; color: #fff; }
-[data-theme="light"] .sc-eagle .sc-num { background: #d4a843; color: #1a2e1a; }
-[data-theme="light"] .sc-bogey .sc-num { color: #c0392b; }
-[data-theme="light"] #debug-panel { background: #f5f2eb; }
-[data-theme="light"] .splash-card { background: #ffffff; }
-[data-theme="light"] .payout-box { background: #ffffff; border-color: #d4ddd6; }
+[data-theme="light"] .sc-eagle .sc-num { background: #d4a843; color: #2c2c2c; }
+[data-theme="light"] .sc-bogey .sc-num { color: #b53525; }
+[data-theme="light"] #debug-panel { background: #f4f1e8; }
+[data-theme="light"] .splash-card { background: #faf8f3; }
+[data-theme="light"] .payout-box { background: #faf8f3; border-color: #ddd8cc; }
 [data-theme="light"] .pos-move.up { color: #006747; }
-[data-theme="light"] .pos-move.dn { color: #c0392b; }
+[data-theme="light"] .pos-move.dn { color: #b53525; }
 [data-theme="light"] .neg { color: #006747; }
-[data-theme="light"] .pos { color: #c0392b; }
-[data-theme="light"] input, [data-theme="light"] select { background: #ffffff; color: #1a2e1a; border-color: #d4ddd6; }
+[data-theme="light"] .pos { color: #b53525; }
+[data-theme="light"] input, [data-theme="light"] select { background: #faf8f3; color: #2c2c2c; border-color: #ddd8cc; }
 [data-theme="light"] .h2h-quick-btn { border-color: #006747; color: #006747; }
-[data-theme="light"] #team-dropdown { background: #ffffff; border-color: #d4ddd6; }
-[data-theme="light"] .tv-header-top { background: linear-gradient(180deg, #f0f5f0 0%, #e8ede8 100%); color: #1a2e1a; }
-[data-theme="light"] #view-leaderboard .tv-header-top { background: linear-gradient(180deg, #f0f5f0 0%, #e8ede8 100%); color: #1a2e1a; }
-[data-theme="light"] .tv-col-hdr { background: #eef3ee; color: #5a6b5a; border-bottom-color: #d4ddd6; }
-[data-theme="light"] .standing-row:nth-child(even) { background: #f8faf8; }
-[data-theme="light"] .standing-row:nth-child(odd) { background: #ffffff; }
-[data-theme="light"] .standing-row:active { background: #eef3ee; }
-[data-theme="light"] .payout-card { background: rgba(0,103,71,0.05); border-color: rgba(0,103,71,0.2); }
-[data-theme="light"] .payout-card.gold { background: rgba(0,103,71,0.08); border-color: rgba(0,103,71,0.3); }
+[data-theme="light"] #team-dropdown { background: #faf8f3; border-color: #ddd8cc; }
+[data-theme="light"] .tv-header-top { background: linear-gradient(180deg, #f0ede4 0%, #e8e4da 100%); color: #2c2c2c; }
+[data-theme="light"] #view-leaderboard .tv-header-top { background: linear-gradient(180deg, #f0ede4 0%, #e8e4da 100%); color: #2c2c2c; }
+[data-theme="light"] .tv-col-hdr { background: #f0ede4; color: #6b6b60; border-bottom-color: #ddd8cc; }
+[data-theme="light"] .standing-row:nth-child(even) { background: #f7f5ee; }
+[data-theme="light"] .standing-row:nth-child(odd) { background: #faf8f3; }
+[data-theme="light"] .standing-row:active { background: #eeebe2; }
+[data-theme="light"] .payout-card { background: rgba(0,103,71,0.04); border-color: rgba(0,103,71,0.15); }
+[data-theme="light"] .payout-card.gold { background: rgba(0,103,71,0.06); border-color: rgba(0,103,71,0.25); }
 [data-theme="light"] .payout-card .pc-amt { color: #006747; }
 [data-theme="light"] .payout-card .pc-lbl { color: #006747; }
-[data-theme="light"] .my-teams-block { background: linear-gradient(135deg, rgba(0,103,71,0.06), rgba(0,103,71,0.02)); border-color: rgba(0,103,71,0.2); }
+[data-theme="light"] .my-teams-block { background: linear-gradient(135deg, rgba(0,103,71,0.05), rgba(0,103,71,0.02)); border-color: rgba(0,103,71,0.15); }
 [data-theme="light"] .my-teams-label { color: #006747; }
-[data-theme="light"] .my-row-team { color: #1a2e1a; }
+[data-theme="light"] .my-row-team { color: #2c2c2c; }
 [data-theme="light"] .my-row-rank { color: #006747; }
 [data-theme="light"] .my-row-payout { color: #006747; }
-[data-theme="light"] .my-row-score.neg { color: #006747; }
-[data-theme="light"] .my-row-score.pos { color: #c0392b; }
-[data-theme="light"] .tv-sub { color: #8a9a8a; }
+[data-theme="light"] .my-row-score.neg { color: #b53525; }
+[data-theme="light"] .my-row-score.pos { color: #006747; }
+[data-theme="light"] .tv-sub { color: #9a9a8e; }
 [data-theme="light"] .tv-title { color: #006747; }
-[data-theme="light"] .s-rank { color: #5a6b5a; }
-[data-theme="light"] .s-team { color: #1a2e1a; }
-[data-theme="light"] .s-name { color: #8a9a8a; }
-[data-theme="light"] .s-arrow { color: #8a9a8a; }
+[data-theme="light"] .s-rank { color: #6b6b60; }
+[data-theme="light"] .s-team { color: #2c2c2c; }
+[data-theme="light"] .s-name { color: #9a9a8e; }
+[data-theme="light"] .s-arrow { color: #9a9a8e; }
 [data-theme="light"] .cmp-btn { background: #006747; color: #fff; border-color: #006747; }
-[data-theme="light"] .td-item { color: #1a2e1a; border-bottom-color: #e8ede8; }
-[data-theme="light"] .td-item.active { background: rgba(0,103,71,0.06); color: #006747; }
-[data-theme="light"] .td-header { color: #5a6b5a; }
-[data-theme="light"] .td-change-btn { color: #006747; border-top-color: #e8ede8; }
-[data-theme="light"] #lb-search { background: rgba(0,103,71,0.06); border-color: #d4ddd6; color: #1a2e1a; }
-[data-theme="light"] #lb-search::placeholder { color: #8a9a8a; }
-[data-theme="light"] #lb-search-clear { color: #5a6b5a; background: rgba(0,0,0,0.06); }
+[data-theme="light"] .td-item { color: #2c2c2c; border-bottom-color: #e8e4da; }
+[data-theme="light"] .td-item.active { background: rgba(0,103,71,0.05); color: #006747; }
+[data-theme="light"] .td-header { color: #6b6b60; }
+[data-theme="light"] .td-change-btn { color: #006747; border-top-color: #e8e4da; }
+[data-theme="light"] #lb-search { background: rgba(0,103,71,0.04); border-color: #ddd8cc; color: #2c2c2c; }
+[data-theme="light"] #lb-search::placeholder { color: #9a9a8e; }
+[data-theme="light"] #lb-search-clear { color: #6b6b60; background: rgba(0,0,0,0.05); }
 [data-theme="light"] .tv-h-today { color: #006747; }
-[data-theme="light"] .pool-info { color: #5a6b5a; }
-[data-theme="light"] .tv-name { color: #1a2e1a; }
-[data-theme="light"] .tv-row.tv-mc .tv-name { color: rgba(0,0,0,0.4); }
+[data-theme="light"] .pool-info { color: #6b6b60; }
+[data-theme="light"] .tv-name { color: #2c2c2c; }
+[data-theme="light"] .tv-row.tv-mc .tv-name { color: rgba(0,0,0,0.35); }
 [data-theme="light"] .ticker-item { color: #ffffff; border-right-color: rgba(255,255,255,0.15); }
 [data-theme="light"] .ticker-item-rank { color: rgba(255,255,255,0.6); }
-[data-theme="light"] .nav-btn { color: #8a9a8a; }
+[data-theme="light"] .nav-btn { color: #9a9a8e; }
 [data-theme="light"] .nav-btn.active { color: #006747; }
-[data-theme="light"] .own-row { border-bottom-color: #e8ede8; }
-[data-theme="light"] .own-row:nth-child(odd) { background: #f8faf8; }
-[data-theme="light"] .own-row:nth-child(even) { background: #ffffff; }
-[data-theme="light"] .own-name { color: #1a2e1a; }
+[data-theme="light"] .own-row { border-bottom-color: #e8e4da; }
+[data-theme="light"] .own-row:nth-child(odd) { background: #faf8f3; }
+[data-theme="light"] .own-row:nth-child(even) { background: #f4f1e8; }
+[data-theme="light"] .own-name { color: #2c2c2c; }
 [data-theme="light"] .own-row.is-my-pick { border-left-color: #006747; }
 [data-theme="light"] .own-row.is-my-pick .own-name { color: #006747; }
-[data-theme="light"] .own-detail-team { border-left-color: #d4ddd6; }
-[data-theme="light"] .own-search { background: #fff; border-color: #d4ddd6; color: #1a2e1a; }
-[data-theme="light"] .own-row:active { background: rgba(0,0,0,0.03); }
+[data-theme="light"] .own-detail-team { border-left-color: #ddd8cc; }
+[data-theme="light"] .own-search { background: #faf8f3; border-color: #ddd8cc; color: #2c2c2c; }
+[data-theme="light"] .own-row:active { background: rgba(0,0,0,0.02); }
 [data-theme="light"] .own-pct { color: #006747; }
-[data-theme="light"] .own-bar-bg { background: #e8ede8; }
-[data-theme="light"] .own-sub { color: #8a9a8a; }
-[data-theme="light"] .mini-pick-name { color: #1a2e1a; }
-[data-theme="light"] .mini-pick-pos { color: #5a6b5a; }
-[data-theme="light"] .mini-pick-rounds { color: #5a6b5a; }
+[data-theme="light"] .own-bar-bg { background: #e8e4da; }
+[data-theme="light"] .own-sub { color: #9a9a8e; }
+[data-theme="light"] .mini-pick-name { color: #2c2c2c; }
+[data-theme="light"] .mini-pick-pos { color: #6b6b60; }
+[data-theme="light"] .mini-pick-rounds { color: #6b6b60; }
 [data-theme="light"] .mini-pick-own { color: #8a7030; opacity: 1; }
 [data-theme="light"] .mini-pick-thru { color: #006747; }
-[data-theme="light"] #activity-drawer { background:#ffffff; }
-[data-theme="light"] .act-tab { color:#8a9a8a; }
+[data-theme="light"] #activity-drawer { background:#faf8f3; }
+[data-theme="light"] .act-tab { color:#9a9a8e; }
 [data-theme="light"] .act-tab.active { color:#006747; border-bottom-color:#006747; }
-[data-theme="light"] .act-text { color:#1a2e1a; }
+[data-theme="light"] .act-text { color:#2c2c2c; }
 [data-theme="light"] #activity-fab { background:#006747; }
-[data-theme="light"] .tv-thru { color: #5a6b5a; }
-[data-theme="light"] .tv-thru.active { color: #1a2e1a; }
+[data-theme="light"] .tv-thru { color: #6b6b60; }
+[data-theme="light"] .tv-thru.active { color: #2c2c2c; }
