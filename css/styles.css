@@ -1338,8 +1338,8 @@ html, body  {
   flex-shrink: 0;
   margin-left: 2px;
 }
-.tv-today.neg { color: #66bb6a; }
-.tv-today.pos { color: var(--red); }
+.tv-today.neg { color: #ff6b6b; }
+.tv-today.pos { color: #66bb6a; }
 .tv-today.eve { color: rgba(255,255,255,0.9); }
 
 .tv-thru  {
