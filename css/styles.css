@@ -1201,7 +1201,7 @@ html, body  {
 .tv-h-player { flex: 1; min-width: 0; }
 .tv-h-score { width: 36px; text-align: center; flex-shrink: 0; }
 .tv-h-today { width: 36px; text-align: center; flex-shrink: 0; margin-left: 2px; color: var(--gold); }
-.tv-h-thru { width: 58px; text-align: right; flex-shrink: 0; margin-left: 2px; }
+.tv-h-thru { width: 58px; text-align: center; flex-shrink: 0; margin-left: 2px; }
 .tv-h-odds { width: 48px; text-align: right; flex-shrink: 0; font-size: 8px; }
 .tv-odds {
   width: 48px; text-align: right; flex-shrink: 0;
@@ -1345,7 +1345,7 @@ html, body  {
   width: 58px;
   font-size: 10px;
   font-weight: 600;
-  text-align: right;
+  text-align: center;
   white-space: nowrap;
   flex-shrink: 0;
   margin-left: 2px;
