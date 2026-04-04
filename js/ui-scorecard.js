@@ -56,9 +56,7 @@ async function toggleScorecard(idx, playerName) {
   panel.classList.add('open');
   panel.onclick = function() { panel.classList.remove('open'); panel.innerHTML = ''; panel.onclick = null; _openScorecardIdx = null; };
 
-  var _gdPre = GOLFER_SCORES[playerName];
-  var _isLive = _gdPre && _gdPre.onCourse;
-  if (_isLive) delete SCORECARD_CACHE[playerName];
+  delete SCORECARD_CACHE[playerName];
   await Promise.all([fetchCourseHoles(), fetchPlayerScorecard(playerName)]);
 
   var rounds = SCORECARD_CACHE[playerName];
@@ -213,9 +211,7 @@ async function toggleStandingsScorecard(panelId, playerName) {
   panel.innerHTML = '<div class="sc-loading">Loading scorecard…</div>';
   panel.classList.add('open');
 
-  var _gdSt = GOLFER_SCORES[playerName];
-  var _isLiveSt = _gdSt && _gdSt.onCourse;
-  if (_isLiveSt) delete SCORECARD_CACHE[playerName];
+  delete SCORECARD_CACHE[playerName];
   await Promise.all([fetchCourseHoles(), fetchPlayerScorecard(playerName)]);
 
   var rounds = SCORECARD_CACHE[playerName];
@@ -362,9 +358,7 @@ async function openScorecardPopup(playerName) {
     if (_cY - _sY > 80) { overlay.remove(); } else { wrap.style.transform = ''; wrap.style.opacity = ''; }
   });
 
-  var _gdCmp = GOLFER_SCORES[playerName];
-  var _isLiveCmp = _gdCmp && _gdCmp.onCourse;
-  if (_isLiveCmp) delete SCORECARD_CACHE[playerName];
+  delete SCORECARD_CACHE[playerName];
   await Promise.all([fetchCourseHoles(), fetchPlayerScorecard(playerName)]);
 
   var rounds = SCORECARD_CACHE[playerName];
