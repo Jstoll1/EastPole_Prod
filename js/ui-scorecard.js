@@ -49,6 +49,8 @@ async function toggleScorecard(idx, playerName) {
     var prev = document.getElementById('sc-panel-' + _openScorecardIdx);
     if (prev) { prev.classList.remove('open'); prev.innerHTML = ''; }
     _openScorecardIdx = null;
+    if (_pendingLbRender) renderLeaderboard();
+    return;
   }
   _openScorecardIdx = idx;
   var escapedName = playerName.replace(/'/g, "\\'");
