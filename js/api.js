@@ -22,9 +22,12 @@ async function fetchESPN() {
       return;
     }
     var evStatus = data.events?.[0]?.status?.type?.name || '';
+    var evDetail = data.events?.[0]?.status?.type?.detail || '';
     var espnRoundNumber = data.events?.[0]?.status?.period || 0;
     if (espnRoundNumber > 0) ESPN_ROUND = espnRoundNumber;
     var isPreTournament = evStatus === 'STATUS_SCHEDULED';
+    var isSuspended = evStatus === 'STATUS_DELAYED' || evStatus === 'STATUS_SUSPENDED' || evStatus === 'STATUS_HALTED' || evDetail.toLowerCase().includes('suspended') || evDetail.toLowerCase().includes('delayed') || evDetail.toLowerCase().includes('darkness');
+    console.log('📡 Event status:', evStatus, '| detail:', evDetail, '| suspended:', isSuspended);
     var wasPre = !TOURNAMENT_STARTED;
     if (!TOURNAMENT_STARTED && !isPreTournament) TOURNAMENT_STARTED = true;
     if (wasPre && TOURNAMENT_STARTED) console.log('🏌️ TOURNAMENT_STARTED flipped to true — event status:', evStatus);
@@ -33,7 +36,7 @@ async function fetchESPN() {
     var openIdx = parts.findIndex(function(w) { return w.toLowerCase() === 'open'; });
     var shortName = openIdx > 0 ? parts.slice(Math.max(0, openIdx - 1), openIdx + 1).join(' ') : fullName;
     var hdrSub = document.getElementById('hdr-sub');
-    if (hdrSub) hdrSub.textContent = shortName + (isPreTournament ? ' · Pre-Tournament' : ' · Live');
+    if (hdrSub) hdrSub.textContent = shortName + (isPreTournament ? ' · Pre-Tournament' : (isSuspended ? ' · Suspended' : ' · Live'));
     var tournLabel = document.getElementById('lb-tournament-label');
     if (tournLabel) tournLabel.textContent = shortName;
 
@@ -126,7 +129,7 @@ async function fetchESPN() {
       setRoundLive(false);
     } else {
       var activePlayers = Object.values(freshScores).filter(function(g) { return g.score !== 11 && g.score !== 12; });
-      var anyMidRound = activePlayers.some(function(g) { return g.onCourse; });
+      var anyMidRound = !isSuspended && activePlayers.some(function(g) { return g.onCourse; });
       var anyTeeTime = activePlayers.some(function(g) { return g.thru && g.thru.includes(':'); });
       setRoundLive(anyMidRound);
       var allDone = !anyMidRound && !anyTeeTime && activePlayers.length > 0 && activePlayers.every(function(g) { return g.thru === 'F' || g.thru === '18' || g.thru === 'MC' || g.thru === 'WD'; });
@@ -157,7 +160,9 @@ async function fetchESPN() {
           saveRoundStartPositions(currentRound);
           console.log('📌 Saved round-start positions for Rd', currentRound);
         }
-        if (anyMidRound) {
+        if (isSuspended) {
+          setApiStatus('between', 'Suspended');
+        } else if (anyMidRound) {
           setApiStatus('live', 'Live');
         } else {
           setApiStatus('between', 'Between Rounds');
