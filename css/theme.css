@@ -86,7 +86,7 @@
 [data-theme="light"] .td-item.active { background: rgba(0,103,71,0.05); color: #006747; }
 [data-theme="light"] .td-header { color: #6b6b60; }
 [data-theme="light"] .td-change-btn { color: #006747; border-top-color: #e8e4da; }
-[data-theme="light"] #lb-search { background: rgba(0,103,71,0.04); border-color: #ddd8cc; color: #2c2c2c; }
+[data-theme="light"] #lb-search { background: #faf8f3; border-color: #ddd8cc; color: #2c2c2c; }
 [data-theme="light"] #lb-search::placeholder { color: #9a9a8e; }
 [data-theme="light"] #lb-search-clear { color: #6b6b60; background: rgba(0,0,0,0.05); }
 [data-theme="light"] .tv-h-today { color: #006747; }
