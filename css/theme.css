@@ -91,8 +91,9 @@
 [data-theme="light"] #lb-search-clear { color: #6b6b60; background: rgba(0,0,0,0.05); }
 [data-theme="light"] .tv-h-today { color: #006747; }
 [data-theme="light"] .pool-info { color: #6b6b60; }
-[data-theme="light"] .tv-name { color: #2c2c2c; }
-[data-theme="light"] .tv-row.tv-mc .tv-name { color: rgba(0,0,0,0.35); }
+[data-theme="light"] .tv-name { color: #004d34; }
+[data-theme="light"] .tv-name.is-my-pick { color: #8a6d1b; }
+[data-theme="light"] .tv-row.tv-mc .tv-name { color: rgba(0,77,52,0.3); }
 [data-theme="light"] .ticker-item { color: #ffffff; border-right-color: rgba(255,255,255,0.15); }
 [data-theme="light"] .ticker-item-rank { color: rgba(255,255,255,0.6); }
 [data-theme="light"] .nav-btn { color: #9a9a8e; }
