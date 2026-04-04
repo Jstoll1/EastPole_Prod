@@ -164,18 +164,16 @@ function getTopMovers(arrowMap) {
   ups.sort(function(a, b) { return b.delta - a.delta; });
   dns.sort(function(a, b) { return b.delta - a.delta; });
   var result = new Map();
-  function assignTiers(list, sign) {
+  // Top 3 movers each direction (include ties at the 3rd spot)
+  function assignTop(list, sign) {
     if (!list.length) return;
-    var tier = 3, prevDelta = null;
+    var cutoff = list.length >= 5 ? list[4].delta : list[list.length - 1].delta;
     list.forEach(function(item) {
-      if (prevDelta !== null && item.delta < prevDelta) tier--;
-      if (tier < 1) return;
-      result.set(item.name, { tier: tier, sign: sign });
-      prevDelta = item.delta;
+      if (item.delta >= cutoff) result.set(item.name, { sign: sign });
     });
   }
-  assignTiers(ups, 'up');
-  assignTiers(dns, 'down');
+  assignTop(ups, 'up');
+  assignTop(dns, 'down');
   return result;
 }
 

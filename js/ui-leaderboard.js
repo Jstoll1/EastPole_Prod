@@ -246,7 +246,7 @@ function renderLeaderboard() {
     var todayCls = todayDisp === '—' ? '' : (todayVal < 0 ? 'neg' : todayVal > 0 ? 'pos' : 'eve');
     var prevP = PREV_POSITIONS[p.name];
     var currP = parsePos(p.pos);
-    var refP = priorPosMap[p.name];
+    var refP = fullFieldPriorPosMap[p.name];
     var roundDelta = (refP && currP) ? refP - currP : 0;
     var moveHtml = '';
     var arrowDelta = arrowPlayers.has(p.name) ? arrowPlayers.get(p.name) : 0;
