@@ -23,11 +23,21 @@ async function fetchESPN() {
     }
     var evStatus = data.events?.[0]?.status?.type?.name || '';
     var evDetail = data.events?.[0]?.status?.type?.detail || '';
+    var evDesc = data.events?.[0]?.status?.type?.description || '';
+    var compStatus = data.events?.[0]?.competitions?.[0]?.status?.type?.name || '';
+    var compDetail = data.events?.[0]?.competitions?.[0]?.status?.type?.detail || '';
+    var allStatusText = (evDetail + ' ' + evDesc + ' ' + compDetail).toLowerCase();
     var espnRoundNumber = data.events?.[0]?.status?.period || 0;
     if (espnRoundNumber > 0) ESPN_ROUND = espnRoundNumber;
     var isPreTournament = evStatus === 'STATUS_SCHEDULED';
-    var isSuspended = evStatus === 'STATUS_DELAYED' || evStatus === 'STATUS_SUSPENDED' || evStatus === 'STATUS_HALTED' || evDetail.toLowerCase().includes('suspended') || evDetail.toLowerCase().includes('delayed') || evDetail.toLowerCase().includes('darkness');
-    console.log('📡 Event status:', evStatus, '| detail:', evDetail, '| suspended:', isSuspended);
+    // Detect suspended play from ESPN status fields
+    var isSuspendedByESPN = evStatus === 'STATUS_DELAYED' || evStatus === 'STATUS_SUSPENDED' || evStatus === 'STATUS_HALTED' || compStatus === 'STATUS_DELAYED' || compStatus === 'STATUS_SUSPENDED' || compStatus === 'STATUS_HALTED' || allStatusText.includes('suspended') || allStatusText.includes('delayed') || allStatusText.includes('darkness') || allStatusText.includes('halted');
+    // Fallback: golf doesn't happen at night — San Antonio is CT (UTC-5/-6)
+    var nowUTC = new Date();
+    var ctHour = (nowUTC.getUTCHours() - 5 + 24) % 24; // CDT = UTC-5
+    var isNightTime = ctHour >= 21 || ctHour < 6; // 9 PM - 6 AM CT
+    var isSuspended = isSuspendedByESPN || isNightTime;
+    console.log('📡 Event status:', evStatus, '| detail:', evDetail, '| compStatus:', compStatus, '| compDetail:', compDetail, '| ctHour:', ctHour, '| nightTime:', isNightTime, '| suspended:', isSuspended);
     var wasPre = !TOURNAMENT_STARTED;
     if (!TOURNAMENT_STARTED && !isPreTournament) TOURNAMENT_STARTED = true;
     if (wasPre && TOURNAMENT_STARTED) console.log('🏌️ TOURNAMENT_STARTED flipped to true — event status:', evStatus);
