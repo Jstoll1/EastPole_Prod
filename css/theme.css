@@ -119,3 +119,5 @@
 [data-theme="light"] .act-tab.active { color:#006747; border-bottom-color:#006747; }
 [data-theme="light"] .act-text { color:#1a2e1a; }
 [data-theme="light"] #activity-fab { background:#006747; }
+[data-theme="light"] .tv-thru { color: #5a6b5a; }
+[data-theme="light"] .tv-thru.active { color: #1a2e1a; }
