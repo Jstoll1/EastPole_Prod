@@ -216,7 +216,7 @@ function renderLeaderboard() {
   // Use full-field prior positions for arrows (consistent across filters)
   var arrowPlayers = new Map();
   if (!isPreT && currentRound >= 2) {
-    players.forEach(function(p) {
+    allPlayers.forEach(function(p) {
       if (p.score === 11 || p.score === 12) return;
       if (p.thru === '—' || (p.thru && p.thru.includes(':'))) return;
       var cP = parsePos(p.pos); if (!cP) return;
