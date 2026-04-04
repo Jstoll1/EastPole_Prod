@@ -88,6 +88,17 @@ async function fetchESPN() {
         dbgCount++;
       }
     });
+    // Debug: log first 2 scheduled players to check tee times
+    var dbgSch = 0;
+    comps.forEach(function(c) {
+      if (dbgSch >= 2) return;
+      var st = c.status?.type?.name || '';
+      if (st === 'STATUS_SCHEDULED') {
+        var n = resolvePlayerName(c.athlete?.displayName || '?');
+        console.log('🕐 ESPN scheduled', n, '| teeTime:', c.status?.teeTime, '| thru:', c.status?.thru, '| lines:', (c.linescores||[]).map(function(l){return l.value}).join(','));
+        dbgSch++;
+      }
+    });
 
     // Detect score changes for animations
     var newChanges = {};
