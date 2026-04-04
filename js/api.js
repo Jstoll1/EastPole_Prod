@@ -30,14 +30,7 @@ async function fetchESPN() {
     var espnRoundNumber = data.events?.[0]?.status?.period || 0;
     if (espnRoundNumber > 0) ESPN_ROUND = espnRoundNumber;
     var isPreTournament = evStatus === 'STATUS_SCHEDULED';
-    // Detect suspended play from ESPN status fields
-    var isSuspendedByESPN = evStatus === 'STATUS_DELAYED' || evStatus === 'STATUS_SUSPENDED' || evStatus === 'STATUS_HALTED' || compStatus === 'STATUS_DELAYED' || compStatus === 'STATUS_SUSPENDED' || compStatus === 'STATUS_HALTED' || allStatusText.includes('suspended') || allStatusText.includes('delayed') || allStatusText.includes('darkness') || allStatusText.includes('halted');
-    // Fallback: golf doesn't happen at night — San Antonio is CT (UTC-5/-6)
-    var nowUTC = new Date();
-    var ctHour = (nowUTC.getUTCHours() - 5 + 24) % 24; // CDT = UTC-5
-    var isNightTime = ctHour >= 21 || ctHour < 5; // 9 PM - 5 AM CT
-    var isSuspended = isSuspendedByESPN || isNightTime;
-    console.log('📡 Event status:', evStatus, '| detail:', evDetail, '| compStatus:', compStatus, '| compDetail:', compDetail, '| ctHour:', ctHour, '| nightTime:', isNightTime, '| suspended:', isSuspended);
+    console.log('📡 Event status:', evStatus, '| detail:', evDetail, '| compStatus:', compStatus, '| compDetail:', compDetail);
     var wasPre = !TOURNAMENT_STARTED;
     if (!TOURNAMENT_STARTED && !isPreTournament) TOURNAMENT_STARTED = true;
     if (wasPre && TOURNAMENT_STARTED) console.log('🏌️ TOURNAMENT_STARTED flipped to true — event status:', evStatus);
@@ -46,7 +39,7 @@ async function fetchESPN() {
     var openIdx = parts.findIndex(function(w) { return w.toLowerCase() === 'open'; });
     var shortName = openIdx > 0 ? parts.slice(Math.max(0, openIdx - 1), openIdx + 1).join(' ') : fullName;
     var hdrSub = document.getElementById('hdr-sub');
-    if (hdrSub) hdrSub.textContent = shortName + (isPreTournament ? ' · Pre-Tournament' : (isSuspended ? '' : ' · Live'));
+    if (hdrSub) hdrSub.textContent = shortName;
     var tournLabel = document.getElementById('lb-tournament-label');
     if (tournLabel) tournLabel.textContent = shortName;
 
@@ -142,8 +135,8 @@ async function fetchESPN() {
       setRoundLive(false);
     } else {
       var activePlayers = Object.values(freshScores).filter(function(g) { return g.score !== 11 && g.score !== 12; });
-      var anyMidRound = !isSuspended && activePlayers.some(function(g) { return g.onCourse; });
       var anyTeeTime = activePlayers.some(function(g) { return g.thru && g.thru.includes(':'); });
+      var anyMidRound = !anyTeeTime && activePlayers.some(function(g) { return g.onCourse; });
       setRoundLive(anyMidRound);
       var allDone = !anyMidRound && !anyTeeTime && activePlayers.length > 0 && activePlayers.every(function(g) { return g.thru === 'F' || g.thru === '18' || g.thru === 'MC' || g.thru === 'WD'; });
       if (anyTeeTime && !anyMidRound) {
@@ -173,12 +166,10 @@ async function fetchESPN() {
           saveRoundStartPositions(currentRound);
           console.log('📌 Saved round-start positions for Rd', currentRound);
         }
-        if (isSuspended) {
-          setApiStatus('between', 'Pending');
-        } else if (anyMidRound) {
+        if (anyMidRound) {
           setApiStatus('live', 'Live');
         } else {
-          setApiStatus('between', 'Between Rounds');
+          setApiStatus('between', 'Pending');
         }
       }
     }
