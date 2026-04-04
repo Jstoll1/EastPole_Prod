@@ -174,29 +174,38 @@ async function renderActivityList() {
     for (var ri = 0; ri < roundNum - 1; ri++) {
       if (rounds[ri] && rounds[ri].value && rounds[ri].value > 50) priorRoundsPar += (rounds[ri].value - COURSE_PAR);
     }
+    var playerThru = isFinished ? 18 : (isOnCourse ? thruNum : 0);
     var runningScore = priorRoundsPar;
     activeRound.holes.forEach(function(h) {
       if (!h.strokes || !h.par) return;
       runningScore += (h.strokes - h.par);
       var vs = h.strokes - h.par;
+      if (vs === 0) return; // Skip pars
       var icon, label, type;
       if (vs <= -2) { icon = '🦅'; label = 'eagles'; type = 'eagle'; }
       else if (vs === -1) { icon = '🐦'; label = 'birdies'; type = 'birdie'; }
-      else if (vs === 0) { icon = '⛳'; label = 'pars'; type = 'par'; }
       else if (vs === 1) { icon = '🟡'; label = 'bogeys'; type = 'bogey'; }
       else if (vs === 2) { icon = '🔴'; label = 'double bogeys'; type = 'double'; }
       else { icon = '⛔'; label = '+' + vs + ' on'; type = 'worse'; }
       var scCls = runningScore < 0 ? 'neg' : runningScore > 0 ? 'pos' : 'eve';
+      // Recency: holes near player's current thru are most recent
+      var recency = playerThru - (playerThru - h.hole);
       items.push({
         player: name, hole: h.hole, type: type, icon: icon,
         text: '<strong>' + flag + ' ' + name + '</strong>' + emojiTag + ' ' + label + ' Hole ' + h.hole + ' <span class="act-meta">P' + h.par + '</span>: <span class="act-score ' + scCls + '">' + fmt(runningScore) + '</span>',
-        sortKey: h.hole
+        sortKey: h.hole,
+        holesAgo: playerThru - h.hole,
+        stillPlaying: isOnCourse
       });
     });
   });
 
-  // Sort: most recent hole first (highest hole number)
-  items.sort(function(a, b) { return b.sortKey - a.sortKey || a.player.localeCompare(b.player); });
+  // Sort by recency: fewest holes ago first, on-course players before finished
+  items.sort(function(a, b) {
+    if (a.holesAgo !== b.holesAgo) return a.holesAgo - b.holesAgo;
+    if (a.stillPlaying !== b.stillPlaying) return a.stillPlaying ? -1 : 1;
+    return a.player.localeCompare(b.player);
+  });
 
   if (!items.length) {
     el.innerHTML = '<div class="act-empty">' +
