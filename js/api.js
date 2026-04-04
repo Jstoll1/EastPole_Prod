@@ -143,7 +143,7 @@ async function fetchESPN() {
     } else {
       var activePlayers = Object.values(freshScores).filter(function(g) { return g.score !== 11 && g.score !== 12; });
       var anyTeeTime = activePlayers.some(function(g) { return g.thru && g.thru.includes(':'); });
-      var anyMidRound = !anyTeeTime && activePlayers.some(function(g) { return g.onCourse; });
+      var anyMidRound = activePlayers.some(function(g) { return g.onCourse; });
       setRoundLive(anyMidRound);
       var allDone = !anyMidRound && !anyTeeTime && activePlayers.length > 0 && activePlayers.every(function(g) { return g.thru === 'F' || g.thru === '18' || g.thru === 'MC' || g.thru === 'WD'; });
       if (anyTeeTime && !anyMidRound) {
