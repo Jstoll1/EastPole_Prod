@@ -7,7 +7,13 @@ var MAX_ACTIVITY = 300;
 var _actOpen = false;
 var _actUnseen = 0;
 var _roundLive = false;
+var HOLE_TIMESTAMPS = {};
 var _ACT_STORAGE_KEY = 'eastpole_activity';
+var _HOLE_TS_KEY = 'eastpole_hole_ts';
+
+// Load hole timestamps from localStorage
+try { HOLE_TIMESTAMPS = JSON.parse(localStorage.getItem(_HOLE_TS_KEY) || '{}'); } catch(e) { HOLE_TIMESTAMPS = {}; }
+function _saveHoleTimestamps() { try { localStorage.setItem(_HOLE_TS_KEY, JSON.stringify(HOLE_TIMESTAMPS)); } catch(e) {} }
 var _ACT_SEEN_KEY = 'eastpole_activity_seen';
 
 // One-time clear of old-format activity, then load
@@ -188,20 +194,23 @@ async function renderActivityList() {
       else if (vs === 2) { icon = '🔴'; label = 'double bogeys'; type = 'double'; }
       else { icon = '⛔'; label = '+' + vs + ' on'; type = 'worse'; }
       var scCls = runningScore < 0 ? 'neg' : runningScore > 0 ? 'pos' : 'eve';
-      // Recency: holes near player's current thru are most recent
-      var recency = playerThru - (playerThru - h.hole);
+      var holeTs = HOLE_TIMESTAMPS[name + '-' + h.hole] || 0;
       items.push({
         player: name, hole: h.hole, type: type, icon: icon,
         text: '<strong>' + flag + ' ' + name + '</strong>' + emojiTag + ' ' + label + ' Hole ' + h.hole + ' <span class="act-meta">P' + h.par + '</span>: <span class="act-score ' + scCls + '">' + fmt(runningScore) + '</span>',
         sortKey: h.hole,
         holesAgo: playerThru - h.hole,
-        stillPlaying: isOnCourse
+        stillPlaying: isOnCourse,
+        timestamp: holeTs
       });
     });
   });
 
-  // Sort by recency: fewest holes ago first, on-course players before finished
+  // Sort by recency: timestamp first (newest on top), then holesAgo fallback
   items.sort(function(a, b) {
+    if (a.timestamp && b.timestamp) return b.timestamp - a.timestamp;
+    if (a.timestamp && !b.timestamp) return -1;
+    if (!a.timestamp && b.timestamp) return 1;
     if (a.holesAgo !== b.holesAgo) return a.holesAgo - b.holesAgo;
     if (a.stillPlaying !== b.stillPlaying) return a.stillPlaying ? -1 : 1;
     return a.player.localeCompare(b.player);
@@ -220,10 +229,15 @@ async function renderActivityList() {
     var typeCls = a.type ? ' act-' + a.type : '';
     var ownE = a.player && OWNERSHIP_DATA ? OWNERSHIP_DATA.find(function(o) { return o.player === a.player; }) : null;
     var ownTag = ownE ? ' <span class="act-own">' + Math.round(ownE.pct * 100) + '%</span>' : '';
+    var tsTag = '';
+    if (a.timestamp) {
+      var d = new Date(a.timestamp);
+      tsTag = ' <span class="act-time">' + d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) + '</span>';
+    }
     var escapedPlayer = a.player.replace(/'/g, "\\'");
     return '<div class="act-item' + typeCls + '" onclick="openScorecardPopup(\'' + escapedPlayer + '\')" style="cursor:pointer">' +
       '<div class="act-icon">' + a.icon + '</div>' +
-      '<div class="act-body"><div class="act-text">' + a.text + ownTag + '</div>' +
+      '<div class="act-body"><div class="act-text">' + a.text + ownTag + tsTag + '</div>' +
       '</div></div>';
   }).join('') + '<div class="act-end">You\'re all caught up</div>';
   _actRendering = false;
@@ -262,6 +276,12 @@ async function detectGolfActivity(freshScores) {
     var thruNum = parseInt(d.thru);
     var thruNow = !isNaN(thruNum) ? thruNum : (d.thru === 'F' || d.thru === '18' ? 18 : 0);
     if (isNaN(prevThruNum) || thruNow <= prevThruNum) return;
+    // Record timestamps for each hole completed
+    var now = Date.now();
+    for (var hh = prevThruNum + 1; hh <= thruNow; hh++) {
+      HOLE_TIMESTAMPS[name + '-' + hh] = now;
+    }
+    _saveHoleTimestamps();
     updates.push({ name: name, d: d, prev: prev, prevThruNum: prevThruNum, thruNow: thruNow });
   });
   if (!updates.length) return;
