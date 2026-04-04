@@ -129,7 +129,7 @@ async function fetchESPN() {
       var activePlayers = Object.values(freshScores).filter(function(g) { return g.score !== 11 && g.score !== 12; });
       var anyMidRound = activePlayers.some(function(g) { return /^\d+$/.test(g.thru) && parseInt(g.thru) >= 1 && parseInt(g.thru) <= 17; });
       var anyTeeTime = activePlayers.some(function(g) { return g.thru && g.thru.includes(':'); });
-      setRoundLive(anyMidRound || anyTeeTime);
+      setRoundLive(anyMidRound);
       var allDone = !anyMidRound && !anyTeeTime && activePlayers.length > 0 && activePlayers.every(function(g) { return g.thru === 'F' || g.thru === '18' || g.thru === 'MC' || g.thru === 'WD'; });
       if (anyTeeTime && !anyMidRound) {
         var maxComp = 0;
@@ -183,7 +183,7 @@ function setApiStatus(state, text) {
   dot.className = 'live-dot' + (state === 'live' ? ' on' : '');
   document.getElementById('hdr-status').textContent = text;
   var ticker = document.querySelector('.ticker-label');
-  if (ticker) ticker.textContent = state === 'live' ? 'LIVE' : (_tickerMode === 'entries' ? 'POOL' : 'FIELD');
+  if (ticker) ticker.textContent = _tickerMode === 'entries' ? 'POOL' : 'PGA';
 }
 
 function refreshData() { setApiStatus('', 'Refreshing…'); fetchESPN(); }

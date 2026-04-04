@@ -6,7 +6,7 @@ function toggleTickerMode() {
   _tickerMode = _tickerMode === 'entries' ? 'golfers' : 'entries';
   trackEvent('ticker-toggle-' + _tickerMode);
   var label = document.querySelector('.ticker-label');
-  if (label) label.textContent = _tickerMode === 'entries' ? 'POOL' : 'FIELD';
+  if (label) label.textContent = _tickerMode === 'entries' ? 'POOL' : 'PGA';
   var track = document.querySelector('.ticker-track');
   if (track) track.scrollLeft = 0;
   renderTicker();
