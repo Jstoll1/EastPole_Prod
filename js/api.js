@@ -72,16 +72,23 @@ async function fetchESPN() {
       var thruRaw = c.status?.thru;
       var lastCompletedRound = lines.filter(function(l) { return l.value && l.value > 50; }).pop();
       var nextTeeStr = '';
-      if (scheduled && teeTime && teeTime.includes('T')) { try { nextTeeStr = new Date(teeTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); } catch(e) {} }
+      if (teeTime && teeTime.includes('T')) { try { nextTeeStr = new Date(teeTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); } catch(e) {} }
       var inProgress = state === 'STATUS_IN_PROGRESS';
-      var thru = wd ? 'WD' : mc ? 'MC' : (scheduled ? (nextTeeStr || (c.status?.displayValue || 'F')) : (inProgress && thruRaw != null ? (thruRaw > 0 ? String(thruRaw) : '1') : (thruRaw > 0 ? String(thruRaw) : (c.status?.displayValue || 'F'))));
+      var activelyPlaying = inProgress && thruRaw != null && thruRaw > 0 && thruRaw < 18;
+      var thru;
+      if (wd) { thru = 'WD'; }
+      else if (mc) { thru = 'MC'; }
+      else if (activelyPlaying) { thru = String(thruRaw); }
+      else if (nextTeeStr) { thru = nextTeeStr; }
+      else if (scheduled) { thru = c.status?.displayValue || 'F'; }
+      else { thru = thruRaw > 0 ? String(thruRaw) : (c.status?.displayValue || 'F'); }
       var startHole = c.status?.startHole || 1;
       var rval = function(idx) { var v = lines[idx]?.value; return (v && v > 50) ? v : null; };
       var tot = lines.reduce(function(s, l) { return (l.value && l.value > 50 ? s + l.value : s); }, 0) || null;
       var activeRndIdx = lines.findIndex(function(l, i) { return l.value != null && !(l.value > 50 && lines[i + 1]?.value != null); });
       var todayRound = scheduled ? lastCompletedRound : lines[activeRndIdx >= 0 ? activeRndIdx : 0];
       var todayDisplay = todayRound?.displayValue || (todayRound?.value > 50 ? (function() { var tp = todayRound.value - COURSE_PAR; return tp === 0 ? 'E' : (tp > 0 ? '+' + tp : String(tp)); })() : '—');
-      var onCourse = inProgress && thruRaw != null && thruRaw < 18;
+      var onCourse = activelyPlaying;
       freshScores[name] = { pos: c.status?.position?.displayName || '—', score: wd ? 12 : mc ? 11 : score, thru: thru, teeTime: teeTime, startHole: startHole, tot: tot, todayDisplay: todayDisplay, r1: rval(0), r2: rval(1), r3: rval(2), r4: rval(3), roundCount: lines.filter(function(l) { return l.value != null; }).length, onCourse: onCourse };
     });
     // Debug: log first 5 players with all status fields
