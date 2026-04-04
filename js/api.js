@@ -75,7 +75,8 @@ async function fetchESPN() {
       var activeRndIdx = lines.findIndex(function(l, i) { return l.value != null && !(l.value > 50 && lines[i + 1]?.value != null); });
       var todayRound = scheduled ? lastCompletedRound : lines[activeRndIdx >= 0 ? activeRndIdx : 0];
       var todayDisplay = todayRound?.displayValue || (todayRound?.value > 50 ? (function() { var tp = todayRound.value - COURSE_PAR; return tp === 0 ? 'E' : (tp > 0 ? '+' + tp : String(tp)); })() : '—');
-      freshScores[name] = { pos: c.status?.position?.displayName || '—', score: wd ? 12 : mc ? 11 : score, thru: thru, teeTime: teeTime, startHole: startHole, tot: tot, todayDisplay: todayDisplay, r1: rval(0), r2: rval(1), r3: rval(2), r4: rval(3), roundCount: lines.filter(function(l) { return l.value != null; }).length };
+      var onCourse = inProgress && thruRaw != null && thruRaw < 18;
+      freshScores[name] = { pos: c.status?.position?.displayName || '—', score: wd ? 12 : mc ? 11 : score, thru: thru, teeTime: teeTime, startHole: startHole, tot: tot, todayDisplay: todayDisplay, r1: rval(0), r2: rval(1), r3: rval(2), r4: rval(3), roundCount: lines.filter(function(l) { return l.value != null; }).length, onCourse: onCourse };
     });
     // Debug: log first 5 players with all status fields
     comps.slice(0, 5).forEach(function(c) {
@@ -125,7 +126,7 @@ async function fetchESPN() {
       setRoundLive(false);
     } else {
       var activePlayers = Object.values(freshScores).filter(function(g) { return g.score !== 11 && g.score !== 12; });
-      var anyMidRound = activePlayers.some(function(g) { return /^\d+$/.test(g.thru) && parseInt(g.thru) >= 1 && parseInt(g.thru) <= 17; });
+      var anyMidRound = activePlayers.some(function(g) { return g.onCourse; });
       var anyTeeTime = activePlayers.some(function(g) { return g.thru && g.thru.includes(':'); });
       setRoundLive(anyMidRound);
       var allDone = !anyMidRound && !anyTeeTime && activePlayers.length > 0 && activePlayers.every(function(g) { return g.thru === 'F' || g.thru === '18' || g.thru === 'MC' || g.thru === 'WD'; });
