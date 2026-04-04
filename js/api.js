@@ -157,7 +157,11 @@ async function fetchESPN() {
           saveRoundStartPositions(currentRound);
           console.log('📌 Saved round-start positions for Rd', currentRound);
         }
-        setApiStatus('live', 'Live');
+        if (anyMidRound) {
+          setApiStatus('live', 'Live');
+        } else {
+          setApiStatus('between', 'Between Rounds');
+        }
       }
     }
     console.log('✅ ESPN API returned', Object.keys(GOLFER_SCORES).length, 'golfers');
