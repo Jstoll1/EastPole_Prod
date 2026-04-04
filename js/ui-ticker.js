@@ -31,7 +31,7 @@ function renderTicker() {
       });
     }
     var active = players.filter(function(p) { return p.score < 11; });
-    active.sort(function(a, b) { return b.score - a.score; });
+    active.sort(function(a, b) { return a.score - b.score; });
     items = active.map(function(p) {
       var scf = fmt(p.score);
       var scc = cls(p.score);
@@ -46,10 +46,8 @@ function renderTicker() {
       if (i === 0) ranks.push(1);
       else ranks.push(e.total === ranked[i - 1].total ? ranks[i - 1] : i + 1);
     });
-    // Reverse: worst first, best last (ticker scrolls left, so leader appears at end)
-    var reversed = ranked.map(function(e, i) { return { entry: e, rank: ranks[i] }; }).reverse();
-    items = reversed.map(function(obj) {
-      var e = obj.entry, rank = obj.rank;
+    items = ranked.map(function(e, i) {
+      var rank = ranks[i];
       var scf = fmtTeam(e.total);
       var scc = cls(e.total);
       var money = rank <= 3 ? ' 💰' : '';
