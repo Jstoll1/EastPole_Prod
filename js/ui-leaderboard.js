@@ -107,25 +107,7 @@ function renderLeaderboard() {
   else if (lbSort === 'tot') activePlayers.sort(function(a,b) { return ((a.tot||9999) - (b.tot||9999)) * dir; });
   mcPlayers.sort(function(a,b) { return a.score - b.score; });
   players = activePlayers.concat(mcPlayers);
-  // Compute prior positions from FULL field before filtering
-  var fullFieldPriorPosMap = {};
-  if (!isPreT && currentRound >= 2) {
-    var fullPriorScores = players
-      .filter(function(p) { return p.score !== 11 && p.score !== 12; })
-      .map(function(p) {
-        var td = p.todayDisplay;
-        var todayVal = 0;
-        var hasToday = false;
-        if (td && td !== '—') { hasToday = true; todayVal = td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0; }
-        return { name: p.name, prior: hasToday ? p.score - todayVal : p.score };
-      })
-      .sort(function(a, b) { return a.prior - b.prior; });
-    var fpRk = 1;
-    fullPriorScores.forEach(function(ps, idx) {
-      if (idx > 0 && ps.prior !== fullPriorScores[idx - 1].prior) fpRk = idx + 1;
-      fullFieldPriorPosMap[ps.name] = fpRk;
-    });
-  }
+  var allPlayers = players;
   if (lbFilter==='pool') players = players.filter(function(p) { return poolNames.has(p.name); });
   if (lbFilter==='myPicks') players = players.filter(function(p) { return myAllPicks.has(p.name); });
   if (lbSearch) players = players.filter(function(p) { return p.name.toLowerCase().indexOf(lbSearch) !== -1; });
@@ -181,6 +163,25 @@ function renderLeaderboard() {
     }
   }
   var isPreT = false;
+  // Compute prior positions from FULL field (before filtering) for arrows
+  var fullFieldPriorPosMap = {};
+  if (!isPreT && currentRound >= 2) {
+    var fullPriorScores = allPlayers
+      .filter(function(p) { return p.score !== 11 && p.score !== 12; })
+      .map(function(p) {
+        var td = p.todayDisplay;
+        var todayVal = 0;
+        var hasToday = false;
+        if (td && td !== '—') { hasToday = true; todayVal = td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0; }
+        return { name: p.name, prior: hasToday ? p.score - todayVal : p.score };
+      })
+      .sort(function(a, b) { return a.prior - b.prior; });
+    var fpRk = 1;
+    fullPriorScores.forEach(function(ps, idx) {
+      if (idx > 0 && ps.prior !== fullPriorScores[idx - 1].prior) fpRk = idx + 1;
+      fullFieldPriorPosMap[ps.name] = fpRk;
+    });
+  }
   var roundLabels = ['FIRST ROUND','FIRST ROUND','SECOND ROUND','THIRD ROUND','FINAL ROUND'];
   var endOfRoundLabels = ['','END OF ROUND 1','END OF ROUND 2','END OF ROUND 3','FINAL ROUND'];
   var tvTitle = document.getElementById('lb-round-title');
