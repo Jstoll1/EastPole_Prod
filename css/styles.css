@@ -331,6 +331,48 @@ html, body  {
   background: rgba(245,197,24,0.1);
 }
 
+.payout-card.final  {
+  border-color: rgba(245,197,24,0.5);
+  box-shadow: 0 0 12px rgba(245,197,24,0.15);
+}
+
+.payout-card.final.gold  {
+  border-color: rgba(245,197,24,0.7);
+  box-shadow: 0 0 20px rgba(245,197,24,0.25);
+  background: rgba(245,197,24,0.15);
+}
+
+.payout-card .pc-tb  {
+  font-size: 8px;
+  color: var(--text3);
+  margin-top: 1px;
+  white-space: nowrap;
+}
+
+.payout-badge  {
+  display: inline-block;
+  background: rgba(245,197,24,0.12);
+  border: 1px solid rgba(245,197,24,0.3);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text2);
+  margin-left: 8px;
+}
+
+.payout-badge.gold  {
+  color: #f5c518;
+  border-color: rgba(245,197,24,0.5);
+  background: rgba(245,197,24,0.18);
+}
+
+.final-label  {
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+}
+
 .payout-row  {
   display: flex;
   align-items: center;
@@ -824,6 +866,8 @@ html, body  {
 .tv-row.st-row.panel-open .st-expand-arrow { display: inline; }
 .tv-row.st-row.panel-open .tv-name { color: var(--gold); }
 .tv-row.st-row.panel-open .tv-pos { color: var(--gold); }
+.tv-row.st-row.in-money { background: rgba(245,197,24,0.06); }
+.tv-row.st-row.in-money .tv-pos { font-size: 14px; }
 .picks-panel.open  {
   display: block;
   background: rgba(13,31,18,0.5);

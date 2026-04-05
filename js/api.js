@@ -138,6 +138,20 @@ async function fetchESPN() {
     ATHLETE_IDS = freshAthleteIds;
     lastFetchTime = Date.now();
 
+    // Detect tournament final + winning score for tiebreaker resolution
+    var _actives = Object.values(freshScores).filter(function(g) { return g.score !== 11 && g.score !== 12; });
+    var _maxR = 0;
+    _actives.forEach(function(g) { var cnt = [g.r1,g.r2,g.r3,g.r4].filter(function(r){return r!=null && r>50;}).length; if(cnt>_maxR) _maxR=cnt; });
+    var _allFinished = _actives.length > 0 && _actives.every(function(g) { return g.thru==='F'||g.thru==='18'; });
+    TOURNEY_FINAL = _maxR >= 4 && _allFinished;
+    if (TOURNEY_FINAL) {
+      var lowestScore = Infinity;
+      _actives.forEach(function(g) { if (g.score < lowestScore) lowestScore = g.score; });
+      WINNING_SCORE = lowestScore === Infinity ? null : lowestScore;
+    } else {
+      WINNING_SCORE = null;
+    }
+
     // Determine round status
     if (isPreTournament) {
       setApiStatus('scheduled', 'Pre-Tournament');

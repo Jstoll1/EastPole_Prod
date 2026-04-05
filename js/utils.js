@@ -78,7 +78,21 @@ function calcEntry(e) {
 }
 
 function getRanked() {
-  return ENTRIES.map(calcEntry).sort(function(a, b) { return a.total - b.total; });
+  return ENTRIES.map(calcEntry).sort(function(a, b) {
+    if (a.total !== b.total) return a.total - b.total;
+    // Tiebreaker: closest to actual winning score (only when tournament is final)
+    if (TOURNEY_FINAL && WINNING_SCORE !== null && a.tb != null && b.tb != null) {
+      var aDiff = Math.abs(a.tb - WINNING_SCORE);
+      var bDiff = Math.abs(b.tb - WINNING_SCORE);
+      if (aDiff !== bDiff) return aDiff - bDiff;
+    }
+    return 0;
+  });
+}
+
+function getTbDiff(entry) {
+  if (!TOURNEY_FINAL || WINNING_SCORE === null || entry.tb == null) return null;
+  return Math.abs(entry.tb - WINNING_SCORE);
 }
 
 function computeOwnership() {

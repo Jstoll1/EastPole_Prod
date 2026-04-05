@@ -66,10 +66,15 @@ function renderStandings() {
   var tourneyDone = maxCompleted >= 4 && totalHolesLeft === 0;
   cardsEl.innerHTML = POOL_CONFIG.payouts.map(function(p, i) {
     var holder = '—';
+    var tbNote = '';
     if (TOURNAMENT_STARTED && ranked[i]) {
       if (tourneyDone) {
+        holder = ranked[i].team;
+        // Check if this payout position was decided by tiebreaker
         var tiedCount = ranked.filter(function(e) { return e.total === ranked[i].total; }).length;
-        holder = ranked[i].team + (tiedCount > 1 && ranks[i] === i + 1 ? '' : '');
+        if (tiedCount > 1 && ranked[i].tb != null && WINNING_SCORE !== null) {
+          tbNote = '<div class="pc-tb">TB: ' + ranked[i].tb + ' (off by ' + Math.abs(ranked[i].tb - WINNING_SCORE) + ')</div>';
+        }
       } else if (maxCompleted >= 2) {
         holder = ranked[i].team;
       } else {
@@ -77,14 +82,23 @@ function renderStandings() {
       }
     }
     var isGold = i === 0;
-    return '<div class="payout-card ' + (isGold ? 'gold' : '') + '">' +
+    var finalCls = tourneyDone ? ' final' : '';
+    return '<div class="payout-card ' + (isGold ? 'gold' : '') + finalCls + '">' +
       '<div class="pc-lbl">' + p.place + '</div>' +
       '<div class="pc-amt">$' + p.amount + '</div>' +
       '<div class="pc-who">' + holder + '</div>' +
+      tbNote +
     '</div>';
   }).join('');
   var actualPot = ENTRIES.length * POOL_CONFIG.buyIn;
-  document.getElementById('standings-pool-sub').innerHTML = ENTRIES.length + ' entries · $' + POOL_CONFIG.buyIn + ' buy-in · <strong style="color:var(--gold)">$' + actualPot.toLocaleString() + ' pot</strong><br>Best 4 of 6 golfer scores combined over four rounds wins.';
+  var poolSubHtml = ENTRIES.length + ' entries · $' + POOL_CONFIG.buyIn + ' buy-in · <strong style="color:var(--gold)">$' + actualPot.toLocaleString() + ' pot</strong>';
+  if (TOURNEY_FINAL) {
+    var winScoreDisp = WINNING_SCORE > 0 ? '+' + WINNING_SCORE : WINNING_SCORE === 0 ? 'E' : String(WINNING_SCORE);
+    poolSubHtml += '<br><span class="final-label">🏆 TOURNAMENT FINAL</span> · Winning score: <strong>' + winScoreDisp + '</strong>';
+  } else {
+    poolSubHtml += '<br>Best 4 of 6 golfer scores combined over four rounds wins.';
+  }
+  document.getElementById('standings-pool-sub').innerHTML = poolSubHtml;
 
   // Compute prior-round entry ranks dynamically (same logic as leaderboard)
   var priorEntryRanks = {};
@@ -186,8 +200,10 @@ function renderStandings() {
     var todayDisp = teamTodayCount > 0 ? (teamToday > 0 ? '+' + teamToday : teamToday === 0 ? 'E' : '' + teamToday) : '—';
     var todayCls = teamToday < 0 ? 'neg' : teamToday > 0 ? 'pos' : 'eve';
     var holesTag = ROUND_START_ROUND >= 4 ? (teamHolesLeft > 0 ? '<span class="s-holes">' + teamHolesLeft + '</span>' : '') : '';
-    html += '<div class="tv-row st-row' + isMyTeam + cmpCls + cmpSelCls + '" onclick="' + rowClick + '" style="cursor:pointer">'
-        + '<div class="tv-pos">' + rank + moveHtml + '</div>'
+    var inMoney = TOURNEY_FINAL && rank <= POOL_CONFIG.payouts.length;
+    var moneyIcon = inMoney ? (rank === 1 ? '🏆' : '💰') : '';
+    html += '<div class="tv-row st-row' + isMyTeam + cmpCls + cmpSelCls + (inMoney ? ' in-money' : '') + '" onclick="' + rowClick + '" style="cursor:pointer">'
+        + '<div class="tv-pos">' + (moneyIcon || rank) + moveHtml + '</div>'
         + '<div class="tv-player"><span class="st-expand-arrow">▾</span><span class="tv-name' + (isMyTeam ? ' is-my-pick' : '') + '">' + e.team + '</span>' + cmpBadge + ' <span class="tv-country">' + e.name + '</span>' + holesTag + '</div>'
         + '<div class="tv-thru"></div>'
         + '<div class="tv-today ' + todayCls + '">' + todayDisp + '</div>'
@@ -247,9 +263,23 @@ function renderStandings() {
           + '<div class="sc-panel" id="' + stScId + '"></div>';
     }).join('');
     var isTied = (i < displayRanked.length-1 && displayRanked[i].total === displayRanked[i+1].total) || (i > 0 && displayRanked[i].total === displayRanked[i-1].total);
-    var tbFooter2 = (isTied && e.tb != null) ? ' · TB: ' + e.tb : '';
-    var footerHoles = ROUND_START_ROUND >= 4 ? ' · ' + teamHolesLeft + ' holes left' : '';
-    html += '<div class="picks-panel-footer"><span>' + e.name + tbFooter2 + footerHoles + '</span><button class="h2h-quick-btn" onclick="event.stopPropagation();openH2HPicker(' + entryIdx + ')">⚔️ H2H</button></div> </div>';
+    var tbFooter2 = '';
+    if (isTied && e.tb != null) {
+      if (TOURNEY_FINAL && WINNING_SCORE !== null) {
+        var tbDiff = Math.abs(e.tb - WINNING_SCORE);
+        tbFooter2 = ' · TB: ' + e.tb + ' (actual: ' + (WINNING_SCORE > 0 ? '+' + WINNING_SCORE : WINNING_SCORE === 0 ? 'E' : WINNING_SCORE) + ', off by ' + tbDiff + ')';
+      } else {
+        tbFooter2 = ' · TB: ' + e.tb;
+      }
+    }
+    var footerHoles = ROUND_START_ROUND >= 4 && !TOURNEY_FINAL ? ' · ' + teamHolesLeft + ' holes left' : '';
+    // Payout badge for top 3 when final
+    var payoutBadge = '';
+    if (TOURNEY_FINAL && rank <= POOL_CONFIG.payouts.length) {
+      var payout = POOL_CONFIG.payouts[rank - 1];
+      if (payout) payoutBadge = '<span class="payout-badge' + (rank === 1 ? ' gold' : '') + '">💰 ' + payout.place + ' — $' + payout.amount + '</span>';
+    }
+    html += '<div class="picks-panel-footer"><span>' + e.name + tbFooter2 + footerHoles + '</span>' + payoutBadge + '<button class="h2h-quick-btn" onclick="event.stopPropagation();openH2HPicker(' + entryIdx + ')">⚔️ H2H</button></div> </div>';
   });
 
   detectEntryActivity();
@@ -261,7 +291,13 @@ function renderStandings() {
   document.getElementById('my-teams-container').innerHTML = heroHtml;
   el.innerHTML = html;
   var hasTies = ranks.some(function(r, i) { return i > 0 && r === ranks[i-1]; });
-  document.getElementById('standings-footnote').style.display = hasTies ? 'block' : 'none';
+  var fnEl = document.getElementById('standings-footnote');
+  fnEl.style.display = (hasTies || TOURNEY_FINAL) ? 'block' : 'none';
+  if (TOURNEY_FINAL && WINNING_SCORE !== null) {
+    var winScoreDisp = WINNING_SCORE > 0 ? '+' + WINNING_SCORE : WINNING_SCORE === 0 ? 'E' : String(WINNING_SCORE);
+    fnEl.innerHTML = '<strong style="color:var(--text2);">TB</strong> = Pre-submitted tiebreaker prediction (winning score to par). Actual winning score: <strong style="color:var(--gold)">' + winScoreDisp + '</strong>. Closest prediction wins the tiebreaker.'
+      + '<br><strong style="color:var(--text2);">MC</strong> = Missed Cut (+11 penalty). <strong style="color:var(--text2);">WD</strong> = Withdrawn (+12 penalty).';
+  }
 
   // Restore open panel after re-render
   if (_openPanelTeam) {

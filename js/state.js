@@ -260,6 +260,9 @@ var SCORECARD_CACHE = {};
 var COURSE_HOLES = null;
 var COURSE_PAR = 70; // sum of default pars [4,3,5,4,4,4,3,5,3,4,3,4,4,4,3,5,4,4]
 
+var WINNING_SCORE = null; // actual tournament winner's score to par (set when tourney final)
+var TOURNEY_FINAL = false; // true when all 4 rounds complete, 0 holes left
+
 var lastFetchTime = 0;
 var _lastStatusText = 'Loading…';
 var _renderCount = 0;
