@@ -294,6 +294,118 @@ html, body  {
   margin: 0;
 }
 
+/* ── Winner Splash Box ── */
+#winner-splash {
+  margin: 8px 14px 6px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1.5px solid rgba(245,197,24,0.5);
+  background: linear-gradient(135deg, rgba(245,197,24,0.12) 0%, rgba(212,168,67,0.06) 100%);
+}
+.ws-confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.ws-confetti::before,
+.ws-confetti::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image:
+    radial-gradient(circle, #f5c518 1.5px, transparent 1.5px),
+    radial-gradient(circle, #d4a843 1px, transparent 1px),
+    radial-gradient(circle, #fff 1px, transparent 1px),
+    radial-gradient(circle, #f5c518 1px, transparent 1px),
+    radial-gradient(circle, #d4a843 1.5px, transparent 1.5px),
+    radial-gradient(circle, #fff 0.8px, transparent 0.8px);
+  background-size: 60px 80px, 80px 100px, 100px 60px, 45px 90px, 90px 70px, 70px 50px;
+  background-position: 0 0, 30px 20px, 15px 45px, 50px 10px, 10px 60px, 65px 35px;
+  animation: confettiFall 4s linear infinite;
+  opacity: 0.5;
+}
+.ws-confetti::after {
+  animation-delay: -2s;
+  background-position: 20px 10px, 50px 40px, 5px 55px, 35px 25px, 70px 5px, 15px 70px;
+}
+@keyframes confettiFall {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+.ws-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 18px 16px 14px;
+}
+.ws-trophy {
+  font-size: 40px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.ws-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.ws-team {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--text);
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+}
+.ws-by {
+  font-size: 11px;
+  color: var(--text2);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.ws-total {
+  font-size: 28px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+.ws-golfers {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 10px;
+}
+.ws-golfer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+.ws-golfer-flag { font-size: 13px; }
+.ws-golfer-name { color: var(--text2); }
+.ws-golfer-score { font-weight: 800; min-width: 28px; text-align: right; }
+.ws-payout {
+  font-size: 32px;
+  font-weight: 900;
+  color: #f5c518;
+  line-height: 1;
+  text-shadow: 0 1px 8px rgba(245,197,24,0.3);
+}
+.ws-payout-lbl {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--gold-dim);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
 .payout-card  {
   flex: 1;
   background: rgba(201,168,76,0.07);

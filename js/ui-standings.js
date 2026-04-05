@@ -74,6 +74,43 @@ function renderStandings() {
   }
   var totalHolesLeft = ranked.length > 0 ? ranked.reduce(function(s, e) { return s + e.picks.reduce(function(s2, p) { return s2 + getHolesRemaining(p); }, 0); }, 0) : 999;
   var tourneyDone = maxCompleted >= 4 && totalHolesLeft === 0;
+  // Winner splash box
+  var winnerBoxEl = document.getElementById('winner-splash');
+  if (!winnerBoxEl) {
+    winnerBoxEl = document.createElement('div');
+    winnerBoxEl.id = 'winner-splash';
+    cardsEl.parentNode.insertBefore(winnerBoxEl, cardsEl);
+  }
+  if (tourneyDone && ranked[0]) {
+    var w = ranked[0];
+    var wPayout = POOL_CONFIG.payouts[0];
+    var wScoreDisp = fmtTeam(w.total);
+    var wScoreCls = cls(w.total);
+    var wGolfers = w.top4.map(function(g) {
+      var gd = GOLFER_SCORES[g.name];
+      var flag = FLAGS[g.name] || '';
+      var isMc = gd && (gd.score === 11 || gd.score === 12);
+      var gScore = isMc ? (gd.score === 12 ? 'WD' : 'MC') : fmt(g.score);
+      var gCls = isMc ? 'mc' : cls(g.score);
+      return '<div class="ws-golfer"><span class="ws-golfer-flag">' + flag + '</span><span class="ws-golfer-name">' + g.name + '</span><span class="ws-golfer-score ' + gCls + '">' + gScore + '</span></div>';
+    }).join('');
+    winnerBoxEl.innerHTML = '<div class="ws-confetti"></div>'
+      + '<div class="ws-content">'
+      + '<div class="ws-trophy">🏆</div>'
+      + '<div class="ws-label">POOL CHAMPION</div>'
+      + '<div class="ws-team">' + w.team + '</div>'
+      + '<div class="ws-by">' + w.name + '</div>'
+      + '<div class="ws-total"><span class="' + wScoreCls + '">' + wScoreDisp + '</span></div>'
+      + '<div class="ws-golfers">' + wGolfers + '</div>'
+      + '<div class="ws-payout">$' + wPayout.amount + '</div>'
+      + '<div class="ws-payout-lbl">Prize Money</div>'
+      + '</div>';
+    winnerBoxEl.style.display = '';
+  } else {
+    winnerBoxEl.innerHTML = '';
+    winnerBoxEl.style.display = 'none';
+  }
+
   cardsEl.innerHTML = POOL_CONFIG.payouts.map(function(p, i) {
     var holder = '—';
     var tbNote = '';
