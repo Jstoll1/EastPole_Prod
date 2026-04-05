@@ -329,7 +329,9 @@ function shouldShowSplash() {
 function markSplashSeen() {
   try {
     var today = new Date().toISOString().slice(0, 10);
-    var data = JSON.parse(localStorage.getItem(SPLASH_DATE_KEY) || '{}');
+    var data;
+    try { data = JSON.parse(localStorage.getItem(SPLASH_DATE_KEY) || '{}'); } catch(e) { data = {}; }
+    if (typeof data !== 'object' || data === null) data = {};
     if (data.date !== today) data = { date: today, count: 0 };
     data.count = (data.count || 0) + 1;
     localStorage.setItem(SPLASH_DATE_KEY, JSON.stringify(data));
