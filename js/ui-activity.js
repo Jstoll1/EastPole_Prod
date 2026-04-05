@@ -229,15 +229,10 @@ async function renderActivityList() {
     var typeCls = a.type ? ' act-' + a.type : '';
     var ownE = a.player && OWNERSHIP_DATA ? OWNERSHIP_DATA.find(function(o) { return o.player === a.player; }) : null;
     var ownTag = ownE ? ' <span class="act-own">' + Math.round(ownE.pct * 100) + '%</span>' : '';
-    var tsTag = '';
-    if (a.timestamp) {
-      var d = new Date(a.timestamp);
-      tsTag = ' <span class="act-time">' + d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) + '</span>';
-    }
     var escapedPlayer = a.player.replace(/'/g, "\\'");
     return '<div class="act-item' + typeCls + '" onclick="openScorecardPopup(\'' + escapedPlayer + '\')" style="cursor:pointer">' +
       '<div class="act-icon">' + a.icon + '</div>' +
-      '<div class="act-body"><div class="act-text">' + a.text + ownTag + tsTag + '</div>' +
+      '<div class="act-body"><div class="act-text">' + a.text + ownTag + '</div>' +
       '</div></div>';
   }).join('') + '<div class="act-end">You\'re all caught up</div>';
   _actRendering = false;
