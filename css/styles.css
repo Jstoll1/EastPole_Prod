@@ -3122,6 +3122,10 @@ to  {
 .act-item.act-bogey .act-icon { color:#fbbf24; }
 .act-item.act-double .act-icon { color:#f87171; }
 .act-item.act-worse .act-icon { color:#ef4444; }
+/* H2H live mode team tags */
+.act-item.act-mine { border-left:3px solid var(--gold); }
+.act-item.act-theirs { border-left:3px solid var(--text3); }
+.act-item.act-shared { border-left:3px solid var(--green-bright); }
 @keyframes actSlideIn {
   from { opacity:0; transform:translateY(-8px); }
   to { opacity:1; transform:translateY(0); }

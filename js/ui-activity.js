@@ -7,6 +7,8 @@ var MAX_ACTIVITY = 300;
 var _actOpen = false;
 var _actUnseen = 0;
 var _roundLive = false;
+var _h2hLiveOpponent = null; // entry object of H2H opponent
+var _h2hLiveMyIdx = -1; // my entry index for H2H
 var HOLE_TIMESTAMPS = {};
 var _ACT_STORAGE_KEY = 'eastpole_activity';
 var _HOLE_TS_KEY = 'eastpole_hole_ts';
@@ -88,15 +90,30 @@ function populateLiveEntryFilter() {
     currentUserTeams.forEach(function(t, i) {
       opts += '<option value="' + i + '">' + t.team + '</option>';
     });
+    opts += '<option value="h2h">⚔️ Head to Head</option>';
   }
   opts += '<option value="field"' + (!hasTeams ? ' selected' : '') + '>Entire Field</option>';
   sel.innerHTML = opts;
+  sel.onchange = function() {
+    if (sel.value === 'h2h') {
+      openH2HLivePicker();
+    } else {
+      _h2hLiveOpponent = null;
+      renderActivityList();
+    }
+  };
 }
 
 function getLiveFilteredPicks() {
   var sel = document.getElementById('live-entry-filter');
   var val = sel ? sel.value : 'field';
   if (val === 'field') return null; // null = entire field
+  if (val === 'h2h' && _h2hLiveOpponent) {
+    // Union of my entry picks + opponent picks
+    var myEntry = currentUserTeams[_h2hLiveMyIdx] || currentUserTeams[0];
+    var all = new Set(myEntry.picks.concat(_h2hLiveOpponent.picks));
+    return all;
+  }
   if (val !== 'all' && currentUserTeams && currentUserTeams[parseInt(val)]) {
     trackEvent('live-filter-entry');
     return new Set(currentUserTeams[parseInt(val)].picks);
@@ -225,12 +242,31 @@ async function renderActivityList() {
     return;
   }
 
-  el.innerHTML = items.map(function(a) {
+  // H2H live header
+  var h2hHdr = '';
+  var isH2H = _h2hLiveOpponent && document.getElementById('live-entry-filter') && document.getElementById('live-entry-filter').value === 'h2h';
+  var myH2HPicks = null, oppH2HPicks = null;
+  if (isH2H) {
+    var myEntry = currentUserTeams[_h2hLiveMyIdx] || currentUserTeams[0];
+    h2hHdr = buildH2HLiveHeader(myEntry, _h2hLiveOpponent);
+    myH2HPicks = new Set(myEntry.picks);
+    oppH2HPicks = new Set(_h2hLiveOpponent.picks);
+  }
+
+  el.innerHTML = h2hHdr + items.map(function(a) {
     var typeCls = a.type ? ' act-' + a.type : '';
+    var teamTag = '';
+    if (isH2H && a.player) {
+      var isMine = myH2HPicks.has(a.player);
+      var isTheirs = oppH2HPicks.has(a.player);
+      if (isMine && isTheirs) teamTag = ' act-shared';
+      else if (isMine) teamTag = ' act-mine';
+      else if (isTheirs) teamTag = ' act-theirs';
+    }
     var ownE = a.player && OWNERSHIP_DATA ? OWNERSHIP_DATA.find(function(o) { return o.player === a.player; }) : null;
     var ownTag = ownE ? ' <span class="act-own">' + Math.round(ownE.pct * 100) + '%</span>' : '';
     var escapedPlayer = a.player.replace(/'/g, "\\'");
-    return '<div class="act-item' + typeCls + '" onclick="openScorecardPopup(\'' + escapedPlayer + '\')" style="cursor:pointer">' +
+    return '<div class="act-item' + typeCls + teamTag + '" onclick="openScorecardPopup(\'' + escapedPlayer + '\')" style="cursor:pointer">' +
       '<div class="act-icon">' + a.icon + '</div>' +
       '<div class="act-body"><div class="act-text">' + a.text + ownTag + '</div>' +
       '</div></div>';
@@ -352,6 +388,167 @@ async function detectGolfActivity(freshScores) {
 }
 
 function detectEntryActivity() {}
+
+// ── H2H Live Mode ──
+function openH2HLivePicker() {
+  var existing = document.getElementById('h2h-live-picker');
+  if (existing) existing.remove();
+  var popup = document.createElement('div');
+  popup.id = 'h2h-live-picker';
+  popup.style.cssText = 'position:fixed;z-index:9999;background:var(--card);border:1px solid var(--gold);border-radius:12px;padding:14px 16px;box-shadow:0 8px 32px rgba(0,0,0,.5);max-width:300px;width:85%;left:50%;top:50%;transform:translate(-50%,-50%);max-height:70vh;overflow-y:auto;';
+  var ranked = getRanked();
+  var rnkMap = {}; var rk = 1;
+  ranked.forEach(function(re, ri) { if (ri > 0 && ranked[ri].total !== ranked[ri-1].total) rk = ri + 1; rnkMap[re.team + '|' + re.email] = rk; });
+  var html = '<div style="font-size:12px;font-weight:800;color:var(--gold);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">⚔️ Pick Your Opponent</div>';
+  // If user has multiple entries, let them pick which of their entries
+  if (currentUserTeams.length > 1) {
+    html += '<div style="font-size:9px;font-weight:700;color:var(--text3);margin-bottom:4px;text-transform:uppercase">Your Entry</div>';
+    currentUserTeams.forEach(function(t, i) {
+      var c = calcEntry(t);
+      var myRk = rnkMap[t.team + '|' + t.email] || '';
+      html += '<div class="h2h-picker-row" onclick="selectH2HLiveMy(' + i + ')" style="cursor:pointer">'
+        + '<span class="h2h-picker-rank">' + myRk + '</span>'
+        + '<span class="h2h-picker-team">' + t.team + '</span>'
+        + '<span class="h2h-picker-score ' + cls(c.total) + '">' + fmtTeam(c.total) + '</span></div>';
+    });
+    html += '<div style="height:1px;background:var(--border);margin:8px 0;"></div>';
+  }
+  html += '<div style="font-size:9px;font-weight:700;color:var(--text3);margin-bottom:4px;text-transform:uppercase">Choose Opponent</div>';
+  html += '<input id="h2h-live-search" type="text" placeholder="Search..." style="width:100%;box-sizing:border-box;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;margin-bottom:8px;outline:none;" oninput="filterH2HLivePicker()">';
+  html += '<div id="h2h-live-list">' + buildH2HLiveList('') + '</div>';
+  popup.innerHTML = html;
+  document.body.appendChild(popup);
+  var backdrop = document.createElement('div');
+  backdrop.id = 'h2h-live-backdrop';
+  backdrop.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.4);';
+  backdrop.onclick = function() { cancelH2HLivePicker(); };
+  document.body.appendChild(backdrop);
+}
+
+function buildH2HLiveList(query) {
+  var ranked = getRanked();
+  var q = query.toLowerCase();
+  var myEmails = new Set(currentUserTeams.map(function(t) { return t.email; }));
+  var html = '';
+  var rk = 1;
+  ranked.forEach(function(e, i) {
+    if (i > 0 && ranked[i].total !== ranked[i-1].total) rk = i + 1;
+    if (myEmails.has(e.email)) return;
+    if (q && e.team.toLowerCase().indexOf(q) === -1 && e.name.toLowerCase().indexOf(q) === -1) return;
+    var entryIdx = ENTRIES.findIndex(function(x) { return x.team === e.team && x.email === e.email; });
+    html += '<div class="h2h-picker-row" onclick="selectH2HLiveOpponent(' + entryIdx + ')" style="cursor:pointer">'
+      + '<span class="h2h-picker-rank">' + rk + '</span>'
+      + '<span class="h2h-picker-team">' + e.team + '</span>'
+      + '<span class="h2h-picker-score ' + cls(e.total) + '">' + fmtTeam(e.total) + '</span></div>';
+  });
+  return html || '<div style="color:var(--text3);font-size:11px;padding:8px">No matches</div>';
+}
+
+function filterH2HLivePicker() {
+  var q = (document.getElementById('h2h-live-search') || {}).value || '';
+  var list = document.getElementById('h2h-live-list');
+  if (list) list.innerHTML = buildH2HLiveList(q);
+}
+
+function selectH2HLiveMy(teamIdx) {
+  _h2hLiveMyIdx = teamIdx;
+  // Highlight selected, keep picker open for opponent selection
+  var rows = document.querySelectorAll('#h2h-live-picker .h2h-picker-row');
+  rows.forEach(function(r) { r.style.background = ''; });
+  // Find the row for this team
+  var t = currentUserTeams[teamIdx];
+  if (t) {
+    rows.forEach(function(r) {
+      if (r.querySelector('.h2h-picker-team') && r.querySelector('.h2h-picker-team').textContent === t.team) {
+        r.style.background = 'var(--gold-bg)';
+      }
+    });
+  }
+}
+
+function selectH2HLiveOpponent(entryIdx) {
+  var opp = ENTRIES[entryIdx];
+  if (!opp) return;
+  _h2hLiveOpponent = opp;
+  // If user only has one entry, auto-select it
+  if (currentUserTeams.length === 1) _h2hLiveMyIdx = 0;
+  // If multi-entry and none selected, use first
+  if (_h2hLiveMyIdx < 0) _h2hLiveMyIdx = 0;
+  // Close picker
+  var p = document.getElementById('h2h-live-picker');
+  var b = document.getElementById('h2h-live-backdrop');
+  if (p) p.remove();
+  if (b) b.remove();
+  // Update filter label
+  var sel = document.getElementById('live-entry-filter');
+  if (sel) {
+    var opt = sel.querySelector('option[value="h2h"]');
+    if (opt) opt.textContent = '⚔️ vs ' + opp.team;
+    sel.value = 'h2h';
+  }
+  renderActivityList();
+}
+
+function cancelH2HLivePicker() {
+  var p = document.getElementById('h2h-live-picker');
+  var b = document.getElementById('h2h-live-backdrop');
+  if (p) p.remove();
+  if (b) b.remove();
+  _h2hLiveOpponent = null;
+  var sel = document.getElementById('live-entry-filter');
+  if (sel) sel.value = 'all';
+  renderActivityList();
+}
+
+function buildH2HLiveHeader(myEntry, oppEntry) {
+  var cA = calcEntry(myEntry);
+  var cB = calcEntry(oppEntry);
+  var diff = cA.total - cB.total;
+  var diffStr = diff === 0 ? 'TIED' : (Math.abs(diff) + (diff < 0 ? ' ahead' : ' behind'));
+  var diffCls = diff < 0 ? 'neg' : diff > 0 ? 'pos' : 'eve';
+
+  function buildSide(entry, calc, align) {
+    var html = '<div style="flex:1;text-align:' + align + '">';
+    html += '<div style="font-size:10px;font-weight:800;color:var(--gold);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:4px">' + entry.team + '</div>';
+    html += '<div style="font-size:22px;font-weight:900;color:var(--text);margin-bottom:6px" class="' + cls(calc.total) + '">' + fmtTeam(calc.total) + '</div>';
+    // Show top 4 players
+    calc.top4.forEach(function(g) {
+      var gd = GOLFER_SCORES[g.name];
+      var flag = FLAGS[g.name] || '';
+      var thru = gd ? gd.thru : '—';
+      var td = gd ? gd.todayDisplay : '—';
+      if (gd && (gd.score === 11 || gd.score === 12)) td = '—';
+      var tdCls = td === '—' ? '' : (parseInt(td) < 0 ? 'neg' : parseInt(td) > 0 ? 'pos' : 'eve');
+      var isMc = g.score === 11 || g.score === 12;
+      var lastName = g.name.split(' ').pop();
+      html += '<div style="display:flex;align-items:center;gap:3px;margin-bottom:2px;justify-content:' + (align === 'left' ? 'flex-start' : 'flex-end') + '">';
+      if (align === 'left') {
+        html += '<span style="font-size:10px">' + flag + '</span>';
+        html += '<span style="font-size:10px;font-weight:700;color:var(--text)">' + lastName + '</span>';
+        html += '<span style="font-size:9px;font-weight:800" class="' + (isMc ? 'mc' : cls(g.score)) + '">' + fmt(g.score) + '</span>';
+        if (td !== '—') html += '<span style="font-size:8px;font-weight:700" class="' + tdCls + '">(' + td + ')</span>';
+      } else {
+        if (td !== '—') html += '<span style="font-size:8px;font-weight:700" class="' + tdCls + '">(' + td + ')</span>';
+        html += '<span style="font-size:9px;font-weight:800" class="' + (isMc ? 'mc' : cls(g.score)) + '">' + fmt(g.score) + '</span>';
+        html += '<span style="font-size:10px;font-weight:700;color:var(--text)">' + lastName + '</span>';
+        html += '<span style="font-size:10px">' + flag + '</span>';
+      }
+      html += '</div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  var html = '<div class="h2h-live-hdr" style="display:flex;gap:8px;padding:10px 12px;background:rgba(0,0,0,0.2);border-radius:10px;margin-bottom:8px;border:1px solid rgba(212,168,67,0.15)">';
+  html += buildSide(myEntry, cA, 'left');
+  html += '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:40px">';
+  html += '<div style="font-size:8px;font-weight:800;color:var(--text3);letter-spacing:0.5px">VS</div>';
+  html += '<div style="font-size:9px;font-weight:800;margin-top:2px" class="' + diffCls + '">' + diffStr + '</div>';
+  html += '</div>';
+  html += buildSide(oppEntry, cB, 'right');
+  html += '</div>';
+  return html;
+}
 
 // Swipe to resize / close drawer
 var _dragAct = { on: false, y0: 0, yNow: 0, h0: 0, fromList: false };
