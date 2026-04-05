@@ -354,17 +354,54 @@ async function detectGolfActivity(freshScores) {
 function detectEntryActivity() {}
 
 // Swipe to resize / close drawer
-var _dragAct = { on: false, y0: 0, yNow: 0, h0: 0 };
+var _dragAct = { on: false, y0: 0, yNow: 0, h0: 0, fromList: false };
 
 function actDragStart(e) {
   if (!_actOpen) return;
   _dragAct.on = true;
+  _dragAct.fromList = false;
   _dragAct.y0 = e.touches[0].clientY;
   _dragAct.yNow = _dragAct.y0;
   var dr = document.getElementById('activity-drawer');
   _dragAct.h0 = dr.offsetHeight;
   dr.style.transition = 'none';
 }
+
+// Allow swipe-down from list when scrolled to top
+(function() {
+  var listEl = null;
+  var startY = 0;
+  var tracking = false;
+
+  document.addEventListener('touchstart', function(e) {
+    listEl = document.getElementById('act-list');
+    if (!listEl || !_actOpen) return;
+    if (!listEl.contains(e.target)) return;
+    startY = e.touches[0].clientY;
+    tracking = true;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', function(e) {
+    if (!tracking || !listEl || _dragAct.on) return;
+    if (listEl.scrollTop > 0) return; // not at top, let it scroll
+    var dy = e.touches[0].clientY - startY;
+    if (dy > 10) {
+      // Scrolled to top and swiping down — start drag
+      tracking = false;
+      _dragAct.on = true;
+      _dragAct.fromList = true;
+      _dragAct.y0 = e.touches[0].clientY;
+      _dragAct.yNow = _dragAct.y0;
+      var dr = document.getElementById('activity-drawer');
+      _dragAct.h0 = dr.offsetHeight;
+      dr.style.transition = 'none';
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchend', function() {
+    tracking = false;
+  }, { passive: true });
+})();
 
 document.addEventListener('touchmove', function(e) {
   if (!_dragAct.on) return;
