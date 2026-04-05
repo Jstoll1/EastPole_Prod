@@ -53,26 +53,22 @@ function getCountryCode(name) { return FLAG_TO_CODE[FLAGS[name]] || ''; }
 
 function getHolesRemaining(playerName) {
   var gd = GOLFER_SCORES[playerName];
-  if (!gd) return 72;
+  if (!gd) return 0;
   if (gd.thru === 'MC' || gd.thru === 'WD' || gd.score === 11 || gd.score === 12) return 0;
-  var completedRounds = [gd.r1, gd.r2, gd.r3, gd.r4].filter(function(r) { return r != null; }).length;
-  var holesThisRound = 0;
-  var isTeeTime = gd.thru && /[AP]M/i.test(gd.thru);
-  if (gd.thru === 'F' || gd.thru === '18' || isTeeTime) {
-    holesThisRound = 18;
-  } else if (gd.thru === '—') {
-    holesThisRound = 0;
-  } else {
-    holesThisRound = parseInt(gd.thru) || 0;
+  // roundCount = total linescores with any value (includes in-progress)
+  var roundCount = gd.roundCount || [gd.r1, gd.r2, gd.r3, gd.r4].filter(function(r) { return r != null; }).length;
+  var thruNum = parseInt(gd.thru);
+  var roundDone = gd.thru === 'F' || gd.thru === '18';
+  if (roundDone) {
+    // Finished current round: roundCount includes it
+    return Math.max(0, (4 - roundCount) * 18);
   }
-  if (isTeeTime && completedRounds === 0) {
-    completedRounds = 1;
+  if (!isNaN(thruNum) && thruNum > 0) {
+    // Mid-round: roundCount includes in-progress round
+    return Math.max(0, (4 - roundCount) * 18 + (18 - thruNum));
   }
-  var isMidRound = gd.thru !== 'F' && gd.thru !== '18' && gd.thru !== '—' && gd.thru !== 'MC' && gd.thru !== 'WD' && !isTeeTime;
-  var totalPlayed = isMidRound
-    ? (completedRounds * 18) + holesThisRound
-    : completedRounds * 18;
-  return Math.max(0, 72 - totalPlayed);
+  // Hasn't started (tee time or '—'): roundCount = completed rounds only
+  return Math.max(0, (4 - roundCount) * 18);
 }
 
 function calcEntry(e) {
