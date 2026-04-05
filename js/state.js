@@ -315,7 +315,11 @@ function saveRoundStartPositions(round) {
 
 function shouldShowSplash() {
   try {
-    var data = JSON.parse(localStorage.getItem(SPLASH_DATE_KEY) || '{}');
+    var raw = localStorage.getItem(SPLASH_DATE_KEY);
+    if (!raw) return true;
+    var data;
+    try { data = JSON.parse(raw); } catch(e) { data = {}; }
+    if (typeof data !== 'object' || data === null) data = {};
     var today = new Date().toISOString().slice(0, 10);
     if (data.date !== today) return true;
     return (data.count || 0) < 3;
