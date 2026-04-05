@@ -79,7 +79,9 @@ async function fetchESPN() {
       if (wd) { thru = 'WD'; }
       else if (mc) { thru = 'MC'; }
       else if (activelyPlaying) { thru = String(thruRaw); }
-      else if (nextTeeStr) { thru = nextTeeStr; }
+      else if (thruRaw >= 18) { thru = c.status?.displayValue || 'F'; }
+      else if (scheduled && nextTeeStr) { thru = nextTeeStr; }
+      else if (nextTeeStr && !thruRaw) { thru = nextTeeStr; }
       else if (scheduled) { thru = c.status?.displayValue || 'F'; }
       else { thru = thruRaw > 0 ? String(thruRaw) : (c.status?.displayValue || 'F'); }
       var startHole = c.status?.startHole || 1;
