@@ -242,18 +242,24 @@ async function renderActivityList() {
     return;
   }
 
-  // H2H live header
-  var h2hHdr = '';
-  var isH2H = _h2hLiveOpponent && document.getElementById('live-entry-filter') && document.getElementById('live-entry-filter').value === 'h2h';
+  // Team / H2H live header
+  var feedHdr = '';
+  var sel = document.getElementById('live-entry-filter');
+  var filterVal = sel ? sel.value : 'field';
+  var isH2H = _h2hLiveOpponent && filterVal === 'h2h';
   var myH2HPicks = null, oppH2HPicks = null;
   if (isH2H) {
     var myEntry = currentUserTeams[_h2hLiveMyIdx] || currentUserTeams[0];
-    h2hHdr = buildH2HLiveHeader(myEntry, _h2hLiveOpponent);
+    feedHdr = buildH2HLiveHeader(myEntry, _h2hLiveOpponent);
     myH2HPicks = new Set(myEntry.picks);
     oppH2HPicks = new Set(_h2hLiveOpponent.picks);
+  } else if (filterVal !== 'field' && filterVal !== 'all' && currentUserTeams[parseInt(filterVal)]) {
+    feedHdr = buildTeamLiveHeader(currentUserTeams[parseInt(filterVal)]);
+  } else if (filterVal === 'all' && currentUserTeams.length === 1) {
+    feedHdr = buildTeamLiveHeader(currentUserTeams[0]);
   }
 
-  el.innerHTML = h2hHdr + items.map(function(a) {
+  el.innerHTML = feedHdr + items.map(function(a) {
     var typeCls = a.type ? ' act-' + a.type : '';
     var teamTag = '';
     if (isH2H && a.player) {
@@ -498,6 +504,66 @@ function cancelH2HLivePicker() {
   var sel = document.getElementById('live-entry-filter');
   if (sel) sel.value = 'all';
   renderActivityList();
+}
+
+function buildTeamLiveHeader(entry) {
+  var c = calcEntry(entry);
+  var ranked = getRanked();
+  var rk = 1;
+  ranked.forEach(function(re, ri) {
+    if (ri > 0 && ranked[ri].total !== ranked[ri-1].total) rk = ri + 1;
+    if (re.team === entry.team && re.email === entry.email) rk = rk;
+  });
+  // Find rank
+  var myRank = '';
+  var rkNum = 1;
+  for (var i = 0; i < ranked.length; i++) {
+    if (i > 0 && ranked[i].total !== ranked[i-1].total) rkNum = i + 1;
+    if (ranked[i].team === entry.team && ranked[i].email === entry.email) { myRank = rkNum; break; }
+  }
+  var teamToday = 0;
+  c.top4.forEach(function(g) {
+    var gd = GOLFER_SCORES[g.name];
+    if (gd && (gd.score === 11 || gd.score === 12)) return;
+    var td = gd ? gd.todayDisplay : null;
+    if (td && td !== '—') teamToday += td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0;
+  });
+  var todayFmt = teamToday > 0 ? '+' + teamToday : teamToday === 0 ? 'E' : '' + teamToday;
+  var todayCls = teamToday < 0 ? 'neg' : teamToday > 0 ? 'pos' : 'eve';
+
+  var html = '<div style="padding:10px 12px;background:rgba(0,0,0,0.2);border-radius:10px;margin-bottom:8px;border:1px solid rgba(212,168,67,0.15)">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+  html += '<div><div style="font-size:12px;font-weight:800;color:var(--gold);letter-spacing:0.5px">' + entry.team + '</div>';
+  html += '<div style="font-size:9px;color:var(--text3);margin-top:1px">' + ordinal(myRank) + ' place · Today: <span class="' + todayCls + '">' + todayFmt + '</span></div></div>';
+  html += '<div style="font-size:24px;font-weight:900" class="' + cls(c.total) + '">' + fmtTeam(c.total) + '</div>';
+  html += '</div>';
+  // Top 4 golfers in a grid
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 12px">';
+  c.top4.forEach(function(g) {
+    var gd = GOLFER_SCORES[g.name];
+    var flag = FLAGS[g.name] || '';
+    var td = gd ? gd.todayDisplay : '—';
+    if (gd && (gd.score === 11 || gd.score === 12)) td = '—';
+    var tdCls = td === '—' ? '' : (parseInt(td) < 0 ? 'neg' : parseInt(td) > 0 ? 'pos' : 'eve');
+    var isMc = g.score === 11 || g.score === 12;
+    var thru = gd ? gd.thru : '—';
+    var lastName = g.name.split(' ').pop();
+    html += '<div style="display:flex;align-items:center;gap:3px">';
+    html += '<span style="font-size:9px">' + flag + '</span>';
+    html += '<span style="font-size:10px;font-weight:700;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + lastName + '</span>';
+    html += '<span style="font-size:9px;font-weight:800" class="' + (isMc ? 'mc' : cls(g.score)) + '">' + fmt(g.score) + '</span>';
+    if (td !== '—') html += '<span style="font-size:8px;font-weight:700" class="' + tdCls + '">(' + td + ')</span>';
+    html += '</div>';
+  });
+  html += '</div></div>';
+  return html;
+}
+
+function ordinal(n) {
+  if (!n) return '';
+  var s = ['th','st','nd','rd'];
+  var v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }
 
 function buildH2HLiveHeader(myEntry, oppEntry) {
