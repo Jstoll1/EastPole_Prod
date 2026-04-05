@@ -97,7 +97,7 @@ function renderStandings() {
     winnerBoxEl.innerHTML = '<div class="ws-confetti"></div>'
       + '<div class="ws-content">'
       + '<div class="ws-trophy">🏆</div>'
-      + '<div class="ws-label">POOL CHAMPION</div>'
+      + '<div class="ws-label">EAST POLE MASTERS POOL CHAMPION</div>'
       + '<div class="ws-team">' + w.team + '</div>'
       + '<div class="ws-by">' + w.name + '</div>'
       + '<div class="ws-total"><span class="' + wScoreCls + '">' + wScoreDisp + '</span></div>'
