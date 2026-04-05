@@ -3097,6 +3097,26 @@ to  {
   background-position:right 12px center;
 }
 
+.h2h-live-btn {
+  background:rgba(0,0,0,0.3);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:8px;
+  padding:7px 14px;
+  font-size:12px;
+  color:var(--text2);
+  font-family:inherit;
+  font-weight:700;
+  cursor:pointer;
+  letter-spacing:0.3px;
+  margin-top:4px;
+  white-space:nowrap;
+}
+.h2h-live-btn.active {
+  background:rgba(212,168,67,0.15);
+  border-color:var(--gold);
+  color:var(--gold);
+}
+
 /* Activity list */
 .act-list {
   flex:1; overflow-y:auto; padding:0 10px 12px;

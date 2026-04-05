@@ -90,25 +90,25 @@ function populateLiveEntryFilter() {
     currentUserTeams.forEach(function(t, i) {
       opts += '<option value="' + i + '">' + t.team + '</option>';
     });
-    opts += '<option value="h2h">⚔️ Head to Head</option>';
   }
   opts += '<option value="field"' + (!hasTeams ? ' selected' : '') + '>Entire Field</option>';
   sel.innerHTML = opts;
   sel.onchange = function() {
-    if (sel.value === 'h2h') {
-      openH2HLivePicker();
-    } else {
-      _h2hLiveOpponent = null;
-      renderActivityList();
-    }
+    _h2hLiveOpponent = null;
+    var btn = document.getElementById('h2h-live-btn');
+    if (btn) { btn.textContent = '⚔️ H2H'; btn.classList.remove('active'); }
+    renderActivityList();
   };
+  // Show H2H button if user has entries
+  var btn = document.getElementById('h2h-live-btn');
+  if (btn) btn.style.display = hasTeams ? '' : 'none';
 }
 
 function getLiveFilteredPicks() {
   var sel = document.getElementById('live-entry-filter');
   var val = sel ? sel.value : 'field';
   if (val === 'field') return null; // null = entire field
-  if (val === 'h2h' && _h2hLiveOpponent) {
+  if (_h2hLiveOpponent) {
     // Union of my entry picks + opponent picks
     var myEntry = currentUserTeams[_h2hLiveMyIdx] || currentUserTeams[0];
     var all = new Set(myEntry.picks.concat(_h2hLiveOpponent.picks));
@@ -246,7 +246,7 @@ async function renderActivityList() {
   var feedHdr = '';
   var sel = document.getElementById('live-entry-filter');
   var filterVal = sel ? sel.value : 'field';
-  var isH2H = _h2hLiveOpponent && filterVal === 'h2h';
+  var isH2H = !!_h2hLiveOpponent;
   var myH2HPicks = null, oppH2HPicks = null;
   if (isH2H) {
     var myEntry = currentUserTeams[_h2hLiveMyIdx] || currentUserTeams[0];
@@ -397,6 +397,14 @@ function detectEntryActivity() {}
 
 // ── H2H Live Mode ──
 function openH2HLivePicker() {
+  // If H2H is active, toggle it off
+  if (_h2hLiveOpponent) {
+    _h2hLiveOpponent = null;
+    var btn = document.getElementById('h2h-live-btn');
+    if (btn) { btn.textContent = '⚔️ H2H'; btn.classList.remove('active'); }
+    renderActivityList();
+    return;
+  }
   var existing = document.getElementById('h2h-live-picker');
   if (existing) existing.remove();
   var popup = document.createElement('div');
@@ -485,13 +493,9 @@ function selectH2HLiveOpponent(entryIdx) {
   var b = document.getElementById('h2h-live-backdrop');
   if (p) p.remove();
   if (b) b.remove();
-  // Update filter label
-  var sel = document.getElementById('live-entry-filter');
-  if (sel) {
-    var opt = sel.querySelector('option[value="h2h"]');
-    if (opt) opt.textContent = '⚔️ vs ' + opp.team;
-    sel.value = 'h2h';
-  }
+  // Update H2H button to show active state
+  var btn = document.getElementById('h2h-live-btn');
+  if (btn) { btn.textContent = '⚔️ vs ' + opp.team; btn.classList.add('active'); }
   renderActivityList();
 }
 
@@ -501,8 +505,8 @@ function cancelH2HLivePicker() {
   if (p) p.remove();
   if (b) b.remove();
   _h2hLiveOpponent = null;
-  var sel = document.getElementById('live-entry-filter');
-  if (sel) sel.value = 'all';
+  var btn = document.getElementById('h2h-live-btn');
+  if (btn) { btn.textContent = '⚔️ H2H'; btn.classList.remove('active'); }
   renderActivityList();
 }
 
