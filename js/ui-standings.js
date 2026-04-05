@@ -26,11 +26,21 @@ function renderStandings() {
   var ranked = getRanked();
   updateHeaderTeam();
   var el = document.getElementById('standings-list');
-  // Compute true ranks based on total score
+  // Compute true ranks based on total score (+ TB when final)
   var rankMap = {};
   var rk = 1;
   ranked.forEach(function(e, i) {
-    if (i > 0 && ranked[i].total !== ranked[i-1].total) rk = i + 1;
+    if (i > 0) {
+      var prev = ranked[i-1];
+      if (e.total !== prev.total) {
+        rk = i + 1;
+      } else if (TOURNEY_FINAL && WINNING_SCORE !== null && e.tb != null && prev.tb != null) {
+        // TB-resolved: different TB distances get different ranks
+        var eDiff = Math.abs(e.tb - WINNING_SCORE);
+        var pDiff = Math.abs(prev.tb - WINNING_SCORE);
+        if (eDiff !== pDiff) rk = i + 1;
+      }
+    }
     rankMap[e.team + '|' + e.email] = rk;
   });
   // Apply display sort if not default
