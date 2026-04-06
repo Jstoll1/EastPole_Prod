@@ -1896,7 +1896,7 @@ html, body  {
 
 .splash-branding  {
   margin: 0;
-  animation: splashFadeUp 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) 1.4s both;
+  animation: splashFadeUp 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s both;
 }
 
 .brand-text  {
@@ -1945,7 +1945,7 @@ html, body  {
   margin-top: 14px;
   text-shadow: 0 1px 4px rgba(0,0,0,0.8);
   opacity: 0;
-  animation: ctaFadeIn 1.2s ease-out 3.0s forwards, ctaPulse 3s ease-in-out 4.2s infinite;
+  animation: ctaFadeIn 1.2s ease-out 3.2s forwards, ctaPulse 3s ease-in-out 4.4s infinite;
 }
 
 @keyframes ctaFadeIn {
@@ -1987,11 +1987,11 @@ html, body  {
 
 .splash-masters-logo  {
   display: block;
-  margin: 0 auto 28px;
+  margin: 32px auto 0;
   max-width: 220px;
   height: auto;
   filter: drop-shadow(0 4px 18px rgba(0,0,0,0.85)) drop-shadow(0 0 24px rgba(0,0,0,0.6));
-  animation: logoZoom 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s both;
+  animation: logoZoom 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) 1.6s both;
 }
 
 @keyframes splashFade  {
