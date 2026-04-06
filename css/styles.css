@@ -81,6 +81,16 @@ html, body  {
   color: rgba(255,255,255,0.35);
 }
 
+.hdr-brand-logo {
+  height: 22px;
+  width: auto;
+  display: block;
+  filter: brightness(0) invert(1);
+  opacity: 0.92;
+  margin-bottom: 2px;
+  pointer-events: none;
+}
+
 .hdr-status-inline  {
   display: flex;
   align-items: center;
@@ -99,6 +109,14 @@ html, body  {
   min-height: 44px;
   position: relative;
   z-index: 2;
+}
+.hdr-logo-center::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(212,168,67,0.18) 0%, rgba(212,168,67,0.08) 35%, transparent 65%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .hdr-logo-center img  {
