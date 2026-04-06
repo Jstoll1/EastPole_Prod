@@ -154,8 +154,17 @@ var AMATEURS = new Set([
 // PRE_ODDS: [winner, top5, top10] — populate with Masters odds when ready
 var PRE_ODDS = {};
 
-var POOL_CONFIG = { buyIn: 100, entries: 120, payouts: [ { place: '1st', amount: 900 }, { place: '2nd', amount: 500 }, { place: '3rd', amount: 200 } ] };
-POOL_CONFIG.pot = POOL_CONFIG.buyIn * POOL_CONFIG.entries;
+// 2026 Masters pool config
+var POOL_CONFIG = {
+  buyIn: 20,
+  fifthEntryBuyIn: 10,
+  maxEntriesPerPerson: 5,
+  picksPerTeam: 10,
+  bestN: 4,
+  // 1st = 70% of (pot - 3rd reimbursement), 2nd = 30% of (pot - 3rd reimbursement)
+  // 3rd = single entry fee reimbursed ($20)
+  payoutPctOfNet: { first: 0.70, second: 0.30 }
+};
 
 var PILL_CLASSES = ['pill-a', 'pill-b', 'pill-c'];
 function pillLabel(teamIdx) { return teamIdx + 1; }

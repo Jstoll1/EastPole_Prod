@@ -32,14 +32,9 @@ function renderStandings() {
   ranked.forEach(function(e, i) {
     if (i > 0) {
       var prev = ranked[i-1];
-      if (e.total !== prev.total) {
-        rk = i + 1;
-      } else if (TOURNEY_FINAL && WINNING_SCORE !== null && e.tb != null && prev.tb != null) {
-        // TB-resolved: different TB distances get different ranks
-        var eDiff = Math.abs(e.tb - WINNING_SCORE);
-        var pDiff = Math.abs(prev.tb - WINNING_SCORE);
-        if (eDiff !== pDiff) rk = i + 1;
-      }
+      // Bump rank when comparator (total → 5th → 6th) returns non-zero.
+      // Equal-comparator entries share a rank (split tied per 2026 rules).
+      if (compareEntries(prev, e) !== 0) rk = i + 1;
     }
     rankMap[e.team + '|' + e.email] = rk;
   });
@@ -81,9 +76,12 @@ function renderStandings() {
     winnerBoxEl.id = 'winner-splash';
     cardsEl.parentNode.insertBefore(winnerBoxEl, cardsEl);
   }
+  var poolPayouts = computePoolPayouts();
+  var payoutAmounts = [poolPayouts.p1, poolPayouts.p2, poolPayouts.p3];
+  var payoutLabels = ['1st', '2nd', '3rd'];
   if (tourneyDone && ranked[0]) {
     var w = ranked[0];
-    var wPayout = POOL_CONFIG.payouts[0];
+    var wPayoutAmt = poolPayouts.p1;
     var wScoreDisp = fmtTeam(w.total);
     var wScoreCls = cls(w.total);
     var wGolfers = w.top4.map(function(g) {
@@ -102,7 +100,7 @@ function renderStandings() {
       + '<div class="ws-by">' + w.name + '</div>'
       + '<div class="ws-total"><span class="' + wScoreCls + '">' + wScoreDisp + '</span></div>'
       + '<div class="ws-golfers">' + wGolfers + '</div>'
-      + '<div class="ws-payout">$' + wPayout.amount + '</div>'
+      + '<div class="ws-payout">$' + wPayoutAmt.toLocaleString() + '</div>'
       + '<div class="ws-payout-lbl">Prize Money</div>'
       + '</div>';
     winnerBoxEl.style.display = '';
@@ -111,16 +109,16 @@ function renderStandings() {
     winnerBoxEl.style.display = 'none';
   }
 
-  cardsEl.innerHTML = POOL_CONFIG.payouts.map(function(p, i) {
+  cardsEl.innerHTML = payoutLabels.map(function(label, i) {
     var holder = '—';
     var tbNote = '';
     if (TOURNAMENT_STARTED && ranked[i]) {
       if (tourneyDone) {
         holder = ranked[i].team;
-        // Check if this payout position was decided by tiebreaker
-        var tiedCount = ranked.filter(function(e) { return e.total === ranked[i].total; }).length;
-        if (tiedCount > 1 && ranked[i].tb != null && WINNING_SCORE !== null) {
-          tbNote = '<div class="pc-tb">TB: ' + ranked[i].tb + ' (off by ' + Math.abs(ranked[i].tb - WINNING_SCORE) + ')</div>';
+        // Detect split-tied (tied even after 5th + 6th best score)
+        var splitMates = ranked.filter(function(e) { return compareEntries(e, ranked[i]) === 0; });
+        if (splitMates.length > 1) {
+          tbNote = '<div class="pc-tb">Split ' + splitMates.length + '-way</div>';
         }
       } else if (maxCompleted >= 2) {
         holder = ranked[i].team;
@@ -131,19 +129,18 @@ function renderStandings() {
     var isGold = i === 0;
     var finalCls = tourneyDone ? ' final' : '';
     return '<div class="payout-card ' + (isGold ? 'gold' : '') + finalCls + '">' +
-      '<div class="pc-lbl">' + p.place + '</div>' +
-      '<div class="pc-amt">$' + p.amount + '</div>' +
+      '<div class="pc-lbl">' + label + '</div>' +
+      '<div class="pc-amt">$' + payoutAmounts[i].toLocaleString() + '</div>' +
       '<div class="pc-who">' + holder + '</div>' +
       tbNote +
     '</div>';
   }).join('');
-  var actualPot = ENTRIES.length * POOL_CONFIG.buyIn;
-  var poolSubHtml = ENTRIES.length + ' entries · $' + POOL_CONFIG.buyIn + ' buy-in · <strong style="color:var(--gold)">$' + actualPot.toLocaleString() + ' pot</strong>';
+  var poolSubHtml = ENTRIES.length + ' entries · $' + POOL_CONFIG.buyIn + ' buy-in · <strong style="color:var(--gold)">$' + poolPayouts.pot.toLocaleString() + ' pot</strong>';
   if (TOURNEY_FINAL) {
     var winScoreDisp = WINNING_SCORE > 0 ? '+' + WINNING_SCORE : WINNING_SCORE === 0 ? 'E' : String(WINNING_SCORE);
     poolSubHtml += '<br><span class="final-label">🏆 TOURNAMENT FINAL</span> · Winning score: <strong>' + winScoreDisp + '</strong>';
   } else {
-    poolSubHtml += '<br>Best 4 of 6 golfer scores combined over four rounds wins.';
+    poolSubHtml += '<br>Best 4 of 10 golfer scores combined over four rounds wins.';
   }
   document.getElementById('standings-pool-sub').innerHTML = poolSubHtml;
 
@@ -247,7 +244,7 @@ function renderStandings() {
     var todayDisp = teamTodayCount > 0 ? (teamToday > 0 ? '+' + teamToday : teamToday === 0 ? 'E' : '' + teamToday) : '—';
     var todayCls = teamToday < 0 ? 'neg' : teamToday > 0 ? 'pos' : 'eve';
     var holesTag = ROUND_START_ROUND >= 4 ? (teamHolesLeft > 0 ? '<span class="s-holes">' + teamHolesLeft + '</span>' : '') : '';
-    var inMoney = TOURNEY_FINAL && rank <= POOL_CONFIG.payouts.length;
+    var inMoney = TOURNEY_FINAL && rank <= 3;
     var moneyIcon = inMoney ? (rank === 1 ? '🏆' : '💰') : '';
     html += '<div class="tv-row st-row' + isMyTeam + cmpCls + cmpSelCls + (inMoney ? ' in-money' : '') + '" onclick="' + rowClick + '" style="cursor:pointer">'
         + '<div class="tv-pos">' + (moneyIcon || rank) + moveHtml + '</div>'
@@ -309,22 +306,22 @@ function renderStandings() {
           + '</div>'
           + '<div class="sc-panel" id="' + stScId + '"></div>';
     }).join('');
-    var isTied = (i < displayRanked.length-1 && displayRanked[i].total === displayRanked[i+1].total) || (i > 0 && displayRanked[i].total === displayRanked[i-1].total);
+    // 5th/6th-best tiebreaker note (only on tied entries among top 3)
     var tbFooter2 = '';
-    if (isTied && e.tb != null) {
-      if (TOURNEY_FINAL && WINNING_SCORE !== null) {
-        var tbDiff = Math.abs(e.tb - WINNING_SCORE);
-        tbFooter2 = ' · TB: ' + e.tb + ' (actual: ' + (WINNING_SCORE > 0 ? '+' + WINNING_SCORE : WINNING_SCORE === 0 ? 'E' : WINNING_SCORE) + ', off by ' + tbDiff + ')';
-      } else {
-        tbFooter2 = ' · TB: ' + e.tb;
-      }
+    var isTiedWithNeighbor = (i < displayRanked.length-1 && displayRanked[i].total === displayRanked[i+1].total) || (i > 0 && displayRanked[i].total === displayRanked[i-1].total);
+    if (isTiedWithNeighbor && rank <= 3) {
+      var tbBits = [];
+      if (e.fifthScore != null) tbBits.push('5th: ' + fmt(e.fifthScore));
+      if (e.sixthScore != null) tbBits.push('6th: ' + fmt(e.sixthScore));
+      if (tbBits.length) tbFooter2 = ' · TB ' + tbBits.join(' / ');
     }
     var footerHoles = ROUND_START_ROUND >= 4 && !TOURNEY_FINAL ? ' · ' + teamHolesLeft + ' holes left' : '';
     // Payout badge for top 3 when final
     var payoutBadge = '';
-    if (TOURNEY_FINAL && rank <= POOL_CONFIG.payouts.length) {
-      var payout = POOL_CONFIG.payouts[rank - 1];
-      if (payout) payoutBadge = '<span class="payout-badge' + (rank === 1 ? ' gold' : '') + '">💰 ' + payout.place + ' — $' + payout.amount + '</span>';
+    if (TOURNEY_FINAL && rank <= 3) {
+      var payAmt = payoutAmounts[rank - 1];
+      var payLbl = payoutLabels[rank - 1];
+      payoutBadge = '<span class="payout-badge' + (rank === 1 ? ' gold' : '') + '">💰 ' + payLbl + ' — $' + payAmt.toLocaleString() + '</span>';
     }
     html += '<div class="picks-panel-footer"><span>' + e.name + tbFooter2 + footerHoles + '</span>' + payoutBadge + '<button class="h2h-quick-btn" onclick="event.stopPropagation();openH2HPicker(' + entryIdx + ')">⚔️ H2H</button></div> </div>';
   });
@@ -340,9 +337,8 @@ function renderStandings() {
   var hasTies = ranks.some(function(r, i) { return i > 0 && r === ranks[i-1]; });
   var fnEl = document.getElementById('standings-footnote');
   fnEl.style.display = (hasTies || TOURNEY_FINAL) ? 'block' : 'none';
-  if (TOURNEY_FINAL && WINNING_SCORE !== null) {
-    var winScoreDisp = WINNING_SCORE > 0 ? '+' + WINNING_SCORE : WINNING_SCORE === 0 ? 'E' : String(WINNING_SCORE);
-    fnEl.innerHTML = '<strong style="color:var(--text2);">TB</strong> = Pre-submitted tiebreaker prediction (winning score to par). Actual winning score: <strong style="color:var(--gold)">' + winScoreDisp + '</strong>. Closest prediction wins the tiebreaker.'
+  if (hasTies || TOURNEY_FINAL) {
+    fnEl.innerHTML = '<strong style="color:var(--text2);">TB</strong> = Tied teams in the top 3 are broken by lowest 5th-best golfer score, then 6th-best. Still tied after 6 = split evenly.'
       + '<br><strong style="color:var(--text2);">MC</strong> = Missed Cut (+11 penalty). <strong style="color:var(--text2);">WD</strong> = Withdrawn (+12 penalty).';
   }
 

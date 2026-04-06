@@ -73,26 +73,55 @@ function getHolesRemaining(playerName) {
 
 function calcEntry(e) {
   var scores = e.picks.map(function(n) { return { name: n, score: gs(n) }; }).sort(function(a, b) { return a.score - b.score; });
-  var top4 = scores.slice(0, 4);
-  return Object.assign({}, e, { scores: scores, top4: top4, total: top4.reduce(function(s, g) { return s + g.score; }, 0) });
-}
-
-function getRanked() {
-  return ENTRIES.map(calcEntry).sort(function(a, b) {
-    if (a.total !== b.total) return a.total - b.total;
-    // Tiebreaker: closest to actual winning score (only when tournament is final)
-    if (TOURNEY_FINAL && WINNING_SCORE !== null && a.tb != null && b.tb != null) {
-      var aDiff = Math.abs(a.tb - WINNING_SCORE);
-      var bDiff = Math.abs(b.tb - WINNING_SCORE);
-      if (aDiff !== bDiff) return aDiff - bDiff;
-    }
-    return 0;
+  var bestN = (typeof POOL_CONFIG !== 'undefined' && POOL_CONFIG.bestN) ? POOL_CONFIG.bestN : 4;
+  var top4 = scores.slice(0, bestN);
+  return Object.assign({}, e, {
+    scores: scores,
+    top4: top4,
+    total: top4.reduce(function(s, g) { return s + g.score; }, 0),
+    fifthScore: scores[bestN] ? scores[bestN].score : null,
+    sixthScore: scores[bestN + 1] ? scores[bestN + 1].score : null
   });
 }
 
-function getTbDiff(entry) {
-  if (!TOURNEY_FINAL || WINNING_SCORE === null || entry.tb == null) return null;
-  return Math.abs(entry.tb - WINNING_SCORE);
+// Comparator implementing 2026 tiebreaker rules:
+// 1) lowest total (best 4) wins
+// 2) tied → lower 5th-best score wins
+// 3) still tied → lower 6th-best score wins
+// 4) still tied → split evenly (returns 0)
+function compareEntries(a, b) {
+  if (a.total !== b.total) return a.total - b.total;
+  var a5 = a.fifthScore == null ? 9999 : a.fifthScore;
+  var b5 = b.fifthScore == null ? 9999 : b.fifthScore;
+  if (a5 !== b5) return a5 - b5;
+  var a6 = a.sixthScore == null ? 9999 : a.sixthScore;
+  var b6 = b.sixthScore == null ? 9999 : b.sixthScore;
+  if (a6 !== b6) return a6 - b6;
+  return 0;
+}
+
+function getRanked() {
+  return ENTRIES.map(calcEntry).sort(compareEntries);
+}
+
+// Compute live pool payouts based on actual ENTRIES, accounting for 5th-entry pricing.
+// 3rd place = single entry fee reimbursement (POOL_CONFIG.buyIn).
+// 1st = 70% of (pot - p3), 2nd = 30% of (pot - p3).
+function computePoolPayouts() {
+  var perPerson = {};
+  ENTRIES.forEach(function(e) { perPerson[e.email] = (perPerson[e.email] || 0) + 1; });
+  var pot = 0;
+  Object.keys(perPerson).forEach(function(email) {
+    var cnt = perPerson[email];
+    var paidStandard = Math.min(cnt, 4) * POOL_CONFIG.buyIn;
+    var paidFifth = cnt >= 5 ? POOL_CONFIG.fifthEntryBuyIn : 0;
+    pot += paidStandard + paidFifth;
+  });
+  var p3 = POOL_CONFIG.buyIn;
+  var net = Math.max(0, pot - p3);
+  var p1 = Math.round(net * POOL_CONFIG.payoutPctOfNet.first);
+  var p2 = Math.round(net * POOL_CONFIG.payoutPctOfNet.second);
+  return { pot: pot, p1: p1, p2: p2, p3: p3, entries: ENTRIES.length };
 }
 
 function computeOwnership() {
