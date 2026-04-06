@@ -1461,6 +1461,19 @@ html, body  {
   text-overflow: ellipsis;
 }
 
+.lb-hand-logo-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 0 4px;
+}
+.lb-hand-logo {
+  height: 28px;
+  width: auto;
+  opacity: 0.95;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+}
+
 .tv-am {
   font-size: 9px;
   font-weight: 700;
