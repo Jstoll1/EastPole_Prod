@@ -3662,6 +3662,9 @@ to  {
   width: 140px;
   height: auto;
 }
+.coffee-view-logo--top {
+  margin: 20px auto 16px;
+}
 
 .coffee-view-tagline {
   font-family: 'Karla', sans-serif;
