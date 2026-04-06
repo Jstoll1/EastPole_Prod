@@ -82,15 +82,62 @@ window.addEventListener('unhandledrejection', function(e) {
 
 var ENTRIES = [];
 
+// 2026 Masters Tournament — 91-player field (from masters.com)
 var FLAGS = {
-  // Populated from ESPN Masters field on first fetch
+  'Ludvig Aberg':'🇸🇪','Daniel Berger':'🇺🇸','Akshay Bhatia':'🇺🇸',
+  'Keegan Bradley':'🇺🇸','Michael Brennan':'🇺🇸','Jacob Bridgeman':'🇺🇸',
+  'Sam Burns':'🇺🇸','Angel Cabrera':'🇦🇷','Brian Campbell':'🇺🇸',
+  'Patrick Cantlay':'🇺🇸','Wyndham Clark':'🇺🇸','Corey Conners':'🇨🇦',
+  'Fred Couples':'🇺🇸','Jason Day':'🇦🇺','Bryson DeChambeau':'🇺🇸',
+  'Nicolas Echavarria':'🇨🇴','Harris English':'🇺🇸','Ethan Fang':'🇺🇸',
+  'Matt Fitzpatrick':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Tommy Fleetwood':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Ryan Fox':'🇳🇿',
+  'Sergio Garcia':'🇪🇸','Ryan Gerard':'🇺🇸','Chris Gotterup':'🇺🇸',
+  'Max Greyserman':'🇺🇸','Ben Griffin':'🇺🇸','Harry Hall':'🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  'Brian Harman':'🇺🇸','Tyrrell Hatton':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Russell Henley':'🇺🇸',
+  'Jackson Herrington':'🇺🇸','Nicolai Hojgaard':'🇩🇰','Rasmus Hojgaard':'🇩🇰',
+  'Brandon Holtz':'🇺🇸','Max Homa':'🇺🇸','Viktor Hovland':'🇳🇴',
+  'Mason Howell':'🇺🇸','Sungjae Im':'🇰🇷','Casey Jarvis':'🇿🇦',
+  'Dustin Johnson':'🇺🇸','Zach Johnson':'🇺🇸','Naoyuki Kataoka':'🇯🇵',
+  'John Keefer':'🇺🇸','Michael Kim':'🇺🇸','Si Woo Kim':'🇰🇷',
+  'Kurt Kitayama':'🇺🇸','Jake Knapp':'🇺🇸','Brooks Koepka':'🇺🇸',
+  'Fifa Laopakdee':'🇹🇭','Min Woo Lee':'🇦🇺','Haotong Li':'🇨🇳',
+  'Shane Lowry':'🇮🇪','Robert MacIntyre':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','Hideki Matsuyama':'🇯🇵',
+  'Matt McCarty':'🇺🇸','Rory McIlroy':'🇬🇧','Tom McKibbin':'🇬🇧',
+  'Maverick McNealy':'🇺🇸','Collin Morikawa':'🇺🇸','Rasmus Neergaard-Petersen':'🇩🇰',
+  'Alex Noren':'🇸🇪','Andrew Novak':'🇺🇸','Jose Maria Olazabal':'🇪🇸',
+  'Carlos Ortiz':'🇲🇽','Marco Penge':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Aldrich Potgieter':'🇿🇦',
+  'Mateo Pulcini':'🇦🇷','Jon Rahm':'🇪🇸','Aaron Rai':'🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  'Patrick Reed':'🇺🇸','Kristoffer Reitan':'🇳🇴','Davis Riley':'🇺🇸',
+  'Justin Rose':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Xander Schauffele':'🇺🇸','Scottie Scheffler':'🇺🇸',
+  'Charl Schwartzel':'🇿🇦','Adam Scott':'🇦🇺','Vijay Singh':'🇫🇯',
+  'Cameron Smith':'🇦🇺','J.J. Spaun':'🇺🇸','Jordan Spieth':'🇺🇸',
+  'Samuel Stevens':'🇺🇸','Sepp Straka':'🇦🇹','Nick Taylor':'🇨🇦',
+  'Justin Thomas':'🇺🇸','Sami Valimaki':'🇫🇮','Bubba Watson':'🇺🇸',
+  'Mike Weir':'🇨🇦','Danny Willett':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Gary Woodland':'🇺🇸',
+  'Cameron Young':'🇺🇸'
 };
 
 var TIERS = [];
-var NAME_ALIASES = {};
-var FLAG_TO_CODE = {'🇺🇸':'USA','🇦🇺':'AUS','🇰🇷':'KOR','🇨🇦':'CAN','🇿🇦':'RSA','🇩🇰':'DEN','🇸🇪':'SWE','🇫🇷':'FRA','🇯🇵':'JPN','🇮🇪':'IRL','🇧🇪':'BEL','🇦🇷':'ARG','🇹🇼':'TPE','🇻🇪':'VEN','🇵🇭':'PHI','🇵🇷':'PUR','🇩🇪':'GER','🇳🇿':'NZL','🇨🇴':'COL','🇨🇳':'CHN','🇳🇴':'NOR','🏴󠁧󠁢󠁥󠁮󠁧󠁿':'ENG','🏴󠁧󠁢󠁳󠁣󠁴󠁿':'SCO','🏴󠁧󠁢󠁷󠁬󠁳󠁿':'WAL','🇫🇮':'FIN','🇦🇹':'AUT','🇮🇹':'ITA','🇪🇸':'ESP','🇨🇭':'CHE','🇳🇱':'NED','🇮🇸':'ISL','🏳️':'—'};
+var NAME_ALIASES = {
+  'Ludvig Åberg':'Ludvig Aberg',
+  'Ángel Cabrera':'Angel Cabrera',
+  'Sergio García':'Sergio Garcia',
+  'Nicolai Højgaard':'Nicolai Hojgaard',
+  'Rasmus Højgaard':'Rasmus Hojgaard',
+  'José María Olazábal':'Jose Maria Olazabal',
+  'Sami Välimäki':'Sami Valimaki',
+  'Alex Norén':'Alex Noren',
+  'Thorbjørn Olesen':'Thorbjorn Olesen',
+  'Stephan Jäger':'Stephan Jaeger',
+  'Hao-Tong Li':'Haotong Li',
+  'Seonghyeon Kim':'S.H. Kim',
+  'Jordan L. Smith':'Jordan Smith',
+  'Adrien Dumont de Chassart':'Adrien Dumont De Chassart',
+  'Johnny Keefer':'John Keefer'
+};
+var FLAG_TO_CODE = {'🇺🇸':'USA','🇦🇺':'AUS','🇰🇷':'KOR','🇨🇦':'CAN','🇿🇦':'RSA','🇩🇰':'DEN','🇸🇪':'SWE','🇫🇷':'FRA','🇯🇵':'JPN','🇮🇪':'IRL','🇧🇪':'BEL','🇦🇷':'ARG','🇹🇼':'TPE','🇻🇪':'VEN','🇵🇭':'PHI','🇵🇷':'PUR','🇩🇪':'GER','🇳🇿':'NZL','🇨🇴':'COL','🇨🇳':'CHN','🇳🇴':'NOR','🏴󠁧󠁢󠁥󠁮󠁧󠁿':'ENG','🏴󠁧󠁢󠁳󠁣󠁴󠁿':'SCO','🏴󠁧󠁢󠁷󠁬󠁳󠁿':'WAL','🇫🇮':'FIN','🇦🇹':'AUT','🇮🇹':'ITA','🇪🇸':'ESP','🇨🇭':'CHE','🇳🇱':'NED','🇮🇸':'ISL','🇲🇽':'MEX','🇹🇭':'THA','🇫🇯':'FIJ','🇬🇧':'NIR','🏳️':'—'};
 // ESPN serves country codes (3-letter) on c.athlete.flag.alt — convert to emoji
-var CODE_TO_FLAG = {'USA':'🇺🇸','AUS':'🇦🇺','KOR':'🇰🇷','CAN':'🇨🇦','RSA':'🇿🇦','ZAF':'🇿🇦','DEN':'🇩🇰','DNK':'🇩🇰','SWE':'🇸🇪','FRA':'🇫🇷','JPN':'🇯🇵','JAP':'🇯🇵','IRL':'🇮🇪','BEL':'🇧🇪','ARG':'🇦🇷','TPE':'🇹🇼','TWN':'🇹🇼','VEN':'🇻🇪','PHI':'🇵🇭','PHL':'🇵🇭','PUR':'🇵🇷','PRI':'🇵🇷','GER':'🇩🇪','DEU':'🇩🇪','NZL':'🇳🇿','COL':'🇨🇴','CHN':'🇨🇳','NOR':'🇳🇴','ENG':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','SCO':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','WAL':'🏴󠁧󠁢󠁷󠁬󠁳󠁿','GBR':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','FIN':'🇫🇮','AUT':'🇦🇹','ITA':'🇮🇹','ESP':'🇪🇸','SUI':'🇨🇭','CHE':'🇨🇭','NED':'🇳🇱','NLD':'🇳🇱','ISL':'🇮🇸','NIR':'🏴󠁧󠁢󠁳󠁣󠁴󠁿'};
+var CODE_TO_FLAG = {'USA':'🇺🇸','AUS':'🇦🇺','KOR':'🇰🇷','CAN':'🇨🇦','RSA':'🇿🇦','ZAF':'🇿🇦','DEN':'🇩🇰','DNK':'🇩🇰','SWE':'🇸🇪','FRA':'🇫🇷','JPN':'🇯🇵','JAP':'🇯🇵','IRL':'🇮🇪','BEL':'🇧🇪','ARG':'🇦🇷','TPE':'🇹🇼','TWN':'🇹🇼','VEN':'🇻🇪','PHI':'🇵🇭','PHL':'🇵🇭','PUR':'🇵🇷','PRI':'🇵🇷','GER':'🇩🇪','DEU':'🇩🇪','NZL':'🇳🇿','COL':'🇨🇴','CHN':'🇨🇳','NOR':'🇳🇴','ENG':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','SCO':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','WAL':'🏴󠁧󠁢󠁷󠁬󠁳󠁿','GBR':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','FIN':'🇫🇮','AUT':'🇦🇹','ITA':'🇮🇹','ESP':'🇪🇸','SUI':'🇨🇭','CHE':'🇨🇭','NED':'🇳🇱','NLD':'🇳🇱','ISL':'🇮🇸','NIR':'🇬🇧','MEX':'🇲🇽','THA':'🇹🇭','THL':'🇹🇭','FIJ':'🇫🇯','FJI':'🇫🇯'};
 
 var PREV_WINNER = 'Rory McIlroy';
 
