@@ -2,9 +2,14 @@
 
 var _scorecardInflight = {};
 
+// Force-fetch the 2026 Masters by event ID so the app shows Masters
+// pre-tournament state (field, tee times) all week instead of whatever
+// PGA event ESPN considers "current" (Valero Texas Open Mon-Sun).
+var MASTERS_EVENT_ID = '401811941';
+
 async function fetchESPN() {
   try {
-    var res = await fetch('https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?league=pga');
+    var res = await fetch('https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?event=' + MASTERS_EVENT_ID);
     if (!res.ok) { ErrorTracker.api('ESPN leaderboard fetch failed', { status: res.status, statusText: res.statusText }); throw new Error(); }
     var data = await res.json();
     var comps = data.events?.[0]?.competitions?.[0]?.competitors || [];
