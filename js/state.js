@@ -88,7 +88,9 @@ var FLAGS = {
 
 var TIERS = [];
 var NAME_ALIASES = {};
-var FLAG_TO_CODE = {'🇺🇸':'USA','🇦🇺':'AUS','🇰🇷':'KOR','🇨🇦':'CAN','🇿🇦':'RSA','🇩🇰':'DEN','🇸🇪':'SWE','🇫🇷':'FRA','🇯🇵':'JPN','🇮🇪':'IRL','🇧🇪':'BEL','🇦🇷':'ARG','🇹🇼':'TPE','🇻🇪':'VEN','🇵🇭':'PHI','🇵🇷':'PUR','🇩🇪':'GER','🇳🇿':'NZL','🇨🇴':'COL','🇨🇳':'CHN','🇳🇴':'NOR','🏴󠁧󠁢󠁥󠁮󠁧󠁿':'ENG','🏳️':'—'};
+var FLAG_TO_CODE = {'🇺🇸':'USA','🇦🇺':'AUS','🇰🇷':'KOR','🇨🇦':'CAN','🇿🇦':'RSA','🇩🇰':'DEN','🇸🇪':'SWE','🇫🇷':'FRA','🇯🇵':'JPN','🇮🇪':'IRL','🇧🇪':'BEL','🇦🇷':'ARG','🇹🇼':'TPE','🇻🇪':'VEN','🇵🇭':'PHI','🇵🇷':'PUR','🇩🇪':'GER','🇳🇿':'NZL','🇨🇴':'COL','🇨🇳':'CHN','🇳🇴':'NOR','🏴󠁧󠁢󠁥󠁮󠁧󠁿':'ENG','🏴󠁧󠁢󠁳󠁣󠁴󠁿':'SCO','🏴󠁧󠁢󠁷󠁬󠁳󠁿':'WAL','🇫🇮':'FIN','🇦🇹':'AUT','🇮🇹':'ITA','🇪🇸':'ESP','🇨🇭':'CHE','🇳🇱':'NED','🇮🇸':'ISL','🏳️':'—'};
+// ESPN serves country codes (3-letter) on c.athlete.flag.alt — convert to emoji
+var CODE_TO_FLAG = {'USA':'🇺🇸','AUS':'🇦🇺','KOR':'🇰🇷','CAN':'🇨🇦','RSA':'🇿🇦','ZAF':'🇿🇦','DEN':'🇩🇰','DNK':'🇩🇰','SWE':'🇸🇪','FRA':'🇫🇷','JPN':'🇯🇵','JAP':'🇯🇵','IRL':'🇮🇪','BEL':'🇧🇪','ARG':'🇦🇷','TPE':'🇹🇼','TWN':'🇹🇼','VEN':'🇻🇪','PHI':'🇵🇭','PHL':'🇵🇭','PUR':'🇵🇷','PRI':'🇵🇷','GER':'🇩🇪','DEU':'🇩🇪','NZL':'🇳🇿','COL':'🇨🇴','CHN':'🇨🇳','NOR':'🇳🇴','ENG':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','SCO':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','WAL':'🏴󠁧󠁢󠁷󠁬󠁳󠁿','GBR':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','FIN':'🇫🇮','AUT':'🇦🇹','ITA':'🇮🇹','ESP':'🇪🇸','SUI':'🇨🇭','CHE':'🇨🇭','NED':'🇳🇱','NLD':'🇳🇱','ISL':'🇮🇸','NIR':'🏴󠁧󠁢󠁳󠁣󠁴󠁿'};
 
 var PREV_WINNER = 'Rory McIlroy';
 

@@ -56,6 +56,13 @@ async function fetchESPN() {
       if (!rawName) return;
       var name = resolvePlayerName(rawName);
       if (c.athlete?.id) freshAthleteIds[name] = c.athlete.id;
+      // Auto-derive flag from ESPN's country code if we don't have one yet
+      if (!FLAGS[name]) {
+        var ccode = (c.athlete?.flag?.alt || c.athlete?.flag?.abbreviation || c.athlete?.citizenshipCountry?.alpha3 || '').toUpperCase();
+        if (ccode && CODE_TO_FLAG[ccode]) FLAGS[name] = CODE_TO_FLAG[ccode];
+        else if (ccode) FLAGS[name] = '🏳️';
+        else FLAGS[name] = '🏳️';
+      }
       var state = c.status?.type?.name || '';
       var scheduled = state === 'STATUS_SCHEDULED';
       var dispVal = (c.status?.displayValue || '').toUpperCase();

@@ -285,7 +285,16 @@ function renderLeaderboard() {
         + '<div class="sc-panel" id="sc-panel-' + ri + '"></div>';
   });
   var lbList = document.getElementById('leaderboard-list');
-  lbList.innerHTML = colHdr + rows;
+  if (!players.length) {
+    lbList.innerHTML = '<div style="padding:48px 24px;text-align:center;color:var(--text3)">'
+      + '<div style="font-size:42px;margin-bottom:14px">⛳</div>'
+      + '<div style="font-size:15px;font-weight:800;color:var(--text);letter-spacing:0.5px;margin-bottom:8px">Masters Tournament</div>'
+      + '<div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:18px">April 9–12, 2026 · Augusta National</div>'
+      + '<div style="font-size:11px;line-height:1.6;color:var(--text3);max-width:280px;margin:0 auto">Field and tee times publish from ESPN this week. Pool entries open now — leaderboard goes live Thursday tee-off.</div>'
+      + '</div>';
+  } else {
+    lbList.innerHTML = colHdr + rows;
+  }
   if (anyHaveTeeTime) { lbList.classList.add('has-tee-times'); lbList.classList.remove('no-tee-times'); }
   else { lbList.classList.add('no-tee-times'); lbList.classList.remove('has-tee-times'); }
 
