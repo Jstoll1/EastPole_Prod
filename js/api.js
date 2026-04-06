@@ -39,7 +39,7 @@ async function fetchESPN() {
     var openIdx = parts.findIndex(function(w) { return w.toLowerCase() === 'open'; });
     var shortName = openIdx > 0 ? parts.slice(Math.max(0, openIdx - 1), openIdx + 1).join(' ') : fullName;
     var hdrSub = document.getElementById('hdr-sub');
-    if (hdrSub) hdrSub.textContent = shortName;
+    if (hdrSub) hdrSub.textContent = '';
     var tournLabel = document.getElementById('lb-tournament-label');
     if (tournLabel) tournLabel.textContent = shortName;
 
