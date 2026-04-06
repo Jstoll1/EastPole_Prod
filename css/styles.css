@@ -82,12 +82,12 @@ html, body  {
 }
 .hdr-brand-logo-wrap {
   display: block;
-  height: 16px;
+  height: 13px;
   overflow: hidden;
   line-height: 0;
 }
 .hdr-brand-logo {
-  height: 28px;
+  height: 23px;
   width: auto;
   display: block;
   margin-top: -1px;
