@@ -1817,10 +1817,6 @@ html, body  {
   bottom: 0;
   z-index: 999;
   background-color: #06120c;
-  background-image: url('https://photo-assets.masters.com/images/pics/tablet/m_mag_lane_wide.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1828,12 +1824,24 @@ html, body  {
   cursor: pointer;
   transition: opacity 0.5s ease;
   overflow: hidden;
-  animation: kenBurns 14s ease-in-out infinite alternate;
+}
+
+#splash::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('https://photo-assets.masters.com/images/pics/tablet/m_mag_lane_wide.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  z-index: 0;
+  transform-origin: center center;
+  animation: kenBurns 30s ease-in-out infinite alternate;
 }
 
 @keyframes kenBurns {
-  0%   { background-size: 105% auto; background-position: center 50%; }
-  100% { background-size: 115% auto; background-position: center 45%; }
+  0%   { transform: scale(1); }
+  100% { transform: scale(1.18); }
 }
 
 #splash::before  {
@@ -1866,11 +1874,11 @@ html, body  {
   border-radius: 10px;
   backdrop-filter: blur(12px);
   box-shadow: 0 4px 24px rgba(0,0,0,0.5), 0 0 30px rgba(212,168,67,0.15);
-  animation: titleDrop 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s both;
+  animation: titleDrop 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s both;
 }
 
 @keyframes titleDrop {
-  0%   { opacity: 0; transform: translateY(-30px); }
+  0%   { opacity: 0; transform: translateY(-60px); }
   100% { opacity: 1; transform: translateY(0); }
 }
 
@@ -1888,7 +1896,7 @@ html, body  {
 
 .splash-branding  {
   margin: 18px 0 14px;
-  animation: fadeInUp 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.65s both;
+  animation: splashFadeUp 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) 2.4s both;
 }
 
 .brand-text  {
@@ -1935,12 +1943,21 @@ html, body  {
   text-transform: uppercase;
   margin-top: 14px;
   text-shadow: 0 1px 4px rgba(0,0,0,0.8);
-  animation: ctaPulse 2.4s ease-in-out infinite;
+  opacity: 0;
+  animation: ctaFadeIn 1.2s ease-out 3.6s forwards, ctaPulse 3s ease-in-out 4.8s infinite;
 }
 
+@keyframes ctaFadeIn {
+  0%   { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 0.8; transform: translateY(0); }
+}
 @keyframes ctaPulse {
-  0%, 100% { opacity: 0.5; transform: translateY(0); }
+  0%, 100% { opacity: 0.55; transform: translateY(0); }
   50%      { opacity: 1; transform: translateY(2px); }
+}
+@keyframes splashFadeUp {
+  0%   { opacity: 0; transform: translateY(24px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 .logo-capsule  {
@@ -1950,7 +1967,7 @@ html, body  {
   border-radius: 18px;
   padding: 22px 32px;
   margin: 0;
-  animation: logoZoom 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s both;
+  animation: logoZoom 2s cubic-bezier(0.2, 0.8, 0.2, 1) 1.4s both;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1962,8 +1979,8 @@ html, body  {
 }
 
 @keyframes logoZoom {
-  0%   { opacity: 0; transform: scale(0.7); }
-  60%  { opacity: 1; transform: scale(1.04); }
+  0%   { opacity: 0; transform: scale(0.82); }
+  70%  { opacity: 1; transform: scale(1.03); }
   100% { opacity: 1; transform: scale(1); }
 }
 
