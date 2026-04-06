@@ -378,19 +378,21 @@ html, body  {
   flex-direction: column;
   gap: 3px;
   margin-bottom: 10px;
+  align-items: center;
 }
 .ws-golfer {
-  display: flex;
+  display: grid;
+  grid-template-columns: 20px 1fr 36px;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
+  gap: 4px;
   font-size: 12px;
   font-weight: 600;
   color: var(--text);
+  width: 200px;
 }
-.ws-golfer-flag { font-size: 13px; }
-.ws-golfer-name { color: var(--text2); }
-.ws-golfer-score { font-weight: 800; min-width: 28px; text-align: right; }
+.ws-golfer-flag { font-size: 13px; text-align: center; }
+.ws-golfer-name { color: var(--text2); text-align: left; }
+.ws-golfer-score { font-weight: 800; text-align: right; }
 .ws-payout {
   font-size: 32px;
   font-weight: 900;
