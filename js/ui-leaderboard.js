@@ -87,10 +87,10 @@ function renderLeaderboard() {
     return parseTeeTime(a) - parseTeeTime(b);
   });
   else if (lbSort === 'today') activePlayers.sort(function(a,b) {
-    var aWaiting = a.thru === '—' || a.thru === 'F' || (a.thru && a.thru.includes(':'));
-    var bWaiting = b.thru === '—' || b.thru === 'F' || (b.thru && b.thru.includes(':'));
-    if (aWaiting && !bWaiting) return 1; if (!aWaiting && bWaiting) return -1;
-    if (aWaiting && bWaiting) return a.score - b.score;
+    var aHasToday = a.todayDisplay && a.todayDisplay !== '—';
+    var bHasToday = b.todayDisplay && b.todayDisplay !== '—';
+    if (!aHasToday && !bHasToday) return a.score - b.score;
+    if (!aHasToday) return 1; if (!bHasToday) return -1;
     return (parseTodayVal(a) - parseTodayVal(b)) * dir;
   });
   else if (lbSort === 'thru') activePlayers.sort(function(a,b) {
