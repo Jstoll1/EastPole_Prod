@@ -81,10 +81,11 @@ html, body  {
   color: rgba(255,255,255,0.35);
 }
 .hdr-brand-logo {
-  height: 26px;
+  height: 20px;
   width: auto;
   aspect-ratio: 1155 / 374;
   display: block;
+  margin: -2px 0 -2px;
   opacity: 0.95;
   image-rendering: auto;
   filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
