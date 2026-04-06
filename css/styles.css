@@ -3606,3 +3606,185 @@ to  {
 }
 .debug-copy-btn:active { color:var(--gold); }
 
+/* ── East Pole Coffee Sponsor View ────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Karla:wght@400;600;700;800&display=swap');
+
+#view-coffee { background: #FFFFFF; min-height: 100vh; padding: 0; }
+[data-theme="light"] #view-coffee { background: #FFFFFF; }
+
+.coffee-view-wrap {
+  max-width: 480px;
+  margin: 0 auto;
+  background: #FFFFFF;
+  color: #0D364E;
+  font-family: 'Karla', -apple-system, sans-serif;
+  position: relative;
+}
+
+.coffee-view-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 5;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(13,54,78,0.15);
+  color: #0D364E;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.coffee-view-close:active { background: #0D364E; color: #FFFFFF; }
+
+.coffee-view-hero {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+}
+
+.coffee-view-body {
+  padding: 28px 24px 20px;
+  text-align: center;
+}
+
+.coffee-view-logo {
+  display: block;
+  margin: 0 auto 18px;
+  width: 140px;
+  height: auto;
+}
+
+.coffee-view-tagline {
+  font-family: 'Karla', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #0D364E;
+  margin: 0 0 18px;
+  letter-spacing: -0.3px;
+}
+
+.coffee-view-sponsor-pill {
+  display: inline-block;
+  background: #F4FBF2;
+  color: #0D364E;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(150,214,213,0.5);
+  margin-bottom: 30px;
+}
+
+.coffee-view-section-h {
+  font-family: 'Karla', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #0D364E;
+  margin: 0 0 22px;
+  position: relative;
+  display: inline-block;
+}
+.coffee-view-section-h::before,
+.coffee-view-section-h::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 28px;
+  height: 1px;
+  background: #0D364E;
+}
+.coffee-view-section-h::before { right: calc(100% + 12px); }
+.coffee-view-section-h::after  { left: calc(100% + 12px); }
+
+.coffee-view-loc {
+  margin-bottom: 22px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #0D364E;
+}
+.coffee-view-loc-name {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  letter-spacing: -0.2px;
+}
+.coffee-view-loc-addr { color: rgba(13,54,78,0.75); margin-bottom: 6px; }
+.coffee-view-loc-hours { font-size: 13px; color: rgba(13,54,78,0.6); }
+
+.coffee-view-mint-panel {
+  background: #96D6D5;
+  padding: 36px 24px;
+  text-align: center;
+  color: #0D364E;
+}
+.coffee-view-mint-h {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin: 0 0 16px;
+}
+.coffee-view-mint-p {
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0 0 22px;
+  color: #0D364E;
+}
+
+.coffee-view-cta {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  margin: 10px auto 0;
+  padding: 14px 20px;
+  background: #FFFFFF;
+  color: #0D364E;
+  font-family: 'Karla', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-decoration: none;
+  text-align: center;
+  border-radius: 4px;
+  border: 1px solid #0D364E;
+  transition: background 0.15s, color 0.15s;
+}
+.coffee-view-cta:active { background: #0D364E; color: #FFFFFF; }
+
+.coffee-view-link {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0D364E;
+  text-decoration: none;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(13,54,78,0.12);
+  letter-spacing: 0.3px;
+}
+.coffee-view-link:last-of-type { border-bottom: none; }
+.coffee-view-link:active { color: #96D6D5; }
+
+.coffee-view-footer {
+  margin-top: 22px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(13,54,78,0.45);
+}
+

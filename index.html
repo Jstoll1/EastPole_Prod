@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./css/styles.css?v=287">
+<link rel="stylesheet" href="./css/styles.css?v=288">
 <link rel="stylesheet" href="./css/theme.css">
 <script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -183,6 +183,39 @@
 </div>
 </div>
 </div>
+<div class="view" id="view-coffee" style="padding-bottom:100px">
+<div class="coffee-view-wrap">
+<button class="coffee-view-close" onclick="closeFeedback()" aria-label="Close">✕</button>
+<img class="coffee-view-hero" src="https://eastpole.coffee/cdn/shop/files/eastpole-gv-armouryards-67_2048x2048.jpg?v=1693404725" alt="East Pole Coffee — Armour Yards">
+<div class="coffee-view-body">
+<img class="coffee-view-logo" src="https://eastpole.coffee/cdn/shop/files/Asset_2_2x_f4e0e3fa-56cb-4990-bfd1-a71735e5e835_150x@2x.png?v=1613526647" alt="East Pole Coffee Co.">
+<h1 class="coffee-view-tagline">A roastery and coffee bar from Atlanta.</h1>
+<div class="coffee-view-sponsor-pill">Proud sponsor of the East Pole Coffee Pool</div>
+<h2 class="coffee-view-section-h">Have Coffee With Us</h2>
+<div class="coffee-view-loc">
+<div class="coffee-view-loc-name">Armour Yards</div>
+<div class="coffee-view-loc-addr">255 Ottley Drive, Ste. 105<br>Atlanta, GA 30324</div>
+<div class="coffee-view-loc-hours">Mon–Fri  7am – 6pm<br>Sat–Sun  8am – 6pm</div>
+</div>
+<div class="coffee-view-loc">
+<div class="coffee-view-loc-name">Poncey-Highland</div>
+<div class="coffee-view-loc-addr">676 N. Highland Ave.<br>Atlanta, GA 30306</div>
+<div class="coffee-view-loc-hours">Mon–Fri  7am – 6pm<br>Sat–Sun  8am – 6pm</div>
+</div>
+</div>
+<div class="coffee-view-mint-panel">
+<h2 class="coffee-view-mint-h">Shop Coffee</h2>
+<p class="coffee-view-mint-p">Whether coffee is the centerpiece of your business, just something to keep your employees chipper and working, or a total afterthought, know this: East Pole is here to make your life easier and, maybe, more delicious.</p>
+<a class="coffee-view-cta" href="https://eastpole.coffee/collections/coffee" target="_blank" rel="noopener">Shop Whole Bean →</a>
+<a class="coffee-view-cta" href="https://eastpole.coffee/collections/subscriptions" target="_blank" rel="noopener">Subscribe →</a>
+</div>
+<div class="coffee-view-body">
+<a class="coffee-view-link" href="https://eastpole.coffee/" target="_blank" rel="noopener">Visit eastpole.coffee →</a>
+<a class="coffee-view-link" href="https://instagram.com/eastpolecoffeeco" target="_blank" rel="noopener">@eastpolecoffeeco on Instagram →</a>
+<div class="coffee-view-footer">eastpole.coffee</div>
+</div>
+</div>
+</div>
 <nav id="nav">
 <button class="nav-btn active" onclick="switchTab('leaderboard',this)">
 <svg viewBox="0 0 24 24">
@@ -198,6 +231,15 @@
 <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
 <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
 </svg> Standings </button>
+
+<button class="nav-btn" onclick="switchTab('coffee',this)">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M17 8h1a4 4 0 0 1 0 8h-1"/>
+<path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/>
+<line x1="6" y1="2" x2="6" y2="4"/>
+<line x1="10" y1="2" x2="10" y2="4"/>
+<line x1="14" y1="2" x2="14" y2="4"/>
+</svg> Coffee </button>
 
 <button class="nav-btn" onclick="switchTab('feedback',this)">
 <svg viewBox="0 0 24 24">
@@ -249,18 +291,18 @@
 </div>
 
 <!-- Module Scripts (deferred) -->
-<script defer src="./js/state.js?v=287"></script>
-<script defer src="./js/utils.js?v=287"></script>
-<script defer src="./js/api.js?v=287"></script>
-<script defer src="./js/ui-header.js?v=287"></script>
-<script defer src="./js/ui-standings.js?v=287"></script>
-<script defer src="./js/ui-leaderboard.js?v=287"></script>
-<script defer src="./js/ui-scorecard.js?v=287"></script>
-<script defer src="./js/ui-compare.js?v=287"></script>
+<script defer src="./js/state.js?v=288"></script>
+<script defer src="./js/utils.js?v=288"></script>
+<script defer src="./js/api.js?v=288"></script>
+<script defer src="./js/ui-header.js?v=288"></script>
+<script defer src="./js/ui-standings.js?v=288"></script>
+<script defer src="./js/ui-leaderboard.js?v=288"></script>
+<script defer src="./js/ui-scorecard.js?v=288"></script>
+<script defer src="./js/ui-compare.js?v=288"></script>
 
-<script defer src="./js/ui-activity.js?v=287"></script>
-<script defer src="./js/ui-ticker.js?v=287"></script>
-<script defer src="./js/ui-debug.js?v=287"></script>
-<script defer src="./js/app.js?v=287"></script>
+<script defer src="./js/ui-activity.js?v=288"></script>
+<script defer src="./js/ui-ticker.js?v=288"></script>
+<script defer src="./js/ui-debug.js?v=288"></script>
+<script defer src="./js/app.js?v=288"></script>
 </body>
 </html>
