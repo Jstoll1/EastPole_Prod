@@ -34,10 +34,8 @@ async function fetchESPN() {
     var wasPre = !TOURNAMENT_STARTED;
     if (!TOURNAMENT_STARTED && !isPreTournament) TOURNAMENT_STARTED = true;
     if (wasPre && TOURNAMENT_STARTED) console.log('🏌️ TOURNAMENT_STARTED flipped to true — event status:', evStatus);
-    var fullName = data.events[0].name || 'Valero Texas Open';
-    var parts = fullName.split(' ');
-    var openIdx = parts.findIndex(function(w) { return w.toLowerCase() === 'open'; });
-    var shortName = openIdx > 0 ? parts.slice(Math.max(0, openIdx - 1), openIdx + 1).join(' ') : fullName;
+    var fullName = data.events[0].name || 'The Masters';
+    var shortName = fullName.replace(/^The\s+/i, '').replace(/\s+Tournament$/i, '');
     var hdrSub = document.getElementById('hdr-sub');
     if (hdrSub) hdrSub.textContent = '';
     var tournLabel = document.getElementById('lb-tournament-label');
