@@ -1904,20 +1904,21 @@ html, body  {
 }
 
 .logo-capsule  {
-  background: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.96);
   backdrop-filter: blur(12px);
   border-radius: 16px;
-  padding: 14px 20px;
+  padding: 18px 26px;
   margin: 0;
   animation: fadeInUp 0.8s ease-out 0.35s both;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+  box-shadow: 0 6px 28px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.6);
 }
 
 .splash-masters-logo  {
-  max-width: 140px;
+  max-width: 160px;
   height: auto;
 }
 
