@@ -81,16 +81,6 @@ html, body  {
   color: rgba(255,255,255,0.35);
 }
 
-.hdr-brand-logo {
-  height: 22px;
-  width: auto;
-  display: block;
-  filter: brightness(0) invert(1);
-  opacity: 0.92;
-  margin-bottom: 2px;
-  pointer-events: none;
-}
-
 .hdr-status-inline  {
   display: flex;
   align-items: center;
