@@ -144,7 +144,7 @@ var NAME_ALIASES = {
 };
 var FLAG_TO_CODE = {'🇺🇸':'USA','🇦🇺':'AUS','🇰🇷':'KOR','🇨🇦':'CAN','🇿🇦':'RSA','🇩🇰':'DEN','🇸🇪':'SWE','🇫🇷':'FRA','🇯🇵':'JPN','🇮🇪':'IRL','🇧🇪':'BEL','🇦🇷':'ARG','🇹🇼':'TPE','🇻🇪':'VEN','🇵🇭':'PHI','🇵🇷':'PUR','🇩🇪':'GER','🇳🇿':'NZL','🇨🇴':'COL','🇨🇳':'CHN','🇳🇴':'NOR','🏴󠁧󠁢󠁥󠁮󠁧󠁿':'ENG','🏳️':'—'};
 
-var PREV_WINNER = 'Corey Conners';
+var PREV_WINNER = 'Rory McIlroy';
 
 // PRE_ODDS: [winner, top5, top10]
 var PRE_ODDS = {
@@ -241,7 +241,7 @@ var ATHLETE_IDS = {};
 var EVENT_ID = null;
 var SCORECARD_CACHE = {};
 var COURSE_HOLES = null;
-var COURSE_PAR = 70; // sum of default pars [4,3,5,4,4,4,3,5,3,4,3,4,4,4,3,5,4,4]
+var COURSE_PAR = 72; // Augusta National — par 72 [4,5,4,3,4,3,4,5,4,4,4,3,5,4,5,3,4,4]
 
 var WINNING_SCORE = null; // actual tournament winner's score to par (set when tourney final)
 var TOURNEY_FINAL = false; // true when all 4 rounds complete, 0 holes left
