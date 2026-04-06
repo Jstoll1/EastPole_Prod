@@ -74,9 +74,9 @@ html, body  {
 }
 
 .hdr-brand  {
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 2px;
+  letter-spacing: 2.5px;
   text-transform: uppercase;
   color: rgba(255,255,255,0.35);
 }
