@@ -34,11 +34,8 @@ async function fetchESPN() {
     var wasPre = !TOURNAMENT_STARTED;
     if (!TOURNAMENT_STARTED && !isPreTournament) TOURNAMENT_STARTED = true;
     if (wasPre && TOURNAMENT_STARTED) console.log('🏌️ TOURNAMENT_STARTED flipped to true — event status:', evStatus);
-    var shortName = 'Masters';
     var hdrSub = document.getElementById('hdr-sub');
     if (hdrSub) hdrSub.textContent = '';
-    var tournLabel = document.getElementById('lb-tournament-label');
-    if (tournLabel) tournLabel.textContent = shortName;
 
     Object.entries(GOLFER_SCORES).forEach(function(pair) {
       var n = pair[0], d = pair[1];
