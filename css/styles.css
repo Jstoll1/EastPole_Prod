@@ -388,11 +388,11 @@ html, body  {
   font-size: 12px;
   font-weight: 600;
   color: var(--text);
-  width: 200px;
+  width: 180px;
 }
 .ws-golfer-flag { font-size: 13px; text-align: center; }
-.ws-golfer-name { color: var(--text2); text-align: left; }
-.ws-golfer-score { font-weight: 800; text-align: right; }
+.ws-golfer-name { color: var(--text2); text-align: left; white-space: nowrap; }
+.ws-golfer-score { font-weight: 800; text-align: left; }
 .ws-payout {
   font-size: 32px;
   font-weight: 900;
