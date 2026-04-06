@@ -392,7 +392,7 @@ html, body  {
 }
 .ws-golfer-flag { font-size: 13px; text-align: center; }
 .ws-golfer-name { color: var(--text2); text-align: left; white-space: nowrap; }
-.ws-golfer-score { font-weight: 800; text-align: left; }
+.ws-golfer-score { font-weight: 800; text-align: right; }
 .ws-payout {
   font-size: 32px;
   font-weight: 900;
