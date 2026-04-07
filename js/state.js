@@ -133,7 +133,10 @@ var NAME_ALIASES = {
   'Seonghyeon Kim':'S.H. Kim',
   'Jordan L. Smith':'Jordan Smith',
   'Adrien Dumont de Chassart':'Adrien Dumont De Chassart',
-  'Johnny Keefer':'John Keefer'
+  'Johnny Keefer':'John Keefer',
+  'Alexander Noren':'Alex Noren',
+  'Matthew McCarty':'Matt McCarty',
+  'Sam Stevens':'Samuel Stevens'
 };
 var FLAG_TO_CODE = {'🇺🇸':'USA','🇦🇺':'AUS','🇰🇷':'KOR','🇨🇦':'CAN','🇿🇦':'RSA','🇩🇰':'DEN','🇸🇪':'SWE','🇫🇷':'FRA','🇯🇵':'JPN','🇮🇪':'IRL','🇧🇪':'BEL','🇦🇷':'ARG','🇹🇼':'TPE','🇻🇪':'VEN','🇵🇭':'PHI','🇵🇷':'PUR','🇩🇪':'GER','🇳🇿':'NZL','🇨🇴':'COL','🇨🇳':'CHN','🇳🇴':'NOR','🏴󠁧󠁢󠁥󠁮󠁧󠁿':'ENG','🏴󠁧󠁢󠁳󠁣󠁴󠁿':'SCO','🏴󠁧󠁢󠁷󠁬󠁳󠁿':'WAL','🇫🇮':'FIN','🇦🇹':'AUT','🇮🇹':'ITA','🇪🇸':'ESP','🇨🇭':'CHE','🇳🇱':'NED','🇮🇸':'ISL','🇲🇽':'MEX','🇹🇭':'THA','🇫🇯':'FIJ','🇬🇧':'NIR','🏳️':'—'};
 // ESPN serves country codes (3-letter) on c.athlete.flag.alt — convert to emoji
