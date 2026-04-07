@@ -5,7 +5,9 @@ var _coffeeInit = false;
 // Curated cafe gallery — additional URLs can be appended here as East Pole publishes them.
 // Falls back to Shopify product images if list is short.
 var COFFEE_GALLERY = [
-  'https://eastpole.coffee/cdn/shop/files/eastpole-gv-armouryards-67_2048x2048.jpg?v=1693404725'
+  'https://eastpole.coffee/cdn/shop/files/eastpole-gv-armouryards-67_2048x2048.jpg?v=1693404725',
+  'https://eastpole.coffee/cdn/shop/articles/IMG_7365_2_900x.jpg?v=1691674657',
+  'https://eastpole.coffee/cdn/shop/articles/East_Pole_-_Poncey_900x.jpg?v=1673465270'
 ];
 
 // Press logos: { name, url }. Add real entries when you have them.
