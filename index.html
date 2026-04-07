@@ -20,11 +20,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./css/styles.css?v=301">
+<link rel="stylesheet" href="./css/styles.css?v=302">
 <link rel="stylesheet" href="./css/theme.css">
 <script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
-<body>
+<body data-active-view="leaderboard">
 <div id="splash" onclick="enterApp()">
 <div class="splash-content">
 <div class="splash-branding">
@@ -230,19 +230,45 @@
 <div class="coffee-view-loc-name">Armour Yards</div>
 <div class="coffee-view-loc-addr">255 Ottley Drive, Ste. 105<br>Atlanta, GA 30324</div>
 <div class="coffee-view-loc-hours">Mon–Fri  7am – 6pm<br>Sat–Sun  8am – 6pm</div>
+<div class="coffee-view-map"><iframe loading="lazy" src="https://www.google.com/maps?q=255+Ottley+Drive+Atlanta+GA+30324&output=embed" allowfullscreen></iframe></div>
+<a class="coffee-view-dirs" href="https://www.google.com/maps/dir/?api=1&destination=255+Ottley+Drive+Atlanta+GA+30324" target="_blank" rel="noopener">Get Directions →</a>
 </div>
 <div class="coffee-view-loc">
 <div class="coffee-view-loc-name">Poncey-Highland</div>
 <div class="coffee-view-loc-addr">676 N. Highland Ave.<br>Atlanta, GA 30306</div>
 <div class="coffee-view-loc-hours">Mon–Fri  7am – 6pm<br>Sat–Sun  8am – 6pm</div>
+<div class="coffee-view-map"><iframe loading="lazy" src="https://www.google.com/maps?q=676+N+Highland+Ave+Atlanta+GA+30306&output=embed" allowfullscreen></iframe></div>
+<a class="coffee-view-dirs" href="https://www.google.com/maps/dir/?api=1&destination=676+N+Highland+Ave+Atlanta+GA+30306" target="_blank" rel="noopener">Get Directions →</a>
 </div>
 </div>
+<h2 class="coffee-view-section-h coffee-section-h--full">Inside the Cafe</h2>
+<div class="coffee-gallery">
+<div class="coffee-gallery-track" id="coffee-gallery-track"></div>
+</div>
+<h2 class="coffee-view-section-h coffee-section-h--full">Fresh Roasts</h2>
+<div class="coffee-products-grid" id="coffee-products-grid"></div>
 <div class="coffee-view-mint-panel">
 <h2 class="coffee-view-mint-h">Shop Coffee</h2>
 <p class="coffee-view-mint-p">Whether coffee is the centerpiece of your business, just something to keep your employees chipper and working, or a total afterthought, know this: East Pole is here to make your life easier and, maybe, more delicious.</p>
 <a class="coffee-view-cta" href="https://eastpole.coffee/collections/coffee" target="_blank" rel="noopener">Shop Whole Bean →</a>
 <a class="coffee-view-cta" href="https://eastpole.coffee/collections/subscriptions" target="_blank" rel="noopener">Subscribe →</a>
 </div>
+<a class="coffee-ig-card" href="https://instagram.com/eastpolecoffeeco" target="_blank" rel="noopener">
+<div class="coffee-ig-icon">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+<path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+<line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+</svg>
+</div>
+<div class="coffee-ig-text">
+<div class="coffee-ig-handle">@eastpolecoffeeco</div>
+<div class="coffee-ig-sub">Follow for new roasts, latte art &amp; cafe life</div>
+</div>
+<div class="coffee-ig-arrow">→</div>
+</a>
+<h2 class="coffee-view-section-h coffee-section-h--full">As Seen In</h2>
+<div class="coffee-press-row" id="coffee-press-row"></div>
 <div class="coffee-view-body">
 <a class="coffee-view-link" href="https://eastpole.coffee/" target="_blank" rel="noopener">Visit eastpole.coffee →</a>
 <a class="coffee-view-link" href="https://instagram.com/eastpolecoffeeco" target="_blank" rel="noopener">@eastpolecoffeeco on Instagram →</a>
@@ -282,6 +308,10 @@
 <line x1="12" y1="17" x2="12.01" y2="17"/>
 </svg> Help </button>
 </nav>
+<button id="sponsor-chip" onclick="switchTab('coffee', document.querySelector('.nav-btn[onclick*=coffee]'))" aria-label="Brought to you by East Pole Coffee">
+<span class="sponsor-chip-pre">Brought to you by</span>
+<span class="sponsor-chip-brand">EAST POLE COFFEE</span>
+</button>
 <button id="activity-fab" onclick="toggleActivityDrawer()">⚡</button>
 <div id="activity-overlay" onclick="toggleActivityDrawer()"></div>
 <div id="activity-drawer">
@@ -327,18 +357,19 @@
 </div>
 
 <!-- Module Scripts (deferred) -->
-<script defer src="./js/state.js?v=301"></script>
-<script defer src="./js/utils.js?v=301"></script>
-<script defer src="./js/api.js?v=301"></script>
-<script defer src="./js/ui-header.js?v=301"></script>
-<script defer src="./js/ui-standings.js?v=301"></script>
-<script defer src="./js/ui-leaderboard.js?v=301"></script>
-<script defer src="./js/ui-scorecard.js?v=301"></script>
-<script defer src="./js/ui-compare.js?v=301"></script>
+<script defer src="./js/state.js?v=302"></script>
+<script defer src="./js/utils.js?v=302"></script>
+<script defer src="./js/api.js?v=302"></script>
+<script defer src="./js/ui-header.js?v=302"></script>
+<script defer src="./js/ui-standings.js?v=302"></script>
+<script defer src="./js/ui-leaderboard.js?v=302"></script>
+<script defer src="./js/ui-scorecard.js?v=302"></script>
+<script defer src="./js/ui-compare.js?v=302"></script>
 
-<script defer src="./js/ui-activity.js?v=301"></script>
-<script defer src="./js/ui-ticker.js?v=301"></script>
-<script defer src="./js/ui-debug.js?v=301"></script>
-<script defer src="./js/app.js?v=301"></script>
+<script defer src="./js/ui-coffee.js?v=302"></script>
+<script defer src="./js/ui-activity.js?v=302"></script>
+<script defer src="./js/ui-ticker.js?v=302"></script>
+<script defer src="./js/ui-debug.js?v=302"></script>
+<script defer src="./js/app.js?v=302"></script>
 </body>
 </html>

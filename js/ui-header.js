@@ -95,6 +95,8 @@ function switchTab(name, btn) {
   document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
   document.getElementById('view-' + name).classList.add('active');
   btn.classList.add('active');
+  document.body.setAttribute('data-active-view', name);
+  if (name === 'coffee' && typeof initCoffeeView === 'function') initCoffeeView();
   if (name === 'leaderboard') {
     toggleTickerMode();
     lbSort = 'score'; lbSortAsc = true; lbFilter = 'all';
