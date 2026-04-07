@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./css/styles.css?v=299">
+<link rel="stylesheet" href="./css/styles.css?v=300">
 <link rel="stylesheet" href="./css/theme.css">
 <script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -189,61 +189,31 @@
 <div class="fb-view-card help-section-card">
 <div class="help-section-title">How it works</div>
 <p class="fb-view-intro" style="margin-bottom:14px">New here? Or need a refresher on how the pool app works?</p>
-<button class="help-section-btn" onclick="showWelcome(true)">Show welcome screen</button>
-</div>
-<div class="fb-view-card help-section-card" id="q-form-wrap">
-<div class="help-section-title">Have a question?</div>
-<p class="fb-view-intro" style="margin-bottom:14px">Ask about rules, scoring, payouts, or anything else. We'll get back to you.</p>
-<label class="fb-view-label">Subject</label>
-<select class="fb-view-select" id="q-category">
-<option value="">Select one…</option>
-<option value="rules">Rules</option>
-<option value="scoring">Scoring</option>
-<option value="payouts">Payouts</option>
-<option value="picks">Picks</option>
-<option value="other">Other</option>
-</select>
-<label class="fb-view-label">Your question</label>
-<textarea class="fb-view-textarea" id="q-message" placeholder="What would you like to know?"></textarea>
-<label class="fb-view-label">Name (optional)</label>
-<input class="fb-view-input" id="q-name" type="text" placeholder="Anonymous">
-<button class="fb-view-submit" id="q-submit" onclick="submitQuestion()">Send question</button>
-</div>
-<div class="fb-view-card help-section-card" id="q-success" style="display:none;text-align:center">
-<div class="fb-view-success-icon">✓</div>
-<div class="fb-view-success-title">Question sent</div>
-<div class="fb-view-success-text">We'll get back to you.</div>
+<button class="help-section-btn" onclick="showWelcome(true)">Getting Started Guide</button>
 </div>
 <div class="fb-view-card help-section-card" id="fb-form-wrap">
-<div class="help-section-title">Share feedback</div>
-<p class="fb-view-intro">Help us improve the East Pole Golf Pool experience. All feedback is anonymous unless you choose to include your name.</p>
-<label class="fb-view-label">How's the experience?</label>
-<div class="fb-view-rating" id="fb-rating">
-<button class="fb-view-star" onclick="setRating(1)">1</button>
-<button class="fb-view-star" onclick="setRating(2)">2</button>
-<button class="fb-view-star" onclick="setRating(3)">3</button>
-<button class="fb-view-star" onclick="setRating(4)">4</button>
-<button class="fb-view-star" onclick="setRating(5)">5</button>
-</div>
+<div class="help-section-title">Feedback or a question?</div>
+<p class="fb-view-intro">Have a question, idea, or something to report? Drop us a line — we'll get back to you.</p>
 <label class="fb-view-label">Category</label>
 <select class="fb-view-select" id="fb-category">
 <option value="">Select one…</option>
+<option value="question">Question</option>
 <option value="bug">Bug / Something's broken</option>
 <option value="feature">Feature request</option>
 <option value="design">Design / UI</option>
 <option value="scores">Scores / Data issue</option>
 <option value="general">General feedback</option>
 </select>
-<label class="fb-view-label">Your feedback</label>
+<label class="fb-view-label">Your message</label>
 <textarea class="fb-view-textarea" id="fb-message" placeholder="What's on your mind?"></textarea>
 <label class="fb-view-label">Name (optional)</label>
 <input class="fb-view-input" id="fb-name" type="text" placeholder="Anonymous">
-<button class="fb-view-submit" id="fb-submit" onclick="submitFeedback()">Submit Feedback</button>
+<button class="fb-view-submit" id="fb-submit" onclick="submitFeedback()">Send</button>
 </div>
 <div class="fb-view-card help-section-card fb-view-success" id="fb-success" style="text-align:center">
 <div class="fb-view-success-icon">✓</div>
-<div class="fb-view-success-title">Thanks for the feedback!</div>
-<div class="fb-view-success-text">We'll use it to make the pool better for everyone.</div>
+<div class="fb-view-success-title">Thanks!</div>
+<div class="fb-view-success-text">We got it and we'll get back to you if needed.</div>
 </div>
 </div>
 </div>
@@ -357,18 +327,18 @@
 </div>
 
 <!-- Module Scripts (deferred) -->
-<script defer src="./js/state.js?v=299"></script>
-<script defer src="./js/utils.js?v=299"></script>
-<script defer src="./js/api.js?v=299"></script>
-<script defer src="./js/ui-header.js?v=299"></script>
-<script defer src="./js/ui-standings.js?v=299"></script>
-<script defer src="./js/ui-leaderboard.js?v=299"></script>
-<script defer src="./js/ui-scorecard.js?v=299"></script>
-<script defer src="./js/ui-compare.js?v=299"></script>
+<script defer src="./js/state.js?v=300"></script>
+<script defer src="./js/utils.js?v=300"></script>
+<script defer src="./js/api.js?v=300"></script>
+<script defer src="./js/ui-header.js?v=300"></script>
+<script defer src="./js/ui-standings.js?v=300"></script>
+<script defer src="./js/ui-leaderboard.js?v=300"></script>
+<script defer src="./js/ui-scorecard.js?v=300"></script>
+<script defer src="./js/ui-compare.js?v=300"></script>
 
-<script defer src="./js/ui-activity.js?v=299"></script>
-<script defer src="./js/ui-ticker.js?v=299"></script>
-<script defer src="./js/ui-debug.js?v=299"></script>
-<script defer src="./js/app.js?v=299"></script>
+<script defer src="./js/ui-activity.js?v=300"></script>
+<script defer src="./js/ui-ticker.js?v=300"></script>
+<script defer src="./js/ui-debug.js?v=300"></script>
+<script defer src="./js/app.js?v=300"></script>
 </body>
 </html>

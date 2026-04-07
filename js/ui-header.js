@@ -169,40 +169,6 @@ function submitFeedback() {
   });
 }
 
-function submitQuestion() {
-  var message = document.getElementById('q-message').value.trim();
-  var category = document.getElementById('q-category').value;
-  var name = document.getElementById('q-name').value.trim() || 'Anonymous';
-  var btn = document.getElementById('q-submit');
-  if (!message) { document.getElementById('q-message').focus(); return; }
-  btn.disabled = true;
-  btn.textContent = 'Sending…';
-  trackEvent('question-' + (category || 'general'));
-  fetch('https://formspree.io/f/mjgprdnz', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({
-      form_type: 'question',
-      category: category || 'general',
-      message: message,
-      name: name
-    })
-  }).then(function(res) {
-    if (res.ok) {
-      document.getElementById('q-form-wrap').style.display = 'none';
-      document.getElementById('q-success').style.display = 'block';
-    } else {
-      btn.disabled = false;
-      btn.textContent = 'Send question';
-      alert('Something went wrong. Please try again.');
-    }
-  }).catch(function() {
-    btn.disabled = false;
-    btn.textContent = 'Send question';
-    alert('Network error. Please try again.');
-  });
-}
-
 var toastT;
 function showToast(msg) {
   var t = document.getElementById('toast');
