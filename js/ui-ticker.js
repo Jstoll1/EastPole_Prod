@@ -2,8 +2,27 @@
 
 var _tickerMode = 'entries';
 
+function tickerHasData(mode) {
+  if (mode === 'entries') {
+    return Array.isArray(ENTRIES) && ENTRIES.length > 0;
+  }
+  // golfers mode: any active golfer (score < 11) in GOLFER_SCORES, OR a populated FLAGS list
+  var hasScores = Object.values(GOLFER_SCORES || {}).some(function(g) { return g && g.score < 11; });
+  if (hasScores) return true;
+  return Object.keys(FLAGS || {}).length > 0;
+}
+
 function toggleTickerMode() {
-  _tickerMode = _tickerMode === 'entries' ? 'golfers' : 'entries';
+  var target = _tickerMode === 'entries' ? 'golfers' : 'entries';
+  // Don't toggle into an empty mode — stay where we are if the other side has nothing
+  if (!tickerHasData(target)) {
+    if (!tickerHasData(_tickerMode)) {
+      // Neither has data — just re-render with current mode (will show "No data yet")
+      renderTicker();
+    }
+    return;
+  }
+  _tickerMode = target;
   trackEvent('ticker-toggle-' + _tickerMode);
   var label = document.querySelector('.ticker-label');
   if (label) label.textContent = _tickerMode === 'entries' ? 'POOL' : 'PGA';
@@ -16,6 +35,12 @@ function toggleTickerMode() {
 function renderTicker() {
   var el = document.getElementById('ticker-content');
   if (!el) return;
+  // If current mode has no data but the other one does, silently switch
+  if (!tickerHasData(_tickerMode) && tickerHasData(_tickerMode === 'entries' ? 'golfers' : 'entries')) {
+    _tickerMode = _tickerMode === 'entries' ? 'golfers' : 'entries';
+    var label = document.querySelector('.ticker-label');
+    if (label) label.textContent = _tickerMode === 'entries' ? 'POOL' : 'PGA';
+  }
   var track = document.querySelector('.ticker-track');
   var prevScroll = track ? track.scrollLeft : 0;
   var items;
