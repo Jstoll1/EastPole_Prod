@@ -246,7 +246,7 @@ function enterApp() {
   splash.classList.add('hidden');
   setTimeout(function() {
     splash.style.display = 'none';
-    if (!currentUserEmail) showOnboarding();
+    if (!currentUserEmail && ENTRIES.length > 0) showOnboarding();
     if (!localStorage.getItem(WELCOME_KEY)) {
       setTimeout(showWelcome, 250);
     }
