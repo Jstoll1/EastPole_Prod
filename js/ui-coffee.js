@@ -2,12 +2,15 @@
 
 var _coffeeInit = false;
 
-// Curated cafe gallery — additional URLs can be appended here as East Pole publishes them.
+// Curated cafe/lifestyle gallery — 6 hand-picked shots (wide → detail → locations).
 // Falls back to Shopify product images if list is short.
 var COFFEE_GALLERY = [
+  'https://eastpole.coffee/cdn/shop/files/LBP_7676_2048x2048.jpg?v=1693404348',
+  'https://eastpole.coffee/cdn/shop/files/LBP_2082_2048x2048.jpg?v=1686679803',
+  'https://eastpole.coffee/cdn/shop/articles/LBP_8184_2048x2048.jpg?v=1670343614',
   'https://eastpole.coffee/cdn/shop/files/eastpole-gv-armouryards-67_2048x2048.jpg?v=1693404725',
-  'https://eastpole.coffee/cdn/shop/articles/IMG_7365_2_900x.jpg?v=1691674657',
-  'https://eastpole.coffee/cdn/shop/articles/East_Pole_-_Poncey_900x.jpg?v=1673465270'
+  'https://eastpole.coffee/cdn/shop/files/eastpole-gv-ponceyhighland-90_2048x2048.jpg?v=1693404513',
+  'https://eastpole.coffee/cdn/shop/articles/East_Pole_-_Poncey_2048x2048.jpg?v=1673465270'
 ];
 
 // Press logos: { name, url }. Add real entries when you have them.
