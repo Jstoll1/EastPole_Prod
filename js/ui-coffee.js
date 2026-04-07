@@ -2,13 +2,11 @@
 
 var _coffeeInit = false;
 
-// Curated cafe/lifestyle gallery — 6 hand-picked shots (wide → detail → locations).
-// Falls back to Shopify product images if list is short.
+// Curated cafe-setting gallery — locations & interiors only, no coffee close-ups.
 var COFFEE_GALLERY = [
   'https://eastpole.coffee/cdn/shop/files/LBP_7676_2048x2048.jpg?v=1693404348',
-  'https://eastpole.coffee/cdn/shop/files/LBP_2082_2048x2048.jpg?v=1686679803',
-  'https://eastpole.coffee/cdn/shop/articles/LBP_8184_2048x2048.jpg?v=1670343614',
-  'https://eastpole.coffee/cdn/shop/files/eastpole-gv-armouryards-67_2048x2048.jpg?v=1693404725',
+  'https://eastpole.coffee/cdn/shop/articles/eastpole-gv-armouryards-152_2048x2048.jpg?v=1771076289',
+  'https://eastpole.coffee/cdn/shop/articles/IMG_7365_2_2048x2048.jpg?v=1691674657',
   'https://eastpole.coffee/cdn/shop/files/eastpole-gv-ponceyhighland-90_2048x2048.jpg?v=1693404513',
   'https://eastpole.coffee/cdn/shop/articles/East_Pole_-_Poncey_2048x2048.jpg?v=1673465270'
 ];
