@@ -147,6 +147,7 @@ function submitFeedback() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     body: JSON.stringify({
+      form_type: 'feedback',
       rating: _rating || 'none',
       category: category || 'general',
       message: message,
@@ -164,6 +165,40 @@ function submitFeedback() {
   }).catch(function() {
     btn.disabled = false;
     btn.textContent = 'Submit Feedback';
+    alert('Network error. Please try again.');
+  });
+}
+
+function submitQuestion() {
+  var message = document.getElementById('q-message').value.trim();
+  var category = document.getElementById('q-category').value;
+  var name = document.getElementById('q-name').value.trim() || 'Anonymous';
+  var btn = document.getElementById('q-submit');
+  if (!message) { document.getElementById('q-message').focus(); return; }
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  trackEvent('question-' + (category || 'general'));
+  fetch('https://formspree.io/f/mjgprdnz', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      form_type: 'question',
+      category: category || 'general',
+      message: message,
+      name: name
+    })
+  }).then(function(res) {
+    if (res.ok) {
+      document.getElementById('q-form-wrap').style.display = 'none';
+      document.getElementById('q-success').style.display = 'block';
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Send question';
+      alert('Something went wrong. Please try again.');
+    }
+  }).catch(function() {
+    btn.disabled = false;
+    btn.textContent = 'Send question';
     alert('Network error. Please try again.');
   });
 }
@@ -212,7 +247,27 @@ function enterApp() {
   setTimeout(function() {
     splash.style.display = 'none';
     if (!currentUserEmail) showOnboarding();
+    if (!localStorage.getItem(WELCOME_KEY)) {
+      setTimeout(showWelcome, 250);
+    }
   }, 500);
+}
+
+function showWelcome(force) {
+  if (!force && localStorage.getItem(WELCOME_KEY)) return;
+  var el = document.getElementById('welcome');
+  if (!el) return;
+  el.style.display = 'flex';
+  el.offsetHeight;
+  el.classList.add('visible');
+}
+
+function hideWelcome() {
+  var el = document.getElementById('welcome');
+  if (!el) return;
+  el.classList.remove('visible');
+  setTimeout(function() { el.style.display = 'none'; }, 250);
+  try { localStorage.setItem(WELCOME_KEY, '1'); } catch(e) {}
 }
 
 function dismissSplashBrowse() {

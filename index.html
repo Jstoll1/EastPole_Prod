@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./css/styles.css?v=296">
+<link rel="stylesheet" href="./css/styles.css?v=297">
 <link rel="stylesheet" href="./css/theme.css">
 <script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -33,6 +33,42 @@
 </div>
 <div class="splash-cta">Tap to enter</div>
 <img src="https://brandlogos.net/wp-content/uploads/2024/04/masters_tournament-logo_brandlogos.net_4zhff.png" alt="Masters" class="splash-masters-logo">
+</div>
+</div>
+<div id="welcome" onclick="if(event.target===this)hideWelcome()">
+<div class="welcome-card" role="dialog" aria-labelledby="welcome-title">
+<button class="welcome-close" onclick="hideWelcome()" aria-label="Close">✕</button>
+<div class="welcome-title" id="welcome-title">Welcome to the pool</div>
+<div class="welcome-sub">A few quick things to know</div>
+<div class="welcome-row">
+<div class="welcome-icon">🔍</div>
+<div class="welcome-text">
+<div class="welcome-label">Find your name below</div>
+<div class="welcome-desc">Your picks filter across every view automatically.</div>
+</div>
+</div>
+<div class="welcome-row">
+<div class="welcome-icon">🎛</div>
+<div class="welcome-text">
+<div class="welcome-label">Switch entries anytime</div>
+<div class="welcome-desc">Top-right pill, or the All / In Pool toggle above the board.</div>
+</div>
+</div>
+<div class="welcome-row">
+<div class="welcome-icon">⚔️</div>
+<div class="welcome-text">
+<div class="welcome-label">See how you stack up</div>
+<div class="welcome-desc">Hit H2H on Standings to compare any two entries.</div>
+</div>
+</div>
+<div class="welcome-row">
+<div class="welcome-icon">⚡</div>
+<div class="welcome-text">
+<div class="welcome-label">Don't miss a shot</div>
+<div class="welcome-desc">Tap ⚡ for a live feed of every birdie and bogey.</div>
+</div>
+</div>
+<button class="welcome-cta" onclick="hideWelcome()">Got it →</button>
 </div>
 </div>
 <div id="onboarding">
@@ -147,10 +183,39 @@
 </div>
 <div class="view" id="view-feedback" style="padding-bottom:100px">
 <div class="fb-view-header">
-<span class="fb-view-title">Feedback</span>
+<span class="fb-view-title">Help</span>
 <button class="fb-view-close" onclick="closeFeedback()">✕</button>
 </div>
-<div class="fb-view-card" id="fb-form-wrap">
+<div class="fb-view-card help-section-card">
+<div class="help-section-title">How it works</div>
+<p class="fb-view-intro" style="margin-bottom:14px">New here? Or need a refresher on how the pool app works?</p>
+<button class="help-section-btn" onclick="showWelcome(true)">Show welcome screen</button>
+</div>
+<div class="fb-view-card help-section-card" id="q-form-wrap">
+<div class="help-section-title">Have a question?</div>
+<p class="fb-view-intro" style="margin-bottom:14px">Ask about rules, scoring, payouts, or anything else. We'll get back to you.</p>
+<label class="fb-view-label">Subject</label>
+<select class="fb-view-select" id="q-category">
+<option value="">Select one…</option>
+<option value="rules">Rules</option>
+<option value="scoring">Scoring</option>
+<option value="payouts">Payouts</option>
+<option value="picks">Picks</option>
+<option value="other">Other</option>
+</select>
+<label class="fb-view-label">Your question</label>
+<textarea class="fb-view-textarea" id="q-message" placeholder="What would you like to know?"></textarea>
+<label class="fb-view-label">Name (optional)</label>
+<input class="fb-view-input" id="q-name" type="text" placeholder="Anonymous">
+<button class="fb-view-submit" id="q-submit" onclick="submitQuestion()">Send question</button>
+</div>
+<div class="fb-view-card help-section-card" id="q-success" style="display:none;text-align:center">
+<div class="fb-view-success-icon">✓</div>
+<div class="fb-view-success-title">Question sent</div>
+<div class="fb-view-success-text">We'll get back to you.</div>
+</div>
+<div class="fb-view-card help-section-card" id="fb-form-wrap">
+<div class="help-section-title">Share feedback</div>
 <p class="fb-view-intro">Help us improve the East Pole Golf Pool experience. All feedback is anonymous unless you choose to include your name.</p>
 <label class="fb-view-label">How's the experience?</label>
 <div class="fb-view-rating" id="fb-rating">
@@ -175,11 +240,10 @@
 <input class="fb-view-input" id="fb-name" type="text" placeholder="Anonymous">
 <button class="fb-view-submit" id="fb-submit" onclick="submitFeedback()">Submit Feedback</button>
 </div>
-<div class="fb-view-success" id="fb-success">
+<div class="fb-view-card help-section-card fb-view-success" id="fb-success" style="text-align:center">
 <div class="fb-view-success-icon">✓</div>
 <div class="fb-view-success-title">Thanks for the feedback!</div>
 <div class="fb-view-success-text">We'll use it to make the pool better for everyone.</div>
-<button class="fb-view-success-back" onclick="closeFeedback()">Back to Pool →</button>
 </div>
 </div>
 </div>
@@ -242,9 +306,11 @@
 </svg> Coffee </button>
 
 <button class="nav-btn" onclick="switchTab('feedback',this)">
-<svg viewBox="0 0 24 24">
-<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-</svg> Feedback </button>
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="12" cy="12" r="10"/>
+<path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+<line x1="12" y1="17" x2="12.01" y2="17"/>
+</svg> Help </button>
 </nav>
 <button id="activity-fab" onclick="toggleActivityDrawer()">⚡</button>
 <div id="activity-overlay" onclick="toggleActivityDrawer()"></div>
@@ -291,18 +357,18 @@
 </div>
 
 <!-- Module Scripts (deferred) -->
-<script defer src="./js/state.js?v=296"></script>
-<script defer src="./js/utils.js?v=296"></script>
-<script defer src="./js/api.js?v=296"></script>
-<script defer src="./js/ui-header.js?v=296"></script>
-<script defer src="./js/ui-standings.js?v=296"></script>
-<script defer src="./js/ui-leaderboard.js?v=296"></script>
-<script defer src="./js/ui-scorecard.js?v=296"></script>
-<script defer src="./js/ui-compare.js?v=296"></script>
+<script defer src="./js/state.js?v=297"></script>
+<script defer src="./js/utils.js?v=297"></script>
+<script defer src="./js/api.js?v=297"></script>
+<script defer src="./js/ui-header.js?v=297"></script>
+<script defer src="./js/ui-standings.js?v=297"></script>
+<script defer src="./js/ui-leaderboard.js?v=297"></script>
+<script defer src="./js/ui-scorecard.js?v=297"></script>
+<script defer src="./js/ui-compare.js?v=297"></script>
 
-<script defer src="./js/ui-activity.js?v=296"></script>
-<script defer src="./js/ui-ticker.js?v=296"></script>
-<script defer src="./js/ui-debug.js?v=296"></script>
-<script defer src="./js/app.js?v=296"></script>
+<script defer src="./js/ui-activity.js?v=297"></script>
+<script defer src="./js/ui-ticker.js?v=297"></script>
+<script defer src="./js/ui-debug.js?v=297"></script>
+<script defer src="./js/app.js?v=297"></script>
 </body>
 </html>
