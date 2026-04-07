@@ -165,7 +165,7 @@ function renderLeaderboard() {
       currentRound = completedRoundCount;
     }
   }
-  var isPreT = false;
+  var isPreT = !TOURNAMENT_STARTED;
   // Compute prior positions from FULL field (before filtering) for arrows
   var fullFieldPriorPosMap = {};
   if (!isPreT && currentRound >= 2) {
