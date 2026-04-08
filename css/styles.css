@@ -1909,36 +1909,64 @@ html, body  {
 }
 
 .brand-text  {
-  font-size: 38px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 18px;
+  line-height: 0.98;
+  padding: 0 16px;
+}
+.brand-line {
+  display: block;
+  font-size: clamp(38px, 11.5vw, 60px);
   font-weight: 900;
-  letter-spacing: 4px;
+  letter-spacing: clamp(3px, 0.9vw, 6px);
   color: #d4a843;
   text-transform: uppercase;
-  margin-bottom: 14px;
   text-shadow: 0 2px 16px rgba(0,0,0,0.95), 0 0 40px rgba(0,0,0,0.7);
-  line-height: 1.15;
+  white-space: nowrap;
 }
 
 .brand-subtext  {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 2px;
-  color: rgba(255,255,255,0.92);
+  letter-spacing: 2.4px;
+  color: rgba(255,255,255,0.94);
   text-transform: uppercase;
   text-shadow: 0 1px 6px rgba(0,0,0,0.95);
   position: relative;
   display: inline-block;
-  padding-top: 10px;
+  padding: 12px 0;
 }
-.brand-subtext::before {
+.brand-subtext::before,
+.brand-subtext::after {
   content: '';
   position: absolute;
-  top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 50px;
+  width: 64px;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.brand-subtext::before { top: 0; }
+.brand-subtext::after  { bottom: 0; }
+
+.splash-event-chip {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 5px 14px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: #d4a843;
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(212,168,67,0.55);
+  border-radius: 999px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .splash-brand  {
