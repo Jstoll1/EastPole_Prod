@@ -1925,9 +1925,8 @@ html, body  {
   display: block;
   font-size: clamp(38px, 11.5vw, 60px);
   font-weight: 900;
-  letter-spacing: clamp(3px, 0.9vw, 6px);
+  letter-spacing: clamp(1px, 0.3vw, 2px);
   color: #d4a843;
-  text-transform: uppercase;
   text-shadow: 0 2px 16px rgba(0,0,0,0.95), 0 0 40px rgba(0,0,0,0.7);
   white-space: nowrap;
 }
@@ -3680,6 +3679,35 @@ to  {
   cursor: pointer;
 }
 .help-section-btn:active { background: var(--gold); color: #0a1a12; }
+.help-rules-section {
+  margin-top: 14px;
+}
+.help-rules-section:first-of-type {
+  margin-top: 4px;
+}
+.help-rules-h {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+.help-rules-list {
+  margin: 0;
+  padding-left: 18px;
+  list-style: disc;
+}
+.help-rules-list li {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.help-rules-list li strong {
+  color: var(--gold);
+  font-weight: 800;
+}
 
 /* ── First-time welcome popup ─────────────────────────── */
 #welcome {
@@ -3889,6 +3917,29 @@ to  {
   border-radius: 999px;
   border: 1px solid rgba(150,214,213,0.5);
   margin-bottom: 30px;
+}
+.coffee-view-discount-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #d4a843 0%, #f0c360 50%, #d4a843 100%);
+  color: #0D364E;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-align: center;
+  padding: 12px 18px;
+  border-radius: 12px;
+  margin: 0 0 18px;
+  box-shadow: 0 2px 8px rgba(212, 168, 67, 0.25);
+}
+.coffee-view-discount-banner .cd-star {
+  font-size: 14px;
+  opacity: 0.8;
+}
+.coffee-view-discount-banner strong {
+  font-weight: 900;
 }
 
 .coffee-view-section-h {

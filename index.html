@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./css/styles.css?v=315">
+<link rel="stylesheet" href="./css/styles.css?v=316">
 <link rel="stylesheet" href="./css/theme.css">
 <script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -29,8 +29,8 @@
 <div class="splash-content">
 <div class="splash-branding">
 <div class="brand-text">
-<span class="brand-line">EAST POLE</span>
-<span class="brand-line">COFFEE POOL</span>
+<span class="brand-line">East Pole</span>
+<span class="brand-line">dot golf</span>
 </div>
 <div class="brand-subtext">Masters Tournament 2026</div>
 <div class="splash-event-chip">April 9–12 · Augusta National</div>
@@ -195,6 +195,35 @@
 <p class="fb-view-intro" style="margin-bottom:14px">New here? Or need a refresher on how the pool app works?</p>
 <button class="help-section-btn" onclick="showWelcome(true)">Getting Started Guide</button>
 </div>
+<div class="fb-view-card help-section-card">
+<div class="help-section-title">Pool Rules</div>
+<p class="fb-view-intro" style="margin-bottom:10px">The quick version — full email went out before tee-off.</p>
+<div class="help-rules-section">
+<div class="help-rules-h">Rules</div>
+<ul class="help-rules-list">
+<li>Pick <strong>10 golfers</strong> from the tiered pool</li>
+<li><strong>Best 4 scores</strong> count toward your team's foursome — lowest total to par wins</li>
+<li>Up to <strong>5 entries per person</strong></li>
+<li><strong>$20</strong> per entry · 5th entry is <strong>$10</strong></li>
+</ul>
+</div>
+<div class="help-rules-section">
+<div class="help-rules-h">Payouts (top 3)</div>
+<ul class="help-rules-list">
+<li><strong>1st</strong> — 70% of pot (less 3rd-place entry-fee reimbursement)</li>
+<li><strong>2nd</strong> — 30% of pot (less 3rd-place entry-fee reimbursement)</li>
+<li><strong>3rd</strong> — all entry fees reimbursed</li>
+</ul>
+</div>
+<div class="help-rules-section">
+<div class="help-rules-h">Tiebreaker (top 3 only)</div>
+<ul class="help-rules-list">
+<li>5th-best score breaks the tie</li>
+<li>Then 6th-best if still tied</li>
+<li>If still tied after six scores, payout splits evenly among the tied teams</li>
+</ul>
+</div>
+</div>
 <div class="fb-view-card help-section-card" id="fb-form-wrap">
 <div class="help-section-title">Feedback or a question?</div>
 <p class="fb-view-intro">Have a question, idea, or something to report? Drop us a line — we'll get back to you.</p>
@@ -235,8 +264,13 @@
 <img class="coffee-view-logo coffee-view-logo--top" src="https://eastpole.coffee/cdn/shop/files/Asset_2_2x_f4e0e3fa-56cb-4990-bfd1-a71735e5e835_150x@2x.png?v=1613526647" alt="East Pole Coffee Co.">
 <img class="coffee-view-hero" src="https://eastpole.coffee/cdn/shop/files/eastpole-gv-armouryards-67_2048x2048.jpg?v=1693404725" alt="East Pole Coffee — Armour Yards">
 <div class="coffee-view-body">
+<div class="coffee-view-discount-banner">
+<span class="cd-star">★</span>
+<span class="cd-text">Pool players: <strong>18% off</strong> with code <strong>DOTGOLF26</strong></span>
+<span class="cd-star">★</span>
+</div>
 <h1 class="coffee-view-tagline">A roastery and coffee bar from Atlanta.</h1>
-<div class="coffee-view-sponsor-pill">Proud sponsor of the East Pole Coffee Pool</div>
+<div class="coffee-view-sponsor-pill">Proud sponsor of the East Pole dot golf Masters Pool</div>
 <h2 class="coffee-view-section-h">Have Coffee With Us</h2>
 <div class="coffee-view-loc">
 <div class="coffee-view-loc-name">Armour Yards</div>
@@ -320,9 +354,9 @@
 <line x1="12" y1="17" x2="12.01" y2="17"/>
 </svg> Help </button>
 </nav>
-<button id="sponsor-chip" onclick="switchTab('coffee', document.querySelector('.nav-btn[onclick*=coffee]'))" aria-label="Brought to you by East Pole Coffee">
+<button id="sponsor-chip" onclick="switchTab('coffee', document.querySelector('.nav-btn[onclick*=coffee]'))" aria-label="Brought to you by East Pole Coffee Co.">
 <span class="sponsor-chip-pre">Brought to you by</span>
-<span class="sponsor-chip-brand">EAST POLE COFFEE</span>
+<span class="sponsor-chip-brand">EAST POLE COFFEE CO.</span>
 </button>
 <button id="activity-fab" onclick="toggleActivityDrawer()">⚡</button>
 <div id="activity-overlay" onclick="toggleActivityDrawer()"></div>
@@ -369,19 +403,19 @@
 </div>
 
 <!-- Module Scripts (deferred) -->
-<script defer src="./js/state.js?v=315"></script>
-<script defer src="./js/utils.js?v=315"></script>
-<script defer src="./js/api.js?v=315"></script>
-<script defer src="./js/ui-header.js?v=315"></script>
-<script defer src="./js/ui-standings.js?v=315"></script>
-<script defer src="./js/ui-leaderboard.js?v=315"></script>
-<script defer src="./js/ui-scorecard.js?v=315"></script>
-<script defer src="./js/ui-compare.js?v=315"></script>
+<script defer src="./js/state.js?v=316"></script>
+<script defer src="./js/utils.js?v=316"></script>
+<script defer src="./js/api.js?v=316"></script>
+<script defer src="./js/ui-header.js?v=316"></script>
+<script defer src="./js/ui-standings.js?v=316"></script>
+<script defer src="./js/ui-leaderboard.js?v=316"></script>
+<script defer src="./js/ui-scorecard.js?v=316"></script>
+<script defer src="./js/ui-compare.js?v=316"></script>
 
-<script defer src="./js/ui-coffee.js?v=315"></script>
-<script defer src="./js/ui-activity.js?v=315"></script>
-<script defer src="./js/ui-ticker.js?v=315"></script>
-<script defer src="./js/ui-debug.js?v=315"></script>
-<script defer src="./js/app.js?v=315"></script>
+<script defer src="./js/ui-coffee.js?v=316"></script>
+<script defer src="./js/ui-activity.js?v=316"></script>
+<script defer src="./js/ui-ticker.js?v=316"></script>
+<script defer src="./js/ui-debug.js?v=316"></script>
+<script defer src="./js/app.js?v=316"></script>
 </body>
 </html>
