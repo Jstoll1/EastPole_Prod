@@ -3906,7 +3906,8 @@ to  {
 }
 
 .coffee-view-sponsor-pill {
-  display: inline-block;
+  display: block;
+  width: fit-content;
   background: #F4FBF2;
   color: #0D364E;
   font-size: 12px;
@@ -3917,7 +3918,7 @@ to  {
   padding: 10px 18px;
   border-radius: 14px;
   border: 1px solid rgba(150,214,213,0.5);
-  margin-bottom: 30px;
+  margin: 0 auto 30px;
 }
 .coffee-view-discount-banner {
   display: flex;
