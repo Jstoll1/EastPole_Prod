@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./css/styles.css?v=308">
+<link rel="stylesheet" href="./css/styles.css?v=309">
 <link rel="stylesheet" href="./css/theme.css">
 <script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -198,6 +198,14 @@
 <div class="fb-view-card help-section-card" id="fb-form-wrap">
 <div class="help-section-title">Feedback or a question?</div>
 <p class="fb-view-intro">Have a question, idea, or something to report? Drop us a line — we'll get back to you.</p>
+<label class="fb-view-label">How would you rate the app? (optional)</label>
+<div class="fb-view-rating" id="fb-rating">
+<button type="button" class="fb-view-star" onclick="setRating(1)" aria-label="1 star">★</button>
+<button type="button" class="fb-view-star" onclick="setRating(2)" aria-label="2 stars">★</button>
+<button type="button" class="fb-view-star" onclick="setRating(3)" aria-label="3 stars">★</button>
+<button type="button" class="fb-view-star" onclick="setRating(4)" aria-label="4 stars">★</button>
+<button type="button" class="fb-view-star" onclick="setRating(5)" aria-label="5 stars">★</button>
+</div>
 <label class="fb-view-label">Category</label>
 <select class="fb-view-select" id="fb-category">
 <option value="">Select one…</option>
@@ -361,19 +369,19 @@
 </div>
 
 <!-- Module Scripts (deferred) -->
-<script defer src="./js/state.js?v=308"></script>
-<script defer src="./js/utils.js?v=308"></script>
-<script defer src="./js/api.js?v=308"></script>
-<script defer src="./js/ui-header.js?v=308"></script>
-<script defer src="./js/ui-standings.js?v=308"></script>
-<script defer src="./js/ui-leaderboard.js?v=308"></script>
-<script defer src="./js/ui-scorecard.js?v=308"></script>
-<script defer src="./js/ui-compare.js?v=308"></script>
+<script defer src="./js/state.js?v=309"></script>
+<script defer src="./js/utils.js?v=309"></script>
+<script defer src="./js/api.js?v=309"></script>
+<script defer src="./js/ui-header.js?v=309"></script>
+<script defer src="./js/ui-standings.js?v=309"></script>
+<script defer src="./js/ui-leaderboard.js?v=309"></script>
+<script defer src="./js/ui-scorecard.js?v=309"></script>
+<script defer src="./js/ui-compare.js?v=309"></script>
 
-<script defer src="./js/ui-coffee.js?v=308"></script>
-<script defer src="./js/ui-activity.js?v=308"></script>
-<script defer src="./js/ui-ticker.js?v=308"></script>
-<script defer src="./js/ui-debug.js?v=308"></script>
-<script defer src="./js/app.js?v=308"></script>
+<script defer src="./js/ui-coffee.js?v=309"></script>
+<script defer src="./js/ui-activity.js?v=309"></script>
+<script defer src="./js/ui-ticker.js?v=309"></script>
+<script defer src="./js/ui-debug.js?v=309"></script>
+<script defer src="./js/app.js?v=309"></script>
 </body>
 </html>
