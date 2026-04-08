@@ -264,7 +264,7 @@ var POOL_CONFIG = {
   payoutPctOfNet: { first: 0.70, second: 0.30 }
 };
 
-var PILL_CLASSES = ['pill-a', 'pill-b', 'pill-c'];
+var PILL_CLASSES = ['pill-a', 'pill-b', 'pill-c', 'pill-d', 'pill-e'];
 function pillLabel(teamIdx) { return teamIdx + 1; }
 
 // ── Mutable State ──────────────────────────────────────────

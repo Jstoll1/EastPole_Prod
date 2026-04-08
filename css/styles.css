@@ -2582,6 +2582,16 @@ to  {
   color: #1a0530;
 }
 
+.pill-d  {
+  background: #FFB56B;
+  color: #301a05;
+}
+
+.pill-e  {
+  background: #5BE6C8;
+  color: #053025;
+}
+
 .my-hero-block {
   margin: 4px 10px 6px;
   background: rgba(255,255,255,0.03);
