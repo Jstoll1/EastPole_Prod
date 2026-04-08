@@ -133,12 +133,12 @@ function renderStandings() {
       tbNote +
     '</div>';
   }).join('');
-  var poolSubHtml = ENTRIES.length + ' entries · $' + POOL_CONFIG.buyIn + ' buy-in · <strong style="color:var(--gold)">$' + poolPayouts.pot.toLocaleString() + ' pot</strong>';
+  var poolSubHtml = '';
   if (TOURNEY_FINAL) {
     var winScoreDisp = WINNING_SCORE > 0 ? '+' + WINNING_SCORE : WINNING_SCORE === 0 ? 'E' : String(WINNING_SCORE);
-    poolSubHtml += '<br><span class="final-label">🏆 TOURNAMENT FINAL</span> · Winning score: <strong>' + winScoreDisp + '</strong>';
+    poolSubHtml = '<span class="final-label">🏆 TOURNAMENT FINAL</span> · Winning score: <strong>' + winScoreDisp + '</strong>';
   } else {
-    poolSubHtml += '<br>Best 4 of 10 golfer scores combined over four rounds wins.';
+    poolSubHtml = 'Best 4 of 10 golfer scores combined over four rounds wins.';
   }
   document.getElementById('standings-pool-sub').innerHTML = poolSubHtml;
 
