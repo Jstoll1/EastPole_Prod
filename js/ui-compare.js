@@ -10,7 +10,7 @@ function openH2HPicker(targetIdx) {
   popup.id = 'h2h-picker';
   popup.style.cssText = 'position:fixed;z-index:9999;background:var(--card);border:1px solid var(--gold);border-radius:12px;padding:14px 16px;box-shadow:0 8px 32px rgba(0,0,0,.5);max-width:280px;width:85%;left:50%;top:50%;transform:translate(-50%,-50%);max-height:70vh;overflow-y:auto;';
   var targetTeam = ENTRIES[targetIdx].team;
-  var html = '<div style="font-size:12px;font-weight:800;color:var(--gold);margin-bottom:10px;text-transform:uppercase;">Compare vs ' + targetTeam + '</div>';
+  var html = '<div style="font-size:12px;font-weight:800;color:var(--gold);margin-bottom:10px;text-transform:uppercase;">Compare vs ' + escHtml(targetTeam) + '</div>';
   if (currentUserTeams.length > 0) {
     var rnk = getRanked();
     var rnkMap = {}; var rk = 1;
@@ -23,7 +23,7 @@ function openH2HPicker(targetIdx) {
       var myRk = rnkMap[e.team + '|' + e.email] || '';
       html += '<div class="h2h-picker-row" onclick="selectH2H(' + idx + ',' + targetIdx + ')">'
         + '<span class="h2h-picker-rank">' + myRk + '</span>'
-        + '<span class="h2h-picker-team">' + e.team + '</span>'
+        + '<span class="h2h-picker-team">' + escHtml(e.team) + '</span>'
         + '<span class="h2h-picker-score ' + cls(c.total) + '">' + fmtTeam(c.total) + '</span></div>';
     });
     html += '<div style="height:1px;background:var(--border);margin:8px 0;"></div>';
@@ -54,7 +54,7 @@ function buildH2HPickerList(targetIdx, query) {
     if (q && e.team.toLowerCase().indexOf(q) === -1 && e.name.toLowerCase().indexOf(q) === -1) return;
     html += '<div class="h2h-picker-row" onclick="selectH2H(' + idx + ',' + targetIdx + ')">'
       + '<span class="h2h-picker-rank">' + rk + '</span>'
-      + '<span class="h2h-picker-team">' + e.team + '</span>'
+      + '<span class="h2h-picker-team">' + escHtml(e.team) + '</span>'
       + '<span class="h2h-picker-score ' + cls(e.total) + '">' + fmtTeam(e.total) + '</span></div>';
   });
   return html || '<div style="font-size:11px;color:var(--text3);padding:8px 0;">No matches</div>';
@@ -174,8 +174,8 @@ function renderH2HInline() {
   html += '<div class="h2h-close-bar"><button class="h2h-close-btn" onclick="exitCompareMode()">✕ Exit Compare</button></div>';
   html += '<div class="h2h-prob-wrap">';
   html += '<div class="h2h-prob-labels">';
-  html += '<div class="h2h-prob-name left">' + cA.team + '</div>';
-  html += '<div class="h2h-prob-name right">' + cB.team + '</div>';
+  html += '<div class="h2h-prob-name left">' + escHtml(cA.team) + '</div>';
+  html += '<div class="h2h-prob-name right">' + escHtml(cB.team) + '</div>';
   html += '</div>';
   html += '<div class="h2h-prob-pcts">';
   html += '<div class="h2h-prob-pct left' + (pctLeft < pctRight ? ' losing' : '') + '">' + pctLeft + '%</div>';
@@ -240,9 +240,9 @@ function renderH2HInline() {
     var momDiff = momA.sum - momB.sum;
     var momHtml = '';
     if (momDiff < 0) {
-      momHtml = '<span style="color:#52b788">▲ ' + cA.team + '</span> gaining today <span style="color:var(--text2)">(' + fmtPar(momA.sum) + ' vs ' + fmtPar(momB.sum) + ')</span>';
+      momHtml = '<span style="color:#52b788">▲ ' + escHtml(cA.team) + '</span> gaining today <span style="color:var(--text2)">(' + fmtPar(momA.sum) + ' vs ' + fmtPar(momB.sum) + ')</span>';
     } else if (momDiff > 0) {
-      momHtml = '<span style="color:#52b788">▲ ' + cB.team + '</span> gaining today <span style="color:var(--text2)">(' + fmtPar(momB.sum) + ' vs ' + fmtPar(momA.sum) + ')</span>';
+      momHtml = '<span style="color:#52b788">▲ ' + escHtml(cB.team) + '</span> gaining today <span style="color:var(--text2)">(' + fmtPar(momB.sum) + ' vs ' + fmtPar(momA.sum) + ')</span>';
     } else {
       momHtml = 'Even today <span style="color:var(--text2)">(' + fmtPar(momA.sum) + ' each)</span>';
     }
@@ -253,8 +253,8 @@ function renderH2HInline() {
   html += '<div class="h2h-matchups">';
   html += '<div class="h2h-vs-label" style="text-align:center">Head to Head</div>';
   html += '<div class="h2h-vs-hdr">';
-  html += '<div class="h2h-vs-team left">' + cA.team + '</div>';
-  html += '<div class="h2h-vs-team right">' + cB.team + '</div>';
+  html += '<div class="h2h-vs-team left">' + escHtml(cA.team) + '</div>';
+  html += '<div class="h2h-vs-team right">' + escHtml(cB.team) + '</div>';
   html += '</div>';
   var maxLen = Math.max(cA.scores.length, cB.scores.length);
   for (var r = 0; r < maxLen; r++) {

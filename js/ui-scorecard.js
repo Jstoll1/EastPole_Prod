@@ -16,10 +16,12 @@ function showPickerPopup(owners, evt) {
   popup.style.right = Math.max(12, window.innerWidth - rect.right) + 'px';
   var html = '<div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:8px;text-transform:uppercase;">Picked by</div>';
   owners.forEach(function(e) {
-    var teamEsc = e.team.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;gap:12px;border-bottom:1px solid var(--border);cursor:pointer" onclick="event.stopPropagation();jumpToEntry(\'' + teamEsc + '\')">'
-      + '<span style="font-size:12px;font-weight:600;color:var(--text)">' + e.name + '</span>'
-      + '<span style="font-size:10px;color:var(--gold);text-align:right;white-space:nowrap;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px">' + e.team + ' →</span></div>';
+    // JSON.stringify gives a valid JS string literal (escapes quotes, \, control chars);
+    // escHtml then makes it safe inside the double-quoted onclick attribute.
+    var teamAttr = escHtml(JSON.stringify(e.team));
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;gap:12px;border-bottom:1px solid var(--border);cursor:pointer" onclick="event.stopPropagation();jumpToEntry(' + teamAttr + ')">'
+      + '<span style="font-size:12px;font-weight:600;color:var(--text)">' + escHtml(e.name) + '</span>'
+      + '<span style="font-size:10px;color:var(--gold);text-align:right;white-space:nowrap;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px">' + escHtml(e.team) + ' →</span></div>';
   });
   popup.innerHTML = html;
   document.body.appendChild(popup);

@@ -8,9 +8,9 @@ function trackEvent(name) {
 // ── Utility Functions ──────────────────────────────────────
 
 function escHtml(s) {
-  var d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+  });
 }
 
 function timeAgo(ts) {

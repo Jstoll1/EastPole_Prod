@@ -90,14 +90,14 @@ function renderStandings() {
       var isMc = gd && (gd.score === 11 || gd.score === 12);
       var gScore = isMc ? (gd.score === 12 ? 'WD' : 'MC') : fmt(g.score);
       var gCls = isMc ? 'mc' : cls(g.score);
-      return '<div class="ws-golfer"><span class="ws-golfer-flag">' + flag + '</span><span class="ws-golfer-name">' + g.name + '</span><span class="ws-golfer-score ' + gCls + '">' + gScore + '</span></div>';
+      return '<div class="ws-golfer"><span class="ws-golfer-flag">' + flag + '</span><span class="ws-golfer-name">' + escHtml(g.name) + '</span><span class="ws-golfer-score ' + gCls + '">' + gScore + '</span></div>';
     }).join('');
     winnerBoxEl.innerHTML = '<div class="ws-confetti"></div>'
       + '<div class="ws-content">'
       + '<div class="ws-trophy">🏆</div>'
       + '<div class="ws-label">EAST POLE MASTERS POOL CHAMPION</div>'
-      + '<div class="ws-team">' + w.team + '</div>'
-      + '<div class="ws-by">' + w.name + '</div>'
+      + '<div class="ws-team">' + escHtml(w.team) + '</div>'
+      + '<div class="ws-by">' + escHtml(w.name) + '</div>'
       + '<div class="ws-total"><span class="' + wScoreCls + '">' + wScoreDisp + '</span></div>'
       + '<div class="ws-golfers">' + wGolfers + '</div>'
       + '<div class="ws-payout">$' + wPayoutAmt.toLocaleString() + '</div>'
@@ -189,16 +189,16 @@ function renderStandings() {
         myEntry.top4.forEach(function(g) { var gd = GOLFER_SCORES[g.name]; if (gd && (gd.score === 11 || gd.score === 12)) return; var td = gd ? gd.todayDisplay : null; if (td && td !== '—') { myTeamToday += td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0; myTodayCount++; } });
         var myTodayDisp = myTodayCount > 0 ? (myTeamToday > 0 ? '+' + myTeamToday : myTeamToday === 0 ? 'E' : '' + myTeamToday) : '—';
         var myTodayCls = myTeamToday < 0 ? 'neg' : myTeamToday > 0 ? 'pos' : 'eve';
-        var safeTeam = myEntry.team.replace(/'/g, "\\'");
-        myRows += '<div class="my-hero-row" onclick="jumpToEntry(\'' + safeTeam + '\')">'
+        var teamJumpArg = escHtml(JSON.stringify(myEntry.team));
+        myRows += '<div class="my-hero-row" onclick="jumpToEntry(' + teamJumpArg + ')">'
             + '<div class="my-hero-rank">' + myRank + moveHtml + '</div>'
-            + '<div class="my-hero-name">' + myEntry.team + '</div>'
+            + '<div class="my-hero-name">' + escHtml(myEntry.team) + '</div>'
             + '<div class="my-hero-today ' + myTodayCls + '">' + myTodayDisp + '</div>'
             + '<div class="my-hero-score ' + scc + '">' + fmtTeam(myEntry.total) + '</div>'
             + '</div>';
       }
     });
-    var showAllBtn = (activeTeamIdx >= 0 && currentUserTeams.length > 1) ? '<div class="my-show-all" onclick="trackEvent(\'show-all-entries\');setUser(\'' + currentUserEmail + '\',-1)">Show All Entries</div>' : '';
+    var showAllBtn = (activeTeamIdx >= 0 && currentUserTeams.length > 1) ? '<div class="my-show-all" onclick="trackEvent(\'show-all-entries\');setUser(' + escHtml(JSON.stringify(currentUserEmail)) + ',-1)">Show All Entries</div>' : '';
     if (myRows) heroHtml = '<div class="my-hero-block">' + myRows + showAllBtn + '</div>';
   }
 
@@ -248,7 +248,7 @@ function renderStandings() {
     var moneyIcon = inMoney ? (rank === 1 ? '🏆' : '💰') : '';
     html += '<div class="tv-row st-row' + isMyTeam + cmpCls + cmpSelCls + (inMoney ? ' in-money' : '') + '" onclick="' + rowClick + '" style="cursor:pointer">'
         + '<div class="tv-pos">' + (moneyIcon || rank) + moveHtml + '</div>'
-        + '<div class="tv-player"><span class="st-expand-arrow">▾</span><span class="tv-name' + (isMyTeam ? ' is-my-pick' : '') + '">' + e.team + '</span>' + cmpBadge + ' <span class="tv-country">' + e.name + '</span>' + holesTag + '</div>'
+        + '<div class="tv-player"><span class="st-expand-arrow">▾</span><span class="tv-name' + (isMyTeam ? ' is-my-pick' : '') + '">' + escHtml(e.team) + '</span>' + cmpBadge + ' <span class="tv-country">' + escHtml(e.name) + '</span>' + holesTag + '</div>'
         + '<div class="tv-thru"></div>'
         + '<div class="tv-today ' + todayCls + '">' + todayDisp + '</div>'
         + '<div class="tv-score ' + scc + '">' + scf + '</div>'
@@ -323,7 +323,7 @@ function renderStandings() {
       var payLbl = payoutLabels[rank - 1];
       payoutBadge = '<span class="payout-badge' + (rank === 1 ? ' gold' : '') + '">💰 ' + payLbl + ' — $' + payAmt.toLocaleString() + '</span>';
     }
-    html += '<div class="picks-panel-footer"><span>' + e.name + tbFooter2 + footerHoles + '</span>' + payoutBadge + '<button class="h2h-quick-btn" onclick="event.stopPropagation();openH2HPicker(' + entryIdx + ')">⚔️ H2H</button></div> </div>';
+    html += '<div class="picks-panel-footer"><span>' + escHtml(e.name) + tbFooter2 + footerHoles + '</span>' + payoutBadge + '<button class="h2h-quick-btn" onclick="event.stopPropagation();openH2HPicker(' + entryIdx + ')">⚔️ H2H</button></div> </div>';
   });
 
   detectEntryActivity();

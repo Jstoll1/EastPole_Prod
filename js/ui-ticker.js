@@ -77,7 +77,7 @@ function renderTicker() {
       var scc = cls(e.total);
       var money = rank <= 3 ? ' 💰' : '';
       var nameStyle = rank <= 3 ? ' style="color:var(--gold)"' : '';
-      return '<span class="ticker-item"><span class="ticker-item-rank">' + rank + '.</span> <span' + nameStyle + '>' + e.team + '</span> <span class="ticker-item-score ' + scc + '">' + scf + '</span>' + money + '</span>';
+      return '<span class="ticker-item"><span class="ticker-item-rank">' + rank + '.</span> <span' + nameStyle + '>' + escHtml(e.team) + '</span> <span class="ticker-item-score ' + scc + '">' + scf + '</span>' + money + '</span>';
     }).join('');
   }
   if (!items) items = '<span class="ticker-item">No data yet</span>';

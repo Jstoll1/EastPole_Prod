@@ -88,7 +88,7 @@ function populateLiveEntryFilter() {
   if (hasTeams) {
     opts += '<option value="all">All My Entries</option>';
     currentUserTeams.forEach(function(t, i) {
-      opts += '<option value="' + i + '">' + t.team + '</option>';
+      opts += '<option value="' + i + '">' + escHtml(t.team) + '</option>';
     });
   }
   opts += '<option value="field"' + (!hasTeams ? ' selected' : '') + '>Entire Field</option>';
@@ -422,7 +422,7 @@ function openH2HLivePicker() {
       var myRk = rnkMap[t.team + '|' + t.email] || '';
       html += '<div class="h2h-picker-row" onclick="selectH2HLiveMy(' + i + ')" style="cursor:pointer">'
         + '<span class="h2h-picker-rank">' + myRk + '</span>'
-        + '<span class="h2h-picker-team">' + t.team + '</span>'
+        + '<span class="h2h-picker-team">' + escHtml(t.team) + '</span>'
         + '<span class="h2h-picker-score ' + cls(c.total) + '">' + fmtTeam(c.total) + '</span></div>';
     });
     html += '<div style="height:1px;background:var(--border);margin:8px 0;"></div>';
@@ -452,7 +452,7 @@ function buildH2HLiveList(query) {
     var entryIdx = ENTRIES.findIndex(function(x) { return x.team === e.team && x.email === e.email; });
     html += '<div class="h2h-picker-row" onclick="selectH2HLiveOpponent(' + entryIdx + ')" style="cursor:pointer">'
       + '<span class="h2h-picker-rank">' + rk + '</span>'
-      + '<span class="h2h-picker-team">' + e.team + '</span>'
+      + '<span class="h2h-picker-team">' + escHtml(e.team) + '</span>'
       + '<span class="h2h-picker-score ' + cls(e.total) + '">' + fmtTeam(e.total) + '</span></div>';
   });
   return html || '<div style="color:var(--text3);font-size:11px;padding:8px">No matches</div>';
@@ -537,7 +537,7 @@ function buildTeamLiveHeader(entry) {
 
   var html = '<div style="padding:10px 12px;background:rgba(0,0,0,0.2);border-radius:10px;margin-bottom:8px;border:1px solid rgba(212,168,67,0.15)">';
   html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
-  html += '<div><div style="font-size:12px;font-weight:800;color:var(--gold);letter-spacing:0.5px">' + entry.team + '</div>';
+  html += '<div><div style="font-size:12px;font-weight:800;color:var(--gold);letter-spacing:0.5px">' + escHtml(entry.team) + '</div>';
   html += '<div style="font-size:9px;color:var(--text3);margin-top:1px">' + ordinal(myRank) + ' place · Today: <span class="' + todayCls + '">' + todayFmt + '</span></div></div>';
   html += '<div style="font-size:24px;font-weight:900" class="' + cls(c.total) + '">' + fmtTeam(c.total) + '</div>';
   html += '</div>';
@@ -579,7 +579,7 @@ function buildH2HLiveHeader(myEntry, oppEntry) {
 
   function buildSide(entry, calc, align) {
     var html = '<div style="flex:1;text-align:' + align + '">';
-    html += '<div style="font-size:10px;font-weight:800;color:var(--gold);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:4px">' + entry.team + '</div>';
+    html += '<div style="font-size:10px;font-weight:800;color:var(--gold);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:4px">' + escHtml(entry.team) + '</div>';
     html += '<div style="font-size:22px;font-weight:900;color:var(--text);margin-bottom:6px" class="' + cls(calc.total) + '">' + fmtTeam(calc.total) + '</div>';
     // Show top 4 players
     calc.top4.forEach(function(g) {

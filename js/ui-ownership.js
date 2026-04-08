@@ -87,7 +87,7 @@ function renderOwnership() {
         const ri = rankedStandings.findIndex(r => r.team === t.team && r.email === t.email);
         const rank = ri >= 0 ? '#' + (ri + 1) : '';
         const myTeam = currentUserTeams.some(ct => ct.team === t.team && ct.email === t.email);
-        return '<div class="own-detail-team' + (myTeam ? ' is-my-pick' : '') + '"><span class="own-team-name">' + t.team + '</span><span class="own-team-rank">' + rank + '</span></div>';
+        return '<div class="own-detail-team' + (myTeam ? ' is-my-pick' : '') + '"><span class="own-team-name">' + escHtml(t.team) + '</span><span class="own-team-rank">' + rank + '</span></div>';
       }).join('') + '</div>';
     } else {
       detailHtml = '<div class="own-detail"></div>';

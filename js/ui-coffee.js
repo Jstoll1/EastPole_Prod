@@ -46,8 +46,8 @@ async function loadShopifyProducts() {
       var price = p.variants[0].price;
       var url = 'https://eastpole.coffee/products/' + p.handle;
       return '<a class="coffee-product-card" href="' + url + '" target="_blank" rel="noopener">'
-        + '<div class="coffee-product-img"><img src="' + img + '" alt="' + escapeHtml(p.title) + '" loading="lazy"></div>'
-        + '<div class="coffee-product-title">' + escapeHtml(p.title) + '</div>'
+        + '<div class="coffee-product-img"><img src="' + img + '" alt="' + escHtml(p.title) + '" loading="lazy"></div>'
+        + '<div class="coffee-product-title">' + escHtml(p.title) + '</div>'
         + '<div class="coffee-product-price">$' + parseFloat(price).toFixed(2) + '</div>'
         + '</a>';
     }).join('');
@@ -77,12 +77,6 @@ function renderCoffeePress() {
   var row = document.getElementById('coffee-press-row');
   if (!row) return;
   row.innerHTML = COFFEE_PRESS.map(function(p) {
-    return '<a class="coffee-press-chip" href="' + p.url + '" target="_blank" rel="noopener">' + escapeHtml(p.name) + '</a>';
+    return '<a class="coffee-press-chip" href="' + p.url + '" target="_blank" rel="noopener">' + escHtml(p.name) + '</a>';
   }).join('');
-}
-
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, function(c) {
-    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
-  });
 }

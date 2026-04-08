@@ -34,7 +34,7 @@ function openTeamDropdown() {
   list.innerHTML = ' <button class="td-item' + (activeTeamIdx === -1 ? ' active' : '') +
     '" onclick="event.stopPropagation();selectTeamEntry(-1)"> <span style="width:18px;height:14px;font-size:8px;display:flex;align-items:center;justify-content:center;opacity:0.5">⊕</span> <span>All Picks</span> </button>' +
     currentUserTeams.map(function(t, i) {
-      return ' <button class="td-item' + (i === activeTeamIdx ? ' active' : '') + '" onclick="event.stopPropagation();selectTeamEntry(' + i + ')"> <span class="team-pill ' + (PILL_CLASSES[i] || '') + '" style="width:18px;height:14px;font-size:8px">' + pillLabel(i) + '</span> <span>' + t.team + '</span> </button>';
+      return ' <button class="td-item' + (i === activeTeamIdx ? ' active' : '') + '" onclick="event.stopPropagation();selectTeamEntry(' + i + ')"> <span class="team-pill ' + (PILL_CLASSES[i] || '') + '" style="width:18px;height:14px;font-size:8px">' + pillLabel(i) + '</span> <span>' + escHtml(t.team) + '</span> </button>';
     }).join('');
   document.getElementById('team-dropdown').classList.add('open');
   var caret = document.getElementById('hdr-dd-caret');
@@ -266,9 +266,9 @@ function buildObList(filter) {
   el.innerHTML = list.map(function(p) {
     var isSelected = p.email === obSelectedEmail;
     var teamItems = p.teams.map(function(t, i) {
-      return ' <div class="ob-team-indicator" style="display:flex;align-items:center;gap:8px;padding:10px 18px 10px 24px;border-bottom:1px solid rgba(26,51,38,0.4);"> <span class="team-pill ' + (PILL_CLASSES[i] || '') + '" style="width:20px;height:16px;font-size:9px">' + pillLabel(i) + '</span> <span style="font-size:14px;color:var(--text)">' + t + '</span> </div>';
+      return ' <div class="ob-team-indicator" style="display:flex;align-items:center;gap:8px;padding:10px 18px 10px 24px;border-bottom:1px solid rgba(26,51,38,0.4);"> <span class="team-pill ' + (PILL_CLASSES[i] || '') + '" style="width:20px;height:16px;font-size:9px">' + pillLabel(i) + '</span> <span style="font-size:14px;color:var(--text)">' + escHtml(t) + '</span> </div>';
     }).join('');
-    return ' <div class="ob-name-block' + (isSelected ? ' selected' : '') + '" id="ob-block-' + p.email.replace(/[@.]/g, '_') + '"> <button class="ob-name-btn ' + (isSelected ? 'open' : '') + '" onclick="obSelectName(\'' + p.email + '\')"> <span>' + p.name + '</span> <span class="ob-name-right"> <span class="ob-entry-count">' + p.teams.length + ' ' + (p.teams.length === 1 ? 'entry' : 'entries') + '</span> <span class="ob-chevron">›</span> </span> </button> <div class="ob-teams-list ' + (isSelected ? 'open' : '') + '"> ' + teamItems + ' </div> </div>';
+    return ' <div class="ob-name-block' + (isSelected ? ' selected' : '') + '" id="ob-block-' + p.email.replace(/[@.]/g, '_') + '"> <button class="ob-name-btn ' + (isSelected ? 'open' : '') + '" onclick="obSelectName(' + escHtml(JSON.stringify(p.email)) + ')"> <span>' + escHtml(p.name) + '</span> <span class="ob-name-right"> <span class="ob-entry-count">' + p.teams.length + ' ' + (p.teams.length === 1 ? 'entry' : 'entries') + '</span> <span class="ob-chevron">›</span> </span> </button> <div class="ob-teams-list ' + (isSelected ? 'open' : '') + '"> ' + teamItems + ' </div> </div>';
   }).join('');
 }
 
@@ -308,7 +308,7 @@ function searchTeam() {
     var calc = calcEntry(e);
     var rank = ranked.findIndex(function(r) { return r.email === e.email && r.team === e.team; }) + 1;
     var sc = calc.total, scf = fmt(sc), scc = cls(sc);
-    return ' <div class="team-card"> <h2>' + e.team + '</h2> <div class="tc-email">' + e.email + '</div> <div class="tc-stats"> <div class="tc-stat"><div class="tc-val ' + scc + '">' + scf + '</div><div class="tc-lbl">Score</div></div> <div class="tc-stat"><div class="tc-val">#' + rank + '</div><div class="tc-lbl">Pool Rank</div></div> <div class="tc-stat"><div class="tc-val">' + (matches.length > 1 ? mi + 1 + '/' + matches.length : '—') + '</div><div class="tc-lbl">Entry</div></div> </div> </div> <div class="picks-card" style="margin-bottom:16px"> ' + calc.scores.map(function(g, j) {
+    return ' <div class="team-card"> <h2>' + escHtml(e.team) + '</h2> <div class="tc-email">' + escHtml(e.email) + '</div> <div class="tc-stats"> <div class="tc-stat"><div class="tc-val ' + scc + '">' + scf + '</div><div class="tc-lbl">Score</div></div> <div class="tc-stat"><div class="tc-val">#' + rank + '</div><div class="tc-lbl">Pool Rank</div></div> <div class="tc-stat"><div class="tc-val">' + (matches.length > 1 ? mi + 1 + '/' + matches.length : '—') + '</div><div class="tc-lbl">Entry</div></div> </div> </div> <div class="picks-card" style="margin-bottom:16px"> ' + calc.scores.map(function(g, j) {
       var isTop = j < 4, gd = GOLFER_SCORES[g.name];
       var pos = gd ? (gd.thru === 'WD' || gd.score === 12 ? 'WD' : gd.pos) : '—', thru = gd ? gd.thru : '';
       var pickStatus = pos === 'WD' ? ' · Withdrawn' : pos === 'MC' ? ' · Missed Cut' : (' · Thru ' + thru);
