@@ -110,28 +110,26 @@ function renderStandings() {
   }
 
   cardsEl.innerHTML = payoutLabels.map(function(label, i) {
-    var holder = '—';
+    var holder = '';
     var tbNote = '';
-    if (TOURNAMENT_STARTED && ranked[i]) {
+    if (TOURNAMENT_STARTED && ranked[i] && maxCompleted >= 2) {
+      holder = ranked[i].team;
       if (tourneyDone) {
-        holder = ranked[i].team;
         // Detect split-tied (tied even after 5th + 6th best score)
         var splitMates = ranked.filter(function(e) { return compareEntries(e, ranked[i]) === 0; });
         if (splitMates.length > 1) {
           tbNote = '<div class="pc-tb">Split ' + splitMates.length + '-way</div>';
         }
-      } else if (maxCompleted >= 2) {
-        holder = ranked[i].team;
-      } else {
-        holder = 'In Progress';
       }
     }
     var isGold = i === 0;
     var finalCls = tourneyDone ? ' final' : '';
-    return '<div class="payout-card ' + (isGold ? 'gold' : '') + finalCls + '">' +
+    var compactCls = holder ? '' : ' compact';
+    var whoRow = holder ? '<div class="pc-who">' + escHtml(holder) + '</div>' : '';
+    return '<div class="payout-card ' + (isGold ? 'gold' : '') + finalCls + compactCls + '">' +
       '<div class="pc-lbl">' + label + '</div>' +
       '<div class="pc-amt">$' + payoutAmounts[i].toLocaleString() + '</div>' +
-      '<div class="pc-who">' + holder + '</div>' +
+      whoRow +
       tbNote +
     '</div>';
   }).join('');
