@@ -13,9 +13,20 @@ function filterLeaderboardSearch() {
   renderLeaderboard();
 }
 
+// Close any open scorecard panel so a user-initiated re-render can proceed.
+// (renderLeaderboard() is blocked while a scorecard is open, which is correct
+// for background polling but not for filter/sort taps.)
+function _closeOpenScorecardForRerender() {
+  if (_openScorecardIdx === null) return;
+  var panel = document.getElementById('sc-panel-' + _openScorecardIdx);
+  if (panel) { panel.classList.remove('open'); panel.innerHTML = ''; }
+  _openScorecardIdx = null;
+}
+
 function setLbSort(col) {
   if (lbSort === col) { lbSortAsc = !lbSortAsc; }
   else { lbSort = col; lbSortAsc = true; }
+  _closeOpenScorecardForRerender();
   renderLeaderboard();
 }
 
@@ -24,6 +35,7 @@ function setLbFilter(f, btn) {
   trackEvent('lb-filter-' + f);
   document.querySelectorAll('#view-leaderboard .seg-btn').forEach(function(b) { b.classList.remove('active'); });
   btn.classList.add('active');
+  _closeOpenScorecardForRerender();
   renderLeaderboard();
 }
 
