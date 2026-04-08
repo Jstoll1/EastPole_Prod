@@ -3705,7 +3705,7 @@ to  {
   margin-bottom: 4px;
 }
 .help-rules-list li strong {
-  color: var(--gold);
+  color: var(--text);
   font-weight: 800;
 }
 
