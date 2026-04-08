@@ -7,7 +7,7 @@ function updateHeaderDisplay() {
   var caret = document.getElementById('hdr-dd-caret');
   if (currentUserEmail && currentUserTeams.length) {
     var activeTeam = activeTeamIdx >= 0 ? currentUserTeams[activeTeamIdx] : null;
-    nameEl.textContent = activeTeam ? activeTeam.team : 'All Picks';
+    nameEl.textContent = activeTeam ? activeTeam.team : 'My Entry';
     if (caret) caret.style.display = currentUserTeams.length > 1 ? 'inline' : 'none';
     teamDisplay.style.display = 'block';
     joinBtn.style.display = 'none';
@@ -214,7 +214,7 @@ function enterApp() {
   splash.classList.add('hidden');
   setTimeout(function() {
     splash.style.display = 'none';
-    if (!currentUserEmail && ENTRIES.length > 0) showOnboarding();
+    if (!currentUserEmail) showOnboarding();
     if (!localStorage.getItem(WELCOME_KEY)) {
       setTimeout(showWelcome, 250);
     }
