@@ -5,6 +5,42 @@ var standingsSort = 'total';
 var standingsSortDir = 1; // 1 = asc for score, toggled on re-click
 var stSearch = '';
 
+// ── Hidden friend filter (konami: tap 1st→2nd→3rd→3rd→2nd→1st payout card) ──
+var _friendFilterActive = false;
+var _konamiTaps = [];
+var _konamiTimer = null;
+var _KONAMI_SEQ = [0, 1, 2, 2, 1, 0];
+var _FRIEND_NAMES_LC = [
+  'logan eaton',
+  'jake stoll',
+  'andrew steioff',
+  'adam skillingstad',
+  'tyler conlan',
+  'curt stark'
+];
+function _konamiTap(idx) {
+  _konamiTaps.push(idx);
+  // If current sequence isn't a valid prefix, restart (possibly with this tap as new start)
+  var ok = true;
+  for (var i = 0; i < _konamiTaps.length; i++) {
+    if (_konamiTaps[i] !== _KONAMI_SEQ[i]) { ok = false; break; }
+  }
+  if (!ok) _konamiTaps = (idx === _KONAMI_SEQ[0]) ? [idx] : [];
+  if (_konamiTimer) clearTimeout(_konamiTimer);
+  _konamiTimer = setTimeout(function() { _konamiTaps = []; _konamiTimer = null; }, 3000);
+  if (_konamiTaps.length === _KONAMI_SEQ.length) {
+    _konamiTaps = [];
+    if (_konamiTimer) { clearTimeout(_konamiTimer); _konamiTimer = null; }
+    _friendFilterActive = !_friendFilterActive;
+    try { showToast(_friendFilterActive ? '👥 Friends only' : 'Filter cleared'); } catch(ex) {}
+    renderStandings();
+  }
+}
+function _clearFriendFilter() {
+  _friendFilterActive = false;
+  renderStandings();
+}
+
 function toggleStandingsSort(col) {
   if (standingsSort === col) {
     standingsSortDir *= -1;
@@ -126,7 +162,7 @@ function renderStandings() {
     var finalCls = tourneyDone ? ' final' : '';
     var compactCls = holder ? '' : ' compact';
     var whoRow = holder ? '<div class="pc-who">' + escHtml(holder) + '</div>' : '';
-    return '<div class="payout-card ' + (isGold ? 'gold' : '') + finalCls + compactCls + '">' +
+    return '<div class="payout-card ' + (isGold ? 'gold' : '') + finalCls + compactCls + '" onclick="_konamiTap(' + i + ')">' +
       '<div class="pc-lbl">' + label + '</div>' +
       '<div class="pc-amt">$' + payoutAmounts[i].toLocaleString() + '</div>' +
       whoRow +
@@ -225,7 +261,28 @@ function renderStandings() {
     displayRanks = filteredRanks;
   }
 
+  // Hidden friend filter — overrides/narrows whatever search produced
+  if (_friendFilterActive) {
+    var friendFiltered = [];
+    var friendRanks = [];
+    displayRanked.forEach(function(e, i) {
+      var nm = (e.name || '').trim().toLowerCase();
+      if (_FRIEND_NAMES_LC.indexOf(nm) !== -1) {
+        friendFiltered.push(e);
+        friendRanks.push(displayRanks[i]);
+      }
+    });
+    displayRanked = friendFiltered;
+    displayRanks = friendRanks;
+  }
+
   var html = '';
+  if (_friendFilterActive) {
+    html += '<div class="friend-filter-banner" onclick="_clearFriendFilter()">'
+      + '<span>👥 Friends only · ' + displayRanked.length + ' ' + (displayRanked.length === 1 ? 'entry' : 'entries') + '</span>'
+      + '<span class="ff-clear" aria-label="Clear filter">✕</span>'
+      + '</div>';
+  }
   displayRanked.forEach(function(e, i) {
     var rank = displayRanks[i];
     var sc = e.total, scf = fmtTeam(sc), scc = cls(sc);
