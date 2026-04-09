@@ -108,7 +108,13 @@ function populateLiveEntryFilter() {
       rnkMap[re.team + '|' + re.email] = rk;
     });
 
-    currentUserTeams.forEach(function(t, i) {
+    // Render in pool-rank order, but preserve original index for the click handler
+    var sortedTeams = currentUserTeams.map(function(t, i) {
+      return { entry: t, origIdx: i, rank: rnkMap[t.team + '|' + t.email] || Infinity };
+    }).sort(function(a, b) { return a.rank - b.rank; });
+    sortedTeams.forEach(function(item) {
+      var t = item.entry;
+      var i = item.origIdx;
       var c = calcEntry(t);
       var myRk = rnkMap[t.team + '|' + t.email] || 0;
       var isActive = _liveFilterVal === String(i);

@@ -168,7 +168,15 @@ function renderStandings() {
   // Build floating "my entries" box above standings
   var heroHtml = '';
   if (currentUserEmail && currentUserTeams.length > 0) {
-    var teamsToShow = activeTeamIdx >= 0 ? [currentUserTeams[activeTeamIdx]].filter(Boolean) : currentUserTeams;
+    var teamsToShow = activeTeamIdx >= 0 ? [currentUserTeams[activeTeamIdx]].filter(Boolean) : currentUserTeams.slice();
+    // Sort by pool rank so best entry is on top (don't mutate currentUserTeams)
+    teamsToShow.sort(function(a, b) {
+      var ia = ranked.findIndex(function(e) { return e.email === a.email && e.team === a.team; });
+      var ib = ranked.findIndex(function(e) { return e.email === b.email && e.team === b.team; });
+      if (ia < 0) ia = Infinity;
+      if (ib < 0) ib = Infinity;
+      return ia - ib;
+    });
     var myRows = '';
     teamsToShow.forEach(function(activeTeam) {
       var myIdx = ranked.findIndex(function(e) { return e.email === activeTeam.email && e.team === activeTeam.team; });
