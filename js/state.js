@@ -629,7 +629,15 @@ function saveRoundStartPositions(round) {
 }
 
 function shouldShowSplash() {
-  return true;
+  try {
+    var today = new Date().toISOString().slice(0, 10);
+    var data = JSON.parse(localStorage.getItem(SPLASH_DATE_KEY) || '{}');
+    // Only show splash if we haven't seen it yet today
+    return data.date !== today;
+  } catch(e) {
+    // On error, show splash
+    return true;
+  }
 }
 
 function markSplashSeen() {
