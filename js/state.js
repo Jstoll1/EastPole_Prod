@@ -229,8 +229,7 @@ var ENTRIES = [
   { team: 'Where There\'s a Will…', email: 'Will McKenzie', name: 'Will McKenzie', picks: ['Scottie Scheffler','Tommy Fleetwood','Brooks Koepka','Russell Henley','Akshay Bhatia','Nicolai Hojgaard','Cameron Smith','Max Homa','Sergio Garcia','Bubba Watson'] },
   { team: 'Where There\'s a Will…#2', email: 'Will McKenzie', name: 'Will McKenzie', picks: ['Bryson DeChambeau','Xander Schauffele','Viktor Hovland','Patrick Cantlay','Jason Day','Shane Lowry','Corey Conners','Sungjae Im','Brian Harman','Wyndham Clark'] },
   { team: 'Jackmerius Tacktheratrix', email: 'James Torell', name: 'James Torell', picks: ['Scottie Scheffler','Bryson DeChambeau','Brooks Koepka','Patrick Reed','Akshay Bhatia','Sepp Straka','Shane Lowry','Sungjae Im','Wyndham Clark','Sergio Garcia'] },
-  { team: 'CFreddie\'s Entry', email: 'Chris Frederick', name: 'Chris Frederick', picks: ['Jon Rahm','Bryson DeChambeau','Russell Henley','Patrick Reed','Akshay Bhatia','Jason Day','Shane Lowry','Gary Woodland','Sungjae Im','Nick Taylor'] }
-];
+  { team: 'CFreddie\'s Entry', email: 'Chris Frederick', name: 'Chris Frederick', picks: ['Jon Rahm','Bryson DeChambeau','Russell Henley','Patrick Reed','Akshay Bhatia','Jason Day','Shane Lowry','Gary Woodland','Sungjae Im','Nick Taylor'] },
 
 // Total entries: 149
 
