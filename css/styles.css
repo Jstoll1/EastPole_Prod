@@ -3041,6 +3041,29 @@ to  {
 }
 .h2h-prob-name.left { color: var(--text); }
 .h2h-prob-name.right { color: var(--text); text-align: right; }
+.h2h-prob-name.leader { color: var(--gold); }
+.h2h-crown {
+  font-size: 13px;
+  filter: drop-shadow(0 0 6px rgba(212,168,67,0.5));
+  vertical-align: -1px;
+}
+.h2h-prob-meta-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  gap: 8px;
+}
+.h2h-prob-meta {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text3);
+  letter-spacing: 0.2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 45%;
+}
+.h2h-prob-meta.right { text-align: right; }
 .h2h-prob-pcts {
   display: flex;
   justify-content: space-between;
@@ -3131,6 +3154,11 @@ to  {
   font-size: 22px;
   font-weight: 900;
   letter-spacing: -1px;
+  transition: font-size 0.2s ease;
+}
+.h2h-score-big.leader {
+  font-size: 28px;
+  text-shadow: 0 0 12px rgba(82,183,136,0.25);
 }
 .h2h-score-lbl {
   font-size: 9px;
@@ -3252,6 +3280,64 @@ to  {
   font-size: 9px;
   color: var(--text3);
   font-weight: 600;
+}
+/* Shared pick banner (above matchup rows) */
+.h2h-shared-banner {
+  margin: 4px 14px 0;
+  padding: 5px 10px;
+  background: rgba(212,168,67,0.08);
+  border: 1px solid rgba(212,168,67,0.25);
+  border-radius: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.3px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.h2h-shared-banner span {
+  color: var(--text2);
+  font-weight: 600;
+}
+/* Shared-pick cell styling: subtle gold tint so you can see at a glance */
+.h2h-vs-cell.shared .h2h-vs-pname {
+  color: var(--gold);
+}
+.h2h-vs-flag {
+  font-size: 10px;
+  flex-shrink: 0;
+}
+.h2h-vs-badge {
+  font-size: 10px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.h2h-vs-badge.fire {
+  filter: drop-shadow(0 0 4px rgba(255,180,80,0.5));
+}
+.h2h-vs-badge.ice {
+  filter: drop-shadow(0 0 4px rgba(120,180,255,0.5));
+}
+.h2h-vs-pname {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Force the .h2h-vs-name row to flex so badge/flag/name wrap correctly */
+.h2h-vs-name {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.h2h-vs-cell.right .h2h-vs-name {
+  justify-content: flex-end;
+}
+.h2h-vs-shared {
+  font-size: 10px;
+  color: var(--gold);
+  opacity: 0.85;
 }
 .h2h-panel-wrap {
   animation: h2hSlideIn 0.3s ease;

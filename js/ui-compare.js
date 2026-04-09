@@ -283,12 +283,52 @@ function renderH2HInline() {
   var pctLeft = prob.pctA;
   var pctRight = prob.pctB;
 
+  // Pool rank map + leader + shared picks + best/worst (carrier/drag) for each side
+  var rankedPool = getRanked();
+  var rankMap = {}; var rk = 1;
+  rankedPool.forEach(function(e, i) {
+    if (i > 0 && rankedPool[i].total !== rankedPool[i-1].total) rk = i + 1;
+    rankMap[e.team + '|' + e.email] = rk;
+  });
+  var rankA = rankMap[entryA.team + '|' + entryA.email] || 0;
+  var rankB = rankMap[entryB.team + '|' + entryB.email] || 0;
+  var totalEntries = ENTRIES.length;
+
+  var leftLeads = cA.total < cB.total;
+  var rightLeads = cB.total < cA.total;
+
+  var picksA = new Set(entryA.picks);
+  var sharedSet = new Set(entryB.picks.filter(function(p) { return picksA.has(p); }));
+
+  function computeBestWorst(top4) {
+    var best = null, worst = null;
+    top4.forEach(function(g) {
+      if (g.score >= 11) return; // skip MC/WD
+      if (best === null || g.score < best.score) best = g;
+      if (worst === null || g.score > worst.score) worst = g;
+    });
+    return {
+      bestName: best ? best.name : null,
+      // Only flag a "drag" if that golfer is actually above par
+      worstName: (worst && worst.score > 0) ? worst.name : null
+    };
+  }
+  var bwA = computeBestWorst(cA.top4);
+  var bwB = computeBestWorst(cB.top4);
+
+  var crownA = leftLeads ? '<span class="h2h-crown">👑</span> ' : '';
+  var crownB = rightLeads ? ' <span class="h2h-crown">👑</span>' : '';
+
   var html = '<div class="h2h-panel-wrap">';
   html += '<div class="h2h-close-bar"><button class="h2h-close-btn" onclick="exitCompareMode()">✕ Exit Compare</button></div>';
   html += '<div class="h2h-prob-wrap">';
   html += '<div class="h2h-prob-labels">';
-  html += '<div class="h2h-prob-name left">' + escHtml(cA.team) + '</div>';
-  html += '<div class="h2h-prob-name right">' + escHtml(cB.team) + '</div>';
+  html += '<div class="h2h-prob-name left' + (leftLeads ? ' leader' : '') + '">' + crownA + escHtml(cA.team) + '</div>';
+  html += '<div class="h2h-prob-name right' + (rightLeads ? ' leader' : '') + '">' + escHtml(cB.team) + crownB + '</div>';
+  html += '</div>';
+  html += '<div class="h2h-prob-meta-row">';
+  html += '<div class="h2h-prob-meta left">' + (rankA ? ordinal(rankA) + ' of ' + totalEntries : '') + (entryA.name ? ' · ' + escHtml(entryA.name) : '') + '</div>';
+  html += '<div class="h2h-prob-meta right">' + (rankB ? ordinal(rankB) + ' of ' + totalEntries : '') + (entryB.name ? ' · ' + escHtml(entryB.name) : '') + '</div>';
   html += '</div>';
   html += '<div class="h2h-prob-pcts">';
   html += '<div class="h2h-prob-pct left' + (pctLeft < pctRight ? ' losing' : '') + '">' + pctLeft + '%</div>';
@@ -319,7 +359,7 @@ function renderH2HInline() {
   var showHoles = ROUND_START_ROUND >= 4;
 
   html += '<div class="h2h-score-summary">';
-  html += '<div style="text-align:left"><div class="h2h-score-lbl-top">TOT</div><div class="h2h-score-big ' + cls(cA.total) + '">' + fmtTeam(cA.total) + '</div><div class="h2h-score-lbl">' + (showHoles ? 'Total · ' + holesA + 'h left' : 'Total') + '</div>';
+  html += '<div style="text-align:left"><div class="h2h-score-lbl-top">TOT</div><div class="h2h-score-big ' + cls(cA.total) + (leftLeads ? ' leader' : '') + '">' + fmtTeam(cA.total) + '</div><div class="h2h-score-lbl">' + (showHoles ? 'Total · ' + holesA + 'h left' : 'Total') + '</div>';
   if (rdA.count > 0) html += '<div style="font-size:11px;font-weight:700;margin-top:3px;color:' + (rdA.sum < 0 ? '#52b788' : rdA.sum > 0 ? '#ff7070' : 'var(--text2)') + '">Today: ' + fmtRd(rdA.sum) + '</div>';
   html += '</div>';
   if (cA.total === cB.total) {
@@ -328,7 +368,7 @@ function renderH2HInline() {
     var gap = Math.abs(cA.total - cB.total);
     html += '<div style="text-align:center;color:var(--text3);font-size:10px;font-weight:700">' + gap + ' stroke' + (gap > 1 ? 's' : '') + '</div>';
   }
-  html += '<div style="text-align:right"><div class="h2h-score-lbl-top">TOT</div><div class="h2h-score-big ' + cls(cB.total) + '">' + fmtTeam(cB.total) + '</div><div class="h2h-score-lbl">' + (showHoles ? 'Total · ' + holesB + 'h left' : 'Total') + '</div>';
+  html += '<div style="text-align:right"><div class="h2h-score-lbl-top">TOT</div><div class="h2h-score-big ' + cls(cB.total) + (rightLeads ? ' leader' : '') + '">' + fmtTeam(cB.total) + '</div><div class="h2h-score-lbl">' + (showHoles ? 'Total · ' + holesB + 'h left' : 'Total') + '</div>';
   if (rdB.count > 0) html += '<div style="font-size:11px;font-weight:700;margin-top:3px;color:' + (rdB.sum < 0 ? '#52b788' : rdB.sum > 0 ? '#ff7070' : 'var(--text2)') + '">Today: ' + fmtRd(rdB.sum) + '</div>';
   html += '</div>';
   html += '</div>';
@@ -365,19 +405,30 @@ function renderH2HInline() {
 
   html += '<div class="h2h-matchups">';
   html += '<div class="h2h-vs-label" style="text-align:center">Head to Head</div>';
+
+  // Shared picks summary
+  if (sharedSet.size > 0) {
+    var sharedNames = Array.from(sharedSet).map(function(n) {
+      return (FLAGS[n] || '') + ' ' + escHtml(n.split(' ').slice(-1)[0]);
+    }).join(' · ');
+    html += '<div class="h2h-shared-banner">⛓ ' + sharedSet.size + ' shared pick' + (sharedSet.size > 1 ? 's' : '') + ' · <span>' + sharedNames + '</span></div>';
+  }
+
   html += '<div class="h2h-vs-hdr">';
   html += '<div class="h2h-vs-team left">' + escHtml(cA.team) + '</div>';
   html += '<div class="h2h-vs-team right">' + escHtml(cB.team) + '</div>';
   html += '</div>';
   var maxLen = Math.max(cA.scores.length, cB.scores.length);
+  var ctxA = { sharedSet: sharedSet, bestName: bwA.bestName, worstName: bwA.worstName };
+  var ctxB = { sharedSet: sharedSet, bestName: bwB.bestName, worstName: bwB.worstName };
   for (var r = 0; r < maxLen; r++) {
     var isTop = r < 4;
     var gA = cA.scores[r];
     var gB = cB.scores[r];
     html += '<div class="h2h-vs-row ' + (isTop ? 'is-top' : 'is-bench') + '">';
-    html += buildH2HCell(gA, 'left', isTop);
+    html += buildH2HCell(gA, 'left', isTop, ctxA);
     html += '<div class="h2h-vs-rank">' + (isTop ? '★' : (r + 1)) + '</div>';
-    html += buildH2HCell(gB, 'right', isTop);
+    html += buildH2HCell(gB, 'right', isTop, ctxB);
     html += '</div>';
   }
   html += '</div></div>';
@@ -385,8 +436,9 @@ function renderH2HInline() {
   container.innerHTML = html;
 }
 
-function buildH2HCell(g, side, isTop) {
+function buildH2HCell(g, side, isTop, ctx) {
   if (!g) return '<div class="h2h-vs-cell ' + side + '"></div>';
+  ctx = ctx || {};
   var gd = GOLFER_SCORES[g.name];
   var thru = gd ? gd.thru : '—';
   var isWD = thru === 'WD' || (gd && gd.score === 12);
@@ -401,11 +453,23 @@ function buildH2HCell(g, side, isTop) {
     todayTag = '<span style="color:' + todayColor + ';font-size:10px;font-weight:700">' + todayFmt + '</span>';
   }
   var statusTag = isWD ? '<span style="color:var(--red);font-size:9px">WD</span>' : mc ? '<span style="color:var(--red);font-size:9px">MC</span>' : (ROUND_START_ROUND >= 4 ? (holesLeft > 0 ? '<span style="color:var(--text3);font-size:9px">' + holesLeft + 'h</span>' : '<span style="color:var(--text3);font-size:9px">F</span>') : '');
-  var html = '<div class="h2h-vs-cell ' + side + '">';
+
+  var isShared = ctx.sharedSet && ctx.sharedSet.has(g.name);
+  var isBest = isTop && ctx.bestName === g.name;
+  var isWorst = isTop && ctx.worstName === g.name;
+  var flag = FLAGS[g.name] || '';
+  var badge = isBest ? '<span class="h2h-vs-badge fire" title="Top contributor">🔥</span>' : (isWorst ? '<span class="h2h-vs-badge ice" title="Dragging the team">❄️</span>' : '');
+  var sharedTag = isShared ? '<span class="h2h-vs-shared" title="Both teams picked">⛓</span>' : '';
+  var flagSpan = flag ? '<span class="h2h-vs-flag">' + flag + '</span>' : '';
+  var nameHtml = side === 'left'
+    ? badge + flagSpan + '<span class="h2h-vs-pname">' + escHtml(g.name) + '</span>'
+    : '<span class="h2h-vs-pname">' + escHtml(g.name) + '</span>' + flagSpan + badge;
+
+  var html = '<div class="h2h-vs-cell ' + side + (isShared ? ' shared' : '') + '">';
   html += '<div class="h2h-vs-score ' + cls(g.score) + '">' + fmt(g.score) + '</div>';
   html += '<div class="h2h-vs-info">';
-  html += '<div class="h2h-vs-name">' + g.name + '</div>';
-  html += '<div class="h2h-vs-meta" style="display:flex;gap:4px;align-items:center">' + (todayTag || '') + statusTag + '</div>';
+  html += '<div class="h2h-vs-name">' + nameHtml + '</div>';
+  html += '<div class="h2h-vs-meta" style="display:flex;gap:4px;align-items:center">' + (todayTag || '') + statusTag + sharedTag + '</div>';
   html += '</div>';
   html += '</div>';
   return html;
