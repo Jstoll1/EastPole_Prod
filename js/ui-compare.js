@@ -401,6 +401,54 @@ function renderH2HInline() {
     }
     html += '<div class="h2h-momentum">' + momHtml + '</div>';
   }
+
+  // Round-by-round ledger: how the top-4's gap formed per round
+  function computeRoundScores(top4) {
+    var rounds = [0, 0, 0, 0];
+    var counts = [0, 0, 0, 0];
+    top4.forEach(function(g) {
+      var gd = GOLFER_SCORES[g.name];
+      if (!gd) return;
+      [gd.r1, gd.r2, gd.r3, gd.r4].forEach(function(r, i) {
+        if (r != null && r > 50) {
+          rounds[i] += r - COURSE_PAR;
+          counts[i]++;
+        }
+      });
+    });
+    return { rounds: rounds, counts: counts };
+  }
+  var ledA = computeRoundScores(cA.top4);
+  var ledB = computeRoundScores(cB.top4);
+  var ledgerRounds = [0,1,2,3].filter(function(i) { return ledA.counts[i] > 0 || ledB.counts[i] > 0; });
+  if (ledgerRounds.length > 0) {
+    html += '<div class="h2h-round-ledger">';
+    html += '<div class="h2h-round-hdr">Round by Round (Top 4)</div>';
+    ledgerRounds.forEach(function(i) {
+      var hasA = ledA.counts[i] > 0;
+      var hasB = ledB.counts[i] > 0;
+      var valA = hasA ? fmtTeam(ledA.rounds[i]) + (ledA.counts[i] < 4 ? '*' : '') : '—';
+      var valB = hasB ? fmtTeam(ledB.rounds[i]) + (ledB.counts[i] < 4 ? '*' : '') : '—';
+      var clsA = hasA ? cls(ledA.rounds[i]) : '';
+      var clsB = hasB ? cls(ledB.rounds[i]) : '';
+      var winCls = '';
+      if (hasA && hasB) {
+        if (ledA.rounds[i] < ledB.rounds[i]) winCls = ' a-wins';
+        else if (ledB.rounds[i] < ledA.rounds[i]) winCls = ' b-wins';
+      }
+      html += '<div class="h2h-round-row' + winCls + '">'
+        + '<div class="h2h-round-val left ' + clsA + '">' + valA + '</div>'
+        + '<div class="h2h-round-lbl">R' + (i+1) + '</div>'
+        + '<div class="h2h-round-val right ' + clsB + '">' + valB + '</div>'
+        + '</div>';
+    });
+    // Footnote if any partial rounds
+    var hasPartial = ledgerRounds.some(function(i) { return (ledA.counts[i] > 0 && ledA.counts[i] < 4) || (ledB.counts[i] > 0 && ledB.counts[i] < 4); });
+    if (hasPartial) {
+      html += '<div class="h2h-round-foot">* partial — not all 4 scorers through the round</div>';
+    }
+    html += '</div>';
+  }
   html += '</div>';
 
   html += '<div class="h2h-matchups">';

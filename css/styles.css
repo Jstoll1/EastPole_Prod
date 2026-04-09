@@ -3189,6 +3189,59 @@ to  {
   border-radius: 20px;
   border: 1px solid rgba(212,168,67,0.3);
 }
+/* Round-by-round ledger (inside h2h-prob-wrap) */
+.h2h-round-ledger {
+  margin-top: 6px;
+  padding: 6px 10px 7px;
+  background: rgba(0,0,0,0.18);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 6px;
+}
+.h2h-round-hdr {
+  font-size: 8px;
+  font-weight: 800;
+  color: var(--text3);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 5px;
+}
+.h2h-round-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 2px 0;
+  border-radius: 4px;
+}
+.h2h-round-row.a-wins {
+  background: linear-gradient(to right, rgba(82,183,136,0.10), transparent);
+}
+.h2h-round-row.b-wins {
+  background: linear-gradient(to left, rgba(82,183,136,0.10), transparent);
+}
+.h2h-round-lbl {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--text3);
+  letter-spacing: 0.5px;
+  min-width: 22px;
+  text-align: center;
+}
+.h2h-round-val {
+  font-size: 12px;
+  font-weight: 900;
+  flex: 1;
+}
+.h2h-round-val.left { text-align: left; }
+.h2h-round-val.right { text-align: right; }
+.h2h-round-foot {
+  font-size: 8px;
+  color: var(--text3);
+  text-align: center;
+  margin-top: 4px;
+  font-style: italic;
+}
 .h2h-matchups {
   margin: 8px 14px 0;
 }
