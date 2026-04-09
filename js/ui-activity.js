@@ -118,22 +118,21 @@ function populateLiveEntryFilter() {
         + '</div>';
     });
 
-    // Secondary toggles: "All Mine" (only if >1 entry) + "Field"
+    // Secondary toggles row: "All Mine" (multi-entry only) + "Field" + H2H
+    var h2hActive = !!_h2hLiveOpponent;
+    var h2hLabel = h2hActive ? '⚔️ vs ' + escHtml(_h2hLiveOpponent.team) : '⚔️ H2H';
     html += '<div class="live-entry-toggles">';
     if (currentUserTeams.length > 1) {
       html += '<button class="lec-pill' + (_liveFilterVal === 'all' ? ' active' : '') + '" onclick="setLiveFilter(\'all\')">All Mine</button>';
     }
-    html += '<button class="lec-pill' + (_liveFilterVal === 'field' ? ' active' : '') + '" onclick="setLiveFilter(\'field\')">Entire Field</button>';
+    html += '<button class="lec-pill' + (_liveFilterVal === 'field' ? ' active' : '') + '" onclick="setLiveFilter(\'field\')">Field</button>';
+    html += '<button id="h2h-live-btn" class="lec-pill lec-pill-h2h' + (h2hActive ? ' active' : '') + '" onclick="openH2HLivePicker()">' + h2hLabel + '</button>';
     html += '</div>';
   } else {
     html += '<div class="live-entry-chip field-only"><span class="lec-name">Entire Field</span></div>';
   }
 
   el.innerHTML = html;
-
-  // Show H2H button if user has entries
-  var btn = document.getElementById('h2h-live-btn');
-  if (btn) btn.style.display = hasTeams ? '' : 'none';
 }
 
 function setLiveFilter(val) {
@@ -440,8 +439,7 @@ function openH2HLivePicker() {
   // If H2H is active, toggle it off
   if (_h2hLiveOpponent) {
     _h2hLiveOpponent = null;
-    var btn = document.getElementById('h2h-live-btn');
-    if (btn) { btn.textContent = '⚔️ H2H'; btn.classList.remove('active'); }
+    populateLiveEntryFilter();
     renderActivityList();
     return;
   }
@@ -533,9 +531,7 @@ function selectH2HLiveOpponent(entryIdx) {
   var b = document.getElementById('h2h-live-backdrop');
   if (p) p.remove();
   if (b) b.remove();
-  // Update H2H button to show active state
-  var btn = document.getElementById('h2h-live-btn');
-  if (btn) { btn.textContent = '⚔️ vs ' + opp.team; btn.classList.add('active'); }
+  populateLiveEntryFilter();
   renderActivityList();
 }
 
@@ -545,8 +541,7 @@ function cancelH2HLivePicker() {
   if (p) p.remove();
   if (b) b.remove();
   _h2hLiveOpponent = null;
-  var btn = document.getElementById('h2h-live-btn');
-  if (btn) { btn.textContent = '⚔️ H2H'; btn.classList.remove('active'); }
+  populateLiveEntryFilter();
   renderActivityList();
 }
 
