@@ -209,16 +209,35 @@ function hideOnboarding() {
 }
 
 function enterApp() {
-  markSplashSeen();
-  var splash = document.getElementById('splash');
-  splash.classList.add('hidden');
-  setTimeout(function() {
-    splash.style.display = 'none';
-    if (!currentUserEmail) showOnboarding();
-    if (!localStorage.getItem(WELCOME_KEY)) {
-      setTimeout(showWelcome, 250);
+  try {
+    console.log('🎯 enterApp() called');
+    markSplashSeen();
+    var splash = document.getElementById('splash');
+    if (!splash) {
+      console.error('❌ Splash element not found');
+      return;
     }
-  }, 500);
+    console.log('✅ Splash found, adding hidden class');
+    splash.classList.add('hidden');
+    setTimeout(function() {
+      try {
+        console.log('✅ Setting display:none, showing onboarding');
+        splash.style.display = 'none';
+        if (!currentUserEmail) {
+          console.log('📋 Showing onboarding');
+          showOnboarding();
+        }
+        if (!localStorage.getItem(WELCOME_KEY)) {
+          console.log('👋 Showing welcome');
+          setTimeout(showWelcome, 250);
+        }
+      } catch(e) {
+        console.error('❌ Error in setTimeout:', e);
+      }
+    }, 500);
+  } catch(e) {
+    console.error('❌ Error in enterApp():', e);
+  }
 }
 
 function showWelcome(force) {
