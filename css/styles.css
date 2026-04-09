@@ -472,6 +472,11 @@ html, body  {
   box-shadow: 0 0 20px rgba(245,197,24,0.25);
   background: rgba(245,197,24,0.15);
 }
+.payout-card.konami-flash {
+  background: rgba(245,197,24,0.35) !important;
+  transform: scale(0.96);
+  transition: transform 0.1s ease, background 0.15s ease;
+}
 
 .payout-card .pc-tb  {
   font-size: 8px;

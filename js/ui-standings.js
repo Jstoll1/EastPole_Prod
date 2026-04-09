@@ -18,8 +18,18 @@ var _FRIEND_NAMES_LC = [
   'tyler conlan',
   'curt stark'
 ];
-function _konamiTap(idx) {
+function _konamiTap(idx, ev) {
+  if (ev && ev.stopPropagation) ev.stopPropagation();
   _konamiTaps.push(idx);
+  // Flash the tapped card so user has visible tap feedback
+  try {
+    var cards = document.querySelectorAll('#standings-cards .payout-card');
+    if (cards && cards[idx]) {
+      cards[idx].classList.add('konami-flash');
+      setTimeout(function(){ cards[idx].classList.remove('konami-flash'); }, 220);
+    }
+  } catch(ex) {}
+  try { console.log('[konami] tap', idx, 'seq', _konamiTaps.join(',')); } catch(ex) {}
   // If current sequence isn't a valid prefix, restart (possibly with this tap as new start)
   var ok = true;
   for (var i = 0; i < _konamiTaps.length; i++) {
@@ -162,7 +172,7 @@ function renderStandings() {
     var finalCls = tourneyDone ? ' final' : '';
     var compactCls = holder ? '' : ' compact';
     var whoRow = holder ? '<div class="pc-who">' + escHtml(holder) + '</div>' : '';
-    return '<div class="payout-card ' + (isGold ? 'gold' : '') + finalCls + compactCls + '" onclick="_konamiTap(' + i + ')">' +
+    return '<div class="payout-card ' + (isGold ? 'gold' : '') + finalCls + compactCls + '" onclick="_konamiTap(' + i + ', event)" style="cursor:pointer">' +
       '<div class="pc-lbl">' + label + '</div>' +
       '<div class="pc-amt">$' + payoutAmounts[i].toLocaleString() + '</div>' +
       whoRow +
