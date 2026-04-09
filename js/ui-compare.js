@@ -2,6 +2,113 @@
 
 var compareMode = false;
 var cmpSelections = [];
+var _h2hMyIdx = null; // currently highlighted "my team" in the quick picker
+
+function openH2HQuickPicker() {
+  // Fallback: user has no entries — fall through to manual tap-two-teams flow.
+  if (!currentUserTeams.length) {
+    compareMode = true;
+    cmpSelections = [];
+    document.getElementById('cmp-toggle').classList.add('active');
+    document.getElementById('cmp-hint').style.display = 'block';
+    document.getElementById('cmp-hint').textContent = 'Tap two teams to compare';
+    renderStandings();
+    return;
+  }
+  // Pre-highlight the currently-active entry, or fall back to the first entry.
+  var preselect = null;
+  if (activeTeamIdx >= 0 && currentUserTeams[activeTeamIdx]) {
+    preselect = currentUserTeams[activeTeamIdx];
+  } else {
+    preselect = currentUserTeams[0];
+  }
+  _h2hMyIdx = ENTRIES.findIndex(function(x) { return x.team === preselect.team && x.email === preselect.email; });
+  renderH2HQuickPicker();
+}
+
+function renderH2HQuickPicker() {
+  var existing = document.getElementById('h2h-picker');
+  if (existing) existing.remove();
+  var existingBd = document.getElementById('h2h-picker-backdrop');
+  if (existingBd) existingBd.remove();
+
+  var popup = document.createElement('div');
+  popup.id = 'h2h-picker';
+  popup.style.cssText = 'position:fixed;z-index:9999;background:var(--card);border:1px solid var(--gold);border-radius:12px;padding:14px 16px;box-shadow:0 8px 32px rgba(0,0,0,.5);max-width:320px;width:90%;left:50%;top:50%;transform:translate(-50%,-50%);max-height:82vh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;';
+
+  var html = '';
+  html += '<div style="font-size:13px;font-weight:800;color:var(--gold);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px;text-align:center">⚔️ Head to Head</div>';
+
+  // Section 1 — your entries
+  html += '<div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Your Entry' + (currentUserTeams.length > 1 ? ' (tap to switch)' : '') + '</div>';
+  var rnk = getRanked();
+  var rnkMap = {}; var rk = 1;
+  rnk.forEach(function(re, ri) { if (ri > 0 && rnk[ri].total !== rnk[ri-1].total) rk = ri + 1; rnkMap[re.team + '|' + re.email] = rk; });
+  currentUserTeams.forEach(function(e) {
+    var idx = ENTRIES.findIndex(function(x) { return x.team === e.team && x.email === e.email; });
+    var c = calcEntry(e);
+    var myRk = rnkMap[e.team + '|' + e.email] || '';
+    var isSelected = idx === _h2hMyIdx;
+    var selStyle = isSelected ? 'border:1.5px solid var(--gold);background:rgba(212,168,67,0.12);' : 'border:1px solid transparent;';
+    html += '<div class="h2h-picker-row" style="' + selStyle + '" onclick="h2hSetMine(' + idx + ')">'
+      + '<span class="h2h-picker-rank">' + myRk + '</span>'
+      + '<span class="h2h-picker-team">' + escHtml(e.team) + '</span>'
+      + '<span class="h2h-picker-score ' + cls(c.total) + '">' + fmtTeam(c.total) + '</span></div>';
+  });
+
+  html += '<div style="height:1px;background:var(--border);margin:12px 0;"></div>';
+
+  // Section 2 — search opponent
+  html += '<div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">vs. Opponent</div>';
+  html += '<input id="h2h-picker-search" type="text" placeholder="Search team or name…" style="width:100%;box-sizing:border-box;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;margin-bottom:8px;outline:none;" oninput="filterH2HQuickList()">';
+  html += '<div id="h2h-picker-list">';
+  html += buildH2HOpponentList(_h2hMyIdx, '');
+  html += '</div>';
+
+  popup.innerHTML = html;
+  document.body.appendChild(popup);
+
+  var backdrop = document.createElement('div');
+  backdrop.id = 'h2h-picker-backdrop';
+  backdrop.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.4);';
+  backdrop.onclick = closeH2HQuickPicker;
+  document.body.appendChild(backdrop);
+}
+
+function buildH2HOpponentList(myIdx, query) {
+  var ranked = getRanked();
+  var q = (query || '').toLowerCase();
+  var html = '';
+  var rk = 1;
+  ranked.forEach(function(e, i) {
+    if (i > 0 && ranked[i].total !== ranked[i-1].total) rk = i + 1;
+    var idx = ENTRIES.findIndex(function(x) { return x.team === e.team && x.email === e.email; });
+    if (idx === myIdx) return;
+    if (q && e.team.toLowerCase().indexOf(q) === -1 && e.name.toLowerCase().indexOf(q) === -1) return;
+    html += '<div class="h2h-picker-row" onclick="selectH2H(' + myIdx + ',' + idx + ')">'
+      + '<span class="h2h-picker-rank">' + rk + '</span>'
+      + '<span class="h2h-picker-team">' + escHtml(e.team) + '</span>'
+      + '<span class="h2h-picker-score ' + cls(e.total) + '">' + fmtTeam(e.total) + '</span></div>';
+  });
+  return html || '<div style="font-size:11px;color:var(--text3);padding:8px 0;text-align:center">No matches</div>';
+}
+
+function h2hSetMine(idx) {
+  _h2hMyIdx = idx;
+  renderH2HQuickPicker();
+}
+
+function filterH2HQuickList() {
+  var q = document.getElementById('h2h-picker-search').value;
+  document.getElementById('h2h-picker-list').innerHTML = buildH2HOpponentList(_h2hMyIdx, q);
+}
+
+function closeH2HQuickPicker() {
+  var popup = document.getElementById('h2h-picker');
+  var backdrop = document.getElementById('h2h-picker-backdrop');
+  if (popup) popup.remove();
+  if (backdrop) backdrop.remove();
+}
 
 function openH2HPicker(targetIdx) {
   var existing = document.getElementById('h2h-picker');
@@ -86,6 +193,12 @@ function selectH2H(myIdx, theirIdx) {
 
 function toggleCompareMode() {
   _cmpClickLock = true;
+  // If entering compare mode and user has entries, open the quick picker instead
+  // of the manual tap-two-teams flow (easier with 149-entry standings).
+  if (!compareMode && currentUserTeams.length > 0) {
+    openH2HQuickPicker();
+    return;
+  }
   compareMode = !compareMode;
   cmpSelections = [];
   document.getElementById('cmp-toggle').classList.toggle('active', compareMode);
