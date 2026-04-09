@@ -2000,9 +2000,9 @@ html, body  {
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 2px;
-  color: rgba(255,255,255,0.92);
+  color: var(--red);
   text-transform: uppercase;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.85), 0 0 14px rgba(0,0,0,0.6);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.95), 0 0 14px rgba(0,0,0,0.8);
   background: none;
   border: none;
   padding: 0;
