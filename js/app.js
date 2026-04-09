@@ -153,13 +153,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Ensure splash click handler works (backup for inline onclick)
   var splash = document.getElementById('splash');
-  if (splash && !splash.classList.contains('hidden')) {
-    splash.addEventListener('click', function(e) {
-      // Only trigger if clicking on splash itself or its children (not prevented)
-      if (!e.defaultPrevented) {
-        enterApp();
-      }
-    });
+  if (splash) {
+    splash.addEventListener('click', enterApp);
   }
 
   // Close team dropdown on outside click
