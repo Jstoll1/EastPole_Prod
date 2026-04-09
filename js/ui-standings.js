@@ -16,7 +16,8 @@ var _FRIEND_NAMES_LC = [
   'andrew steioff',
   'adam skillingstad',
   'tyler conlan',
-  'curt stark'
+  'curt stark',
+  'tyler dewitt'
 ];
 function _konamiTap(idx, ev) {
   if (ev && ev.stopPropagation) ev.stopPropagation();
