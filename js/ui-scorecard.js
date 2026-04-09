@@ -10,9 +10,12 @@ function showPickerPopup(owners, evt) {
   if (!owners || !owners.length) return;
   var popup = document.createElement('div');
   popup.id = 'picker-popup';
-  popup.style.cssText = 'position:fixed;z-index:9999;background:var(--card);border:1px solid var(--gold);border-radius:10px;padding:12px 16px;box-shadow:0 8px 24px rgba(0,0,0,.45);max-width:260px;min-width:200px;';
+  popup.style.cssText = 'position:fixed;z-index:9999;background:var(--card);border:1px solid var(--gold);border-radius:10px;padding:12px 16px;box-shadow:0 8px 24px rgba(0,0,0,.45);max-width:260px;min-width:200px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;';
   var rect = evt.target.getBoundingClientRect();
-  popup.style.top = (rect.bottom + 6) + 'px';
+  var topPos = rect.bottom + 6;
+  var availBelow = window.innerHeight - topPos - 12;
+  popup.style.top = topPos + 'px';
+  popup.style.maxHeight = Math.max(160, availBelow) + 'px';
   popup.style.right = Math.max(12, window.innerWidth - rect.right) + 'px';
   var html = '<div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:8px;text-transform:uppercase;">Picked by</div>';
   owners.forEach(function(e) {
