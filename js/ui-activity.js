@@ -9,6 +9,7 @@ var _actUnseen = 0;
 var _roundLive = false;
 var _h2hLiveOpponent = null; // entry object of H2H opponent
 var _h2hLiveMyIdx = -1; // my entry index for H2H
+var _liveFilterVal = 'all'; // 'all' | 'field' | entry index (string). Source of truth for the live feed filter.
 var HOLE_TIMESTAMPS = {};
 var _ACT_STORAGE_KEY = 'eastpole_activity';
 var _HOLE_TS_KEY = 'eastpole_hole_ts';
@@ -81,32 +82,73 @@ function updateLiveTab() {
 }
 
 function populateLiveEntryFilter() {
-  var sel = document.getElementById('live-entry-filter');
-  if (!sel) return;
+  var el = document.getElementById('live-entry-chips');
+  if (!el) return;
   var hasTeams = currentUserTeams && currentUserTeams.length > 0;
-  var opts = '';
-  if (hasTeams) {
-    opts += '<option value="all">All My Entries</option>';
-    currentUserTeams.forEach(function(t, i) {
-      opts += '<option value="' + i + '">' + escHtml(t.team) + '</option>';
-    });
+
+  // Normalize _liveFilterVal in case teams have changed
+  if (!hasTeams) {
+    _liveFilterVal = 'field';
+  } else if (_liveFilterVal !== 'all' && _liveFilterVal !== 'field') {
+    var idx = parseInt(_liveFilterVal);
+    if (isNaN(idx) || idx < 0 || idx >= currentUserTeams.length) {
+      // Default: active entry if set, else first entry
+      _liveFilterVal = (activeTeamIdx >= 0 && currentUserTeams[activeTeamIdx]) ? String(activeTeamIdx) : '0';
+    }
   }
-  opts += '<option value="field"' + (!hasTeams ? ' selected' : '') + '>Entire Field</option>';
-  sel.innerHTML = opts;
-  sel.onchange = function() {
-    _h2hLiveOpponent = null;
-    var btn = document.getElementById('h2h-live-btn');
-    if (btn) { btn.textContent = '⚔️ H2H'; btn.classList.remove('active'); }
-    renderActivityList();
-  };
+
+  var html = '';
+  if (hasTeams) {
+    // Compute pool ranks once for this render
+    var ranked = getRanked();
+    var rnkMap = {}; var rk = 1;
+    ranked.forEach(function(re, ri) {
+      if (ri > 0 && ranked[ri].total !== ranked[ri-1].total) rk = ri + 1;
+      rnkMap[re.team + '|' + re.email] = rk;
+    });
+
+    currentUserTeams.forEach(function(t, i) {
+      var c = calcEntry(t);
+      var myRk = rnkMap[t.team + '|' + t.email] || 0;
+      var isActive = _liveFilterVal === String(i);
+      html += '<div class="live-entry-chip' + (isActive ? ' active' : '') + '" onclick="setLiveFilter(\'' + i + '\')">'
+        + '<span class="lec-rank">' + (myRk ? ordinal(myRk) : '—') + '</span>'
+        + '<span class="lec-name">' + escHtml(t.team) + '</span>'
+        + '<span class="lec-score ' + cls(c.total) + '">' + fmtTeam(c.total) + '</span>'
+        + '</div>';
+    });
+
+    // Secondary toggles: "All Mine" (only if >1 entry) + "Field"
+    html += '<div class="live-entry-toggles">';
+    if (currentUserTeams.length > 1) {
+      html += '<button class="lec-pill' + (_liveFilterVal === 'all' ? ' active' : '') + '" onclick="setLiveFilter(\'all\')">All Mine</button>';
+    }
+    html += '<button class="lec-pill' + (_liveFilterVal === 'field' ? ' active' : '') + '" onclick="setLiveFilter(\'field\')">Entire Field</button>';
+    html += '</div>';
+  } else {
+    html += '<div class="live-entry-chip field-only"><span class="lec-name">Entire Field</span></div>';
+  }
+
+  el.innerHTML = html;
+
   // Show H2H button if user has entries
   var btn = document.getElementById('h2h-live-btn');
   if (btn) btn.style.display = hasTeams ? '' : 'none';
 }
 
+function setLiveFilter(val) {
+  _liveFilterVal = String(val);
+  // Clear any active H2H overlay when switching filters
+  _h2hLiveOpponent = null;
+  var btn = document.getElementById('h2h-live-btn');
+  if (btn) { btn.textContent = '⚔️ H2H'; btn.classList.remove('active'); }
+  if (val !== 'all' && val !== 'field') trackEvent('live-filter-entry');
+  populateLiveEntryFilter();
+  renderActivityList();
+}
+
 function getLiveFilteredPicks() {
-  var sel = document.getElementById('live-entry-filter');
-  var val = sel ? sel.value : 'field';
+  var val = _liveFilterVal;
   if (val === 'field') return null; // null = entire field
   if (_h2hLiveOpponent) {
     // Union of my entry picks + opponent picks
@@ -115,7 +157,6 @@ function getLiveFilteredPicks() {
     return all;
   }
   if (val !== 'all' && currentUserTeams && currentUserTeams[parseInt(val)]) {
-    trackEvent('live-filter-entry');
     return new Set(currentUserTeams[parseInt(val)].picks);
   }
   var picks = getActiveTeamPicks();
@@ -244,8 +285,7 @@ async function renderActivityList() {
 
   // Team / H2H live header
   var feedHdr = '';
-  var sel = document.getElementById('live-entry-filter');
-  var filterVal = sel ? sel.value : 'field';
+  var filterVal = _liveFilterVal;
   var isH2H = !!_h2hLiveOpponent;
   var myH2HPicks = null, oppH2HPicks = null;
   if (isH2H) {
