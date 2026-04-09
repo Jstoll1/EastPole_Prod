@@ -179,7 +179,8 @@ function renderStandings() {
         var entryKey = myEntry.team + '|' + myEntry.email;
         var priorRk = priorEntryRanks[entryKey];
         var moveHtml = '';
-        if (priorRk && priorRk !== myRank) {
+        // Only show position movement starting round 2 — round 1 has no meaningful prior rank.
+        if (ESPN_ROUND >= 2 && priorRk && priorRk !== myRank) {
           var mv = priorRk - myRank;
           moveHtml = mv > 0 ? '<div class="pos-move up">▲' + mv + '</div>' : '<div class="pos-move dn">▼' + Math.abs(mv) + '</div>';
         }
@@ -233,7 +234,8 @@ function renderStandings() {
     var entryKey = e.team + '|' + e.email;
     var priorRk = priorEntryRanks[entryKey];
     var moveHtml = '';
-    if (priorRk && priorRk !== rank) {
+    // Only show position movement starting round 2 — round 1 has no meaningful prior rank.
+    if (ESPN_ROUND >= 2 && priorRk && priorRk !== rank) {
       var mv = priorRk - rank;
       moveHtml = mv > 0 ? '<div class="pos-move up">▲' + mv + '</div>' : '<div class="pos-move dn">▼' + Math.abs(mv) + '</div>';
     }
