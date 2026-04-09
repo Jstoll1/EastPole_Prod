@@ -427,13 +427,24 @@ function renderH2HInline() {
     var gB = cB.scores[r];
     html += '<div class="h2h-vs-row ' + (isTop ? 'is-top' : 'is-bench') + '">';
     html += buildH2HCell(gA, 'left', isTop, ctxA);
-    html += '<div class="h2h-vs-rank">' + (isTop ? '★' : (r + 1)) + '</div>';
+    html += buildH2HRowDiff(gA, gB);
     html += buildH2HCell(gB, 'right', isTop, ctxB);
     html += '</div>';
   }
   html += '</div></div>';
 
   container.innerHTML = html;
+}
+
+// Middle-column row diff: who wins this slot and by how many strokes?
+function buildH2HRowDiff(gA, gB) {
+  if (!gA || !gB) return '<div class="h2h-vs-rank"></div>';
+  var diff = gA.score - gB.score;
+  if (diff === 0) return '<div class="h2h-vs-rank tied">=</div>';
+  if (diff < 0) {
+    return '<div class="h2h-vs-rank left-wins"><span class="rank-arrow">◀</span>' + Math.abs(diff) + '</div>';
+  }
+  return '<div class="h2h-vs-rank right-wins">' + diff + '<span class="rank-arrow">▶</span></div>';
 }
 
 function buildH2HCell(g, side, isTop, ctx) {

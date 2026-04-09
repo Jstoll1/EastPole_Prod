@@ -3234,12 +3234,28 @@ to  {
 .h2h-vs-row.is-top { background: rgba(82,183,136,0.04); border-radius: 4px; padding: 3px 4px; }
 .h2h-vs-row.is-bench { opacity: 0.45; }
 .h2h-vs-rank {
-  width: 20px;
+  width: 40px;
   text-align: center;
   font-size: 10px;
   font-weight: 800;
-  color: var(--gold);
+  color: var(--text3);
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+.h2h-vs-rank.tied {
+  color: var(--text3);
+  font-weight: 700;
+}
+.h2h-vs-rank.left-wins,
+.h2h-vs-rank.right-wins {
+  color: #52b788;
+}
+.rank-arrow {
+  font-size: 8px;
+  opacity: 0.9;
 }
 .h2h-vs-cell {
   flex: 1;
