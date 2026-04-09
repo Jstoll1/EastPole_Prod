@@ -151,6 +151,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
   initApp();
 
+  // Ensure splash click handler works (backup for inline onclick)
+  var splash = document.getElementById('splash');
+  if (splash && !splash.classList.contains('hidden')) {
+    splash.addEventListener('click', function(e) {
+      // Only trigger if clicking on splash itself or its children (not prevented)
+      if (!e.defaultPrevented) {
+        enterApp();
+      }
+    });
+  }
+
   // Close team dropdown on outside click
   document.addEventListener('click', function(e) {
     if (_teamDdOpen && !e.target.closest('#hdr-team-display') && !e.target.closest('#team-dropdown')) {
