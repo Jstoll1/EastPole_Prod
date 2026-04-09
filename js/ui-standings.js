@@ -32,7 +32,7 @@ function _konamiTap(idx) {
     _konamiTaps = [];
     if (_konamiTimer) { clearTimeout(_konamiTimer); _konamiTimer = null; }
     _friendFilterActive = !_friendFilterActive;
-    try { showToast(_friendFilterActive ? '👥 Friends only' : 'Filter cleared'); } catch(ex) {}
+    try { showToast(_friendFilterActive ? '👥 BroChiefs only' : 'Filter cleared'); } catch(ex) {}
     renderStandings();
   }
 }
@@ -279,7 +279,7 @@ function renderStandings() {
   var html = '';
   if (_friendFilterActive) {
     html += '<div class="friend-filter-banner" onclick="_clearFriendFilter()">'
-      + '<span>👥 Friends only · ' + displayRanked.length + ' ' + (displayRanked.length === 1 ? 'entry' : 'entries') + '</span>'
+      + '<span>👥 BroChiefs only · ' + displayRanked.length + ' ' + (displayRanked.length === 1 ? 'entry' : 'entries') + '</span>'
       + '<span class="ff-clear" aria-label="Clear filter">✕</span>'
       + '</div>';
   }
