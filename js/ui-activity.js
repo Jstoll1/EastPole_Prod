@@ -85,6 +85,7 @@ function populateLiveEntryFilter() {
   var el = document.getElementById('live-entry-chips');
   if (!el) return;
   var hasTeams = currentUserTeams && currentUserTeams.length > 0;
+  el.classList.toggle('multi', hasTeams && currentUserTeams.length > 1);
 
   // Normalize _liveFilterVal in case teams have changed
   if (!hasTeams) {

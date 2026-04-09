@@ -3431,16 +3431,25 @@ to  {
   flex-direction:column;
   gap:3px;
 }
+.live-entry-chips.multi {
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:3px 5px;
+}
+.live-entry-chips.multi .live-entry-toggles {
+  grid-column:1 / -1;
+}
 .live-entry-chip {
   display:flex;
   align-items:center;
-  gap:8px;
-  padding:4px 9px;
+  gap:6px;
+  padding:4px 8px;
   background:rgba(0,0,0,0.28);
   border:1px solid rgba(255,255,255,0.08);
   border-radius:6px;
   cursor:pointer;
   transition:background 0.15s, border-color 0.15s;
+  min-width:0;
 }
 .live-entry-chip:active {
   background:rgba(212,168,67,0.08);
@@ -3453,8 +3462,9 @@ to  {
   font-size:9px;
   font-weight:800;
   color:var(--text3);
-  min-width:26px;
+  min-width:22px;
   letter-spacing:0.2px;
+  flex-shrink:0;
 }
 .live-entry-chip.active .lec-rank {
   color:var(--gold);
@@ -3472,8 +3482,9 @@ to  {
 .lec-score {
   font-size:12px;
   font-weight:900;
-  min-width:26px;
+  min-width:22px;
   text-align:right;
+  flex-shrink:0;
 }
 .live-entry-chip.field-only {
   justify-content:center;
