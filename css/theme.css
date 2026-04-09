@@ -122,3 +122,30 @@
 [data-theme="light"] #activity-fab { background:#006747; }
 [data-theme="light"] .tv-thru { color: #6b6b60; }
 [data-theme="light"] .tv-thru.active { color: #2c2c2c; }
+
+/* Light mode: expanded standings row + picks panel contrast fixes */
+[data-theme="light"] .tv-row.st-row.panel-open {
+  background: rgba(0,103,71,0.08) !important;
+  border-left-color: #006747 !important;
+  border-bottom-color: transparent;
+}
+[data-theme="light"] .tv-row.st-row.panel-open .tv-name { color: #006747; }
+[data-theme="light"] .tv-row.st-row.panel-open .tv-pos { color: #006747; }
+[data-theme="light"] .tv-row.st-row.panel-open .st-expand-arrow { color: #006747; }
+[data-theme="light"] .tv-row.st-row.panel-open .tv-country { color: #6b6b60; }
+[data-theme="light"] .picks-panel { border-bottom-color: #ddd8cc; }
+[data-theme="light"] .picks-panel.open { background: #f7f5ee; border-left-color: #006747; }
+[data-theme="light"] .st-pick-row {
+  background: #faf8f3 !important;
+  border-left-color: #006747 !important;
+}
+[data-theme="light"] .st-pick-row:nth-child(even) { background: #f4f1e8 !important; }
+[data-theme="light"] .st-pick-row.is-bench { opacity: 0.55; }
+[data-theme="light"] .st-pick-row .tv-pos { color: #006747; }
+[data-theme="light"] .st-pick-name { color: #2c2c2c; }
+[data-theme="light"] .st-pick-sub { color: #6b6b60; }
+[data-theme="light"] .picks-panel-footer {
+  background: #f7f5ee;
+  color: #6b6b60;
+  border-top-color: #ddd8cc;
+}
