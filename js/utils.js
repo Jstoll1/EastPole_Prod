@@ -104,24 +104,11 @@ function getRanked() {
   return ENTRIES.map(calcEntry).sort(compareEntries);
 }
 
-// Compute live pool payouts based on actual ENTRIES, accounting for 5th-entry pricing.
-// 3rd place = single entry fee reimbursement (POOL_CONFIG.buyIn).
-// 1st = 70% of (pot - p3), 2nd = 30% of (pot - p3).
+// Pool payouts — locked to sponsor-confirmed totals for 2026 Masters.
+// Total pot: $2,390 (127 entries + 15 fifth-entry discounts)
+// 1st: $1,645 · 2nd: $705 · 3rd: $40
 function computePoolPayouts() {
-  var perPerson = {};
-  ENTRIES.forEach(function(e) { perPerson[e.email] = (perPerson[e.email] || 0) + 1; });
-  var pot = 0;
-  Object.keys(perPerson).forEach(function(email) {
-    var cnt = perPerson[email];
-    var paidStandard = Math.min(cnt, 4) * POOL_CONFIG.buyIn;
-    var paidFifth = cnt >= 5 ? POOL_CONFIG.fifthEntryBuyIn : 0;
-    pot += paidStandard + paidFifth;
-  });
-  var p3 = POOL_CONFIG.buyIn;
-  var net = Math.max(0, pot - p3);
-  var p1 = Math.round(net * POOL_CONFIG.payoutPctOfNet.first);
-  var p2 = Math.round(net * POOL_CONFIG.payoutPctOfNet.second);
-  return { pot: pot, p1: p1, p2: p2, p3: p3, entries: ENTRIES.length };
+  return { pot: 2390, p1: 1645, p2: 705, p3: 40, entries: ENTRIES.length };
 }
 
 function computeOwnership() {
