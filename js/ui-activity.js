@@ -169,6 +169,9 @@ async function renderActivityList() {
   if (!el || _actRendering) return;
   _actRendering = true;
 
+  // Refresh the entry chips (rank + total) so they track live score changes
+  populateLiveEntryFilter();
+
   var myPicks = getLiveFilteredPicks(); // Set of player names, or null for entire field
   var playerNames = [];
   if (myPicks) {
