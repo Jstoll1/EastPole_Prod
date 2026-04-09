@@ -1516,13 +1516,13 @@ html, body  {
 
 .tv-today  {
   width: 36px;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 800;
   text-align: center;
   flex-shrink: 0;
   margin-left: 2px;
 }
-.tv-today.neg { color: #ff6b6b; }
+.tv-today.neg { color: #ff8888; }
 .tv-today.pos { color: #52b788; }
 .tv-today.eve { color: rgba(255,255,255,0.9); }
 
