@@ -203,7 +203,7 @@ async function fetchESPN() {
       }
     }
     console.log('✅ ESPN API returned', Object.keys(GOLFER_SCORES).length, 'golfers');
-    computeLiveProbabilities();
+    fetchDGLivePreds(); // piggyback — has its own 5-min throttle
     renderAll();
   } catch(e) {
     ErrorTracker.api('ESPN leaderboard/scores parse failed', { message: e.message, stack: e.stack });
@@ -230,66 +230,37 @@ function setApiStatus(state, text) {
 
 function refreshData() { setApiStatus('', 'Refreshing…'); fetchESPN(); }
 
-// ─── Live probability model (Monte Carlo from ESPN scores) ───
-function computeLiveProbabilities() {
-  var players = [];
-  Object.keys(GOLFER_SCORES).forEach(function(name) {
-    var gd = GOLFER_SCORES[name];
-    if (gd.score === 11 || gd.score === 12) return; // MC/WD out
-    players.push({ name: name, score: gd.score });
-  });
-  if (players.length < 2) return;
-
-  // Rounds remaining
-  var maxCompleted = 0;
-  Object.values(GOLFER_SCORES).forEach(function(gd) {
-    var cnt = [gd.r1, gd.r2, gd.r3, gd.r4].filter(function(r) { return r != null && r > 50; }).length;
-    if (cnt > maxCompleted) maxCompleted = cnt;
-  });
-  var roundsLeft = Math.max(4 - maxCompleted, 0);
-  if (roundsLeft === 0 && !TOURNEY_FINAL) roundsLeft = 0.5; // mid-round
-
-  var SIGMA = 2.85 * Math.sqrt(Math.max(roundsLeft, 0.25));
-  var SIMS = 3000;
-
-  // Box-Muller normal random
-  function randn() {
-    var u = Math.random(), v = Math.random();
-    return Math.sqrt(-2 * Math.log(u)) * Math.cos(6.2831853 * v);
+// ─── DataGolf live in-play predictions ───
+var _dgLastFetch = 0;
+async function fetchDGLivePreds() {
+  // Only fetch every 5 minutes (DataGolf updates at that interval)
+  if (Date.now() - _dgLastFetch < 300000) return;
+  try {
+    var res = await fetch('https://feeds.datagolf.com/preds/in-play?key=' + DG_API_KEY + '&odds_format=percent&file_format=json');
+    if (!res.ok) { console.warn('⚠️ DataGolf fetch failed:', res.status); return; }
+    var json = await res.json();
+    var arr = json.data || json;
+    if (!Array.isArray(arr)) return;
+    var fresh = {};
+    arr.forEach(function(p) {
+      // Convert "Last, First" → "First Last"
+      var parts = (p.player_name || '').split(', ');
+      var name = parts.length === 2 ? (parts[1] + ' ' + parts[0]) : p.player_name;
+      name = NAME_ALIASES[name] || name;
+      fresh[name] = {
+        win: p.win || 0,
+        top_5: p.top_5 || 0,
+        top_10: p.top_10 || 0,
+        top_20: p.top_20 || 0,
+        make_cut: p.make_cut || 0
+      };
+    });
+    DG_LIVE_PREDS = fresh;
+    _dgLastFetch = Date.now();
+    console.log('✅ DataGolf live preds:', Object.keys(fresh).length, 'players');
+  } catch(e) {
+    console.warn('⚠️ DataGolf fetch failed:', e.message);
   }
-
-  var wins = {}, t5 = {}, t20 = {}, mc = {};
-  players.forEach(function(p) { wins[p.name] = 0; t5[p.name] = 0; t20[p.name] = 0; mc[p.name] = 0; });
-
-  for (var s = 0; s < SIMS; s++) {
-    var finals = [];
-    for (var i = 0; i < players.length; i++) {
-      finals.push({ name: players[i].name, f: players[i].score + randn() * SIGMA });
-    }
-    finals.sort(function(a, b) { return a.f - b.f; });
-
-    wins[finals[0].name]++;
-    var c5 = finals[Math.min(4, finals.length - 1)].f;
-    var c20 = finals[Math.min(19, finals.length - 1)].f;
-    var c50 = finals[Math.min(49, finals.length - 1)].f;
-    for (var i = 0; i < finals.length; i++) {
-      if (finals[i].f <= c5) t5[finals[i].name]++;
-      if (finals[i].f <= c20) t20[finals[i].name]++;
-      if (finals[i].f <= c50) mc[finals[i].name]++;
-    }
-  }
-
-  var fresh = {};
-  players.forEach(function(p) {
-    fresh[p.name] = {
-      win: wins[p.name] / SIMS,
-      top_5: t5[p.name] / SIMS,
-      top_20: t20[p.name] / SIMS,
-      make_cut: mc[p.name] / SIMS
-    };
-  });
-  DG_LIVE_PREDS = fresh;
-  console.log('✅ Live probabilities computed for', Object.keys(fresh).length, 'players (σ=' + SIGMA.toFixed(2) + ', sims=' + SIMS + ')');
 }
 
 var _autoRefresh = null;
