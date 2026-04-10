@@ -38,6 +38,32 @@ function showPickerPopup(owners, evt) {
   setTimeout(function() { document.addEventListener('click', dismiss, true); }, 0);
 }
 
+function buildDGLiveRow(playerName) {
+  var dg = DG_LIVE_PREDS[playerName];
+  if (!dg) return '';
+  var items = [
+    { label: 'Make Cut', val: dg.make_cut },
+    { label: 'Top 20',   val: dg.top_20 },
+    { label: 'Top 5',    val: dg.top_5 },
+    { label: 'Win',      val: dg.win }
+  ];
+  var html = '<div class="dg-live-row">';
+  items.forEach(function(it) {
+    var pct = (it.val * 100);
+    var disp = pct >= 1 ? pct.toFixed(1) + '%' : pct > 0 ? '<1%' : '—';
+    // Color intensity: 0→dim, 1→bright gold
+    var intensity = Math.min(it.val * 1.8, 1);
+    var color = intensity > 0.5 ? 'var(--gold)' : intensity > 0.15 ? 'var(--text2)' : 'var(--text3)';
+    var weight = intensity > 0.3 ? '800' : '700';
+    html += '<div class="dg-live-box">'
+      + '<div class="dg-live-lbl">' + it.label + '</div>'
+      + '<div class="dg-live-val" style="color:' + color + ';font-weight:' + weight + '">' + disp + '</div>'
+      + '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+
 async function toggleScorecard(idx, playerName) {
   trackEvent('scorecard-open');
   trackEvent('scorecard-' + playerName.toLowerCase().replace(/\s+/g, '-'));
@@ -92,6 +118,7 @@ async function toggleScorecard(idx, playerName) {
     var flag = FLAGS[playerName] || '';
     var cc = getCountryCode(playerName);
     if (flag || cc) fb += '<div style="font-size:11px;color:var(--text2);margin-bottom:8px;">' + flag + ' ' + cc + '</div>';
+    fb += buildDGLiveRow(playerName);
     var pOdds = PRE_ODDS[playerName];
     if (pOdds) {
       fb += '<div style="display:flex;gap:8px;margin-bottom:10px;">';
@@ -127,6 +154,7 @@ async function toggleScorecard(idx, playerName) {
   if (gd) html += '<span class="sc-player-pos">' + gd.pos + '</span>';
   html += buildOwnBadge();
   html += '</div>';
+  html += buildDGLiveRow(playerName);
 
   var completedRounds = rounds.map(function(r, i) { return { r: r, i: i }; }).filter(function(obj) { return obj.r.value != null && obj.r.value > 50; });
   if (completedRounds.length > 1) {
@@ -247,6 +275,7 @@ async function toggleStandingsScorecard(panelId, playerName) {
     var flag = FLAGS[playerName] || '';
     var cc = getCountryCode(playerName);
     if (flag || cc) fb += '<div style="font-size:11px;color:var(--text2);margin-bottom:8px;">' + flag + ' ' + cc + '</div>';
+    fb += buildDGLiveRow(playerName);
     var pOdds = PRE_ODDS[playerName];
     if (pOdds) {
       fb += '<div style="display:flex;gap:8px;margin-bottom:10px;">';
@@ -282,6 +311,7 @@ async function toggleStandingsScorecard(panelId, playerName) {
   if (gd) html += '<span class="sc-player-pos">' + gd.pos + '</span>';
   html += buildOwnBadge();
   html += '</div>';
+  html += buildDGLiveRow(playerName);
 
   var completedRounds = rounds.map(function(r, i) { return { r: r, i: i }; }).filter(function(obj) { return obj.r.value != null && obj.r.value > 50; });
   if (completedRounds.length > 1) {

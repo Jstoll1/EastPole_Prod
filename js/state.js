@@ -441,6 +441,10 @@ var COURSE_PAR = 72; // Augusta National — par 72 [4,5,4,3,4,3,4,5,4,4,4,3,5,4
 var WINNING_SCORE = null; // actual tournament winner's score to par (set when tourney final)
 var TOURNEY_FINAL = false; // true when all 4 rounds complete, 0 holes left
 
+// DataGolf live in-play predictions (keyed by canonical player name)
+var DG_LIVE_PREDS = {};
+var DG_API_KEY = '3a65d1e85639edeb0476c68b9215';
+
 var lastFetchTime = 0;
 var _lastStatusText = 'Loading…';
 var _renderCount = 0;

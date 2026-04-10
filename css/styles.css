@@ -3996,6 +3996,35 @@ to  {
   font-size: 11px;
 }
 .friend-filter-banner:active { background: rgba(212, 168, 67, 0.22); }
+
+/* DataGolf live probability row */
+.dg-live-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.dg-live-box {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 4px 6px;
+  text-align: center;
+  min-width: 0;
+}
+.dg-live-lbl {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--text3);
+  line-height: 1;
+  margin-bottom: 3px;
+}
+.dg-live-val {
+  font-size: 15px;
+  line-height: 1.1;
+}
 .help-rules-section {
   margin-top: 14px;
 }

@@ -203,6 +203,7 @@ async function fetchESPN() {
       }
     }
     console.log('✅ ESPN API returned', Object.keys(GOLFER_SCORES).length, 'golfers');
+    fetchDGLivePreds(); // piggyback — has its own 5-min throttle
     renderAll();
   } catch(e) {
     ErrorTracker.api('ESPN leaderboard/scores parse failed', { message: e.message, stack: e.stack });
@@ -228,6 +229,39 @@ function setApiStatus(state, text) {
 }
 
 function refreshData() { setApiStatus('', 'Refreshing…'); fetchESPN(); }
+
+// ─── DataGolf live in-play predictions ───
+var _dgLastFetch = 0;
+async function fetchDGLivePreds() {
+  // Only fetch every 5 minutes (DataGolf updates at that interval)
+  if (Date.now() - _dgLastFetch < 300000) return;
+  try {
+    var res = await fetch('https://feeds.datagolf.com/preds/in-play?key=' + DG_API_KEY + '&odds_format=percent&file_format=json');
+    if (!res.ok) return;
+    var json = await res.json();
+    var arr = json.data || json;
+    if (!Array.isArray(arr)) return;
+    var fresh = {};
+    arr.forEach(function(p) {
+      // Convert "Last, First" → "First Last"
+      var parts = (p.player_name || '').split(', ');
+      var name = parts.length === 2 ? (parts[1] + ' ' + parts[0]) : p.player_name;
+      name = NAME_ALIASES[name] || name;
+      fresh[name] = {
+        win: p.win || 0,
+        top_5: p.top_5 || 0,
+        top_10: p.top_10 || 0,
+        top_20: p.top_20 || 0,
+        make_cut: p.make_cut || 0
+      };
+    });
+    DG_LIVE_PREDS = fresh;
+    _dgLastFetch = Date.now();
+    console.log('✅ DataGolf live preds:', Object.keys(fresh).length, 'players');
+  } catch(e) {
+    console.warn('⚠️ DataGolf fetch failed:', e.message);
+  }
+}
 
 var _autoRefresh = null;
 
