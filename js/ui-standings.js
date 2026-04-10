@@ -254,12 +254,6 @@ function renderStandings() {
     });
     var showAllBtn = (activeTeamIdx >= 0 && currentUserTeams.length > 1) ? '<div class="my-show-all" onclick="trackEvent(\'show-all-entries\');setUser(' + escHtml(JSON.stringify(currentUserEmail)) + ',-1)">Show All Entries</div>' : '';
     if (myRows) heroHtml = '<div class="my-hero-block">'
-      + '<div class="my-hero-hdr">'
-      + '<div class="my-hero-rank">POS</div>'
-      + '<div class="my-hero-name">ENTRY</div>'
-      + '<div class="my-hero-today">TODAY</div>'
-      + '<div class="my-hero-score">TOT</div>'
-      + '</div>'
       + myRows + showAllBtn + '</div>';
   }
 
