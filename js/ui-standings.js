@@ -256,11 +256,9 @@ function renderStandings() {
           var gd = GOLFER_SCORES[g.name] || {};
           var lastName = g.name.split(' ').slice(-1)[0];
           var flag = FLAGS[g.name] || '';
-          var td = gd.todayDisplay || '—';
           var sc = gd.score;
           var scDisp = sc === 11 ? 'MC' : sc === 12 ? 'WD' : sc > 0 ? '+' + sc : sc === 0 ? 'E' : '' + sc;
-          var tdCls = td !== '—' && td !== 'E' && parseInt(td) < 0 ? 'neg' : td !== '—' && td !== 'E' && parseInt(td) > 0 ? 'pos' : 'eve';
-          t4parts.push('<span class="mh-g">' + flag + lastName + ' <span class="mh-g-td ' + tdCls + '">(' + td + ')</span> <span class="mh-g-tot ' + cls(sc) + '">' + scDisp + '</span></span>');
+          t4parts.push('<span class="mh-g">' + flag + lastName + ' <span class="mh-g-tot ' + cls(sc) + '">' + scDisp + '</span></span>');
         });
         myRows += '<div class="my-hero-golfers">' + t4parts.join('<span class="mh-sep">·</span>') + '</div>';
       }
