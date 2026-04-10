@@ -294,6 +294,13 @@ function renderStandings() {
       + '<span class="ff-clear" aria-label="Clear filter">✕</span>'
       + '</div>';
   }
+  html += '<div class="tv-row st-hdr-row">'
+    + '<div class="tv-pos">POS</div>'
+    + '<div class="tv-player">ENTRY</div>'
+    + '<div class="tv-thru"></div>'
+    + '<div class="tv-today">TODAY</div>'
+    + '<div class="tv-score">TOT</div>'
+    + '</div>';
   displayRanked.forEach(function(e, i) {
     var rank = displayRanks[i];
     var sc = e.total, scf = fmtTeam(sc), scc = cls(sc);
