@@ -96,6 +96,14 @@
 [data-theme="light"] .tv-row.tv-mc .tv-name { color: rgba(0,0,0,0.35); }
 [data-theme="light"] .ticker-item { color: #ffffff; border-right-color: rgba(255,255,255,0.15); }
 [data-theme="light"] .ticker-item-rank { color: rgba(255,255,255,0.6); }
+
+/* Keep ticker dark on coffee page so it pops against the light background */
+[data-theme="light"] [data-active-view="coffee"] .ticker-wrap {
+  background: rgba(0,0,0,0.85);
+  border-top-color: rgba(212,168,67,0.25);
+  border-bottom-color: rgba(212,168,67,0.25);
+}
+[data-theme="light"] [data-active-view="coffee"] .ticker-label { color: #0a1a0e; }
 [data-theme="light"] .nav-btn { color: #9a9a8e; }
 [data-theme="light"] .nav-btn.active { color: #006747; }
 [data-theme="light"] .own-row { border-bottom-color: #e8e4da; }
