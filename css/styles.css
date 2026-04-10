@@ -1276,6 +1276,10 @@ html, body  {
   height: 28px;
   box-sizing: content-box;
 }
+/* Force opaque dark ticker on coffee page (white bg makes translucent ticker washed out) */
+[data-active-view="coffee"] .ticker-wrap {
+  background: rgba(0,0,0,0.88);
+}
 .ticker-label {
   flex-shrink: 0;
   background: var(--gold);
