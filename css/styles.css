@@ -1002,6 +1002,11 @@ html, body  {
   padding: 0 0 2px;
   cursor: default;
 }
+.my-hero-hdr > div {
+  font-size: 8px !important;
+  font-weight: 600 !important;
+  color: rgba(255,255,255,0.22) !important;
+}
 .my-hero-hdr .my-hero-rank { flex: 0 0 38px; text-align: center; }
 .my-hero-hdr .my-hero-name { flex: 1; }
 .my-hero-hdr .my-hero-today { flex: 0 0 44px; text-align: right; }
