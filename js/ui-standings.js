@@ -253,7 +253,14 @@ function renderStandings() {
       }
     });
     var showAllBtn = (activeTeamIdx >= 0 && currentUserTeams.length > 1) ? '<div class="my-show-all" onclick="trackEvent(\'show-all-entries\');setUser(' + escHtml(JSON.stringify(currentUserEmail)) + ',-1)">Show All Entries</div>' : '';
-    if (myRows) heroHtml = '<div class="my-hero-block">' + myRows + showAllBtn + '</div>';
+    if (myRows) heroHtml = '<div class="my-hero-block">'
+      + '<div class="my-hero-hdr">'
+      + '<div class="my-hero-rank">POS</div>'
+      + '<div class="my-hero-name">ENTRY</div>'
+      + '<div class="my-hero-today">TODAY</div>'
+      + '<div class="my-hero-score">TOT</div>'
+      + '</div>'
+      + myRows + showAllBtn + '</div>';
   }
 
   // Apply search filter
@@ -294,13 +301,6 @@ function renderStandings() {
       + '<span class="ff-clear" aria-label="Clear filter">✕</span>'
       + '</div>';
   }
-  html += '<div class="tv-row st-hdr-row">'
-    + '<div class="tv-pos">POS</div>'
-    + '<div class="tv-player">ENTRY</div>'
-    + '<div class="tv-thru"></div>'
-    + '<div class="tv-today">TODAY</div>'
-    + '<div class="tv-score">TOT</div>'
-    + '</div>';
   displayRanked.forEach(function(e, i) {
     var rank = displayRanks[i];
     var sc = e.total, scf = fmtTeam(sc), scc = cls(sc);
