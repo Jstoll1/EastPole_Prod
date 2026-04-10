@@ -1003,6 +1003,23 @@ html, body  {
   padding: 0 2px 2px 0;
   cursor: default;
 }
+.my-hero-golfers {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 6px;
+  padding: 1px 0 6px 28px;
+  font-size: 10px;
+  color: var(--text2);
+  line-height: 1.4;
+}
+.mh-g { white-space: nowrap; }
+.mh-g-td { font-size: 9px; opacity: 0.7; }
+.mh-g-td.neg { color: #ff6b6b; }
+.mh-g-td.pos { color: #52b788; }
+.mh-g-td.eve { color: var(--text2); }
+.mh-g-tot { font-weight: 800; font-size: 10px; }
+.mh-sep { color: rgba(255,255,255,0.15); margin: 0 1px; }
 
 .tv-row.st-row.panel-open {
   background: rgba(13,31,18,0.8) !important;
