@@ -1005,13 +1005,16 @@ html, body  {
 }
 .my-hero-golfers {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 2px 6px;
+  gap: 0 5px;
   padding: 1px 0 6px 28px;
-  font-size: 10px;
+  font-size: 9px;
   color: var(--text2);
   line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .mh-g { white-space: nowrap; }
 .mh-g-td { font-size: 9px; opacity: 0.7; }
