@@ -236,7 +236,8 @@ async function fetchDGLivePreds() {
   // Only fetch every 5 minutes (DataGolf updates at that interval)
   if (Date.now() - _dgLastFetch < 300000) return;
   try {
-    var res = await fetch('https://feeds.datagolf.com/preds/in-play?key=' + DG_API_KEY + '&odds_format=percent&file_format=json');
+    var dgUrl = 'https://feeds.datagolf.com/preds/in-play?key=' + DG_API_KEY + '&odds_format=percent&file_format=json';
+    var res = await fetch('https://corsproxy.io/?' + encodeURIComponent(dgUrl));
     if (!res.ok) return;
     var json = await res.json();
     var arr = json.data || json;
