@@ -237,8 +237,21 @@ async function fetchDGLivePreds() {
   if (Date.now() - _dgLastFetch < 300000) return;
   try {
     var dgUrl = 'https://feeds.datagolf.com/preds/in-play?key=' + DG_API_KEY + '&odds_format=percent&file_format=json';
-    var res = await fetch('https://corsproxy.io/?' + encodeURIComponent(dgUrl));
-    if (!res.ok) return;
+    // Try multiple CORS proxies as fallback chain
+    var proxies = [
+      'https://api.allorigins.win/raw?url=' + encodeURIComponent(dgUrl),
+      'https://corsproxy.io/?' + encodeURIComponent(dgUrl),
+      'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(dgUrl)
+    ];
+    var res = null;
+    for (var pi = 0; pi < proxies.length; pi++) {
+      try {
+        res = await fetch(proxies[pi]);
+        if (res.ok) break;
+        res = null;
+      } catch(e2) { res = null; }
+    }
+    if (!res) { console.warn('⚠️ All DataGolf CORS proxies failed'); return; }
     var json = await res.json();
     var arr = json.data || json;
     if (!Array.isArray(arr)) return;
