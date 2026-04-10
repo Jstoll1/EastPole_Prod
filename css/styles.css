@@ -1004,25 +1004,21 @@ html, body  {
   cursor: default;
 }
 .my-hero-golfers {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  gap: 0 5px;
-  padding: 1px 0 6px 28px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 10px;
+  padding: 2px 0 5px 28px;
   font-size: 9px;
   color: var(--text2);
-  line-height: 1.4;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.5;
 }
-.mh-g { white-space: nowrap; }
-.mh-g-td { font-size: 9px; opacity: 0.7; }
+.mh-g { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mh-g-td { font-size: 8px; opacity: 0.6; }
 .mh-g-td.neg { color: #ff6b6b; }
 .mh-g-td.pos { color: #52b788; }
 .mh-g-td.eve { color: var(--text2); }
-.mh-g-tot { font-weight: 800; font-size: 10px; }
-.mh-sep { color: rgba(255,255,255,0.15); margin: 0 1px; }
+.mh-g-tot { font-weight: 800; font-size: 9px; }
+.mh-sep { display: none; }
 
 .tv-row.st-row.panel-open {
   background: rgba(13,31,18,0.8) !important;
