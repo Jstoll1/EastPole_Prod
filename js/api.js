@@ -233,8 +233,8 @@ function refreshData() { setApiStatus('', 'Refreshing…'); fetchESPN(); }
 // ─── DataGolf live in-play predictions ───
 var _dgLastFetch = 0;
 async function fetchDGLivePreds() {
-  // Only fetch every 5 minutes (DataGolf updates at that interval)
-  if (Date.now() - _dgLastFetch < 300000) return;
+  // Only fetch every 2 minutes (Worker caches & shields DataGolf)
+  if (Date.now() - _dgLastFetch < 120000) return;
   try {
     var res = await fetch('https://datagolf-proxy.jhs797.workers.dev/');
     if (!res.ok) { console.warn('⚠️ DataGolf fetch failed:', res.status); return; }
