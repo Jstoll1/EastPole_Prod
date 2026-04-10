@@ -1005,8 +1005,9 @@ html, body  {
 }
 .my-hero-golfers {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0 6px;
+  grid-template-columns: auto auto;
+  justify-content: start;
+  gap: 0 12px;
   padding: 0 0 2px 28px;
   font-size: 8px;
   color: var(--text2);
