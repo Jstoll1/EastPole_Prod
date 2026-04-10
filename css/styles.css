@@ -2662,7 +2662,7 @@ to  {
   white-space: nowrap;
 }
 .my-hero-score {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 900;
   flex-shrink: 0;
   min-width: 30px;
@@ -2672,8 +2672,8 @@ to  {
 .my-hero-score.pos { color: #52b788; }
 .my-hero-score.eve { color: var(--text); }
 .my-hero-today {
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 900;
   flex-shrink: 0;
   min-width: 24px;
   text-align: right;
