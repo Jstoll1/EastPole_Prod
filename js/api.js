@@ -9,7 +9,7 @@ var MASTERS_EVENT_ID = '401811941';
 
 async function fetchESPN() {
   try {
-    var res = await fetch('https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?event=' + MASTERS_EVENT_ID);
+    var res = await fetch('https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?event=' + MASTERS_EVENT_ID, { cache: 'no-store' });
     if (!res.ok) { ErrorTracker.api('ESPN leaderboard fetch failed', { status: res.status, statusText: res.statusText }); throw new Error(); }
     var data = await res.json();
     var comps = data.events?.[0]?.competitions?.[0]?.competitors || [];
@@ -236,7 +236,7 @@ async function fetchDGLivePreds() {
   // Only fetch every 2 minutes (Worker caches & shields DataGolf)
   if (Date.now() - _dgLastFetch < 120000) return;
   try {
-    var res = await fetch('https://datagolf-proxy.jhs797.workers.dev/');
+    var res = await fetch('https://datagolf-proxy.jhs797.workers.dev/', { cache: 'no-store' });
     if (!res.ok) { console.warn('⚠️ DataGolf fetch failed:', res.status); return; }
     var json = await res.json();
     var arr = json.data || json;
@@ -302,7 +302,7 @@ function startAgeTimer() {
 async function fetchCourseHoles() {
   if (COURSE_HOLES) return;
   try {
-    var res = await fetch('https://site.web.api.espn.com/apis/site/v2/sports/golf/leaderboard?event=' + EVENT_ID);
+    var res = await fetch('https://site.web.api.espn.com/apis/site/v2/sports/golf/leaderboard?event=' + EVENT_ID, { cache: 'no-store' });
     if (!res.ok) return;
     var data = await res.json();
     var holes = data.events?.[0]?.courses?.[0]?.holes;
@@ -328,7 +328,7 @@ async function fetchPlayerScorecard(playerName, forceRefresh) {
 async function _fetchScorecardImpl(playerName, playerId) {
   try {
     var url = 'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga/events/' + EVENT_ID + '/competitions/' + EVENT_ID + '/competitors/' + playerId + '/linescores?lang=en&region=us&limit=100';
-    var res = await fetch(url);
+    var res = await fetch(url, { cache: 'no-store' });
     if (!res.ok) throw new Error('Scorecard API ' + res.status);
     var data = await res.json();
 
@@ -342,7 +342,7 @@ async function _fetchScorecardImpl(playerName, playerId) {
         if (linesRef) {
           try {
             var refUrl = linesRef + (linesRef.includes('?') ? '&' : '?') + 'limit=25';
-            var refRes = await fetch(refUrl);
+            var refRes = await fetch(refUrl, { cache: 'no-store' });
             if (refRes.ok) {
               var refData = await refRes.json();
               if (refData.items && refData.items.length > holeData.length) {
