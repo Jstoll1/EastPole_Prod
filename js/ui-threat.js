@@ -3,10 +3,70 @@
 // so the player knows who to cheer against.
 
 var _threatNetMode = true; // default: exclude golfers already on user's team
+var _threatSortCol = 'tot'; // default sort column
+var _threatSortDir = 'asc'; // default sort direction
 
 function toggleThreatNet() {
   _threatNetMode = !_threatNetMode;
   renderThreatBoard();
+}
+
+// Pick user entry for threat analysis
+function selectThreatEntry(idx) {
+  if (idx < 0 || idx >= currentUserTeams.length) return;
+  activeTeamIdx = idx;
+  renderThreatBoard();
+}
+
+// Change sort column (or toggle direction if same column)
+function setThreatSort(col) {
+  var defaults = { name:'asc', count:'desc', thru:'asc', today:'asc', tot:'asc', t5:'desc' };
+  if (_threatSortCol === col) {
+    _threatSortDir = (_threatSortDir === 'asc' ? 'desc' : 'asc');
+  } else {
+    _threatSortCol = col;
+    _threatSortDir = defaults[col] || 'asc';
+  }
+  renderThreatBoard();
+}
+
+// Parse today display string ('E', '-2', '+1', '—') → numeric for sort
+function _threatTodayNum(td) {
+  if (!td || td === '—') return null;
+  if (td === 'E') return 0;
+  var n = parseInt(td.replace('+', ''), 10);
+  return isNaN(n) ? null : n;
+}
+
+// Resolve sort value for a threat row on a given column
+function _threatSortValue(t, col) {
+  var gd = GOLFER_SCORES[t.name] || {};
+  var dg = (typeof DG_LIVE_PREDS !== 'undefined' && DG_LIVE_PREDS[t.name]) || null;
+  var isOut = gd.score === 11 || gd.score === 12;
+  switch (col) {
+    case 'name':
+      return t.name.split(' ').slice(-1)[0].toLowerCase();
+    case 'count':
+      return t.count;
+    case 'thru':
+      if (isOut) return -1;
+      var th = gd.thru;
+      if (!th || th === '—') return -1;
+      if (th === 'F' || th === 'F*') return 18;
+      var tn = parseInt(th, 10);
+      return isNaN(tn) ? -1 : tn;
+    case 'today':
+      if (isOut) return 999;
+      var tv = _threatTodayNum(gd.todayDisplay);
+      return tv == null ? 999 : tv;
+    case 'tot':
+      if (isOut) return 999;
+      return (gd.score != null) ? gd.score : 999;
+    case 't5':
+      return dg ? (dg.top_5 || 0) : -1;
+    default:
+      return 0;
+  }
 }
 
 // Pick which of the user's entries to analyze against the field.
@@ -116,9 +176,15 @@ function renderThreatBoard() {
   if (_threatNetMode) {
     threats = threats.filter(function(t) { return myTop4Names.indexOf(t.name) < 0; });
   }
+  var sortMul = (_threatSortDir === 'asc') ? 1 : -1;
   threats.sort(function(a, b) {
+    var va = _threatSortValue(a, _threatSortCol);
+    var vb = _threatSortValue(b, _threatSortCol);
+    if (va < vb) return -1 * sortMul;
+    if (va > vb) return 1 * sortMul;
+    // Tiebreaker 1: count desc (threat strength)
     if (b.count !== a.count) return b.count - a.count;
-    // Tiebreaker: by golfer current score asc (the better they're playing, the more threatening)
+    // Tiebreaker 2: golfer score asc
     var sa = (GOLFER_SCORES[a.name] && GOLFER_SCORES[a.name].score != null) ? GOLFER_SCORES[a.name].score : 99;
     var sb = (GOLFER_SCORES[b.name] && GOLFER_SCORES[b.name].score != null) ? GOLFER_SCORES[b.name].score : 99;
     return sa - sb;
@@ -132,15 +198,30 @@ function renderThreatBoard() {
 
   // --- Header card ---
   html += '<div class="threat-hdr-card">';
-  html += '<div class="threat-hdr-row">';
-  html += '<div class="threat-hdr-entry">';
   html += '<div class="threat-hdr-label">Analyzing</div>';
-  html += '<div class="threat-hdr-team">' + escHtml(myEntry.team) + '</div>';
-  html += '</div>';
+  // Entry picker — all user entries as tappable pills
   if (currentUserTeams.length > 1) {
-    html += '<div class="threat-hdr-switch" onclick="_threatCycleEntry()">Switch ↻</div>';
+    html += '<div class="threat-entry-picker">';
+    currentUserTeams.forEach(function(t, idx) {
+      var r = ranked.findIndex(function(e) { return e.email === t.email && e.team === t.team; });
+      var rk = r >= 0 ? (r + 1) : '—';
+      var isActive = (t.email === myEntry.email && t.team === myEntry.team);
+      var pillColor = PILL_CLASSES[idx] || '';
+      var teamJson = escHtml(JSON.stringify(t.team));
+      html += '<div class="threat-entry-pill' + (isActive ? ' active' : '') + '" onclick="selectThreatEntry(' + idx + ')">'
+        + '<span class="threat-entry-dot ' + pillColor + '"></span>'
+        + '<span class="threat-entry-rank">' + rk + '</span>'
+        + '<span class="threat-entry-name">' + escHtml(t.team) + '</span>'
+        + '</div>';
+    });
+    html += '</div>';
+  } else {
+    var solePill = PILL_CLASSES[0] || '';
+    html += '<div class="threat-hdr-team-solo">'
+      + '<span class="threat-entry-dot ' + solePill + '"></span>'
+      + escHtml(myEntry.team)
+      + '</div>';
   }
-  html += '</div>';
   html += '<div class="threat-hdr-stats">';
   html += '<div class="threat-stat"><div class="threat-stat-v">' + aheadCount + '</div><div class="threat-stat-l">Ahead of you</div></div>';
   html += '<div class="threat-stat"><div class="threat-stat-v">' + bubble.length + '</div><div class="threat-stat-l">Within 1 stroke</div></div>';
@@ -157,13 +238,18 @@ function renderThreatBoard() {
   if (!threats.length) {
     html += '<div class="threat-empty">' + (aheadCount === 0 ? 'You are in 1st place. 🏆' : 'No threats to show.') + '</div>';
   } else {
+    var _arrow = function(col) {
+      if (_threatSortCol !== col) return '';
+      return '<span class="threat-sort-arrow">' + (_threatSortDir === 'asc' ? '▲' : '▼') + '</span>';
+    };
+    var _act = function(col) { return _threatSortCol === col ? ' active' : ''; };
     html += '<div class="threat-col-hdr">';
-    html += '<div class="threat-col-hdr-name">GOLFER</div>';
-    html += '<div class="threat-col-hdr-bar">ON TEAMS AHEAD</div>';
-    html += '<div class="threat-col-hdr-thru">THRU</div>';
-    html += '<div class="threat-col-hdr-today">TODAY</div>';
-    html += '<div class="threat-col-hdr-tot">TOT</div>';
-    html += '<div class="threat-col-hdr-t5">TOP 5</div>';
+    html += '<div class="threat-col-hdr-name threat-sortable' + _act('name') + '" onclick="setThreatSort(\'name\')">GOLFER' + _arrow('name') + '</div>';
+    html += '<div class="threat-col-hdr-bar threat-sortable' + _act('count') + '" onclick="setThreatSort(\'count\')">ON TEAMS AHEAD' + _arrow('count') + '</div>';
+    html += '<div class="threat-col-hdr-thru threat-sortable' + _act('thru') + '" onclick="setThreatSort(\'thru\')">THRU' + _arrow('thru') + '</div>';
+    html += '<div class="threat-col-hdr-today threat-sortable' + _act('today') + '" onclick="setThreatSort(\'today\')">TODAY' + _arrow('today') + '</div>';
+    html += '<div class="threat-col-hdr-tot threat-sortable' + _act('tot') + '" onclick="setThreatSort(\'tot\')">TOT' + _arrow('tot') + '</div>';
+    html += '<div class="threat-col-hdr-t5 threat-sortable' + _act('t5') + '" onclick="setThreatSort(\'t5\')">TOP 5' + _arrow('t5') + '</div>';
     html += '</div>';
 
     var maxCount = threats[0].count;

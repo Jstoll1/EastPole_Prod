@@ -4137,7 +4137,7 @@ to  {
 .threat-col-hdr {
   display: flex;
   align-items: center;
-  padding: 4px 12px 2px;
+  padding: 6px 12px 4px;
   gap: 6px;
   font-size: 8px;
   font-weight: 700;
@@ -4151,6 +4151,88 @@ to  {
 .threat-col-hdr-today { flex: 0 0 32px; text-align: right; }
 .threat-col-hdr-tot { flex: 0 0 32px; text-align: right; }
 .threat-col-hdr-t5 { flex: 0 0 36px; text-align: right; }
+.threat-sortable {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: color 0.15s;
+}
+.threat-sortable:hover { color: rgba(255,255,255,0.55); }
+.threat-sortable.active { color: var(--gold); }
+.threat-sort-arrow {
+  display: inline-block;
+  margin-left: 2px;
+  font-size: 7px;
+  vertical-align: baseline;
+}
+
+/* Entry picker — tappable pills for each user entry */
+.threat-entry-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 8px;
+}
+.threat-entry-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px 5px 7px;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.08);
+  cursor: pointer;
+  max-width: 100%;
+  min-width: 0;
+  transition: all 0.15s;
+}
+.threat-entry-pill:hover { background: rgba(255,255,255,0.06); }
+.threat-entry-pill.active {
+  background: rgba(212,168,67,0.12);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px rgba(212,168,67,0.25);
+}
+.threat-entry-dot {
+  flex: 0 0 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text2);
+}
+.threat-entry-rank {
+  font-size: 10px;
+  font-weight: 900;
+  color: var(--text2);
+  min-width: 10px;
+  text-align: center;
+}
+.threat-entry-pill.active .threat-entry-rank { color: var(--gold); }
+.threat-entry-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.threat-hdr-team-solo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--gold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 2px 0 6px;
+}
+.threat-hdr-team-solo .threat-entry-dot {
+  flex: 0 0 10px;
+  width: 10px;
+  height: 10px;
+}
 .threat-row {
   display: flex;
   align-items: center;
