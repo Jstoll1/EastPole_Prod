@@ -257,6 +257,89 @@ function hideWelcome() {
   try { localStorage.setItem(WELCOME_KEY, '1'); } catch(e) {}
 }
 
+// ── Final Round Preview Popup ─────────────────────────────
+// Shows once when ESPN_ROUND hits 4 (final round), previewing the top 5
+// with stroke gaps from the leader. Highlights when all 5 are within 3.
+var _frpShown = false;
+function maybeShowFinalRoundPopup() {
+  if (_frpShown) return;
+  if (typeof TOURNEY_FINAL !== 'undefined' && TOURNEY_FINAL) return;
+  if (typeof ESPN_ROUND === 'undefined' || ESPN_ROUND < 4) return;
+  if (!ENTRIES || !ENTRIES.length) return;
+  try { if (localStorage.getItem(FINAL_ROUND_POPUP_KEY)) { _frpShown = true; return; } } catch(e) {}
+  // Don't stack on top of onboarding/welcome/splash
+  var splash = document.getElementById('splash');
+  if (splash && splash.style.display !== 'none' && !splash.classList.contains('hidden')) return;
+  var welcome = document.getElementById('welcome');
+  if (welcome && welcome.classList.contains('visible')) return;
+  var ob = document.getElementById('onboarding');
+  if (ob && ob.classList.contains('visible')) return;
+  showFinalRoundPopup();
+}
+
+function showFinalRoundPopup(force) {
+  if (!force) {
+    try { if (localStorage.getItem(FINAL_ROUND_POPUP_KEY)) return; } catch(e) {}
+  }
+  var el = document.getElementById('final-round-popup');
+  if (!el) return;
+  var ranked = getRanked();
+  if (!ranked.length) return;
+  var top = ranked.slice(0, 5);
+  var leaderTotal = top[0].total;
+  var withinThree = top.filter(function(e) { return (e.total - leaderTotal) <= 3; }).length;
+  var allWithinThree = withinThree === top.length && top.length >= 2;
+
+  var subEl = document.getElementById('frp-sub');
+  if (subEl) {
+    if (allWithinThree) {
+      subEl.innerHTML = 'Top ' + top.length + ' · <span class="frp-tight">all within 3 strokes</span>';
+    } else if (withinThree >= 2) {
+      subEl.innerHTML = 'Top ' + top.length + ' · <span class="frp-tight">' + withinThree + ' within 3 strokes</span>';
+    } else {
+      subEl.innerHTML = 'Top ' + top.length + ' heading into Sunday';
+    }
+  }
+
+  var listEl = document.getElementById('frp-list');
+  if (listEl) {
+    var myKey = currentUserEmail || '';
+    listEl.innerHTML = top.map(function(e, i) {
+      var gap = e.total - leaderTotal;
+      var gapLbl = i === 0 ? 'LEADER' : (gap === 0 ? 'T1' : '+' + gap);
+      var gapCls = i === 0 ? 'leader' : '';
+      var totDisp = fmtTeam(e.total);
+      var totCls = cls(e.total);
+      var isLeader = i === 0 ? ' is-leader' : '';
+      var isMe = (e.email && e.email === myKey) ? ' is-me' : '';
+      return '<div class="frp-row' + isLeader + isMe + '">'
+        + '<div class="frp-rank">' + (i + 1) + '</div>'
+        + '<div class="frp-who">'
+          + '<div class="frp-team">' + escHtml(e.team) + '</div>'
+          + '<div class="frp-owner">' + escHtml(e.name) + '</div>'
+        + '</div>'
+        + '<div class="frp-total ' + totCls + '">' + totDisp + '</div>'
+        + '<div class="frp-gap ' + gapCls + '">' + gapLbl + '</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  el.style.display = 'flex';
+  el.offsetHeight;
+  el.classList.add('visible');
+  _frpShown = true;
+  trackEvent('final-round-popup-shown');
+}
+
+function hideFinalRoundPopup() {
+  var el = document.getElementById('final-round-popup');
+  if (!el) return;
+  el.classList.remove('visible');
+  setTimeout(function() { el.style.display = 'none'; }, 250);
+  try { localStorage.setItem(FINAL_ROUND_POPUP_KEY, '1'); } catch(e) {}
+  trackEvent('final-round-popup-dismissed');
+}
+
 function dismissSplashBrowse() {
   trackEvent('splash-browse');
   markSplashSeen();

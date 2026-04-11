@@ -75,6 +75,17 @@
 <button class="welcome-cta" onclick="hideWelcome()">Got it →</button>
 </div>
 </div>
+<div id="final-round-popup" onclick="if(event.target===this)hideFinalRoundPopup()">
+<div class="frp-card" role="dialog" aria-labelledby="frp-title">
+<button class="frp-close" onclick="hideFinalRoundPopup()" aria-label="Close">✕</button>
+<div class="frp-eyebrow">Sunday at Augusta</div>
+<div class="frp-title" id="frp-title">Final Round Preview</div>
+<div class="frp-sub" id="frp-sub"></div>
+<div class="frp-list" id="frp-list"></div>
+<div class="frp-footnote">Best 4 of 10 · lowest total to par takes it</div>
+<button class="frp-cta" onclick="hideFinalRoundPopup()">Let's go →</button>
+</div>
+</div>
 <div id="onboarding">
 <div class="ob-top">
 <div class="ob-title">Find Your Team</div>

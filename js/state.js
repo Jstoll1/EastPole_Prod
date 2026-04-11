@@ -459,6 +459,7 @@ var STORAGE_KEY = 'eastpole_v2';
 var SPLASH_DATE_KEY = 'eastpole_splash_date';
 var PLAYER_EMOJI_KEY = 'eastpole_player_emoji';
 var WELCOME_KEY = 'eastpole_welcome_v1_seen';
+var FINAL_ROUND_POPUP_KEY = 'eastpole_final_round_popup_v1_seen';
 var PLAYER_EMOJI = {};
 try { PLAYER_EMOJI = JSON.parse(localStorage.getItem(PLAYER_EMOJI_KEY) || '{}'); } catch(e) {}
 

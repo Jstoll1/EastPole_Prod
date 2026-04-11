@@ -4662,6 +4662,187 @@ to  {
   #welcome, .welcome-card { transition: none; }
 }
 
+/* ── Final Round Preview Popup ───────────────────────── */
+#final-round-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 1001;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  padding: 20px;
+}
+#final-round-popup.visible { opacity: 1; }
+
+.frp-card {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  background: linear-gradient(180deg, #0f2419 0%, var(--card) 60%);
+  border: 1px solid var(--gold);
+  border-radius: 18px;
+  padding: 26px 20px 20px;
+  box-shadow: 0 24px 70px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,168,67,0.25) inset;
+  transform: scale(0.96);
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.3, 1.1);
+}
+#final-round-popup.visible .frp-card { transform: scale(1); }
+
+.frp-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+}
+.frp-close:active { background: var(--gold); color: #0a1a12; }
+
+.frp-eyebrow {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-align: center;
+  margin-bottom: 4px;
+}
+.frp-title {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--text);
+  text-align: center;
+  letter-spacing: -0.4px;
+  margin: 0 0 6px;
+}
+.frp-sub {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text2);
+  text-align: center;
+  margin-bottom: 16px;
+  letter-spacing: 0.2px;
+}
+.frp-sub .frp-tight {
+  color: var(--gold);
+  font-weight: 800;
+}
+
+.frp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.frp-row {
+  display: grid;
+  grid-template-columns: 28px 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+}
+.frp-row.is-leader {
+  background: linear-gradient(90deg, rgba(212,168,67,0.18), rgba(212,168,67,0.04));
+  border-color: rgba(212,168,67,0.45);
+}
+.frp-row.is-me {
+  box-shadow: 0 0 0 1px var(--gold) inset;
+}
+.frp-rank {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--text);
+  text-align: center;
+}
+.frp-row.is-leader .frp-rank { color: var(--gold); }
+.frp-who {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.frp-team {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: -0.1px;
+}
+.frp-owner {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.frp-total {
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+  min-width: 34px;
+  text-align: right;
+}
+.frp-gap {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text3);
+  min-width: 34px;
+  text-align: right;
+  letter-spacing: 0.3px;
+}
+.frp-gap.leader {
+  color: var(--gold);
+}
+
+.frp-footnote {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  text-align: center;
+  margin-bottom: 12px;
+  letter-spacing: 0.2px;
+}
+.frp-cta {
+  display: block;
+  width: 100%;
+  padding: 13px 20px;
+  background: var(--gold);
+  border: none;
+  border-radius: 12px;
+  color: #0a1a12;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.4px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.frp-cta:active { opacity: 0.85; }
+
+@media (prefers-reduced-motion: reduce) {
+  #final-round-popup, .frp-card { transition: none; }
+}
+
 /* ── East Pole Coffee Sponsor View ────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Karla:wght@400;600;700;800&display=swap');
 

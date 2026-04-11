@@ -7,6 +7,7 @@ function renderAll() {
   renderTicker();
   if (compareMode && cmpSelections.length === 2) renderH2HInline();
   if (_debugOpen) renderDebugPanel();
+  if (typeof maybeShowFinalRoundPopup === 'function') maybeShowFinalRoundPopup();
 }
 
 // Pull-to-refresh for leaderboard
