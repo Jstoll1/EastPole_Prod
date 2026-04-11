@@ -258,13 +258,14 @@ function hideWelcome() {
 }
 
 // ── Final Round Preview Popup ─────────────────────────────
-// Shows once when ESPN_ROUND hits 4 (final round), previewing the top 5
-// with stroke gaps from the leader. Highlights when all 5 are within 3.
+// Shows once starting in/after Round 3 (Saturday) so users get a preview
+// of the Sunday finish — top 5 with stroke gaps from the leader.
+// Highlights when all 5 are within 3.
 var _frpShown = false;
 function maybeShowFinalRoundPopup() {
   if (_frpShown) return;
   if (typeof TOURNEY_FINAL !== 'undefined' && TOURNEY_FINAL) return;
-  if (typeof ESPN_ROUND === 'undefined' || ESPN_ROUND < 4) return;
+  if (typeof ESPN_ROUND === 'undefined' || ESPN_ROUND < 3) return;
   if (!ENTRIES || !ENTRIES.length) return;
   try { if (localStorage.getItem(FINAL_ROUND_POPUP_KEY)) { _frpShown = true; return; } } catch(e) {}
   // Don't stack on top of onboarding/welcome/splash
