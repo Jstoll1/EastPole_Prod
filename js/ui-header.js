@@ -268,17 +268,29 @@ function hideWelcome() {
 // all 5 are within 3 strokes. Dismissal is sticky via localStorage.
 var _frpShown = false;
 function maybeShowFinalRoundPopup() {
-  if (_frpShown) return;
-  if (typeof TOURNEY_FINAL !== 'undefined' && TOURNEY_FINAL) return;
-  if (!ENTRIES || !ENTRIES.length) return;
-  try { if (localStorage.getItem(FINAL_ROUND_POPUP_KEY)) { _frpShown = true; return; } } catch(e) {}
-  // Don't stack on top of onboarding/welcome/splash
+  if (_frpShown) { console.log('[frp] skip: already shown'); return; }
+  if (typeof TOURNEY_FINAL !== 'undefined' && TOURNEY_FINAL) { console.log('[frp] skip: tourney final'); return; }
+  if (!ENTRIES || !ENTRIES.length) { console.log('[frp] skip: no entries'); return; }
+  try { if (localStorage.getItem(FINAL_ROUND_POPUP_KEY)) { console.log('[frp] skip: localStorage seen'); _frpShown = true; return; } } catch(e) {}
+  // Don't stack on top of onboarding/welcome/splash — retry when they close
   var splash = document.getElementById('splash');
-  if (splash && splash.style.display !== 'none' && !splash.classList.contains('hidden')) return;
+  if (splash && splash.style.display !== 'none' && !splash.classList.contains('hidden')) {
+    console.log('[frp] defer: splash visible');
+    setTimeout(maybeShowFinalRoundPopup, 800);
+    return;
+  }
   var welcome = document.getElementById('welcome');
-  if (welcome && welcome.classList.contains('visible')) return;
+  if (welcome && welcome.classList.contains('visible')) {
+    console.log('[frp] defer: welcome visible');
+    return; // hideWelcome chains us
+  }
   var ob = document.getElementById('onboarding');
-  if (ob && ob.classList.contains('visible')) return;
+  if (ob && ob.classList.contains('visible')) {
+    console.log('[frp] defer: onboarding visible');
+    setTimeout(maybeShowFinalRoundPopup, 800);
+    return;
+  }
+  console.log('[frp] showing popup');
   showFinalRoundPopup();
 }
 
