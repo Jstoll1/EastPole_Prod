@@ -190,8 +190,14 @@ function renderThreatBoard() {
     return sa - sb;
   });
 
-  // Bubble: teams within 1 stroke above me
-  var bubble = aheadEntries.filter(function(e) { return (myRankedEntry.total - e.total) <= 1; });
+  // Strokes from the money — pool pays top 3, so gap vs. 3rd-place cutoff
+  var PAY_RANK = 3;
+  var cutoffEntry = ranked[PAY_RANK - 1]; // 3rd-place entry
+  var inMoney = (myIdx < PAY_RANK);
+  var strokesFromCash = null;
+  if (cutoffEntry && !inMoney) {
+    strokesFromCash = myRankedEntry.total - cutoffEntry.total;
+  }
 
   // Build HTML
   var html = '';
@@ -224,7 +230,19 @@ function renderThreatBoard() {
   }
   html += '<div class="threat-hdr-stats">';
   html += '<div class="threat-stat"><div class="threat-stat-v">' + aheadCount + '</div><div class="threat-stat-l">Ahead of you</div></div>';
-  html += '<div class="threat-stat"><div class="threat-stat-v">' + bubble.length + '</div><div class="threat-stat-l">Within 1 stroke</div></div>';
+  // Strokes from the money
+  var cashV, cashCls;
+  if (inMoney) {
+    cashV = 'IN $';
+    cashCls = 'pos';
+  } else if (strokesFromCash == null) {
+    cashV = '—';
+    cashCls = '';
+  } else {
+    cashV = '+' + strokesFromCash;
+    cashCls = 'neg';
+  }
+  html += '<div class="threat-stat"><div class="threat-stat-v ' + cashCls + '">' + cashV + '</div><div class="threat-stat-l">Strokes from $</div></div>';
   html += '<div class="threat-stat"><div class="threat-stat-v ' + cls(myRankedEntry.total) + '">' + fmtTeam(myRankedEntry.total) + '</div><div class="threat-stat-l">Your total</div></div>';
   html += '</div>';
   // Net/All toggle
