@@ -138,16 +138,7 @@ function renderLeaderboard() {
     else countEl.textContent = '';
   }
   var legendEl = document.getElementById('lb-legend');
-  if (legendEl) {
-    if (currentUserTeams.length > 1 && activeTeamIdx === -1) {
-      legendEl.innerHTML = currentUserTeams.map(function(t, i) { return '<div class="lb-legend-item"><span class="team-pill ' + (PILL_CLASSES[i]||'') + '" style="width:16px;height:13px;font-size:8px;border-radius:4px">' + pillLabel(i) + '</span><span>' + escHtml(t.team) + '</span></div>'; }).join('');
-    } else if (currentUserTeams.length > 1 && activeTeamIdx >= 0) {
-      var t = currentUserTeams[activeTeamIdx];
-      legendEl.innerHTML = '<div class="lb-legend-item"><span class="team-pill ' + (PILL_CLASSES[activeTeamIdx]||'') + '" style="width:16px;height:13px;font-size:8px;border-radius:4px">' + pillLabel(activeTeamIdx) + '</span><span>' + escHtml(t.team) + '</span></div>';
-    } else if (currentUserTeams.length === 1) {
-      legendEl.innerHTML = '<div class="lb-legend-item"><span class="team-pill ' + (PILL_CLASSES[0]||'') + '" style="width:16px;height:13px;font-size:8px;border-radius:4px">' + pillLabel(0) + '</span><span>' + escHtml(currentUserTeams[0].team) + '</span></div>';
-    } else { legendEl.innerHTML = ''; }
-  }
+  if (legendEl) { legendEl.innerHTML = ''; legendEl.style.display = 'none'; }
   var samplePlayer = players.find(function(p) { return p.thru!=='—'&&p.thru!=='MC'&&p.thru!=='WD'; });
   var maxCompletedRounds = 0;
   players.forEach(function(p) {
