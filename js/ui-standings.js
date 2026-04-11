@@ -230,6 +230,8 @@ function renderStandings() {
       if (myIdx >= 0) {
         var myEntry = ranked[myIdx];
         var myRank = ranks[myIdx];
+        var pillIdx = currentUserTeams.indexOf(activeTeam);
+        var pillCls = PILL_CLASSES[pillIdx] || '';
         var scc = cls(myEntry.total);
         var entryKey = myEntry.team + '|' + myEntry.email;
         var priorRk = priorEntryRanks[entryKey];
@@ -246,7 +248,7 @@ function renderStandings() {
         var teamJumpArg = escHtml(JSON.stringify(myEntry.team));
         myRows += '<div class="my-hero-row" onclick="jumpToEntry(' + teamJumpArg + ')">'
             + '<div class="my-hero-rank">' + myRank + moveHtml + '</div>'
-            + '<div class="my-hero-name">' + escHtml(myEntry.team) + '</div>'
+            + '<div class="my-hero-name"><span class="my-hero-dot ' + pillCls + '"></span>' + escHtml(myEntry.team) + '</div>'
             + '<div class="my-hero-today ' + myTodayCls + '">' + myTodayDisp + '</div>'
             + '<div class="my-hero-score ' + scc + '">' + fmtTeam(myEntry.total) + '</div>'
             + '</div>';

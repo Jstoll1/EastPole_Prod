@@ -2629,6 +2629,16 @@ to  {
   color: #053025;
 }
 
+.my-hero-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
 .my-hero-block {
   margin: 4px 10px 6px;
   background: rgba(255,255,255,0.03);
