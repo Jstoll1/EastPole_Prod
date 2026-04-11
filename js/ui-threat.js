@@ -5,6 +5,12 @@
 var _threatNetMode = true; // default: exclude golfers already on user's team
 var _threatSortCol = 'tot'; // default sort column
 var _threatSortDir = 'asc'; // default sort direction
+var _threatPickerOpen = false; // entry picker toggle (closed by default)
+
+function toggleThreatPicker() {
+  _threatPickerOpen = !_threatPickerOpen;
+  renderThreatBoard();
+}
 
 function toggleThreatNet() {
   _threatNetMode = !_threatNetMode;
@@ -15,6 +21,7 @@ function toggleThreatNet() {
 function selectThreatEntry(idx) {
   if (idx < 0 || idx >= currentUserTeams.length) return;
   activeTeamIdx = idx;
+  _threatPickerOpen = false; // auto-close after pick
   renderThreatBoard();
 }
 
@@ -205,15 +212,31 @@ function renderThreatBoard() {
   // --- Header card ---
   html += '<div class="threat-hdr-card">';
   html += '<div class="threat-hdr-label">Analyzing</div>';
-  // Entry picker — all user entries as tappable pills
+  // Current entry readout + Change button (collapses to compact row)
+  var myPillIdx = -1;
+  currentUserTeams.forEach(function(t, idx) {
+    if (t.email === myEntry.email && t.team === myEntry.team) myPillIdx = idx;
+  });
+  var myPillColor = PILL_CLASSES[myPillIdx] || '';
+  html += '<div class="threat-hdr-current">';
+  html += '<div class="threat-hdr-team-solo">'
+    + '<span class="threat-entry-dot ' + myPillColor + '"></span>'
+    + escHtml(myEntry.team)
+    + '</div>';
   if (currentUserTeams.length > 1) {
+    html += '<button class="threat-hdr-change" onclick="toggleThreatPicker()">'
+      + (_threatPickerOpen ? 'Close' : 'Change')
+      + '</button>';
+  }
+  html += '</div>';
+  // Entry picker — shown only when expanded
+  if (currentUserTeams.length > 1 && _threatPickerOpen) {
     html += '<div class="threat-entry-picker">';
     currentUserTeams.forEach(function(t, idx) {
       var r = ranked.findIndex(function(e) { return e.email === t.email && e.team === t.team; });
       var rk = r >= 0 ? (r + 1) : '—';
       var isActive = (t.email === myEntry.email && t.team === myEntry.team);
       var pillColor = PILL_CLASSES[idx] || '';
-      var teamJson = escHtml(JSON.stringify(t.team));
       html += '<div class="threat-entry-pill' + (isActive ? ' active' : '') + '" onclick="selectThreatEntry(' + idx + ')">'
         + '<span class="threat-entry-dot ' + pillColor + '"></span>'
         + '<span class="threat-entry-rank">' + rk + '</span>'
@@ -221,12 +244,6 @@ function renderThreatBoard() {
         + '</div>';
     });
     html += '</div>';
-  } else {
-    var solePill = PILL_CLASSES[0] || '';
-    html += '<div class="threat-hdr-team-solo">'
-      + '<span class="threat-entry-dot ' + solePill + '"></span>'
-      + escHtml(myEntry.team)
-      + '</div>';
   }
   html += '<div class="threat-hdr-stats">';
   html += '<div class="threat-stat"><div class="threat-stat-v">' + aheadCount + '</div><div class="threat-stat-l">Ahead of you</div></div>';
