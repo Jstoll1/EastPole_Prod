@@ -49,7 +49,7 @@ function updateLbSeg() {
   if (lbFilter === 'myPicks' && currentUserTeams.length > 0) {
     teamLegend = '<div style="display:flex;gap:8px;justify-content:center;padding:4px 14px 0;flex-wrap:wrap">' + currentUserTeams.map(function(t, i) { return '<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--text2)"><span class="team-pill ' + (PILL_CLASSES[i]||'') + '" style="width:16px;height:13px;font-size:8px;border-radius:4px">' + pillLabel(i) + '</span>' + escHtml(t.team) + '</span>'; }).join('') + '</div>';
   }
-  seg.innerHTML = '<button class="seg-btn' + (lbFilter==='all'?' active':'') + '" onclick="setLbFilter(\'all\',this)">All</button> <button class="seg-btn' + (lbFilter==='pool'?' active':'') + '" onclick="setLbFilter(\'pool\',this)">In Pool</button> ' + myPicksBtn;
+  seg.innerHTML = '<button class="seg-btn' + (lbFilter==='all'?' active':'') + '" onclick="setLbFilter(\'all\',this)">All</button> <button class="seg-btn' + (lbFilter==='pool'?' active':'') + '" onclick="setLbFilter(\'pool\',this)">In Pool</button> ' + myPicksBtn + ' <button class="seg-btn' + (lbFilter==='threat'?' active':'') + '" onclick="setLbFilter(\'threat\',this)">🎯 Threat</button>';
   var oldLegend = seg.parentNode.querySelector('.seg-team-legend');
   if (oldLegend) oldLegend.remove();
   if (teamLegend) { var div = document.createElement('div'); div.className = 'seg-team-legend'; div.innerHTML = teamLegend; seg.parentNode.appendChild(div); }
@@ -59,6 +59,11 @@ function renderLeaderboard() {
   // Don't re-render while a scorecard is open — it would destroy the panel
   if (_openScorecardIdx !== null) { _pendingLbRender = true; return; }
   _pendingLbRender = false;
+  // Restore search visibility for non-threat modes (threat mode hides it)
+  var _lbSearchEl = document.getElementById('lb-search');
+  if (_lbSearchEl && _lbSearchEl.parentNode) _lbSearchEl.parentNode.style.visibility = '';
+  // Branch: Threat Board mode takes over the #leaderboard-list container
+  if (lbFilter === 'threat') { renderThreatBoard(); return; }
   var poolNames = new Set(ENTRIES.flatMap(function(e) { return e.picks; }));
   var myPicksMap = getMyPicksMap();
   var myAllPicks = getActiveTeamPicks();
