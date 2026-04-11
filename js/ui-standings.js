@@ -334,7 +334,7 @@ function renderStandings() {
     e.top4.forEach(function(g) { var gd = GOLFER_SCORES[g.name]; if (gd && (gd.score === 11 || gd.score === 12)) return; var td = gd ? gd.todayDisplay : null; if (td && td !== '—') { teamToday += (td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0); teamTodayCount++; } });
     var todayDisp = teamTodayCount > 0 ? (teamToday > 0 ? '+' + teamToday : teamToday === 0 ? 'E' : '' + teamToday) : '—';
     var todayCls = teamToday < 0 ? 'neg' : teamToday > 0 ? 'pos' : 'eve';
-    var holesTag = ROUND_START_ROUND >= 4 ? (teamHolesLeft > 0 ? '<span class="s-holes">' + teamHolesLeft + '</span>' : '') : '';
+    var holesTag = ROUND_START_ROUND >= 4 ? (teamHolesLeft > 0 ? '<span class="s-holes">' + teamHolesLeft + ' holes left</span>' : '') : '';
     var inMoney = TOURNEY_FINAL && rank <= 3;
     var moneyIcon = inMoney ? (rank === 1 ? '🏆' : '💰') : '';
     html += '<div class="tv-row st-row' + isMyTeam + cmpCls + cmpSelCls + (inMoney ? ' in-money' : '') + '" onclick="' + rowClick + '" style="cursor:pointer">'
