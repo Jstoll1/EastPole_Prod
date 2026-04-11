@@ -230,6 +230,9 @@ function enterApp() {
         if (!localStorage.getItem(WELCOME_KEY)) {
           console.log('👋 Showing welcome');
           setTimeout(showWelcome, 250);
+        } else {
+          // Welcome already seen — try the final-round preview
+          setTimeout(function() { if (typeof maybeShowFinalRoundPopup === 'function') maybeShowFinalRoundPopup(); }, 300);
         }
       } catch(e) {
         console.error('❌ Error in setTimeout:', e);
@@ -255,17 +258,18 @@ function hideWelcome() {
   el.classList.remove('visible');
   setTimeout(function() { el.style.display = 'none'; }, 250);
   try { localStorage.setItem(WELCOME_KEY, '1'); } catch(e) {}
+  // Chain the final-round popup after welcome dismissal
+  setTimeout(function() { if (typeof maybeShowFinalRoundPopup === 'function') maybeShowFinalRoundPopup(); }, 400);
 }
 
 // ── Final Round Preview Popup ─────────────────────────────
-// Shows once starting in/after Round 3 (Saturday) so users get a preview
-// of the Sunday finish — top 5 with stroke gaps from the leader.
-// Highlights when all 5 are within 3.
+// One-shot preview of the Sunday finish — top 5 with stroke gaps from
+// the leader. Shows as soon as the app has data loaded; highlights when
+// all 5 are within 3 strokes. Dismissal is sticky via localStorage.
 var _frpShown = false;
 function maybeShowFinalRoundPopup() {
   if (_frpShown) return;
   if (typeof TOURNEY_FINAL !== 'undefined' && TOURNEY_FINAL) return;
-  if (typeof ESPN_ROUND === 'undefined' || ESPN_ROUND < 3) return;
   if (!ENTRIES || !ENTRIES.length) return;
   try { if (localStorage.getItem(FINAL_ROUND_POPUP_KEY)) { _frpShown = true; return; } } catch(e) {}
   // Don't stack on top of onboarding/welcome/splash
