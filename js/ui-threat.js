@@ -211,7 +211,6 @@ function renderThreatBoard() {
 
   // --- Header card ---
   html += '<div class="threat-hdr-card">';
-  html += '<div class="threat-hdr-label">Analyzing</div>';
   // Current entry readout + Change button (collapses to compact row)
   var myPillIdx = -1;
   currentUserTeams.forEach(function(t, idx) {
