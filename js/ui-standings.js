@@ -148,7 +148,6 @@ function renderStandings() {
       wTbHtml = '<div class="ws-tiebreaker"><div class="ws-tb-label">TIEBREAKER</div>' + tbParts.join('') + '</div>';
     }
     winnerBoxEl.innerHTML = '<div class="ws-confetti"></div>'
-      + '<div class="ws-sparkle"></div>'
       + '<div class="ws-shimmer"></div>'
       + '<div class="ws-burst ws-burst-1"></div>'
       + '<div class="ws-burst ws-burst-2"></div>'
