@@ -143,8 +143,8 @@ function renderStandings() {
     var w5 = w.scores[4], w6 = w.scores[5];
     if (w5 || w6) {
       var tbParts = [];
-      if (w5) tbParts.push('<span class="ws-tb-golfer">' + (FLAGS[w5.name] || '') + ' ' + escHtml(w5.name) + ' <span class="' + cls(w5.score) + '">' + fmt(w5.score) + '</span></span>');
-      if (w6) tbParts.push('<span class="ws-tb-golfer">' + (FLAGS[w6.name] || '') + ' ' + escHtml(w6.name) + ' <span class="' + cls(w6.score) + '">' + fmt(w6.score) + '</span></span>');
+      if (w5) tbParts.push('<span class="ws-tb-golfer"><span class="ws-tb-ord">5th</span> ' + (FLAGS[w5.name] || '') + ' ' + escHtml(w5.name) + ' <span class="' + cls(w5.score) + '">' + fmt(w5.score) + '</span></span>');
+      if (w6) tbParts.push('<span class="ws-tb-golfer"><span class="ws-tb-ord">6th</span> ' + (FLAGS[w6.name] || '') + ' ' + escHtml(w6.name) + ' <span class="' + cls(w6.score) + '">' + fmt(w6.score) + '</span></span>');
       wTbHtml = '<div class="ws-tiebreaker"><div class="ws-tb-label">TIEBREAKER</div>' + tbParts.join('') + '</div>';
     }
     winnerBoxEl.innerHTML = '<div class="ws-confetti"></div>'
@@ -188,10 +188,17 @@ function renderStandings() {
     var finalCls = tourneyDone ? ' final' : '';
     var compactCls = holder ? '' : ' compact';
     var whoRow = holder ? '<div class="pc-who">' + escHtml(holder) + '</div>' : '';
+    var scoreRow = '';
+    if (tourneyDone && ranked[i]) {
+      var pcScoreDisp = fmtTeam(ranked[i].total);
+      var pcScoreCls = cls(ranked[i].total);
+      scoreRow = '<div class="pc-score ' + pcScoreCls + '">' + pcScoreDisp + '</div>';
+    }
     return '<div class="payout-card ' + (isGold ? 'gold' : '') + finalCls + compactCls + '" onclick="_konamiTap(' + i + ', event)" style="cursor:pointer">' +
       '<div class="pc-lbl">' + label + '</div>' +
       '<div class="pc-amt">$' + payoutAmounts[i].toLocaleString() + '</div>' +
       whoRow +
+      scoreRow +
       tbNote +
     '</div>';
   }).join('');
