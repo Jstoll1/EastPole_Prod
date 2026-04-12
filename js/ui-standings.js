@@ -205,7 +205,15 @@ function renderStandings() {
   var poolSubHtml = '';
   if (TOURNEY_FINAL) {
     var winScoreDisp = WINNING_SCORE > 0 ? '+' + WINNING_SCORE : WINNING_SCORE === 0 ? 'E' : String(WINNING_SCORE);
-    poolSubHtml = '<span class="final-label">🏆 TOURNAMENT FINAL</span> · Winning score: <strong>' + winScoreDisp + '</strong>';
+    var winGolferHtml = '';
+    var golferNames = Object.keys(GOLFER_SCORES);
+    for (var gi = 0; gi < golferNames.length; gi++) {
+      if (GOLFER_SCORES[golferNames[gi]].score === WINNING_SCORE) {
+        winGolferHtml = ' · ' + (FLAGS[golferNames[gi]] || '') + ' <strong>' + escHtml(golferNames[gi]) + '</strong>';
+        break;
+      }
+    }
+    poolSubHtml = '<span class="final-label">🏆 TOURNAMENT FINAL</span>' + winGolferHtml + ' · Winning score: <strong>' + winScoreDisp + '</strong>';
   } else {
     poolSubHtml = 'Best 4 of 10 golfer scores combined over four rounds wins.';
   }
