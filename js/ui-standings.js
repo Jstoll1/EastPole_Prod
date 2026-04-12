@@ -139,6 +139,14 @@ function renderStandings() {
       var gCls = isMc ? 'mc' : cls(g.score);
       return '<div class="ws-golfer"><span class="ws-golfer-flag">' + flag + '</span><span class="ws-golfer-name">' + escHtml(g.name) + '</span><span class="ws-golfer-score ' + gCls + '">' + gScore + '</span></div>';
     }).join('');
+    var wTbHtml = '';
+    var w5 = w.scores[4], w6 = w.scores[5];
+    if (w5 || w6) {
+      var tbParts = [];
+      if (w5) tbParts.push('<span class="ws-tb-golfer">' + (FLAGS[w5.name] || '') + ' ' + escHtml(w5.name) + ' <span class="' + cls(w5.score) + '">' + fmt(w5.score) + '</span></span>');
+      if (w6) tbParts.push('<span class="ws-tb-golfer">' + (FLAGS[w6.name] || '') + ' ' + escHtml(w6.name) + ' <span class="' + cls(w6.score) + '">' + fmt(w6.score) + '</span></span>');
+      wTbHtml = '<div class="ws-tiebreaker"><div class="ws-tb-label">TIEBREAKER</div>' + tbParts.join('') + '</div>';
+    }
     winnerBoxEl.innerHTML = '<div class="ws-confetti"></div>'
       + '<div class="ws-content">'
       + '<div class="ws-trophy">🏆</div>'
@@ -147,6 +155,7 @@ function renderStandings() {
       + '<div class="ws-by">' + escHtml(w.name) + '</div>'
       + '<div class="ws-total"><span class="' + wScoreCls + '">' + wScoreDisp + '</span></div>'
       + '<div class="ws-golfers">' + wGolfers + '</div>'
+      + wTbHtml
       + '<div class="ws-payout">$' + wPayoutAmt.toLocaleString() + '</div>'
       + '<div class="ws-payout-lbl">Prize Money</div>'
       + '</div>';
@@ -166,6 +175,12 @@ function renderStandings() {
         var splitMates = ranked.filter(function(e) { return compareEntries(e, ranked[i]) === 0; });
         if (splitMates.length > 1) {
           tbNote = '<div class="pc-tb">Split ' + splitMates.length + '-way</div>';
+        } else {
+          var tb5 = ranked[i].scores[4], tb6 = ranked[i].scores[5];
+          var tbParts = [];
+          if (tb5) tbParts.push('5th: ' + escHtml(tb5.name.split(' ').slice(-1)[0]) + ' ' + fmt(tb5.score));
+          if (tb6) tbParts.push('6th: ' + escHtml(tb6.name.split(' ').slice(-1)[0]) + ' ' + fmt(tb6.score));
+          if (tbParts.length) tbNote = '<div class="pc-tb">TB ' + tbParts.join(' / ') + '</div>';
         }
       }
     }
