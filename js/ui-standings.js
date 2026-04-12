@@ -177,10 +177,10 @@ function renderStandings() {
           tbNote = '<div class="pc-tb">Split ' + splitMates.length + '-way</div>';
         } else {
           var tb5 = ranked[i].scores[4], tb6 = ranked[i].scores[5];
-          var tbParts = [];
-          if (tb5) tbParts.push('5th: ' + escHtml(tb5.name.split(' ').slice(-1)[0]) + ' ' + fmt(tb5.score));
-          if (tb6) tbParts.push('6th: ' + escHtml(tb6.name.split(' ').slice(-1)[0]) + ' ' + fmt(tb6.score));
-          if (tbParts.length) tbNote = '<div class="pc-tb">TB ' + tbParts.join(' / ') + '</div>';
+          var tbLines = [];
+          if (tb5) tbLines.push('TB 5th: ' + escHtml(tb5.name.split(' ').slice(-1)[0]) + ' ' + fmt(tb5.score));
+          if (tb6) tbLines.push('6th: ' + escHtml(tb6.name.split(' ').slice(-1)[0]) + ' ' + fmt(tb6.score));
+          if (tbLines.length) tbNote = tbLines.map(function(l) { return '<div class="pc-tb">' + l + '</div>'; }).join('');
         }
       }
     }
