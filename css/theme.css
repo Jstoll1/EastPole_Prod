@@ -125,6 +125,16 @@
 [data-theme="light"] #activity-fab { background:#006747; }
 [data-theme="light"] .tv-thru { color: #6b6b60; }
 [data-theme="light"] .tv-thru.active { color: #2c2c2c; }
+[data-theme="light"] .tv-today.neg { color: #006747; }
+[data-theme="light"] .tv-today.pos { color: #b53525; }
+[data-theme="light"] .tv-today.eve { color: #6b6b60; }
+[data-theme="light"] .tv-score.neg { color: #006747; }
+[data-theme="light"] .tv-score.pos { color: #b53525; }
+[data-theme="light"] .tv-score.eve { color: #2c2c2c; }
+[data-theme="light"] .s-today.neg { color: #006747; }
+[data-theme="light"] .s-today.pos { color: #b53525; }
+[data-theme="light"] .my-hero-today.neg { color: #006747; }
+[data-theme="light"] .my-hero-today.pos { color: #b53525; }
 
 /* Light mode: expanded standings row + picks panel contrast fixes */
 [data-theme="light"] .tv-row.st-row.panel-open {
