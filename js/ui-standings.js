@@ -397,10 +397,9 @@ function renderStandings() {
           + '</div>'
           + '<div class="sc-panel" id="' + stScId + '"></div>';
     }).join('');
-    // 5th/6th-best tiebreaker note (only on tied entries among top 3)
+    // 5th/6th-best tiebreaker note for top 3 entries
     var tbFooter2 = '';
-    var isTiedWithNeighbor = (i < displayRanked.length-1 && displayRanked[i].total === displayRanked[i+1].total) || (i > 0 && displayRanked[i].total === displayRanked[i-1].total);
-    if (isTiedWithNeighbor && rank <= 3) {
+    if (rank <= 3) {
       var tbBits = [];
       if (e.fifthScore != null) tbBits.push('5th: ' + fmt(e.fifthScore));
       if (e.sixthScore != null) tbBits.push('6th: ' + fmt(e.sixthScore));
