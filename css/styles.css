@@ -303,7 +303,7 @@ html, body  {
   border: 1.5px solid rgba(245,197,24,0.5);
   background: linear-gradient(135deg, rgba(245,197,24,0.12) 0%, rgba(212,168,67,0.06) 100%);
 }
-/* Confetti — multi-color falling particles at different speeds */
+/* Confetti — multi-color falling particles at different speeds & directions */
 .ws-confetti {
   position: absolute;
   inset: 0;
@@ -326,18 +326,56 @@ html, body  {
     radial-gradient(circle, #006747 1px, transparent 1px);
   background-size: 55px 70px, 70px 90px, 90px 55px, 40px 80px, 80px 60px, 65px 45px, 50px 75px;
   background-position: 0 0, 30px 20px, 15px 45px, 50px 10px, 10px 60px, 65px 35px, 25px 50px;
-  animation: confettiFall 3.5s linear infinite;
+  animation: confettiFall 4s linear infinite;
   opacity: 0.6;
 }
+/* Slower layer drifting to the right, offset to fill gaps */
 .ws-confetti::after {
-  animation-duration: 5s;
-  animation-delay: -1.5s;
+  animation: confettiDrift 5.5s linear infinite;
+  animation-delay: -2.75s;
   background-position: 20px 10px, 50px 40px, 5px 55px, 35px 25px, 70px 5px, 15px 70px, 45px 30px;
   opacity: 0.4;
 }
 @keyframes confettiFall {
-  0%   { transform: translateY(-100%) rotate(0deg); }
-  100% { transform: translateY(100%) rotate(8deg); }
+  0%   { transform: translateY(-100%) translateX(0) rotate(0deg); }
+  100% { transform: translateY(100%) translateX(-20px) rotate(10deg); }
+}
+@keyframes confettiDrift {
+  0%   { transform: translateY(-100%) translateX(0) rotate(0deg); }
+  100% { transform: translateY(100%) translateX(30px) rotate(-12deg); }
+}
+
+/* Sparkle twinkle overlay */
+.ws-sparkle {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.ws-sparkle::before,
+.ws-sparkle::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image:
+    radial-gradient(circle, #fff 1.5px, transparent 1.5px),
+    radial-gradient(circle, #f5c518 1px, transparent 1px),
+    radial-gradient(circle, #fff 1px, transparent 1px),
+    radial-gradient(circle, #f5c518 1.5px, transparent 1.5px),
+    radial-gradient(circle, #fff 0.8px, transparent 0.8px);
+  background-size: 80px 60px, 60px 80px, 100px 90px, 45px 55px, 70px 70px;
+  background-position: 10px 15px, 40px 5px, 25px 40px, 65px 25px, 5px 50px;
+  animation: sparkle 2s ease-in-out infinite;
+  opacity: 0;
+}
+.ws-sparkle::after {
+  background-position: 35px 30px, 15px 55px, 55px 10px, 20px 65px, 50px 45px;
+  animation-delay: 1s;
+}
+@keyframes sparkle {
+  0%, 100% { opacity: 0; }
+  50%      { opacity: 0.7; }
 }
 
 /* Golden shimmer sweep */
