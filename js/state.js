@@ -436,7 +436,14 @@ var ATHLETE_IDS = {};
 var EVENT_ID = null;
 var SCORECARD_CACHE = {};
 var COURSE_HOLES = null;
-var COURSE_PAR = 72; // Augusta National — par 72 [4,5,4,3,4,3,4,5,4,4,4,3,5,4,5,3,4,4]
+var COURSE_PAR = 72;
+
+// Dynamic tournament metadata (populated from ESPN on first fetch)
+var TOURNEY_NAME = '';
+var TOURNEY_SHORT = '';
+var TOURNEY_DATES = '';
+var TOURNEY_COURSE = '';
+var TOURNEY_LOGO = '';
 
 var WINNING_SCORE = null; // actual tournament winner's score to par (set when tourney final)
 var TOURNEY_FINAL = false; // true when all 4 rounds complete, 0 holes left

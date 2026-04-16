@@ -2,18 +2,50 @@
 
 var _scorecardInflight = {};
 
-// Force-fetch the 2026 Masters by event ID so the app shows Masters
-// pre-tournament state (field, tee times) all week instead of whatever
-// PGA event ESPN considers "current" (Valero Texas Open Mon-Sun).
-var MASTERS_EVENT_ID = '401811941';
+// Fetch the current PGA Tour tournament from ESPN automatically.
+// No hardcoded event ID — the scoreboard endpoint returns this week's event.
+var ESPN_LEADERBOARD_URL = 'https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard';
+
+function _extractTourneyMeta(ev) {
+  if (!ev) return;
+  TOURNEY_NAME = ev.name || TOURNEY_NAME || '';
+  TOURNEY_SHORT = ev.shortName || TOURNEY_SHORT || '';
+  TOURNEY_LOGO = (ev.logos && ev.logos[0] && ev.logos[0].href) || ev.logo || TOURNEY_LOGO || '';
+  var comp = ev.competitions && ev.competitions[0];
+  var venue = comp && comp.venue;
+  TOURNEY_COURSE = venue ? (venue.fullName || venue.shortName || '') : TOURNEY_COURSE || '';
+  if (ev.date) {
+    var start = new Date(ev.date);
+    var end = ev.endDate ? new Date(ev.endDate) : null;
+    var opts = { month: 'short', day: 'numeric' };
+    var startStr = start.toLocaleDateString('en-US', opts);
+    var endStr = end ? end.toLocaleDateString('en-US', opts) : '';
+    TOURNEY_DATES = end ? startStr + ' – ' + endStr : startStr;
+  }
+  // Update header logo if ESPN provides one
+  if (TOURNEY_LOGO) {
+    var logoEls = document.querySelectorAll('.hdr-logo-center img, .splash-masters-logo');
+    logoEls.forEach(function(el) { el.src = TOURNEY_LOGO; el.alt = TOURNEY_NAME; });
+  }
+  // Update splash text
+  var subEl = document.querySelector('.brand-subtext');
+  if (subEl && TOURNEY_NAME) subEl.textContent = TOURNEY_NAME;
+  var chipEl = document.querySelector('.splash-event-chip');
+  if (chipEl && TOURNEY_DATES) chipEl.textContent = TOURNEY_DATES + (TOURNEY_COURSE ? ' · ' + TOURNEY_COURSE : '');
+}
 
 async function fetchESPN() {
   try {
-    var res = await fetch('https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?event=' + MASTERS_EVENT_ID, { cache: 'no-store' });
+    var fetchUrl = EVENT_ID
+      ? 'https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?event=' + EVENT_ID
+      : ESPN_LEADERBOARD_URL;
+    var res = await fetch(fetchUrl, { cache: 'no-store' });
     if (!res.ok) { ErrorTracker.api('ESPN leaderboard fetch failed', { status: res.status, statusText: res.statusText }); throw new Error(); }
     var data = await res.json();
-    var comps = data.events?.[0]?.competitions?.[0]?.competitors || [];
-    EVENT_ID = data.events?.[0]?.id || EVENT_ID || null;
+    var ev = data.events && data.events[0];
+    var comps = ev?.competitions?.[0]?.competitors || [];
+    EVENT_ID = ev?.id || EVENT_ID || null;
+    _extractTourneyMeta(ev);
     if (!comps.length) {
       console.log('⚠️ ESPN API returned event but no competitors — field not published yet');
       setApiStatus('scheduled', 'Pre-Tournament');
@@ -26,13 +58,13 @@ async function fetchESPN() {
       renderAll();
       return;
     }
-    var evStatus = data.events?.[0]?.status?.type?.name || '';
-    var evDetail = data.events?.[0]?.status?.type?.detail || '';
-    var evDesc = data.events?.[0]?.status?.type?.description || '';
-    var compStatus = data.events?.[0]?.competitions?.[0]?.status?.type?.name || '';
-    var compDetail = data.events?.[0]?.competitions?.[0]?.status?.type?.detail || '';
+    var evStatus = ev?.status?.type?.name || '';
+    var evDetail = ev?.status?.type?.detail || '';
+    var evDesc = ev?.status?.type?.description || '';
+    var compStatus = ev?.competitions?.[0]?.status?.type?.name || '';
+    var compDetail = ev?.competitions?.[0]?.status?.type?.detail || '';
     var allStatusText = (evDetail + ' ' + evDesc + ' ' + compDetail).toLowerCase();
-    var espnRoundNumber = data.events?.[0]?.status?.period || 0;
+    var espnRoundNumber = ev?.status?.period || 0;
     if (espnRoundNumber > 0) ESPN_ROUND = espnRoundNumber;
     var isPreTournament = evStatus === 'STATUS_SCHEDULED';
     console.log('📡 Event status:', evStatus, '| detail:', evDetail, '| compStatus:', compStatus, '| compDetail:', compDetail);

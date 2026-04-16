@@ -154,7 +154,7 @@ function renderStandings() {
       + '<div class="ws-burst ws-burst-3"></div>'
       + '<div class="ws-content">'
       + '<div class="ws-trophy">🏆</div>'
-      + '<div class="ws-label">EAST POLE MASTERS POOL CHAMPION</div>'
+      + '<div class="ws-label">EAST POLE ' + (TOURNEY_SHORT || TOURNEY_NAME || 'POOL').toUpperCase() + ' CHAMPION</div>'
       + '<div class="ws-team">' + escHtml(w.team) + '</div>'
       + '<div class="ws-by">' + escHtml(w.name) + '</div>'
       + '<div class="ws-total"><span class="' + wScoreCls + '">' + wScoreDisp + '</span></div>'
