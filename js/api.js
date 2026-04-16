@@ -36,16 +36,35 @@ function _extractTourneyMeta(ev) {
 
 async function fetchESPN() {
   try {
-    var fetchUrl = EVENT_ID
-      ? 'https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?event=' + EVENT_ID
-      : ESPN_LEADERBOARD_URL;
+    // First fetch: discover the current tournament from the scoreboard endpoint.
+    // Once we have an event ID, switch to the leaderboard endpoint for full data.
+    var fetchUrl;
+    if (EVENT_ID) {
+      fetchUrl = 'https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?event=' + EVENT_ID;
+    } else {
+      fetchUrl = ESPN_LEADERBOARD_URL;
+    }
     var res = await fetch(fetchUrl, { cache: 'no-store' });
     if (!res.ok) { ErrorTracker.api('ESPN leaderboard fetch failed', { status: res.status, statusText: res.statusText }); throw new Error(); }
     var data = await res.json();
     var ev = data.events && data.events[0];
     var comps = ev?.competitions?.[0]?.competitors || [];
-    EVENT_ID = ev?.id || EVENT_ID || null;
+    var discoveredId = ev?.id || null;
     _extractTourneyMeta(ev);
+
+    // If we just discovered the event ID from scoreboard, re-fetch from
+    // leaderboard endpoint which has full competitor/tee-time data.
+    if (!EVENT_ID && discoveredId) {
+      EVENT_ID = discoveredId;
+      var lbRes = await fetch('https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?event=' + EVENT_ID, { cache: 'no-store' });
+      if (lbRes.ok) {
+        data = await lbRes.json();
+        ev = data.events && data.events[0];
+        comps = ev?.competitions?.[0]?.competitors || [];
+        _extractTourneyMeta(ev);
+      }
+    }
+    EVENT_ID = discoveredId || EVENT_ID || null;
     if (!comps.length) {
       console.log('⚠️ ESPN API returned event but no competitors — field not published yet');
       setApiStatus('scheduled', 'Pre-Tournament');
