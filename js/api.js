@@ -8,9 +8,24 @@ var ESPN_LEADERBOARD_URL = 'https://site.api.espn.com/apis/site/v2/sports/golf/p
 
 function _extractTourneyMeta(ev) {
   if (!ev) return;
+  console.log('🏷️ Tournament meta:', ev.name, '| logos:', JSON.stringify(ev.logos?.map(function(l){return l.href})), '| logo:', ev.logo);
   TOURNEY_NAME = ev.name || TOURNEY_NAME || '';
   TOURNEY_SHORT = ev.shortName || TOURNEY_SHORT || '';
-  TOURNEY_LOGO = (ev.logos && ev.logos[0] && ev.logos[0].href) || ev.logo || TOURNEY_LOGO || '';
+  TOURNEY_LOGO = '';
+  if (ev.logos && ev.logos.length) {
+    TOURNEY_LOGO = ev.logos[0].href || '';
+  } else if (ev.logo) {
+    TOURNEY_LOGO = ev.logo;
+  }
+  // Try competition-level logos
+  if (!TOURNEY_LOGO && comp) {
+    var compLogos = comp.logos || comp.league?.logos || [];
+    if (compLogos.length) TOURNEY_LOGO = compLogos[0].href || '';
+  }
+  // Try season-level or league-level
+  if (!TOURNEY_LOGO && ev.season?.logos?.length) {
+    TOURNEY_LOGO = ev.season.logos[0].href || '';
+  }
   var comp = ev.competitions && ev.competitions[0];
   var venue = comp && comp.venue;
   TOURNEY_COURSE = venue ? (venue.fullName || venue.shortName || '') : TOURNEY_COURSE || '';
@@ -22,12 +37,23 @@ function _extractTourneyMeta(ev) {
     var endStr = end ? end.toLocaleDateString('en-US', opts) : '';
     TOURNEY_DATES = end ? startStr + ' – ' + endStr : startStr;
   }
-  // Update logos from ESPN
+  // Update logos — use image if available, otherwise show tournament name as text
+  var hdrLogo = document.getElementById('hdr-tourney-logo');
+  var splashLogo = document.getElementById('splash-tourney-logo');
+  var hdrCenter = document.querySelector('.hdr-logo-center');
   if (TOURNEY_LOGO) {
-    var hdrLogo = document.getElementById('hdr-tourney-logo');
-    var splashLogo = document.getElementById('splash-tourney-logo');
-    if (hdrLogo) { hdrLogo.src = TOURNEY_LOGO; hdrLogo.alt = TOURNEY_NAME; }
-    if (splashLogo) { splashLogo.src = TOURNEY_LOGO; splashLogo.alt = TOURNEY_NAME; }
+    if (hdrLogo) { hdrLogo.src = TOURNEY_LOGO; hdrLogo.alt = TOURNEY_NAME; hdrLogo.style.display = ''; }
+    if (splashLogo) { splashLogo.src = TOURNEY_LOGO; splashLogo.alt = TOURNEY_NAME; splashLogo.style.display = ''; }
+  } else if (TOURNEY_NAME && hdrCenter) {
+    if (hdrLogo) hdrLogo.style.display = 'none';
+    if (!document.getElementById('hdr-tourney-text')) {
+      var txt = document.createElement('div');
+      txt.id = 'hdr-tourney-text';
+      txt.className = 'hdr-tourney-name';
+      hdrCenter.appendChild(txt);
+    }
+    var txtEl = document.getElementById('hdr-tourney-text');
+    if (txtEl) txtEl.textContent = TOURNEY_NAME;
   }
   // Update splash text
   var subEl = document.querySelector('.brand-subtext');
