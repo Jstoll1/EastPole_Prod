@@ -22,10 +22,12 @@ function _extractTourneyMeta(ev) {
     var endStr = end ? end.toLocaleDateString('en-US', opts) : '';
     TOURNEY_DATES = end ? startStr + ' – ' + endStr : startStr;
   }
-  // Update header logo if ESPN provides one
+  // Update logos from ESPN
   if (TOURNEY_LOGO) {
-    var logoEls = document.querySelectorAll('.hdr-logo-center img, .splash-masters-logo');
-    logoEls.forEach(function(el) { el.src = TOURNEY_LOGO; el.alt = TOURNEY_NAME; });
+    var hdrLogo = document.getElementById('hdr-tourney-logo');
+    var splashLogo = document.getElementById('splash-tourney-logo');
+    if (hdrLogo) { hdrLogo.src = TOURNEY_LOGO; hdrLogo.alt = TOURNEY_NAME; }
+    if (splashLogo) { splashLogo.src = TOURNEY_LOGO; splashLogo.alt = TOURNEY_NAME; }
   }
   // Update splash text
   var subEl = document.querySelector('.brand-subtext');
