@@ -162,7 +162,11 @@ async function fetchESPN() {
       var name = resolvePlayerName(rawName);
       if (c.athlete?.id) freshAthleteIds[name] = c.athlete.id;
       // Auto-derive flag from ESPN's country code if we don't have one yet
-      if (!FLAGS[name]) {
+      if (!FLAGS[name] || FLAGS[name] === '🏳️') {
+        // Debug: log first 3 athletes' full structure
+        if (freshAthleteIds && Object.keys(freshAthleteIds).length <= 3) {
+          console.log('🔍 Athlete data for', name, ':', JSON.stringify({flag: c.athlete?.flag, cit: c.athlete?.citizenshipCountry, country: c.athlete?.country, keys: Object.keys(c.athlete || {})}));
+        }
         var flagObj = c.athlete?.flag;
         var citObj = c.athlete?.citizenshipCountry;
         var ccode = '';
@@ -182,7 +186,8 @@ async function fetchESPN() {
           } else {
             // Collect missing flags to show debug
             if (!window._missingFlags) window._missingFlags = [];
-            window._missingFlags.push(name + ':' + (ccode || 'NONE'));
+            var athleteKeys = Object.keys(c.athlete || {}).join(',');
+            window._missingFlags.push(name + '|code:' + (ccode || 'NONE') + '|keys:' + athleteKeys);
             FLAGS[name] = '';
           }
         }
