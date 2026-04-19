@@ -139,15 +139,16 @@ function renderLeaderboard() {
   }
   var legendEl = document.getElementById('lb-legend');
   if (legendEl) { legendEl.innerHTML = ''; legendEl.style.display = 'none'; }
-  var samplePlayer = players.find(function(p) { return p.thru!=='—'&&p.thru!=='MC'&&p.thru!=='WD'; });
+  // Use the full unfiltered list for round detection so filters don't break it
+  var samplePlayer = allPlayers.find(function(p) { return p.thru!=='—'&&p.thru!=='MC'&&p.thru!=='WD'; });
   var maxCompletedRounds = 0;
-  players.forEach(function(p) {
+  allPlayers.forEach(function(p) {
     if (p.thru === '—' || p.score === 11 || p.score === 12) return;
     var cnt = [p.r1,p.r2,p.r3,p.r4].filter(function(r){return r!=null;}).length;
     if (cnt > maxCompletedRounds) maxCompletedRounds = cnt;
   });
   var completedRoundCount = maxCompletedRounds;
-  var activePlayingLb = players.filter(function(p) { return p.thru !== '—' && p.thru !== 'MC' && p.thru !== 'WD' && p.score !== 11 && p.score !== 12; });
+  var activePlayingLb = allPlayers.filter(function(p) { return p.thru !== '—' && p.thru !== 'MC' && p.thru !== 'WD' && p.score !== 11 && p.score !== 12; });
   var anyStillPlaying = activePlayingLb.some(function(p) { return /^\d+$/.test(p.thru) && parseInt(p.thru) >= 1 && parseInt(p.thru) < 18; });
   var anyHaveTeeTime = activePlayingLb.some(function(p) { return p.thru && p.thru.includes(':'); });
   // Determine current round using roundCount (raw linescore count from ESPN, not filtered by >50)
