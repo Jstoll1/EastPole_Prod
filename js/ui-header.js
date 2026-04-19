@@ -77,6 +77,12 @@ async function fetchSchedule() {
       return;
     }
     _scheduleData = events;
+    // Debug: show what ESPN returns for first 3 events
+    var dbg = events.slice(0, 3).map(function(ev) {
+      var c = ev.competitions && ev.competitions[0];
+      return ev.name + ' | venue: ' + JSON.stringify(c && c.venue ? {full: c.venue.fullName, addr: c.venue.address} : 'none') + ' | keys: ' + Object.keys(ev).join(',');
+    });
+    console.log('📋 Schedule debug:', dbg);
     renderSchedule();
     scrollToCurrentEvent();
   } catch (e) {
@@ -89,6 +95,27 @@ function renderSchedule() {
   if (!listEl || !_scheduleData) return;
   var now = Date.now();
   var currentId = EVENT_ID;
+  var COURSE_MAP = {
+    'masters tournament': { course: 'Augusta National Golf Club', city: 'Augusta, GA' },
+    'pga championship': { course: 'Quail Hollow Club', city: 'Charlotte, NC' },
+    'u.s. open': { course: 'Oakmont Country Club', city: 'Oakmont, PA' },
+    'the open championship': { course: 'Royal Portrush Golf Club', city: 'County Antrim, N. Ireland' },
+    'the players championship': { course: 'TPC Sawgrass', city: 'Ponte Vedra Beach, FL' },
+    'rbc heritage': { course: 'Harbour Town Golf Links', city: 'Hilton Head Island, SC' },
+    'the memorial tournament': { course: 'Muirfield Village Golf Club', city: 'Dublin, OH' },
+    'arnold palmer invitational': { course: 'Bay Hill Club & Lodge', city: 'Orlando, FL' },
+    'genesis invitational': { course: 'Riviera Country Club', city: 'Pacific Palisades, CA' },
+    'wm phoenix open': { course: 'TPC Scottsdale', city: 'Scottsdale, AZ' },
+    'the cj cup byron nelson': { course: 'TPC Craig Ranch', city: 'McKinney, TX' },
+    'wells fargo championship': { course: 'Quail Hollow Club', city: 'Charlotte, NC' },
+    'charles schwab challenge': { course: 'Colonial Country Club', city: 'Fort Worth, TX' },
+    'the championship at aronimink': { course: 'Aronimink Golf Club', city: 'Newtown Square, PA' },
+    'travelers championship': { course: 'TPC River Highlands', city: 'Cromwell, CT' },
+    'rocket mortgage classic': { course: 'Detroit Golf Club', city: 'Detroit, MI' },
+    'fedex st. jude championship': { course: 'TPC Southwind', city: 'Memphis, TN' },
+    'bmw championship': { course: 'Castle Pines Golf Club', city: 'Castle Rock, CO' },
+    'tour championship': { course: 'East Lake Golf Club', city: 'Atlanta, GA' }
+  };
   var MAJORS = {
     'masters': '🏆',
     'pga championship': '🏆',
@@ -129,6 +156,31 @@ function renderSchedule() {
         if (cc && typeof CODE_TO_FLAG !== 'undefined' && CODE_TO_FLAG[cc]) flag = CODE_TO_FLAG[cc] + ' ';
         champHtml = '<div class="sched-champ">🏆 ' + flag + (winner.athlete.displayName || '') + '</div>';
       }
+    }
+    // Fallback to hardcoded course map
+    if (!course || !city) {
+      var mapped = null;
+      Object.keys(COURSE_MAP).forEach(function(k) {
+        if (nameLower.indexOf(k) !== -1) mapped = COURSE_MAP[k];
+      });
+      if (mapped) {
+        if (!course) course = mapped.course;
+        if (!city) city = mapped.city;
+      }
+    }
+    // Try to get venue from multiple ESPN paths
+    if (!course && ev.venues && ev.venues.length) {
+      course = ev.venues[0].fullName || ev.venues[0].shortName || '';
+      if (!city && ev.venues[0].address) {
+        city = ev.venues[0].address.summary || [ev.venues[0].address.city, ev.venues[0].address.state].filter(Boolean).join(', ');
+      }
+    }
+    // Try location field
+    if (!city && ev.location) city = ev.location;
+    // Try competition geoBroadcasts or notes for location hints
+    if (!course && comp && comp.notes && comp.notes.length) {
+      var courseNote = comp.notes.find(function(n) { return n.type === 'event' || n.type === 'venue'; });
+      if (courseNote) course = courseNote.headline || '';
     }
     return '<div class="sched-item' + (isCurrent ? ' is-current' : '') + '">'
       + '<div class="sched-name">' + majorIcon + escHtml(name) + (isCurrent ? ' ◀' : '') + '</div>'
