@@ -161,6 +161,11 @@ async function fetchESPN() {
       if (!rawName) return;
       var name = resolvePlayerName(rawName);
       if (c.athlete?.id) freshAthleteIds[name] = c.athlete.id;
+      // Debug: capture raw athlete structure for first unknown player
+      if ((!FLAGS[name] || FLAGS[name] === '🏳️' || FLAGS[name] === '') && !window._flagDebugDone) {
+        window._flagDebugDone = true;
+        window._flagDebugData = name + ' → ' + JSON.stringify(c.athlete, null, 0);
+      }
       // Auto-derive flag from ESPN's country code if we don't have one yet
       if (!FLAGS[name] || FLAGS[name] === '🏳️' || FLAGS[name] === '') {
         var flagObj = c.athlete?.flag;
