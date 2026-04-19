@@ -163,10 +163,12 @@ async function fetchESPN() {
       if (c.athlete?.id) freshAthleteIds[name] = c.athlete.id;
       // Auto-derive flag from ESPN's country code if we don't have one yet
       if (!FLAGS[name]) {
-        var ccode = (c.athlete?.flag?.alt || c.athlete?.flag?.abbreviation || c.athlete?.citizenshipCountry?.alpha3 || '').toUpperCase();
+        var ccode = (c.athlete?.flag?.alt || c.athlete?.flag?.abbreviation || c.athlete?.citizenshipCountry?.abbreviation || c.athlete?.citizenshipCountry?.alpha3 || '').toUpperCase();
         if (ccode && CODE_TO_FLAG[ccode]) FLAGS[name] = CODE_TO_FLAG[ccode];
-        else if (ccode) FLAGS[name] = '🏳️';
-        else FLAGS[name] = '🏳️';
+        else {
+          console.warn('🏳️ Missing flag for', name, '| code:', ccode, '| flag obj:', JSON.stringify(c.athlete?.flag), '| citizenship:', JSON.stringify(c.athlete?.citizenshipCountry));
+          FLAGS[name] = '🏳️';
+        }
       }
       var state = c.status?.type?.name || '';
       var scheduled = state === 'STATUS_SCHEDULED';
