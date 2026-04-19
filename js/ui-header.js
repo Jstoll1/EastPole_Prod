@@ -89,8 +89,20 @@ function renderSchedule() {
   if (!listEl || !_scheduleData) return;
   var now = Date.now();
   var currentId = EVENT_ID;
+  var MAJORS = {
+    'masters': '🏆',
+    'pga championship': '🏆',
+    'u.s. open': '🏆',
+    'the open': '🏆',
+    'open championship': '🏆'
+  };
   listEl.innerHTML = _scheduleData.map(function(ev) {
     var name = ev.name || ev.shortName || '';
+    var nameLower = name.toLowerCase();
+    var majorIcon = '';
+    Object.keys(MAJORS).forEach(function(m) {
+      if (nameLower.indexOf(m) !== -1) majorIcon = '<span class="sched-major">MAJOR</span>';
+    });
     var comp = ev.competitions && ev.competitions[0];
     var venue = comp && comp.venue;
     var course = venue ? (venue.fullName || venue.shortName || '') : '';
@@ -119,7 +131,7 @@ function renderSchedule() {
       }
     }
     return '<div class="sched-item' + (isCurrent ? ' is-current' : '') + '">'
-      + '<div class="sched-name">' + escHtml(name) + (isCurrent ? ' ◀' : '') + '</div>'
+      + '<div class="sched-name">' + majorIcon + escHtml(name) + (isCurrent ? ' ◀' : '') + '</div>'
       + '<div class="sched-details">'
       + (dateStr ? '<span>📅 ' + dateStr + '</span>' : '')
       + (course ? '<span>⛳ ' + escHtml(course) + '</span>' : '')
