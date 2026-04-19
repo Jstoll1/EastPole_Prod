@@ -136,8 +136,7 @@ function renderDebugPanel() {
       + '<div class="debug-stat' + (failedReqs ? ' clickable' : '') + '" onclick="debugJumpTab(\'network\')"><div class="debug-stat-label">Failed Requests</div><div class="debug-stat-value ' + (failedReqs === 0 ? 'good' : 'bad') + '">' + failedReqs + '</div></div>'
       + '<div class="debug-stat"><div class="debug-stat-label">Golfers Loaded</div><div class="debug-stat-value">' + Object.keys(GOLFER_SCORES).length + '</div></div>'
       + '<div class="debug-stat"><div class="debug-stat-label">Session Uptime</div><div class="debug-stat-value">' + uptimeStr + '</div></div>'
-      + '</div>'
-      + (window._flagDebugData ? '<div style="margin:12px 8px;padding:8px;background:var(--card2);border-radius:8px;font-size:9px;color:var(--text2);word-break:break-all;max-height:200px;overflow:auto"><strong style="color:var(--gold)">FLAG DEBUG:</strong><br>' + escHtml(window._flagDebugData) + '</div>' : '');
+      + '</div>';
 
   } else if (_debugTab === 'errors') {
     var allErrs = ErrorTracker.log.slice().reverse();

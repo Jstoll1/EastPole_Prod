@@ -161,36 +161,23 @@ async function fetchESPN() {
       if (!rawName) return;
       var name = resolvePlayerName(rawName);
       if (c.athlete?.id) freshAthleteIds[name] = c.athlete.id;
-      // Debug: capture raw athlete structure for first unknown player
-      if ((!FLAGS[name] || FLAGS[name] === '🏳️' || FLAGS[name] === '') && !window._flagDebugDone) {
-        window._flagDebugDone = true;
-        window._flagDebugData = name + ' → ' + JSON.stringify(c.athlete, null, 0);
-      }
       // Auto-derive flag from ESPN's country code if we don't have one yet
       if (!FLAGS[name] || FLAGS[name] === '🏳️' || FLAGS[name] === '') {
         var flagObj = c.athlete?.flag;
         var citObj = c.athlete?.citizenshipCountry;
+        var bpObj = c.athlete?.birthPlace;
         var ccode = '';
         if (flagObj) ccode = (flagObj.alt || flagObj.abbreviation || flagObj.text || '').toUpperCase();
         if (!ccode && citObj) ccode = (citObj.abbreviation || citObj.alpha3 || citObj.alpha2 || citObj.countryCode || '').toUpperCase();
-        // Try extracting country code from flag image href (e.g. /flags/usa.png)
+        if (!ccode && bpObj) ccode = (bpObj.countryAbbreviation || bpObj.country || '').toUpperCase();
         if (!ccode && flagObj && flagObj.href) {
-          var flagMatch = flagObj.href.match(/\/([a-z]{2,3})\./i);
+          var flagMatch = flagObj.href.match(/\/(\w{2,3})\.png/i);
           if (flagMatch) ccode = flagMatch[1].toUpperCase();
         }
         if (ccode && CODE_TO_FLAG[ccode]) {
           FLAGS[name] = CODE_TO_FLAG[ccode];
-        } else {
-          // Try 2-letter ISO to flag emoji directly
-          if (ccode && ccode.length === 2) {
-            FLAGS[name] = String.fromCodePoint(0x1F1E6 + ccode.charCodeAt(0) - 65, 0x1F1E6 + ccode.charCodeAt(1) - 65);
-          } else {
-            // Collect missing flags to show debug
-            if (!window._missingFlags) window._missingFlags = [];
-            var athleteKeys = Object.keys(c.athlete || {}).join(',');
-            window._missingFlags.push(name + '|code:' + (ccode || 'NONE') + '|keys:' + athleteKeys);
-            FLAGS[name] = '';
-          }
+        } else if (ccode && ccode.length === 2) {
+          FLAGS[name] = String.fromCodePoint(0x1F1E6 + ccode.charCodeAt(0) - 65, 0x1F1E6 + ccode.charCodeAt(1) - 65);
         }
       }
       var state = c.status?.type?.name || '';
