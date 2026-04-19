@@ -31,6 +31,14 @@ function toggleSchedule() {
   _scheduleOpen = !_scheduleOpen;
   el.classList.toggle('open', _scheduleOpen);
   if (_scheduleOpen && !_scheduleData) fetchSchedule();
+  else if (_scheduleOpen) scrollToCurrentEvent();
+}
+
+function scrollToCurrentEvent() {
+  setTimeout(function() {
+    var current = document.querySelector('.sched-item.is-current');
+    if (current) current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
 }
 
 async function fetchSchedule() {
@@ -54,6 +62,7 @@ async function fetchSchedule() {
     }
     _scheduleData = events;
     renderSchedule();
+    scrollToCurrentEvent();
   } catch (e) {
     listEl.innerHTML = '<div class="sched-loading">Could not load schedule</div>';
   }
