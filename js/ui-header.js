@@ -2,6 +2,17 @@
 
 var _scheduleOpen = false;
 var _scheduleData = null;
+var _logoTapTime = 0;
+
+function handleLogoDblTap() {
+  var now = Date.now();
+  if (now - _logoTapTime < 400) {
+    _logoTapTime = 0;
+    toggleSchedule();
+  } else {
+    _logoTapTime = now;
+  }
+}
 
 function toggleSchedule() {
   var el = document.getElementById('schedule-overlay');
