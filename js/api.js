@@ -163,11 +163,26 @@ async function fetchESPN() {
       if (c.athlete?.id) freshAthleteIds[name] = c.athlete.id;
       // Auto-derive flag from ESPN's country code if we don't have one yet
       if (!FLAGS[name]) {
-        var ccode = (c.athlete?.flag?.alt || c.athlete?.flag?.abbreviation || c.athlete?.citizenshipCountry?.abbreviation || c.athlete?.citizenshipCountry?.alpha3 || '').toUpperCase();
-        if (ccode && CODE_TO_FLAG[ccode]) FLAGS[name] = CODE_TO_FLAG[ccode];
-        else {
-          console.warn('🏳️ Missing flag for', name, '| code:', ccode, '| flag obj:', JSON.stringify(c.athlete?.flag), '| citizenship:', JSON.stringify(c.athlete?.citizenshipCountry));
-          FLAGS[name] = '🏳️';
+        var flagObj = c.athlete?.flag;
+        var citObj = c.athlete?.citizenshipCountry;
+        var ccode = '';
+        if (flagObj) ccode = (flagObj.alt || flagObj.abbreviation || flagObj.text || '').toUpperCase();
+        if (!ccode && citObj) ccode = (citObj.abbreviation || citObj.alpha3 || citObj.alpha2 || citObj.countryCode || '').toUpperCase();
+        // Try extracting country code from flag image href (e.g. /flags/usa.png)
+        if (!ccode && flagObj && flagObj.href) {
+          var flagMatch = flagObj.href.match(/\/([a-z]{2,3})\./i);
+          if (flagMatch) ccode = flagMatch[1].toUpperCase();
+        }
+        if (ccode && CODE_TO_FLAG[ccode]) {
+          FLAGS[name] = CODE_TO_FLAG[ccode];
+        } else {
+          // Try 2-letter ISO to flag emoji directly
+          if (ccode && ccode.length === 2) {
+            FLAGS[name] = String.fromCodePoint(0x1F1E6 + ccode.charCodeAt(0) - 65, 0x1F1E6 + ccode.charCodeAt(1) - 65);
+          } else {
+            console.warn('🏳️ Missing flag for', name, '| code:', ccode, '| flag:', JSON.stringify(flagObj), '| cit:', JSON.stringify(citObj));
+            FLAGS[name] = '🏳️';
+          }
         }
       }
       var state = c.status?.type?.name || '';
