@@ -37,27 +37,30 @@ function _extractTourneyMeta(ev) {
     var endStr = end ? end.toLocaleDateString('en-US', opts) : '';
     TOURNEY_DATES = end ? startStr + ' – ' + endStr : startStr;
   }
-  // Update logos — use image if available, otherwise show tournament name as text
+  // Only update logos if no custom logo was set in the HTML
   var hdrLogo = document.getElementById('hdr-tourney-logo');
   var splashLogo = document.getElementById('splash-tourney-logo');
   var hdrCenter = document.querySelector('.hdr-logo-center');
-  if (TOURNEY_LOGO) {
-    if (hdrLogo) { hdrLogo.src = TOURNEY_LOGO; hdrLogo.alt = TOURNEY_NAME; hdrLogo.style.display = ''; }
-    if (splashLogo) { splashLogo.src = TOURNEY_LOGO; splashLogo.alt = TOURNEY_NAME; splashLogo.style.display = ''; }
-  } else if (TOURNEY_NAME && hdrCenter) {
-    if (hdrLogo) hdrLogo.style.display = 'none';
-    if (!document.getElementById('hdr-tourney-text')) {
-      var txt = document.createElement('div');
-      txt.id = 'hdr-tourney-text';
-      txt.className = 'hdr-tourney-name';
-      hdrCenter.appendChild(txt);
+  var hasCustomLogo = hdrLogo && hdrLogo.getAttribute('src') && !hdrLogo.dataset.espn;
+  if (!hasCustomLogo) {
+    if (TOURNEY_LOGO) {
+      if (hdrLogo) { hdrLogo.src = TOURNEY_LOGO; hdrLogo.alt = TOURNEY_NAME; hdrLogo.style.display = ''; hdrLogo.dataset.espn = '1'; }
+      if (splashLogo) { splashLogo.src = TOURNEY_LOGO; splashLogo.alt = TOURNEY_NAME; splashLogo.style.display = ''; }
+    } else if (TOURNEY_NAME && hdrCenter) {
+      if (hdrLogo) hdrLogo.style.display = 'none';
+      if (!document.getElementById('hdr-tourney-text')) {
+        var txt = document.createElement('div');
+        txt.id = 'hdr-tourney-text';
+        txt.className = 'hdr-tourney-name';
+        hdrCenter.appendChild(txt);
+      }
+      var txtEl = document.getElementById('hdr-tourney-text');
+      if (txtEl) txtEl.textContent = TOURNEY_NAME;
     }
-    var txtEl = document.getElementById('hdr-tourney-text');
-    if (txtEl) txtEl.textContent = TOURNEY_NAME;
   }
-  // Update splash text
+  // Update splash text only if no custom logo is set
   var subEl = document.querySelector('.brand-subtext');
-  if (subEl && TOURNEY_NAME) subEl.textContent = TOURNEY_NAME;
+  if (!hasCustomLogo && subEl && TOURNEY_NAME) subEl.textContent = TOURNEY_NAME;
   var chipEl = document.querySelector('.splash-event-chip');
   if (chipEl && TOURNEY_DATES) chipEl.textContent = TOURNEY_DATES + (TOURNEY_COURSE ? ' · ' + TOURNEY_COURSE : '');
 }
