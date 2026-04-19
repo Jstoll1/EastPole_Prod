@@ -154,12 +154,14 @@ html, body  {
   letter-spacing: 0.5px;
 }
 .schedule-close {
-  background: none;
-  border: none;
-  color: var(--text2);
-  font-size: 18px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 6px 16px;
 }
 .schedule-list { padding: 8px 0; }
 .sched-item {
