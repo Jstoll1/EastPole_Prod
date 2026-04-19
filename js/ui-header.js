@@ -1,3 +1,85 @@
+// ── Schedule Overlay ────────────────────────────────────────
+
+var _scheduleOpen = false;
+var _scheduleData = null;
+
+function toggleSchedule() {
+  var el = document.getElementById('schedule-overlay');
+  if (!el) return;
+  _scheduleOpen = !_scheduleOpen;
+  el.classList.toggle('open', _scheduleOpen);
+  if (_scheduleOpen && !_scheduleData) fetchSchedule();
+}
+
+async function fetchSchedule() {
+  var listEl = document.getElementById('schedule-list');
+  if (!listEl) return;
+  listEl.innerHTML = '<div class="sched-loading">Loading schedule…</div>';
+  try {
+    var res = await fetch('https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard?dates=2025&limit=50', { cache: 'no-store' });
+    if (!res.ok) throw new Error();
+    var data = await res.json();
+    var events = (data.events || []).concat([]);
+    // Try fetching current year too
+    var res2 = await fetch('https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard?dates=2026&limit=50', { cache: 'no-store' });
+    if (res2.ok) {
+      var data2 = await res2.json();
+      events = events.concat(data2.events || []);
+    }
+    if (!events.length) {
+      listEl.innerHTML = '<div class="sched-loading">No schedule data available</div>';
+      return;
+    }
+    _scheduleData = events;
+    renderSchedule();
+  } catch (e) {
+    listEl.innerHTML = '<div class="sched-loading">Could not load schedule</div>';
+  }
+}
+
+function renderSchedule() {
+  var listEl = document.getElementById('schedule-list');
+  if (!listEl || !_scheduleData) return;
+  var now = Date.now();
+  var currentId = EVENT_ID;
+  listEl.innerHTML = _scheduleData.map(function(ev) {
+    var name = ev.name || ev.shortName || '';
+    var comp = ev.competitions && ev.competitions[0];
+    var venue = comp && comp.venue;
+    var course = venue ? (venue.fullName || '') : '';
+    var city = venue && venue.address ? [venue.address.city, venue.address.state].filter(Boolean).join(', ') : '';
+    var startDate = ev.date ? new Date(ev.date) : null;
+    var endDate = ev.endDate ? new Date(ev.endDate) : null;
+    var opts = { month: 'short', day: 'numeric' };
+    var dateStr = '';
+    if (startDate) {
+      dateStr = startDate.toLocaleDateString('en-US', opts);
+      if (endDate) dateStr += ' – ' + endDate.toLocaleDateString('en-US', opts);
+    }
+    var status = ev.status?.type?.description || '';
+    var isCurrent = ev.id === currentId;
+    var champHtml = '';
+    if (comp && comp.competitors) {
+      var winner = comp.competitors.find(function(c) { return c.status?.position?.id === '1' || c.status?.position?.displayName === '1'; });
+      if (winner && winner.athlete) {
+        var flag = '';
+        var cc = (winner.athlete.flag?.alt || winner.athlete.citizenshipCountry?.alpha3 || '').toUpperCase();
+        if (cc && typeof CODE_TO_FLAG !== 'undefined' && CODE_TO_FLAG[cc]) flag = CODE_TO_FLAG[cc] + ' ';
+        champHtml = '<div class="sched-champ">🏆 ' + flag + (winner.athlete.displayName || '') + '</div>';
+      }
+    }
+    return '<div class="sched-item' + (isCurrent ? ' is-current' : '') + '">'
+      + '<div class="sched-name">' + escHtml(name) + (isCurrent ? ' ◀' : '') + '</div>'
+      + '<div class="sched-details">'
+      + (dateStr ? '<span>📅 ' + dateStr + '</span>' : '')
+      + (course ? '<span>⛳ ' + escHtml(course) + '</span>' : '')
+      + (city ? '<span>📍 ' + escHtml(city) + '</span>' : '')
+      + '</div>'
+      + champHtml
+      + '</div>';
+  }).join('');
+}
+
 // ── Header, Navigation, Onboarding, Theme ──────────────────
 
 function updateHeaderDisplay() {
