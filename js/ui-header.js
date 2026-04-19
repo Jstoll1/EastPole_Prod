@@ -98,11 +98,12 @@ function renderSchedule() {
   var now = Date.now();
   var currentId = EVENT_ID;
   var _schedNextMarked = false;
+  // 2026 PGA Tour venues
   var COURSE_MAP = {
     'masters tournament': { course: 'Augusta National Golf Club', city: 'Augusta, GA' },
-    'pga championship': { course: 'Quail Hollow Club', city: 'Charlotte, NC' },
-    'u.s. open': { course: 'Oakmont Country Club', city: 'Oakmont, PA' },
-    'the open championship': { course: 'Royal Portrush Golf Club', city: 'County Antrim, N. Ireland' },
+    'pga championship': { course: 'Aronimink Golf Club', city: 'Newtown Square, PA' },
+    'u.s. open': { course: 'Shinnecock Hills Golf Club', city: 'Southampton, NY' },
+    'the open championship': { course: 'Royal Birkdale Golf Club', city: 'Southport, England' },
     'the players championship': { course: 'TPC Sawgrass', city: 'Ponte Vedra Beach, FL' },
     'rbc heritage': { course: 'Harbour Town Golf Links', city: 'Hilton Head Island, SC' },
     'the memorial tournament': { course: 'Muirfield Village Golf Club', city: 'Dublin, OH' },
@@ -116,8 +117,22 @@ function renderSchedule() {
     'travelers championship': { course: 'TPC River Highlands', city: 'Cromwell, CT' },
     'rocket mortgage classic': { course: 'Detroit Golf Club', city: 'Detroit, MI' },
     'fedex st. jude championship': { course: 'TPC Southwind', city: 'Memphis, TN' },
-    'bmw championship': { course: 'Castle Pines Golf Club', city: 'Castle Rock, CO' },
-    'tour championship': { course: 'East Lake Golf Club', city: 'Atlanta, GA' }
+    'bmw championship': { course: 'Caves Valley Golf Club', city: 'Owings Mills, MD' },
+    'tour championship': { course: 'East Lake Golf Club', city: 'Atlanta, GA' },
+    'the sentry': { course: 'The Plantation Course at Kapalua', city: 'Maui, HI' },
+    'sony open': { course: 'Waialae Country Club', city: 'Honolulu, HI' },
+    'the american express': { course: 'PGA West', city: 'La Quinta, CA' },
+    'farmers insurance open': { course: 'Torrey Pines Golf Course', city: 'San Diego, CA' },
+    'at&t pebble beach': { course: 'Pebble Beach Golf Links', city: 'Pebble Beach, CA' },
+    'cognizant classic': { course: 'PGA National Resort', city: 'Palm Beach Gardens, FL' },
+    'houston open': { course: 'Memorial Park Golf Course', city: 'Houston, TX' },
+    'valero texas open': { course: 'TPC San Antonio', city: 'San Antonio, TX' },
+    'zurich classic': { course: 'TPC Louisiana', city: 'Avondale, LA' },
+    'rlx golf': { course: 'Bethpage Black', city: 'Farmingdale, NY' },
+    'scottish open': { course: 'The Renaissance Club', city: 'North Berwick, Scotland' },
+    '3m open': { course: 'TPC Twin Cities', city: 'Blaine, MN' },
+    'john deere classic': { course: 'TPC Deere Run', city: 'Silvis, IL' },
+    'wyndham championship': { course: 'Sedgefield Country Club', city: 'Greensboro, NC' }
   };
   var MAJORS = {
     'masters': '🏆',
