@@ -114,7 +114,7 @@ var FLAGS = {
   'Cameron Smith':'🇦🇺','Jordan Smith':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','J.J. Spaun':'🇺🇸','Jordan Spieth':'🇺🇸',
   'Samuel Stevens':'🇺🇸','Sepp Straka':'🇦🇹','Nick Taylor':'🇨🇦',
   'Justin Thomas':'🇺🇸','Sami Valimaki':'🇫🇮','Bubba Watson':'🇺🇸',
-  'Mike Weir':'🇨🇦','Danny Willett':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Gary Woodland':'🇺🇸',
+  'Matt Wallace':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Mike Weir':'🇨🇦','Danny Willett':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Gary Woodland':'🇺🇸',
   'Cameron Young':'🇺🇸'
 };
 
