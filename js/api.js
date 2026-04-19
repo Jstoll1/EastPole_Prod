@@ -47,13 +47,26 @@ function _extractTourneyMeta(ev) {
   } else if (TOURNEY_NAME && hdrCenter) {
     if (hdrLogo) hdrLogo.style.display = 'none';
     if (!document.getElementById('hdr-tourney-text')) {
-      var txt = document.createElement('div');
-      txt.id = 'hdr-tourney-text';
-      txt.className = 'hdr-tourney-name';
-      hdrCenter.appendChild(txt);
+      var wrap = document.createElement('div');
+      wrap.id = 'hdr-tourney-text';
+      wrap.className = 'hdr-tourney-name';
+      wrap.innerHTML = '<svg class="hdr-tourney-icon" viewBox="0 0 24 44" fill="none" xmlns="http://www.w3.org/2000/svg">'
+        + '<rect x="7" y="38" width="10" height="4" rx="0.5" fill="rgba(255,255,255,0.6)"/>'
+        + '<path d="M9 38 L8 14 L16 14 L15 38Z" fill="#fff"/>'
+        + '<rect x="8.2" y="17" width="7.6" height="3" fill="#c0392b"/>'
+        + '<rect x="8.6" y="23" width="6.8" height="3" fill="#c0392b"/>'
+        + '<rect x="9" y="29" width="6" height="3" fill="#c0392b"/>'
+        + '<rect x="9.3" y="35" width="5.4" height="2.5" fill="#c0392b"/>'
+        + '<rect x="6.5" y="12.5" width="11" height="2" rx="0.5" fill="rgba(255,255,255,0.8)"/>'
+        + '<rect x="7.5" y="7" width="9" height="6" rx="1" fill="rgba(255,255,255,0.9)" stroke="rgba(255,255,255,0.4)" stroke-width="0.5"/>'
+        + '<circle cx="12" cy="10" r="2" fill="#f5c518" opacity="0.9"/>'
+        + '<path d="M9 7 L12 2 L15 7Z" fill="rgba(255,255,255,0.7)"/>'
+        + '</svg>'
+        + '<span class="hdr-tourney-label"></span>';
+      hdrCenter.appendChild(wrap);
     }
-    var txtEl = document.getElementById('hdr-tourney-text');
-    if (txtEl) txtEl.textContent = TOURNEY_NAME;
+    var lblEl = document.querySelector('.hdr-tourney-label');
+    if (lblEl) lblEl.textContent = TOURNEY_NAME;
   }
   // Update splash text
   var subEl = document.querySelector('.brand-subtext');
