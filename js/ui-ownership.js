@@ -3,10 +3,10 @@
 var ownFilter='most';
 function ownBarColor(pct) {
   var p = pct * 100;
-  if (p >= 30) return 'linear-gradient(90deg, #C5A561, #f5c518)';
-  if (p >= 20) return 'linear-gradient(90deg, #4d8fcc, #C5A561)';
-  if (p >= 10) return 'linear-gradient(90deg, #1a3d6e, #4d8fcc)';
-  return 'linear-gradient(90deg, #0e1a35, #1a3d6e)';
+  if (p >= 30) return 'linear-gradient(90deg, #d4a843, #f5c518)';
+  if (p >= 20) return 'linear-gradient(90deg, #52b788, #d4a843)';
+  if (p >= 10) return 'linear-gradient(90deg, #2d6a4f, #52b788)';
+  return 'linear-gradient(90deg, #1b4332, #2d6a4f)';
 }
 var _ownSearchTimer = null;
 function debouncedOwnSearch() {
