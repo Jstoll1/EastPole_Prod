@@ -46,16 +46,32 @@ async function fetchSchedule() {
   if (!listEl) return;
   listEl.innerHTML = '<div class="sched-loading">Loading schedule…</div>';
   try {
-    var res = await fetch('https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard?dates=2025&limit=50', { cache: 'no-store' });
-    if (!res.ok) throw new Error();
-    var data = await res.json();
-    var events = (data.events || []).concat([]);
-    // Try fetching current year too
-    var res2 = await fetch('https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard?dates=2026&limit=50', { cache: 'no-store' });
-    if (res2.ok) {
-      var data2 = await res2.json();
-      events = events.concat(data2.events || []);
+    var events = [];
+    // Try the scoreboard endpoint with date ranges for full schedule
+    var urls = [
+      'https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard?dates=20250101-20251231&limit=100',
+      'https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard?dates=20260101-20261231&limit=100'
+    ];
+    for (var u = 0; u < urls.length; u++) {
+      try {
+        var res = await fetch(urls[u], { cache: 'no-store' });
+        if (res.ok) {
+          var data = await res.json();
+          events = events.concat(data.events || []);
+        }
+      } catch(e) {}
     }
+    // Deduplicate by event ID
+    var seen = {};
+    events = events.filter(function(ev) {
+      if (seen[ev.id]) return false;
+      seen[ev.id] = true;
+      return true;
+    });
+    // Sort by date
+    events.sort(function(a, b) {
+      return new Date(a.date || 0) - new Date(b.date || 0);
+    });
     if (!events.length) {
       listEl.innerHTML = '<div class="sched-loading">No schedule data available</div>';
       return;
@@ -77,8 +93,11 @@ function renderSchedule() {
     var name = ev.name || ev.shortName || '';
     var comp = ev.competitions && ev.competitions[0];
     var venue = comp && comp.venue;
-    var course = venue ? (venue.fullName || '') : '';
-    var city = venue && venue.address ? [venue.address.city, venue.address.state].filter(Boolean).join(', ') : '';
+    var course = venue ? (venue.fullName || venue.shortName || '') : '';
+    var city = '';
+    if (venue && venue.address) {
+      city = venue.address.summary || [venue.address.city, venue.address.state].filter(Boolean).join(', ');
+    }
     var startDate = ev.date ? new Date(ev.date) : null;
     var endDate = ev.endDate ? new Date(ev.endDate) : null;
     var opts = { month: 'short', day: 'numeric' };
