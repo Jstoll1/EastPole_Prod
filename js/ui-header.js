@@ -68,7 +68,7 @@ function toggleTheme() {
   var btn = document.getElementById('theme-toggle-btn');
   if (btn) btn.textContent = next === 'light' ? '☀️ Light' : '🌙 Dark';
   var meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', next === 'light' ? '#006747' : '#06120c');
+  if (meta) meta.setAttribute('content', next === 'light' ? '#00205B' : '#080d1a');
 }
 
 function initTheme() {
@@ -77,7 +77,7 @@ function initTheme() {
   var btn = document.getElementById('theme-toggle-btn');
   if (btn) btn.textContent = saved === 'light' ? '☀️ Light' : '🌙 Dark';
   var meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', saved === 'light' ? '#006747' : '#06120c');
+  if (meta) meta.setAttribute('content', saved === 'light' ? '#00205B' : '#080d1a');
 }
 
 var _prevTab = 'leaderboard';
@@ -369,7 +369,7 @@ function searchTeam() {
 
     var popup = document.createElement('div');
     popup.id = 'viewers-popup';
-    popup.style.cssText = 'position:fixed;z-index:9999;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(6,18,12,0.97);border:1px solid var(--gold);border-radius:14px;padding:20px 24px;box-shadow:0 12px 48px rgba(0,0,0,0.7);text-align:center;min-width:220px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)';
+    popup.style.cssText = 'position:fixed;z-index:9999;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(8,13,26,0.97);border:1px solid var(--gold);border-radius:14px;padding:20px 24px;box-shadow:0 12px 48px rgba(0,0,0,0.7);text-align:center;min-width:220px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)';
     popup.innerHTML = '<div style="font-size:10px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:12px">Who\'s Watching</div>'
       + '<div id="viewers-count" style="font-size:42px;font-weight:900;color:var(--text);line-height:1;margin-bottom:4px">…</div>'
       + '<div id="viewers-label" style="font-size:11px;color:var(--text3);font-weight:600">loading</div>'

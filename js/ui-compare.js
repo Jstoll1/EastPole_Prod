@@ -360,7 +360,7 @@ function renderH2HInline() {
 
   html += '<div class="h2h-score-summary">';
   html += '<div style="text-align:left"><div class="h2h-score-lbl-top">TOT</div><div class="h2h-score-big ' + cls(cA.total) + (leftLeads ? ' leader' : '') + '">' + fmtTeam(cA.total) + '</div><div class="h2h-score-lbl">' + (showHoles ? 'Total · ' + holesA + 'h left' : 'Total') + '</div>';
-  if (rdA.count > 0) html += '<div style="font-size:11px;font-weight:700;margin-top:3px;color:' + (rdA.sum < 0 ? '#52b788' : rdA.sum > 0 ? '#ff7070' : 'var(--text2)') + '">Today: ' + fmtRd(rdA.sum) + '</div>';
+  if (rdA.count > 0) html += '<div style="font-size:11px;font-weight:700;margin-top:3px;color:' + (rdA.sum < 0 ? '#4d8fcc' : rdA.sum > 0 ? '#ff7070' : 'var(--text2)') + '">Today: ' + fmtRd(rdA.sum) + '</div>';
   html += '</div>';
   if (cA.total === cB.total) {
     html += '<div class="h2h-tied-badge">TIED</div>';
@@ -369,7 +369,7 @@ function renderH2HInline() {
     html += '<div style="text-align:center;color:var(--text3);font-size:10px;font-weight:700">' + gap + ' stroke' + (gap > 1 ? 's' : '') + '</div>';
   }
   html += '<div style="text-align:right"><div class="h2h-score-lbl-top">TOT</div><div class="h2h-score-big ' + cls(cB.total) + (rightLeads ? ' leader' : '') + '">' + fmtTeam(cB.total) + '</div><div class="h2h-score-lbl">' + (showHoles ? 'Total · ' + holesB + 'h left' : 'Total') + '</div>';
-  if (rdB.count > 0) html += '<div style="font-size:11px;font-weight:700;margin-top:3px;color:' + (rdB.sum < 0 ? '#52b788' : rdB.sum > 0 ? '#ff7070' : 'var(--text2)') + '">Today: ' + fmtRd(rdB.sum) + '</div>';
+  if (rdB.count > 0) html += '<div style="font-size:11px;font-weight:700;margin-top:3px;color:' + (rdB.sum < 0 ? '#4d8fcc' : rdB.sum > 0 ? '#ff7070' : 'var(--text2)') + '">Today: ' + fmtRd(rdB.sum) + '</div>';
   html += '</div>';
   html += '</div>';
 
@@ -393,9 +393,9 @@ function renderH2HInline() {
     var momDiff = momA.sum - momB.sum;
     var momHtml = '';
     if (momDiff < 0) {
-      momHtml = '<span style="color:#52b788">▲ ' + escHtml(cA.team) + '</span> gaining today <span style="color:var(--text2)">(' + fmtPar(momA.sum) + ' vs ' + fmtPar(momB.sum) + ')</span>';
+      momHtml = '<span style="color:#4d8fcc">▲ ' + escHtml(cA.team) + '</span> gaining today <span style="color:var(--text2)">(' + fmtPar(momA.sum) + ' vs ' + fmtPar(momB.sum) + ')</span>';
     } else if (momDiff > 0) {
-      momHtml = '<span style="color:#52b788">▲ ' + escHtml(cB.team) + '</span> gaining today <span style="color:var(--text2)">(' + fmtPar(momB.sum) + ' vs ' + fmtPar(momA.sum) + ')</span>';
+      momHtml = '<span style="color:#4d8fcc">▲ ' + escHtml(cB.team) + '</span> gaining today <span style="color:var(--text2)">(' + fmtPar(momB.sum) + ' vs ' + fmtPar(momA.sum) + ')</span>';
     } else {
       momHtml = 'Even today <span style="color:var(--text2)">(' + fmtPar(momA.sum) + ' each)</span>';
     }
@@ -508,7 +508,7 @@ function buildH2HCell(g, side, isTop, ctx) {
   var todayTag = '';
   if (todayScore !== null) {
     var todayFmt = todayScore > 0 ? '+' + todayScore : todayScore === 0 ? 'E' : '' + todayScore;
-    var todayColor = todayScore < 0 ? '#52b788' : todayScore > 0 ? '#ff7070' : 'var(--text2)';
+    var todayColor = todayScore < 0 ? '#4d8fcc' : todayScore > 0 ? '#ff7070' : 'var(--text2)';
     todayTag = '<span style="color:' + todayColor + ';font-size:10px;font-weight:700">' + todayFmt + '</span>';
   }
   var statusTag = isWD ? '<span style="color:var(--red);font-size:9px">WD</span>' : mc ? '<span style="color:var(--red);font-size:9px">MC</span>' : (ROUND_START_ROUND >= 4 ? (holesLeft > 0 ? '<span style="color:var(--text3);font-size:9px">' + holesLeft + 'h</span>' : '<span style="color:var(--text3);font-size:9px">F</span>') : '');
