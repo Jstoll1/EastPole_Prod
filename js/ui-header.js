@@ -37,7 +37,7 @@ function toggleSchedule() {
 function scrollToCurrentEvent() {
   setTimeout(function() {
     var current = document.querySelector('.sched-item.is-current');
-    if (current) current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (current) current.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 100);
 }
 
