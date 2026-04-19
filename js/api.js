@@ -8,25 +8,38 @@ var ESPN_LEADERBOARD_URL = 'https://site.api.espn.com/apis/site/v2/sports/golf/p
 
 function _extractTourneyMeta(ev) {
   if (!ev) return;
-  console.log('🏷️ Tournament meta:', ev.name, '| logos:', JSON.stringify(ev.logos?.map(function(l){return l.href})), '| logo:', ev.logo);
+  var comp = ev.competitions && ev.competitions[0];
+  var league = comp?.league || ev.league;
+  console.log('🏷️ Tournament meta:', ev.name,
+    '| ev.logos:', JSON.stringify(ev.logos?.map(function(l){return {href:l.href,rel:l.rel,width:l.width}})),
+    '| ev.logo:', ev.logo,
+    '| comp.logos:', JSON.stringify(comp?.logos?.map(function(l){return l.href})),
+    '| league.logos:', JSON.stringify(league?.logos?.map(function(l){return {href:l.href,rel:l.rel}})),
+    '| season.logos:', JSON.stringify(ev.season?.logos?.map(function(l){return l.href}))
+  );
   TOURNEY_NAME = ev.name || TOURNEY_NAME || '';
   TOURNEY_SHORT = ev.shortName || TOURNEY_SHORT || '';
   TOURNEY_LOGO = '';
+  // Try event-level logos (prefer dark background variant)
   if (ev.logos && ev.logos.length) {
-    TOURNEY_LOGO = ev.logos[0].href || '';
-  } else if (ev.logo) {
-    TOURNEY_LOGO = ev.logo;
+    var darkLogo = ev.logos.find(function(l) { return l.rel && l.rel.indexOf('dark') !== -1; });
+    TOURNEY_LOGO = (darkLogo && darkLogo.href) || ev.logos[0].href || '';
   }
+  if (!TOURNEY_LOGO && ev.logo) TOURNEY_LOGO = ev.logo;
   // Try competition-level logos
   if (!TOURNEY_LOGO && comp) {
-    var compLogos = comp.logos || comp.league?.logos || [];
+    var compLogos = comp.logos || [];
     if (compLogos.length) TOURNEY_LOGO = compLogos[0].href || '';
   }
-  // Try season-level or league-level
+  // Try league-level logos
+  if (!TOURNEY_LOGO && league?.logos?.length) {
+    var darkLeague = league.logos.find(function(l) { return l.rel && l.rel.indexOf('dark') !== -1; });
+    TOURNEY_LOGO = (darkLeague && darkLeague.href) || league.logos[0].href || '';
+  }
+  // Try season-level
   if (!TOURNEY_LOGO && ev.season?.logos?.length) {
     TOURNEY_LOGO = ev.season.logos[0].href || '';
   }
-  var comp = ev.competitions && ev.competitions[0];
   var venue = comp && comp.venue;
   TOURNEY_COURSE = venue ? (venue.fullName || venue.shortName || '') : TOURNEY_COURSE || '';
   if (ev.date) {
