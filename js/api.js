@@ -328,11 +328,6 @@ async function fetchESPN() {
       }
     }
     console.log('✅ ESPN API returned', Object.keys(GOLFER_SCORES).length, 'golfers');
-    if (window._missingFlags && window._missingFlags.length) {
-      showToast('Missing flags: ' + window._missingFlags.slice(0, 5).join(', '));
-      console.warn('Missing flags:', window._missingFlags);
-      window._missingFlags = [];
-    }
     fetchDGLivePreds(); // piggyback — has its own 5-min throttle
     renderAll();
   } catch(e) {
