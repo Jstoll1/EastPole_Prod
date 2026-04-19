@@ -183,7 +183,7 @@ async function fetchESPN() {
             // Collect missing flags to show debug
             if (!window._missingFlags) window._missingFlags = [];
             window._missingFlags.push(name + ':' + (ccode || 'NONE'));
-            FLAGS[name] = '🏳️';
+            FLAGS[name] = '';
           }
         }
       }
