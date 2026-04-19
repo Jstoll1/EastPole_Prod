@@ -27,9 +27,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function toggleSchedule() {
   var el = document.getElementById('schedule-overlay');
+  var bd = document.getElementById('schedule-backdrop');
   if (!el) return;
   _scheduleOpen = !_scheduleOpen;
   el.classList.toggle('open', _scheduleOpen);
+  if (bd) bd.classList.toggle('open', _scheduleOpen);
   if (_scheduleOpen && !_scheduleData) fetchSchedule();
   else if (_scheduleOpen) scrollToCurrentEvent();
 }
