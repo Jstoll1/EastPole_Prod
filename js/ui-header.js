@@ -95,6 +95,7 @@ function renderSchedule() {
   if (!listEl || !_scheduleData) return;
   var now = Date.now();
   var currentId = EVENT_ID;
+  var _schedNextMarked = false;
   var COURSE_MAP = {
     'masters tournament': { course: 'Augusta National Golf Club', city: 'Augusta, GA' },
     'pga championship': { course: 'Quail Hollow Club', city: 'Charlotte, NC' },
@@ -145,8 +146,23 @@ function renderSchedule() {
       dateStr = startDate.toLocaleDateString('en-US', opts);
       if (endDate) dateStr += ' – ' + endDate.toLocaleDateString('en-US', opts);
     }
-    var status = ev.status?.type?.description || '';
+    var evStatus = ev.status?.type?.name || '';
     var isCurrent = ev.id === currentId;
+    var isLive = evStatus === 'STATUS_IN_PROGRESS';
+    var isFinal = evStatus === 'STATUS_FINAL';
+    var isUpcoming = !isFinal && !isLive && startDate && startDate > new Date();
+    var statusBadge = '';
+    if (isCurrent && isLive) {
+      statusBadge = '<span class="sched-badge sched-live">LIVE</span>';
+    } else if (isCurrent) {
+      statusBadge = '<span class="sched-badge sched-thisweek">THIS WEEK</span>';
+    } else if (isUpcoming && !statusBadge) {
+      // Find first upcoming event that isn't current
+      if (!_schedNextMarked) {
+        _schedNextMarked = true;
+        statusBadge = '<span class="sched-badge sched-next">UP NEXT</span>';
+      }
+    }
     var champHtml = '';
     if (comp && comp.competitors) {
       var winner = comp.competitors.find(function(c) { return c.status?.position?.id === '1' || c.status?.position?.displayName === '1'; });
@@ -183,7 +199,7 @@ function renderSchedule() {
       if (courseNote) course = courseNote.headline || '';
     }
     return '<div class="sched-item' + (isCurrent ? ' is-current' : '') + '">'
-      + '<div class="sched-name">' + majorIcon + escHtml(name) + (isCurrent ? ' ◀' : '') + '</div>'
+      + '<div class="sched-name">' + majorIcon + escHtml(name) + statusBadge + '</div>'
       + '<div class="sched-details">'
       + (dateStr ? '<span>📅 ' + dateStr + '</span>' : '')
       + (course ? '<span>⛳ ' + escHtml(course) + '</span>' : '')
