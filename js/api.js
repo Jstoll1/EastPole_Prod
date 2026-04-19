@@ -180,7 +180,9 @@ async function fetchESPN() {
           if (ccode && ccode.length === 2) {
             FLAGS[name] = String.fromCodePoint(0x1F1E6 + ccode.charCodeAt(0) - 65, 0x1F1E6 + ccode.charCodeAt(1) - 65);
           } else {
-            console.warn('🏳️ Missing flag for', name, '| code:', ccode, '| flag:', JSON.stringify(flagObj), '| cit:', JSON.stringify(citObj));
+            // Collect missing flags to show debug
+            if (!window._missingFlags) window._missingFlags = [];
+            window._missingFlags.push(name + ':' + (ccode || 'NONE'));
             FLAGS[name] = '🏳️';
           }
         }
@@ -325,6 +327,11 @@ async function fetchESPN() {
       }
     }
     console.log('✅ ESPN API returned', Object.keys(GOLFER_SCORES).length, 'golfers');
+    if (window._missingFlags && window._missingFlags.length) {
+      showToast('Missing flags: ' + window._missingFlags.slice(0, 5).join(', '));
+      console.warn('Missing flags:', window._missingFlags);
+      window._missingFlags = [];
+    }
     fetchDGLivePreds(); // piggyback — has its own 5-min throttle
     renderAll();
   } catch(e) {
