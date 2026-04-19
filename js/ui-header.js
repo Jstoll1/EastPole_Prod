@@ -6,13 +6,24 @@ var _logoTapTime = 0;
 
 function handleLogoDblTap() {
   var now = Date.now();
-  if (now - _logoTapTime < 400) {
+  if (now - _logoTapTime < 500) {
     _logoTapTime = 0;
     toggleSchedule();
   } else {
     _logoTapTime = now;
   }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  var logoEl = document.getElementById('hdr-logo-tap');
+  if (logoEl) {
+    logoEl.addEventListener('click', handleLogoDblTap);
+    logoEl.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      handleLogoDblTap();
+    });
+  }
+});
 
 function toggleSchedule() {
   var el = document.getElementById('schedule-overlay');
