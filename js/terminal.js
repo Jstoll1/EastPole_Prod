@@ -26,6 +26,10 @@ if (window.innerWidth < 1024) {
 if (typeof renderAll === 'undefined') window.renderAll = function() {};
 if (typeof _tickerMode === 'undefined') window._tickerMode = 'entries';
 if (typeof showToast === 'undefined') window.showToast = function() {};
+// ui-activity.js provides this on mobile; stub so fetchESPN doesn't throw
+if (typeof detectGolfActivity === 'undefined') window.detectGolfActivity = async function() { return; };
+// ui-standings.js provides this; stub for terminal
+if (typeof detectEntryActivity === 'undefined') window.detectEntryActivity = function() {};
 
 var _termLastUpdate = 0;
 
