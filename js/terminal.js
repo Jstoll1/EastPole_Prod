@@ -381,6 +381,7 @@ window.renderAll = renderTerminal;
 // ── Init ─────────────────────────────────────────────
 
 async function initTerminal() {
+  console.log('🖥️ Terminal: initializing');
   updateClock();
   setInterval(updateClock, 1000);
   setInterval(updateStatusBar, 10000);
@@ -392,24 +393,38 @@ async function initTerminal() {
       var parsed = JSON.parse(userData);
       window.currentUserEmail = parsed.email || null;
       window.activeTeamIdx = parsed.activeTeamIdx == null ? -1 : parsed.activeTeamIdx;
-      window.currentUserTeams = ENTRIES.filter(function(e) { return e.email === currentUserEmail; });
+      window.currentUserTeams = (ENTRIES || []).filter(function(e) { return e.email === currentUserEmail; });
     } catch(e) {}
-  } else {
-    window.currentUserEmail = null;
-    window.currentUserTeams = [];
-    window.activeTeamIdx = -1;
   }
+  if (typeof currentUserEmail === 'undefined') window.currentUserEmail = null;
+  if (typeof currentUserTeams === 'undefined') window.currentUserTeams = [];
+  if (typeof activeTeamIdx === 'undefined') window.activeTeamIdx = -1;
+
+  // Render empty state immediately so user sees the panels
+  renderTerminal();
+  updateStatusBar();
 
   // Initial fetch
-  await fetchESPN();
-  _termLastUpdate = Date.now();
-  renderTerminal();
+  try {
+    console.log('🖥️ Terminal: fetching ESPN data');
+    await fetchESPN();
+    console.log('🖥️ Terminal: got', Object.keys(GOLFER_SCORES || {}).length, 'golfers');
+    _termLastUpdate = Date.now();
+    renderTerminal();
+  } catch(e) {
+    console.error('🖥️ Terminal: fetch failed', e);
+    termToast('Fetch failed: ' + e.message);
+  }
 
   // Auto-refresh every 30 seconds
   setInterval(async function() {
-    await fetchESPN();
-    _termLastUpdate = Date.now();
-    renderTerminal();
+    try {
+      await fetchESPN();
+      _termLastUpdate = Date.now();
+      renderTerminal();
+    } catch(e) {
+      console.error('🖥️ Auto-refresh failed', e);
+    }
   }, 30000);
 }
 
