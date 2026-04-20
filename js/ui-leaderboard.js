@@ -196,7 +196,10 @@ function renderLeaderboard() {
   }
   var roundLabels = ['FIRST ROUND','FIRST ROUND','SECOND ROUND','THIRD ROUND','FINAL ROUND'];
   var endOfRoundLabels = ['','END OF ROUND 1','END OF ROUND 2','END OF ROUND 3','FINAL ROUND'];
-  var isPlayoff = currentRound > 4 || allStatusText.indexOf('playoff') !== -1;
+  var isPlayoff = currentRound > 4 || ESPN_ROUND > 4 || activePlayingLb.some(function(p) {
+    var gd = GOLFER_SCORES[p.name];
+    return gd && gd.roundCount >= 5;
+  });
   var tvTitle = document.getElementById('lb-round-title');
   if (tvTitle) {
     if (isPlayoff) {
