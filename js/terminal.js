@@ -132,9 +132,14 @@ function renderTermLeaderboard() {
     var todayDisp = (p.mc || p.wd) ? '—' : (p.today || '—');
     var todayVal = todayDisp === 'E' ? 0 : parseInt(todayDisp.replace('+', '')) || 0;
     var todayCl = todayDisp === '—' ? '' : scoreCls(todayVal);
-    var thruDisp = (p.mc || p.wd) ? '' : (p.thru || '');
-    if (thruDisp === '—' && p.teeTime && p.teeTime.includes('T')) {
-      try { thruDisp = new Date(p.teeTime).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}); } catch(e){}
+    var thruDisp = (p.mc || p.wd) ? '' : (p.thru || '—');
+    if (thruDisp === '—' && p.teeTime && typeof p.teeTime === 'string' && p.teeTime.indexOf('T') !== -1) {
+      try {
+        var d = new Date(p.teeTime);
+        if (!isNaN(d.getTime())) {
+          thruDisp = d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+        }
+      } catch(e){}
     }
     var flag = (FLAGS && FLAGS[p.name]) || '';
     var mine = (typeof currentUserTeams !== 'undefined' && currentUserTeams.some(function(t) { return t.picks.indexOf(p.name) !== -1; }));
@@ -437,6 +442,12 @@ async function initTerminal() {
     await fetchESPN();
     var count = Object.keys(GOLFER_SCORES || {}).length;
     termDiag('fetchESPN done. Golfers: ' + count + ', Tourney: ' + (typeof TOURNEY_NAME !== 'undefined' ? TOURNEY_NAME : 'UNDEF'));
+    // Dump first 3 players' raw data
+    var samples = Object.keys(GOLFER_SCORES || {}).slice(0, 3);
+    samples.forEach(function(n) {
+      var g = GOLFER_SCORES[n];
+      termDiag(n + ': pos=' + g.pos + ' score=' + g.score + ' today=' + g.todayDisplay + ' thru=' + g.thru + ' tee=' + g.teeTime + ' rc=' + g.roundCount);
+    });
     _termLastUpdate = Date.now();
     renderTerminal();
     termDiag('Data render complete');
