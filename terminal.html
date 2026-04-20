@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="terminal">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440, initial-scale=1.0">
+<title>East Pole Terminal</title>
+<meta name="description" content="East Pole Golf Pool — Desktop Terminal">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./css/terminal.css?v=1">
+<script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</head>
+<body>
+
+<div id="term-status-bar">
+<div class="tsb-left">
+<span class="tsb-brand">EAST POLE</span>
+<span class="tsb-sep">|</span>
+<span class="tsb-label">TOURNEY:</span>
+<span id="tsb-tourney">—</span>
+<span class="tsb-sep">|</span>
+<span class="tsb-label">RND:</span>
+<span id="tsb-round">—</span>
+<span class="tsb-sep">|</span>
+<span class="tsb-label">STATUS:</span>
+<span id="tsb-status">LOADING</span>
+</div>
+<div class="tsb-right">
+<span class="tsb-label">UPDATED:</span>
+<span id="tsb-updated">—</span>
+<span class="tsb-sep">|</span>
+<span id="tsb-time">--:--:--</span>
+<span class="tsb-sep">|</span>
+<button onclick="termRefresh()" class="tsb-btn">REFRESH</button>
+</div>
+</div>
+
+<div id="term-ticker">
+<div class="tt-label">LIVE FEED</div>
+<div class="tt-track"><div class="tt-content" id="tt-content"></div></div>
+</div>
+
+<div id="term-grid">
+
+<!-- Panel 1: Leaderboard -->
+<section class="term-panel" id="panel-leaderboard">
+<header class="tp-header">
+<span class="tp-title">F1 · LEADERBOARD</span>
+<span class="tp-meta" id="lb-meta">—</span>
+</header>
+<div class="tp-body">
+<table class="tp-table">
+<thead><tr>
+<th class="tpt-pos">POS</th>
+<th class="tpt-name">PLAYER</th>
+<th class="tpt-score">SCORE</th>
+<th class="tpt-today">TDY</th>
+<th class="tpt-thru">THRU</th>
+</tr></thead>
+<tbody id="term-lb-body"></tbody>
+</table>
+</div>
+</section>
+
+<!-- Panel 2: Standings -->
+<section class="term-panel" id="panel-standings">
+<header class="tp-header">
+<span class="tp-title">F2 · POOL STANDINGS</span>
+<span class="tp-meta" id="std-meta">—</span>
+</header>
+<div class="tp-body">
+<table class="tp-table">
+<thead><tr>
+<th class="tpt-pos">RK</th>
+<th class="tpt-name">ENTRY</th>
+<th class="tpt-score">TOT</th>
+<th class="tpt-today">TDY</th>
+<th class="tpt-thru">HLS</th>
+</tr></thead>
+<tbody id="term-std-body"></tbody>
+</table>
+</div>
+</section>
+
+<!-- Panel 3: Activity Feed -->
+<section class="term-panel" id="panel-activity">
+<header class="tp-header">
+<span class="tp-title">F3 · LIVE ACTIVITY</span>
+<span class="tp-meta" id="act-meta">—</span>
+</header>
+<div class="tp-body tp-body-feed">
+<div id="term-act-body"></div>
+</div>
+</section>
+
+<!-- Panel 4: My Entries -->
+<section class="term-panel" id="panel-my">
+<header class="tp-header">
+<span class="tp-title">F4 · MY ENTRIES</span>
+<span class="tp-meta" id="my-meta">—</span>
+</header>
+<div class="tp-body">
+<div id="term-my-body"></div>
+</div>
+</section>
+
+<!-- Panel 5: Ownership -->
+<section class="term-panel" id="panel-ownership">
+<header class="tp-header">
+<span class="tp-title">F5 · OWNERSHIP</span>
+<span class="tp-meta" id="own-meta">—</span>
+</header>
+<div class="tp-body">
+<table class="tp-table">
+<thead><tr>
+<th class="tpt-pos">OWN%</th>
+<th class="tpt-name">PLAYER</th>
+<th class="tpt-score">SC</th>
+<th class="tpt-today">TDY</th>
+<th class="tpt-thru">THRU</th>
+</tr></thead>
+<tbody id="term-own-body"></tbody>
+</table>
+</div>
+</section>
+
+<!-- Panel 6: Threat Board -->
+<section class="term-panel" id="panel-threat">
+<header class="tp-header">
+<span class="tp-title">F6 · THREAT BOARD</span>
+<span class="tp-meta" id="thr-meta">—</span>
+</header>
+<div class="tp-body">
+<div id="term-thr-body"></div>
+</div>
+</section>
+
+</div>
+
+<!-- Minimal toast -->
+<div id="term-toast"></div>
+
+<!-- Data layer (shared) -->
+<script defer src="./js/state.js?v=437"></script>
+<script defer src="./js/utils.js?v=437"></script>
+<script defer src="./js/api.js?v=437"></script>
+
+<!-- Terminal-only module -->
+<script defer src="./js/terminal.js?v=1"></script>
+
+</body>
+</html>
