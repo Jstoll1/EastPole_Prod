@@ -5,6 +5,11 @@ if (window.innerWidth < 1024) {
   window.location.href = './index.html';
 }
 
+// Stubs for functions/globals from mobile-only modules that api.js references
+if (typeof renderAll === 'undefined') window.renderAll = function() {};
+if (typeof _tickerMode === 'undefined') window._tickerMode = 'entries';
+if (typeof showToast === 'undefined') window.showToast = function() {};
+
 var _termLastUpdate = 0;
 
 function termToast(msg) {

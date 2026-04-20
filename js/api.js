@@ -339,8 +339,9 @@ async function fetchESPN() {
 function setApiStatus(state, text) {
   _lastStatusText = text;
   var dot = document.getElementById('live-dot');
-  dot.className = 'live-dot' + (state === 'live' ? ' on' : '');
-  document.getElementById('hdr-status').textContent = text;
+  if (dot) dot.className = 'live-dot' + (state === 'live' ? ' on' : '');
+  var hdrStatus = document.getElementById('hdr-status');
+  if (hdrStatus) hdrStatus.textContent = text;
   var ticker = document.querySelector('.ticker-label');
   if (ticker) ticker.textContent = _tickerMode === 'entries' ? 'POOL' : 'PGA';
 }
