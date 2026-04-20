@@ -196,9 +196,12 @@ function renderLeaderboard() {
   }
   var roundLabels = ['FIRST ROUND','FIRST ROUND','SECOND ROUND','THIRD ROUND','FINAL ROUND'];
   var endOfRoundLabels = ['','END OF ROUND 1','END OF ROUND 2','END OF ROUND 3','FINAL ROUND'];
+  var isPlayoff = currentRound > 4 || allStatusText.indexOf('playoff') !== -1;
   var tvTitle = document.getElementById('lb-round-title');
   if (tvTitle) {
-    if (anyStillPlaying) {
+    if (isPlayoff) {
+      tvTitle.textContent = 'PLAYOFF';
+    } else if (anyStillPlaying) {
       tvTitle.textContent = roundLabels[currentRound] || 'ROUND ' + currentRound;
     } else if (anyHaveTeeTime && currentRound > 0) {
       // Between rounds: nobody playing, tee times posted for next round
@@ -253,8 +256,23 @@ function renderLeaderboard() {
     var isTeeTime = p.thru && p.thru.includes(':');
     var lastRoundScore = (function(){ var rs = [p.r1,p.r2,p.r3,p.r4]; for(var i=rs.length-1;i>=0;i--){ if(rs[i]&&rs[i]>50) return rs[i]; } return null; })();
     var roundDone = p.thru === 'F' || p.thru === '18';
-    var thruDisp = preT ? teeStr || '—' : (isTeeTime ? p.thru : (roundDone && lastRoundScore ? lastRoundScore : p.thru + (p.startHole === 10 && p.thru !== 'MC' && !roundDone && parseInt(p.thru) > 0 ? '*' : '')));
-    var todayDisp = preT ? '—' : (isTeeTime ? '—' : (p.todayDisplay || '—'));
+    var playerInPlayoff = isPlayoff && p.roundCount >= 5;
+    var thruDisp;
+    if (preT) {
+      thruDisp = teeStr || '—';
+    } else if (playerInPlayoff) {
+      var poHole = /^\d+$/.test(p.thru) ? p.thru : (roundDone ? 'F' : p.thru);
+      thruDisp = 'PO ' + poHole;
+    } else if (isPlayoff && !playerInPlayoff && lastRoundScore) {
+      thruDisp = lastRoundScore;
+    } else if (isTeeTime && !isPlayoff) {
+      thruDisp = p.thru;
+    } else if (roundDone && lastRoundScore) {
+      thruDisp = lastRoundScore;
+    } else {
+      thruDisp = p.thru + (p.startHole === 10 && p.thru !== 'MC' && !roundDone && parseInt(p.thru) > 0 ? '*' : '');
+    }
+    var todayDisp = preT ? '—' : (isTeeTime && !isPlayoff ? '—' : (p.todayDisplay || '—'));
     var todayVal = todayDisp === 'E' || todayDisp === '—' ? 0 : parseInt(todayDisp.replace('+','')) || 0;
     var todayCls = todayDisp === '—' ? '' : (todayVal < 0 ? 'neg' : todayVal > 0 ? 'pos' : 'eve');
     var prevP = PREV_POSITIONS[p.name];

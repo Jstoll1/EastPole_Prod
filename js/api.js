@@ -276,9 +276,13 @@ async function fetchESPN() {
     }
 
     // Determine round status
+    var _isPlayoff = allStatusText.indexOf('playoff') !== -1 || espnRoundNumber > 4;
     if (isPreTournament) {
       setApiStatus('scheduled', 'Pre-Tournament');
       setRoundLive(false);
+    } else if (_isPlayoff) {
+      setApiStatus('live', 'Playoff');
+      setRoundLive(true);
     } else {
       var activePlayers = Object.values(freshScores).filter(function(g) { return g.score !== 11 && g.score !== 12; });
       var anyTeeTime = activePlayers.some(function(g) { return g.thru && g.thru.includes(':'); });
@@ -288,7 +292,7 @@ async function fetchESPN() {
       if (anyTeeTime && !anyMidRound) {
         var maxComp = 0;
         activePlayers.forEach(function(g) { var cnt = [g.r1, g.r2, g.r3, g.r4].filter(function(r) { return r != null; }).length; if (cnt > maxComp) maxComp = cnt; });
-        var nextRound = maxComp + 1;
+        var nextRound = Math.min(maxComp + 1, 4);
         setApiStatus('between', 'Rd ' + nextRound);
         if (ROUND_START_ROUND < nextRound) {
           saveRoundStartPositions(nextRound);
