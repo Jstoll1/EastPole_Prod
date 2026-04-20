@@ -1,5 +1,22 @@
 // ── East Pole Terminal — Desktop Bloomberg-style ──────────
 
+function termDiag(msg, isError) {
+  try {
+    var el = document.getElementById('term-diag');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'term-diag';
+      el.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#000;color:#d4a843;padding:6px 12px;font-family:monospace;font-size:10px;z-index:9999;border-top:1px solid #d4a843;max-height:150px;overflow:auto';
+      document.body.appendChild(el);
+    }
+    var line = document.createElement('div');
+    line.style.color = isError ? '#ff6b6b' : '#d4a843';
+    line.textContent = new Date().toTimeString().substring(0,8) + ' ' + msg;
+    el.appendChild(line);
+    el.scrollTop = el.scrollHeight;
+  } catch(e) {}
+}
+
 // Mobile redirect
 if (window.innerWidth < 1024) {
   window.location.href = './index.html';
@@ -381,7 +398,12 @@ window.renderAll = renderTerminal;
 // ── Init ─────────────────────────────────────────────
 
 async function initTerminal() {
-  console.log('🖥️ Terminal: initializing');
+  termDiag('initTerminal started');
+  termDiag('Globals: ENTRIES=' + (typeof ENTRIES !== 'undefined' ? ENTRIES.length : 'UNDEF')
+    + ', FLAGS=' + (typeof FLAGS !== 'undefined' ? Object.keys(FLAGS).length : 'UNDEF')
+    + ', fetchESPN=' + typeof fetchESPN
+    + ', getRanked=' + typeof getRanked);
+
   updateClock();
   setInterval(updateClock, 1000);
   setInterval(updateStatusBar, 10000);
@@ -401,19 +423,26 @@ async function initTerminal() {
   if (typeof activeTeamIdx === 'undefined') window.activeTeamIdx = -1;
 
   // Render empty state immediately so user sees the panels
-  renderTerminal();
+  try {
+    renderTerminal();
+    termDiag('Empty render complete');
+  } catch(e) {
+    termDiag('Empty render FAILED: ' + e.message, true);
+  }
   updateStatusBar();
 
   // Initial fetch
   try {
-    console.log('🖥️ Terminal: fetching ESPN data');
+    termDiag('Calling fetchESPN...');
     await fetchESPN();
-    console.log('🖥️ Terminal: got', Object.keys(GOLFER_SCORES || {}).length, 'golfers');
+    var count = Object.keys(GOLFER_SCORES || {}).length;
+    termDiag('fetchESPN done. Golfers: ' + count + ', Tourney: ' + (typeof TOURNEY_NAME !== 'undefined' ? TOURNEY_NAME : 'UNDEF'));
     _termLastUpdate = Date.now();
     renderTerminal();
+    termDiag('Data render complete');
   } catch(e) {
-    console.error('🖥️ Terminal: fetch failed', e);
-    termToast('Fetch failed: ' + e.message);
+    termDiag('fetchESPN FAILED: ' + e.message, true);
+    termDiag('Stack: ' + (e.stack || '').split('\n').slice(0,3).join(' | '), true);
   }
 
   // Auto-refresh every 30 seconds
