@@ -16,6 +16,7 @@
   --term-blue: #4d8fcc;
   --term-header-h: 32px;
   --term-ticker-h: 28px;
+  --term-wx-h: 26px;
   /* Map mobile CSS vars for scorecard compatibility */
   --bg: #06120c;
   --card: #0a1812;
@@ -82,10 +83,39 @@ html, body {
 #tsb-status.scheduled { color: var(--term-amber); }
 #tsb-status.offline { color: var(--term-red); }
 
+/* ── Weather bar (next event forecast) ─────────────── */
+#term-wx-bar {
+  position: fixed;
+  top: var(--term-header-h);
+  left: 0; right: 0;
+  height: var(--term-wx-h);
+  background: linear-gradient(180deg, #0d2018 0%, #081510 100%);
+  border-bottom: 1px solid var(--term-border);
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  color: var(--term-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  z-index: 10;
+}
+.wxb-tag    { color: var(--term-amber); font-weight: 800; letter-spacing: 1.2px; font-size: 9px; }
+.wxb-event  { color: var(--term-text); font-weight: 700; }
+.wxb-course { color: var(--term-text-muted); }
+.wxb-sep    { color: var(--term-text-dim); }
+.wxb-day    { display: inline-flex; align-items: center; gap: 5px; }
+.wxb-day .d { color: var(--term-amber); font-weight: 800; font-size: 9px; letter-spacing: 1px; }
+.wxb-day .ic{ font-size: 13px; line-height: 1; }
+.wxb-day .t { color: var(--term-text); font-weight: 700; }
+.wxb-day .lo{ color: var(--term-text-dim); font-weight: 500; }
+.wxb-countdown { color: var(--term-amber); font-weight: 700; margin-left: auto; }
+
 /* ── Ticker ─────────────────────────────────────────────── */
 #term-ticker {
   position: fixed;
-  top: var(--term-header-h);
+  top: calc(var(--term-header-h) + var(--term-wx-h));
   left: 0; right: 0;
   height: var(--term-ticker-h);
   background: #081410;
@@ -137,7 +167,7 @@ html, body {
 /* ── Main Grid ──────────────────────────────────────────── */
 #term-grid {
   position: fixed;
-  top: calc(var(--term-header-h) + var(--term-ticker-h));
+  top: calc(var(--term-header-h) + var(--term-wx-h) + var(--term-ticker-h));
   left: 0; right: 0; bottom: 0;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;

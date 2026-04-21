@@ -588,6 +588,55 @@ function renderForecastStrip() {
   return items.length ? '<div class="wx-strip">' + items.join('') + '</div>' : '';
 }
 
+function renderTermWeatherBar() {
+  var el = document.getElementById('term-wx-bar');
+  if (!el) return;
+  if (!_nextEvent) {
+    el.innerHTML = '<span class="wxb-tag">NEXT</span> <span class="wxb-course">loading…</span>';
+    return;
+  }
+  var parts = ['<span class="wxb-tag">NEXT</span>',
+    '<span class="wxb-event">' + termEsc(_nextEvent.name) + '</span>'];
+  if (_nextEvent.course) parts.push('<span class="wxb-sep">·</span> <span class="wxb-course">' + termEsc(_nextEvent.course) + '</span>');
+
+  var f = _nextEventForecast;
+  if (f && f.time && _nextEvent.date) {
+    var dayLabels = ['THU', 'FRI', 'SAT', 'SUN'];
+    var start = new Date(_nextEvent.date);
+    var dow = start.getDay();
+    if (dow !== 4) {
+      var delta = (4 - dow + 7) % 7;
+      if (delta > 3) delta -= 7;
+      start = new Date(start.getTime() + delta * 86400000);
+    }
+    for (var i = 0; i < 4; i++) {
+      var target = new Date(start.getTime() + i * 86400000);
+      var key = target.getFullYear() + '-' + String(target.getMonth() + 1).padStart(2, '0') + '-' + String(target.getDate()).padStart(2, '0');
+      var idx = f.time.indexOf(key);
+      if (idx === -1) continue;
+      var hi = Math.round(f.temperature_2m_max[idx]);
+      var lo = Math.round(f.temperature_2m_min[idx]);
+      var code = f.weather_code[idx];
+      parts.push('<span class="wxb-sep">·</span> <span class="wxb-day">'
+        + '<span class="d">' + dayLabels[i] + '</span>'
+        + '<span class="ic">' + wxEmoji(code) + '</span>'
+        + '<span class="t">' + hi + '°</span>'
+        + '<span class="lo">/' + lo + '</span>'
+        + '</span>');
+    }
+  } else if (!f) {
+    parts.push('<span class="wxb-sep">·</span> <span class="wxb-course">forecast loading…</span>');
+  }
+
+  // Countdown on the right edge
+  if (_nextEvent.date) {
+    var days = Math.max(0, Math.ceil((_nextEvent.date.getTime() - Date.now()) / 86400000));
+    parts.push('<span class="wxb-countdown">' + (days === 0 ? 'TODAY' : 'T-' + days + 'd') + '</span>');
+  }
+
+  el.innerHTML = parts.join(' ');
+}
+
 function renderNextEventCard(containerHtml) {
   if (!_nextEvent) return containerHtml('<div class="empty">Loading next event…</div>');
   var dateStr = '';
@@ -1069,6 +1118,7 @@ function renderTerminal() {
   try { renderTermMy(); } catch(e) { console.error('MY error', e); }
   try { renderTermDataGolf(); } catch(e) { console.error('DG error', e); }
   try { renderTermTicker(); } catch(e) { console.error('TICKER error', e); }
+  try { renderTermWeatherBar(); } catch(e) { console.error('WX error', e); }
   updateStatusBar();
 }
 
@@ -1112,6 +1162,7 @@ async function initTerminal() {
   updateStatusBar();
   initTableFeatures();
   initTickerInteraction();
+  fetchNextEvent(); // populates the top weather bar regardless of tournament state
 
   // Initial fetch
   try {
