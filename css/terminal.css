@@ -235,6 +235,13 @@ html, body {
 .ne-meta    { font-size: 10px; color: var(--term-text-dim); margin-top: 8px; letter-spacing: 0.4px; }
 .tpt-fill   { padding: 0 !important; }
 
+.wx-strip   { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 14px; border-top: 1px solid var(--term-border); padding-top: 12px; }
+.wx-day     { background: #0a1812; border: 1px solid var(--term-border); border-radius: 3px; padding: 8px 6px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.wx-lbl     { font-size: 9px; font-weight: 800; letter-spacing: 1.2px; color: var(--term-amber); }
+.wx-icon    { font-size: 20px; line-height: 1; margin: 2px 0; }
+.wx-temp    { font-size: 12px; font-weight: 800; color: var(--term-text); }
+.wx-meta    { font-size: 9px; color: var(--term-text-dim); letter-spacing: 0.3px; }
+
 .course-stats { padding: 12px 14px; }
 .cs-head    { font-size: 9px; letter-spacing: 1.2px; color: var(--term-amber); font-weight: 800; margin-bottom: 8px; }
 .cs-rounds  { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }

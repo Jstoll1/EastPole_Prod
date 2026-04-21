@@ -442,9 +442,76 @@ async function toggleTermScorecard(playerName, rowEl) {
 
 // ── Render Standings ───────────────────────────────────
 
-// ── Next event lookup (for between-tournaments fill) ───
+// ── Next event lookup + weather (for between-tournaments fill) ─
 var _nextEvent = null;
 var _nextEventFetched = false;
+var _nextEventForecast = null;
+
+// PGA Tour venues — extend as needed when the tour visits new courses
+var COURSE_COORDS = {
+  'Harbour Town Golf Links':          { lat: 32.147, lon: -80.810 },
+  'TPC Louisiana':                    { lat: 29.944, lon: -90.106 },
+  'Quail Hollow Club':                { lat: 35.154, lon: -80.821 },
+  'Colonial Country Club':            { lat: 32.713, lon: -97.401 },
+  'Muirfield Village Golf Club':      { lat: 40.153, lon: -83.151 },
+  'TPC River Highlands':              { lat: 41.712, lon: -72.691 },
+  'Pebble Beach Golf Links':          { lat: 36.569, lon: -121.949 },
+  'Augusta National Golf Club':       { lat: 33.503, lon: -82.021 },
+  'Bay Hill Club & Lodge':            { lat: 28.451, lon: -81.512 },
+  'TPC Sawgrass':                     { lat: 30.199, lon: -81.395 },
+  'Torrey Pines Golf Course':         { lat: 32.895, lon: -117.250 },
+  'Riviera Country Club':             { lat: 34.051, lon: -118.507 },
+  'PGA National Resort':              { lat: 26.838, lon: -80.152 },
+  'TPC Scottsdale':                   { lat: 33.639, lon: -111.912 },
+  'Waialae Country Club':             { lat: 21.269, lon: -157.791 },
+  'Plantation Course at Kapalua':     { lat: 21.002, lon: -156.665 },
+  'Medinah Country Club':             { lat: 41.964, lon: -88.065 },
+  'East Lake Golf Club':              { lat: 33.741, lon: -84.313 },
+  'Caves Valley Golf Club':           { lat: 39.473, lon: -76.804 },
+  'Castle Pines Golf Club':           { lat: 39.473, lon: -104.875 },
+  'TPC Twin Cities':                  { lat: 45.117, lon: -93.384 },
+  'Detroit Golf Club':                { lat: 42.432, lon: -83.107 },
+  'TPC Deere Run':                    { lat: 41.499, lon: -90.493 },
+  'Sedgefield Country Club':          { lat: 36.062, lon: -79.848 },
+  'Liberty National Golf Club':       { lat: 40.687, lon: -74.058 },
+  'Vidanta Vallarta':                 { lat: 20.715, lon: -105.316 },
+  'The Renaissance Club':             { lat: 56.043, lon: -2.804 }
+};
+
+function findCourseCoords(venueName) {
+  if (!venueName) return null;
+  if (COURSE_COORDS[venueName]) return COURSE_COORDS[venueName];
+  var lower = venueName.toLowerCase();
+  for (var k in COURSE_COORDS) {
+    var kl = k.toLowerCase();
+    if (lower.indexOf(kl) !== -1 || kl.indexOf(lower) !== -1) return COURSE_COORDS[k];
+  }
+  return null;
+}
+
+function wxEmoji(code) {
+  if (code == null) return '☁️';
+  if (code === 0) return '☀️';
+  if (code <= 3) return '🌤️';
+  if (code === 45 || code === 48) return '🌫️';
+  if (code >= 51 && code <= 67) return '🌧️';
+  if (code >= 71 && code <= 77) return '🌨️';
+  if (code >= 80 && code <= 82) return '🌦️';
+  if (code >= 95) return '⛈️';
+  return '☁️';
+}
+
+async function fetchForecast(lat, lon) {
+  try {
+    var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon
+      + '&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max,weather_code'
+      + '&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=14';
+    var res = await fetch(url);
+    if (!res.ok) return null;
+    var data = await res.json();
+    return data.daily || null;
+  } catch (e) { return null; }
+}
 
 async function fetchNextEvent() {
   if (_nextEventFetched) return;
@@ -463,17 +530,62 @@ async function fetchNextEvent() {
       var e = upcoming[0].ev;
       var comp = e.competitions && e.competitions[0];
       var venue = comp && comp.venue;
+      var courseName = venue ? (venue.fullName || venue.shortName || '') : '';
       _nextEvent = {
         name: e.name || e.shortName || '',
         date: e.date ? new Date(e.date) : null,
         endDate: e.endDate ? new Date(e.endDate) : null,
-        course: venue ? (venue.fullName || venue.shortName || '') : ''
+        course: courseName
       };
+      // Forecast — Thu start + 3 days
+      var coords = findCourseCoords(courseName);
+      if (coords && _nextEvent.date) {
+        _nextEventForecast = await fetchForecast(coords.lat, coords.lon);
+      }
       renderTerminal();
     }
   } catch (err) {
     // silent; empty-state shows a placeholder
   }
+}
+
+function renderForecastStrip() {
+  if (!_nextEvent || !_nextEvent.date || !_nextEventForecast || !_nextEventForecast.time) return '';
+  var f = _nextEventForecast;
+  var dayLabels = ['THU', 'FRI', 'SAT', 'SUN'];
+  // Anchor Thursday to the tournament's start date (PGA events run Thu–Sun; some run Wed–Sun)
+  var start = new Date(_nextEvent.date);
+  // Snap to Thursday of the event week if start isn't already Thu
+  // Day: Sun=0 Mon=1 Tue=2 Wed=3 Thu=4 Fri=5 Sat=6
+  var dow = start.getDay();
+  if (dow !== 4) {
+    var delta = (4 - dow + 7) % 7;
+    if (delta > 3) delta -= 7; // prefer nearest Thu
+    start = new Date(start.getTime() + delta * 86400000);
+  }
+  var startMs = start.getTime();
+  var items = [];
+  for (var i = 0; i < 4; i++) {
+    var target = new Date(startMs + i * 86400000);
+    var yyyy = target.getFullYear();
+    var mm = String(target.getMonth() + 1).padStart(2, '0');
+    var dd = String(target.getDate()).padStart(2, '0');
+    var key = yyyy + '-' + mm + '-' + dd;
+    var idx = f.time.indexOf(key);
+    if (idx === -1) continue;
+    var hi = Math.round(f.temperature_2m_max[idx]);
+    var lo = Math.round(f.temperature_2m_min[idx]);
+    var pop = Math.round(f.precipitation_probability_max[idx] || 0);
+    var wind = Math.round(f.wind_speed_10m_max[idx] || 0);
+    var code = f.weather_code[idx];
+    items.push('<div class="wx-day">'
+      + '<div class="wx-lbl">' + dayLabels[i] + '</div>'
+      + '<div class="wx-icon">' + wxEmoji(code) + '</div>'
+      + '<div class="wx-temp">' + hi + '° / ' + lo + '°</div>'
+      + '<div class="wx-meta">' + wind + ' mph · ' + pop + '% 💧</div>'
+      + '</div>');
+  }
+  return items.length ? '<div class="wx-strip">' + items.join('') + '</div>' : '';
 }
 
 function renderNextEventCard(containerHtml) {
@@ -491,6 +603,7 @@ function renderNextEventCard(containerHtml) {
     + '<div class="ne-name">' + termEsc(_nextEvent.name) + '</div>'
     + (_nextEvent.course ? '<div class="ne-course">' + termEsc(_nextEvent.course) + '</div>' : '')
     + '<div class="ne-meta">' + termEsc(dateStr) + (days != null ? '  ·  ' + (days === 0 ? 'today' : days + ' day' + (days === 1 ? '' : 's')) : '') + '</div>'
+    + renderForecastStrip()
     + '</div>';
   return containerHtml(html);
 }
