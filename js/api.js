@@ -375,6 +375,7 @@ async function fetchDGLivePreds(force) {
       return;
     }
     var fresh = {};
+    var flagsFilled = 0;
     arr.forEach(function(p) {
       // Convert "Last, First" → "First Last"
       var parts = (p.player_name || '').split(', ');
@@ -387,11 +388,16 @@ async function fetchDGLivePreds(force) {
         top_20: p.top_20 || 0,
         make_cut: p.make_cut || 0
       };
+      // Fallback flag from DataGolf when ESPN didn't provide a country
+      if (p.country && (!FLAGS[name] || FLAGS[name] === '🏳️' || FLAGS[name] === '')) {
+        var code = String(p.country).toUpperCase();
+        if (CODE_TO_FLAG[code]) { FLAGS[name] = CODE_TO_FLAG[code]; flagsFilled++; }
+      }
     });
     DG_LIVE_PREDS = fresh;
     _dgLastFetch = Date.now();
-    console.log('✅ DataGolf live preds:', Object.keys(fresh).length, 'players');
-    if (typeof termDiag === 'function') termDiag('DataGolf preds loaded: ' + Object.keys(fresh).length + ' players');
+    console.log('✅ DataGolf live preds:', Object.keys(fresh).length, 'players' + (flagsFilled ? ' (filled ' + flagsFilled + ' flags)' : ''));
+    if (typeof termDiag === 'function') termDiag('DataGolf preds loaded: ' + Object.keys(fresh).length + ' players' + (flagsFilled ? ' · ' + flagsFilled + ' flags' : ''));
   } catch(e) {
     console.warn('⚠️ DataGolf fetch failed:', e.message);
     if (typeof termDiag === 'function') termDiag('DataGolf fetch threw: ' + e.message, true);
