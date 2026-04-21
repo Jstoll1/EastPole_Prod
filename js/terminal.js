@@ -517,15 +517,25 @@ async function fetchNextEvent() {
   if (_nextEventFetched) return;
   _nextEventFetched = true;
   try {
-    var res = await fetch('https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard', { cache: 'no-store' });
-    if (!res.ok) return;
+    // Query a 6-week range so we get the next event even when the current one is still listed by /scoreboard alone.
+    function fmt(d) { return d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0'); }
+    var now = new Date();
+    var end = new Date(now.getTime() + 42 * 86400000);
+    var url = 'https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard?dates=' + fmt(now) + '-' + fmt(end) + '&limit=20';
+    var res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) {
+      _nextEventFetched = false; // allow retry
+      if (typeof termDiag === 'function') termDiag('Schedule fetch HTTP ' + res.status, true);
+      return;
+    }
     var data = await res.json();
     var events = (data && data.events) || [];
-    var now = Date.now();
+    var nowMs = Date.now();
     var upcoming = events
       .map(function(e) { return { ev: e, start: e.date ? new Date(e.date).getTime() : 0 }; })
-      .filter(function(x) { return x.start > now && x.ev.id !== EVENT_ID; })
+      .filter(function(x) { return x.start > nowMs && x.ev.id !== EVENT_ID; })
       .sort(function(a, b) { return a.start - b.start; });
+    if (typeof termDiag === 'function') termDiag('Schedule: ' + events.length + ' events, ' + upcoming.length + ' upcoming');
     if (upcoming.length) {
       var e = upcoming[0].ev;
       var comp = e.competitions && e.competitions[0];
@@ -537,15 +547,20 @@ async function fetchNextEvent() {
         endDate: e.endDate ? new Date(e.endDate) : null,
         course: courseName
       };
-      // Forecast — Thu start + 3 days
       var coords = findCourseCoords(courseName);
+      if (typeof termDiag === 'function') termDiag('Next: ' + _nextEvent.name + ' @ ' + courseName + (coords ? ' (coords found)' : ' (no coords)'), !coords);
       if (coords && _nextEvent.date) {
         _nextEventForecast = await fetchForecast(coords.lat, coords.lon);
+        if (typeof termDiag === 'function') termDiag('Forecast: ' + (_nextEventForecast ? 'loaded' : 'failed'), !_nextEventForecast);
       }
+      renderTerminal();
+    } else {
+      _nextEvent = { name: 'No upcoming event', course: '', date: null };
       renderTerminal();
     }
   } catch (err) {
-    // silent; empty-state shows a placeholder
+    _nextEventFetched = false;
+    if (typeof termDiag === 'function') termDiag('Schedule fetch threw: ' + err.message, true);
   }
 }
 
