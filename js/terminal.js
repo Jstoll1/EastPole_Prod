@@ -1,20 +1,48 @@
 // ── East Pole Terminal — Desktop Bloomberg-style ──────────
 
+// Diagnostic log — hidden by default, toggled by triple-clicking REFRESH
+var _termDebugMode = false;
+var _termDebugLog = [];
 function termDiag(msg, isError) {
-  try {
-    var el = document.getElementById('term-diag');
-    if (!el) {
-      el = document.createElement('div');
-      el.id = 'term-diag';
-      el.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#000;color:#d4a843;padding:6px 12px;font-family:monospace;font-size:10px;z-index:9999;border-top:1px solid #d4a843;max-height:150px;overflow:auto';
-      document.body.appendChild(el);
-    }
-    var line = document.createElement('div');
-    line.style.color = isError ? '#ff6b6b' : '#d4a843';
-    line.textContent = new Date().toTimeString().substring(0,8) + ' ' + msg;
-    el.appendChild(line);
-    el.scrollTop = el.scrollHeight;
-  } catch(e) {}
+  var entry = { time: new Date().toTimeString().substring(0,8), msg: msg, isError: isError };
+  _termDebugLog.push(entry);
+  if (_termDebugLog.length > 100) _termDebugLog.shift();
+  if (_termDebugMode) _renderDebugPanel();
+}
+function _renderDebugPanel() {
+  var el = document.getElementById('term-diag');
+  if (!_termDebugMode) {
+    if (el) el.remove();
+    return;
+  }
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'term-diag';
+    el.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#000;color:#d4a843;padding:6px 12px;font-family:monospace;font-size:10px;z-index:9999;border-top:1px solid #d4a843;max-height:200px;overflow:auto;';
+    document.body.appendChild(el);
+  }
+  el.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;position:sticky;top:0;background:#000;padding-bottom:4px"><strong style="color:#f5c518">DEBUG</strong><button onclick="toggleTermDebug()" style="background:transparent;border:1px solid #d4a843;color:#d4a843;font-family:inherit;font-size:9px;padding:2px 8px;cursor:pointer">CLOSE</button></div>'
+    + _termDebugLog.map(function(e) {
+      return '<div style="color:' + (e.isError ? '#ff6b6b' : '#d4a843') + '">' + e.time + ' ' + e.msg + '</div>';
+    }).join('');
+  el.scrollTop = el.scrollHeight;
+}
+function toggleTermDebug() {
+  _termDebugMode = !_termDebugMode;
+  _renderDebugPanel();
+}
+var _refreshClicks = [];
+function handleRefreshClick() {
+  var now = Date.now();
+  _refreshClicks.push(now);
+  // Keep only clicks within last 800ms
+  _refreshClicks = _refreshClicks.filter(function(t) { return now - t < 800; });
+  if (_refreshClicks.length >= 3) {
+    _refreshClicks = [];
+    toggleTermDebug();
+  } else {
+    termRefresh();
+  }
 }
 
 // Mobile redirect
