@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./css/terminal.css?v=15">
+<link rel="stylesheet" href="./css/terminal.css?v=16">
 <script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
 <body>
@@ -48,8 +48,10 @@
 <section class="term-panel" id="panel-leaderboard">
 <header class="tp-header">
 <span class="tp-title">F1 · LEADERBOARD</span>
+<input type="text" id="lb-search" class="tp-search" placeholder="search…" oninput="onLbSearch(this.value)" onkeydown="if(event.key==='Escape'){this.value='';onLbSearch('')}">
 <span class="tp-meta" id="lb-meta">—</span>
 </header>
+<div id="term-lb-final" class="lbf-banner" style="display:none"></div>
 <div class="tp-body">
 <table class="tp-table">
 <thead><tr>
@@ -87,7 +89,7 @@
 <!-- Panel 3: Activity Feed -->
 <section class="term-panel" id="panel-activity">
 <header class="tp-header">
-<span class="tp-title">F3 · LIVE ACTIVITY</span>
+<span class="tp-title">F3 · MOVERS</span>
 <span class="tp-meta" id="act-meta">—</span>
 </header>
 <div class="tp-body tp-body-feed">
@@ -141,7 +143,7 @@
 <script defer src="./js/ui-scorecard.js?v=637"></script>
 
 <!-- Terminal-only module -->
-<script defer src="./js/terminal.js?v=18"></script>
+<script defer src="./js/terminal.js?v=19"></script>
 
 </body>
 </html>

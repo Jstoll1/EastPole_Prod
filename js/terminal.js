@@ -188,12 +188,14 @@ function updateStatusBar() {
   var status = document.getElementById('tsb-status');
   var updated = document.getElementById('tsb-updated');
 
+  var isFinal = (typeof TOURNEY_FINAL !== 'undefined' && TOURNEY_FINAL);
   if (name) name.textContent = (typeof TOURNEY_NAME !== 'undefined' && TOURNEY_NAME) ? TOURNEY_NAME.toUpperCase() : '—';
-  if (round) round.textContent = 'R' + (typeof ESPN_ROUND !== 'undefined' ? ESPN_ROUND || '—' : '—');
+  if (round) round.textContent = isFinal ? 'FIN' : ('R' + (typeof ESPN_ROUND !== 'undefined' ? ESPN_ROUND || '—' : '—'));
   if (status) {
     var s = 'LIVE';
-    if (typeof TOURNEY_FINAL !== 'undefined' && TOURNEY_FINAL) s = 'FINAL';
+    if (isFinal) { s = 'FINAL'; status.className = 'final'; }
     else if (typeof TOURNAMENT_STARTED !== 'undefined' && !TOURNAMENT_STARTED) { s = 'SCHEDULED'; status.className = 'scheduled'; }
+    else { status.className = ''; }
     status.textContent = s;
   }
   if (updated && _termLastUpdate) {
@@ -228,8 +230,40 @@ function lastName(n) {
 // ── Render Leaderboard ─────────────────────────────────
 
 var _pendingLbRender = false;
+var _lbSearch = '';
+
+function onLbSearch(v) {
+  _lbSearch = v || '';
+  renderTermLeaderboard();
+}
+
+function renderTermFinalBanner() {
+  var holder = document.getElementById('term-lb-final');
+  if (!holder) return;
+  var isFinal = (typeof TOURNEY_FINAL !== 'undefined' && TOURNEY_FINAL);
+  if (!isFinal) { holder.innerHTML = ''; holder.style.display = 'none'; return; }
+  // Derive winner + runner-up from active golfers (exclude MC/WD)
+  var actives = Object.entries(GOLFER_SCORES || {})
+    .map(function(p) { return { name: p[0], g: p[1] }; })
+    .filter(function(x) { return x.g && x.g.score !== 11 && x.g.score !== 12; });
+  actives.sort(function(a, b) { return a.g.score - b.g.score; });
+  if (!actives.length) { holder.style.display = 'none'; return; }
+  var win = actives[0], ru = actives[1];
+  var winFlag = (FLAGS && FLAGS[win.name]) || '';
+  var ruFlag = (ru && FLAGS && FLAGS[ru.name]) || '';
+  var winScore = fmtScore(win.g.score);
+  var isPlayoff = (typeof ESPN_ROUND !== 'undefined' && ESPN_ROUND > 4) ||
+    (ru && win.g.score === ru.g.score);
+  holder.style.display = '';
+  holder.innerHTML = '<span class="lbf-tag">FINAL</span>'
+    + '<span class="lbf-trophy">★</span> <span class="lbf-name">' + winFlag + ' ' + termEsc(win.name) + '</span>'
+    + ' <span class="lbf-score neg">' + winScore + '</span>'
+    + (ru ? ' <span class="lbf-sep">·</span> RU: ' + ruFlag + ' ' + termEsc(ru.name) + ' ' + fmtScore(ru.g.score) : '')
+    + (isPlayoff ? ' <span class="lbf-sep">·</span> <span class="lbf-po">PLAYOFF</span>' : '');
+}
 
 function renderTermLeaderboard() {
+  renderTermFinalBanner();
   var body = document.getElementById('term-lb-body');
   if (!body) return;
   // Skip re-render while a scorecard is open so the inserted <tr> isn't wiped
@@ -256,6 +290,12 @@ function renderTermLeaderboard() {
   };
   players = sortRowsBy(players, lbSort.col, lbSort.dir, lbAccessors);
   updateSortIndicators('panel-leaderboard');
+
+  // Filter by search input
+  var q = (_lbSearch || '').trim().toLowerCase();
+  if (q) {
+    players = players.filter(function(p) { return p.name.toLowerCase().indexOf(q) !== -1; });
+  }
 
   // Get pool pick names
   var poolNames = new Set();
@@ -402,10 +442,76 @@ async function toggleTermScorecard(playerName, rowEl) {
 
 // ── Render Standings ───────────────────────────────────
 
+// ── Next event lookup (for between-tournaments fill) ───
+var _nextEvent = null;
+var _nextEventFetched = false;
+
+async function fetchNextEvent() {
+  if (_nextEventFetched) return;
+  _nextEventFetched = true;
+  try {
+    var res = await fetch('https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard', { cache: 'no-store' });
+    if (!res.ok) return;
+    var data = await res.json();
+    var events = (data && data.events) || [];
+    var now = Date.now();
+    var upcoming = events
+      .map(function(e) { return { ev: e, start: e.date ? new Date(e.date).getTime() : 0 }; })
+      .filter(function(x) { return x.start > now && x.ev.id !== EVENT_ID; })
+      .sort(function(a, b) { return a.start - b.start; });
+    if (upcoming.length) {
+      var e = upcoming[0].ev;
+      var comp = e.competitions && e.competitions[0];
+      var venue = comp && comp.venue;
+      _nextEvent = {
+        name: e.name || e.shortName || '',
+        date: e.date ? new Date(e.date) : null,
+        endDate: e.endDate ? new Date(e.endDate) : null,
+        course: venue ? (venue.fullName || venue.shortName || '') : ''
+      };
+      renderTerminal();
+    }
+  } catch (err) {
+    // silent; empty-state shows a placeholder
+  }
+}
+
+function renderNextEventCard(containerHtml) {
+  if (!_nextEvent) return containerHtml('<div class="empty">Loading next event…</div>');
+  var dateStr = '';
+  if (_nextEvent.date) {
+    var opts = { month: 'short', day: 'numeric' };
+    var s = _nextEvent.date.toLocaleDateString('en-US', opts);
+    var e = _nextEvent.endDate ? _nextEvent.endDate.toLocaleDateString('en-US', opts) : '';
+    dateStr = e ? s + ' – ' + e : s;
+  }
+  var days = _nextEvent.date ? Math.max(0, Math.ceil((_nextEvent.date.getTime() - Date.now()) / 86400000)) : null;
+  var html = '<div class="next-ev">'
+    + '<div class="ne-tag">NEXT EVENT</div>'
+    + '<div class="ne-name">' + termEsc(_nextEvent.name) + '</div>'
+    + (_nextEvent.course ? '<div class="ne-course">' + termEsc(_nextEvent.course) + '</div>' : '')
+    + '<div class="ne-meta">' + termEsc(dateStr) + (days != null ? '  ·  ' + (days === 0 ? 'today' : days + ' day' + (days === 1 ? '' : 's')) : '') + '</div>'
+    + '</div>';
+  return containerHtml(html);
+}
+
 function renderTermStandings() {
   var body = document.getElementById('term-std-body');
   if (!body) return;
-  if (!ENTRIES || !ENTRIES.length) { body.innerHTML = '<tr><td colspan="5" class="empty">No entries loaded</td></tr>'; return; }
+  if (!ENTRIES || !ENTRIES.length) {
+    var isFinal = (typeof TOURNEY_FINAL !== 'undefined' && TOURNEY_FINAL);
+    if (isFinal) {
+      body.innerHTML = renderNextEventCard(function(inner) {
+        return '<tr><td colspan="5" class="tpt-fill">' + inner + '</td></tr>';
+      });
+      fetchNextEvent();
+    } else {
+      body.innerHTML = '<tr><td colspan="5" class="empty">No entries loaded</td></tr>';
+    }
+    var m = document.getElementById('std-meta');
+    if (m) m.textContent = isFinal ? 'between events' : '—';
+    return;
+  }
 
   var ranked = getRanked();
   var myKey = (typeof currentUserEmail !== 'undefined') ? currentUserEmail : '';
@@ -460,53 +566,94 @@ function renderTermStandings() {
   if (meta) meta.textContent = ranked.length + ' entries';
 }
 
-// ── Render Activity ────────────────────────────────────
+// ── Render Movers (flame/ice) ──────────────────────────
 
 function renderTermActivity() {
   var body = document.getElementById('term-act-body');
   if (!body) return;
   var names = Object.keys(GOLFER_SCORES || {});
-  var events = [];
+  var movers = [];
 
-  // Pull birdies/eagles/bogies from linescores (simplified — latest rounds)
   names.forEach(function(n) {
     var g = GOLFER_SCORES[n];
     if (!g || g.score === 11 || g.score === 12) return;
-    var td = g.todayDisplay;
-    if (!td || td === '—' || td === 'E') return;
-    var tdVal = parseInt(td.replace('+', '')) || 0;
-    events.push({ name: n, today: tdVal, thru: g.thru, pos: g.pos });
+    var prev = (typeof PREV_POSITIONS !== 'undefined') ? PREV_POSITIONS[n] : null;
+    var cur = parsePos(g.pos);
+    if (!prev || !cur) return;
+    var delta = prev - cur; // >0 climbed, <0 fell
+    if (delta === 0) return;
+    movers.push({ name: n, delta: delta, pos: g.pos, thru: g.thru, today: g.todayDisplay });
   });
 
-  events.sort(function(a, b) { return a.today - b.today; });
-
-  if (!events.length) {
-    body.innerHTML = '<div class="empty">No activity yet</div>';
+  if (!movers.length) {
+    body.innerHTML = '<div class="empty">No movement</div>';
+    var m0 = document.getElementById('act-meta');
+    if (m0) m0.textContent = '—';
     return;
   }
 
-  body.innerHTML = events.slice(0, 50).map(function(e) {
-    var flag = FLAGS && FLAGS[e.name] || '';
-    var cls = e.today < -3 ? 'act-eagle' : e.today < 0 ? 'act-birdie' : e.today > 3 ? 'act-double' : 'act-bogey';
+  movers.sort(function(a, b) { return Math.abs(b.delta) - Math.abs(a.delta); });
+
+  body.innerHTML = movers.slice(0, 40).map(function(m) {
+    var flag = FLAGS && FLAGS[m.name] || '';
+    var hot = m.delta > 0;
+    var badge = hot ? '🔥' : '❄️';
+    var cls = hot ? 'act-birdie' : 'act-bogey';
+    var deltaStr = hot ? '▲' + m.delta : '▼' + Math.abs(m.delta);
     return '<div class="act-row ' + cls + '">'
-      + '<div class="act-time">' + termEsc(e.thru || '—') + '</div>'
-      + '<div class="act-text">' + flag + ' ' + termEsc(e.name) + ' (#' + termEsc(e.pos) + ')</div>'
-      + '<div class="act-score">' + fmtScore(e.today) + '</div>'
+      + '<div class="act-time">' + badge + '</div>'
+      + '<div class="act-text">' + flag + ' ' + termEsc(m.name) + ' (' + termEsc(m.pos) + ')</div>'
+      + '<div class="act-score">' + deltaStr + '</div>'
       + '</div>';
   }).join('');
 
   var meta = document.getElementById('act-meta');
-  if (meta) meta.textContent = events.length + ' moving';
+  if (meta) meta.textContent = movers.length + ' movers';
 }
 
 // ── Render My Entries ──────────────────────────────────
+
+function renderCourseStatsBlock() {
+  // Aggregate field round averages from GOLFER_SCORES r1/r2/r3/r4
+  var cuts = [[], [], [], []];
+  Object.keys(GOLFER_SCORES || {}).forEach(function(n) {
+    var g = GOLFER_SCORES[n];
+    if (!g || g.score === 11 || g.score === 12) return;
+    [g.r1, g.r2, g.r3, g.r4].forEach(function(v, i) { if (v && v > 50) cuts[i].push(v); });
+  });
+  var avgs = cuts.map(function(arr) {
+    if (!arr.length) return null;
+    var sum = arr.reduce(function(s, v) { return s + v; }, 0);
+    return sum / arr.length;
+  });
+  var par = (typeof COURSE_PAR !== 'undefined' && COURSE_PAR) ? COURSE_PAR : 71;
+  var pieces = avgs.map(function(a, i) {
+    if (a == null) return '';
+    var toPar = a - par;
+    var tp = toPar === 0 ? 'E' : (toPar > 0 ? '+' + toPar.toFixed(1) : toPar.toFixed(1));
+    var cls = toPar < 0 ? 'pos' : toPar > 0 ? 'neg' : 'eve';
+    return '<div class="cs-round"><span class="cs-lbl">R' + (i + 1) + '</span>'
+      + '<span class="cs-val">' + a.toFixed(1) + '</span>'
+      + '<span class="cs-tp ' + cls + '">' + tp + '</span></div>';
+  }).join('');
+  var courseName = (typeof TOURNEY_COURSE !== 'undefined' && TOURNEY_COURSE) ? TOURNEY_COURSE : '';
+  return '<div class="course-stats">'
+    + '<div class="cs-head">COURSE · ' + termEsc(courseName || '—') + ' · PAR ' + par + '</div>'
+    + '<div class="cs-rounds">' + pieces + '</div>'
+    + '<div class="cs-foot">Field scoring average by round</div>'
+    + '</div>';
+}
 
 function renderTermMy() {
   var body = document.getElementById('term-my-body');
   if (!body) return;
   var teams = (typeof currentUserTeams !== 'undefined') ? currentUserTeams : [];
   if (!teams.length) {
-    body.innerHTML = '<div class="empty">Log in on mobile app to link your entries</div>';
+    var isFinal = (typeof TOURNEY_FINAL !== 'undefined' && TOURNEY_FINAL);
+    var empty = '<div class="empty">Log in on mobile app to link your entries</div>';
+    body.innerHTML = isFinal ? renderCourseStatsBlock() : empty;
+    var mm = document.getElementById('my-meta');
+    if (mm) mm.textContent = isFinal ? 'course' : '—';
     return;
   }
 
