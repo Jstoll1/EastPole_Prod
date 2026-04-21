@@ -16,6 +16,19 @@
   --term-blue: #4d8fcc;
   --term-header-h: 32px;
   --term-ticker-h: 28px;
+  /* Map mobile CSS vars for scorecard compatibility */
+  --bg: #06120c;
+  --card: #0a1812;
+  --card2: #0d2018;
+  --border: #1f3a2a;
+  --text: #d8e4da;
+  --text2: #7a9a85;
+  --text3: #4a6250;
+  --gold: #d4a843;
+  --gold-dim: rgba(212,168,67,0.5);
+  --green: #2d6a4f;
+  --green-bright: #52b788;
+  --red: #ff6b6b;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -367,3 +380,288 @@ html, body {
     z-index: 9999;
   }
 }
+.sc-panel  {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.sc-panel.open  {
+  max-height: 800px;
+}
+
+.sc-loading  {
+  padding: 16px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.sc-header  {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px 4px;
+}
+.sc-headshot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--gold-dim, rgba(212,168,67,0.3));
+  background: rgba(0,0,0,0.3);
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.sc-player-name  {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sc-player-pos  {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+/* Emoji tag button in scorecard header */
+.sc-emoji-btn {
+  background: rgba(212,168,67,0.10);
+  border: 1px dashed var(--gold-dim, rgba(212,168,67,0.35));
+  border-radius: 6px;
+  font-size: 11px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 0 6px;
+  padding: 0;
+  color: var(--gold);
+  transition: border-color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+.sc-emoji-btn:hover, .sc-emoji-btn:active { border-color: var(--gold); background: rgba(212,168,67,0.2); }
+.sc-emoji-clear {
+  background: none;
+  border: none;
+  font-size: 9px;
+  color: var(--text3);
+  padding: 0 2px;
+  margin-left: -2px;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.sc-emoji-clear:active { color: #e74c3c; }
+
+/* Emoji inline input (replaces the + button while active) */
+.sc-emoji-input {
+  width: 24px;
+  height: 20px;
+  font-size: 13px;
+  text-align: center;
+  background: rgba(212,168,67,0.12);
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  color: var(--text);
+  outline: none;
+  margin: 0 6px;
+  padding: 0;
+  flex-shrink: 0;
+  caret-color: var(--gold);
+}
+
+/* Emoji tag on leaderboard */
+.tv-emoji-tag {
+  font-size: 12px;
+  margin-left: 3px;
+  vertical-align: middle;
+}
+
+/* Emoji tag in activity feed */
+.act-emoji-tag {
+  font-size: 12px;
+  margin-left: 2px;
+}
+
+.sc-round-label  {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text2);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 8px 12px 4px;
+}
+.sc-round-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 12px 0;
+}
+.sc-round-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+  padding: 4px 12px 0;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text2);
+}
+.sc-round-chip { white-space: nowrap; }
+.sc-round-sep {
+  color: var(--border);
+  margin: 0 8px;
+  font-weight: 400;
+}
+
+.sc-grid  {
+  padding: 0 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sc-nine  {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.sc-nine-label  {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: var(--text2);
+  padding: 5px 8px 2px;
+}
+
+.sc-row  {
+  display: flex;
+}
+
+.sc-cell  {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  padding: 4px 0;
+  min-width: 0;
+}
+
+.sc-cell.sc-tot  {
+  font-weight: 800;
+  border-left: 1px solid var(--border);
+  min-width: 32px;
+  flex: 0 0 32px;
+}
+
+.sc-row-hdr .sc-cell  {
+  font-size: 9px;
+  color: var(--text2);
+  font-weight: 700;
+}
+
+.sc-row-par .sc-cell  {
+  font-size: 10px;
+  color: var(--text2);
+  border-top: 1px solid var(--border);
+}
+
+.sc-row-score .sc-cell  {
+  font-weight: 700;
+  color: var(--text);
+  border-top: 1px solid var(--border);
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sc-num  {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 50%;
+  color: var(--text);
+}
+
+/* Birdie: single circle */
+.sc-birdie .sc-num  {
+  border: 2px solid var(--green-bright);
+  color: var(--green-bright);
+}
+
+/* Eagle: double circle */
+.sc-eagle .sc-num  {
+  border: 2px solid #f5c518;
+  color: #f5c518;
+  box-shadow: 0 0 0 2px var(--card), 0 0 0 4px #f5c518;
+}
+
+/* Albatross / hole-in-one: filled gold circle */
+.sc-ace .sc-num  {
+  background: #f5c518;
+  color: var(--bg);
+  font-weight: 900;
+}
+
+/* Par: no decoration */
+.sc-par .sc-num  {
+  color: var(--text);
+}
+
+/* Bogey: single square */
+.sc-bogey .sc-num  {
+  border: 2px solid var(--red);
+  border-radius: 3px;
+  color: var(--red);
+}
+
+/* Double bogey+: double square */
+.sc-dbl .sc-num  {
+  border: 2px solid #ff6b6b;
+  border-radius: 3px;
+  color: #ff6b6b;
+  box-shadow: 0 0 0 2px var(--card), 0 0 0 4px #ff6b6b;
+}
+
+/* Tot column in score row stays plain */
+.sc-row-score .sc-tot  {
+  font-size: 12px;
+  color: var(--text);
+}
+.sc-popup-overlay {
+  position:fixed; inset:0; z-index:1000;
+  background:rgba(0,0,0,0.7);
+  display:flex; align-items:center; justify-content:center;
+  backdrop-filter:blur(3px);
+}
+.sc-popup-wrap {
+  width:100%; max-width:520px;
+  background:var(--term-panel, var(--card));
+  border-radius:12px;
+  border:1px solid var(--term-border-hi, var(--border));
+  border-top:2px solid var(--term-amber, var(--gold));
+  max-height:85vh; overflow-y:auto;
+  position:relative;
+  box-shadow:0 20px 60px rgba(0,0,0,0.6);
+}
+.sc-popup-close {
+  position:absolute; top:10px; right:12px;
+  font-size:16px; color:var(--text3);
+  cursor:pointer; z-index:1;
+  padding:4px 8px;
+  opacity:0.6;
+}
+.sc-popup-close:active { opacity:1; }
+

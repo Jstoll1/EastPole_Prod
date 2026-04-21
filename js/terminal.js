@@ -177,7 +177,8 @@ function renderTermLeaderboard() {
     var mine = (typeof currentUserTeams !== 'undefined' && currentUserTeams.some(function(t) { return t.picks.indexOf(p.name) !== -1; }));
     var inPool = poolNames.has(p.name);
     var rowCls = mine ? 'is-mine' : '';
-    return '<tr class="' + rowCls + '">'
+    var escapedName = p.name.replace(/'/g, "\\'");
+    return '<tr class="' + rowCls + '" onclick="openScorecardPopup(\'' + escapedName + '\')" style="cursor:pointer">'
       + '<td class="tpt-pos">' + termEsc(posDisp) + '</td>'
       + '<td class="tpt-name">' + flag + ' ' + termEsc(p.name) + (inPool ? ' <span style="color:var(--term-text-muted);font-size:9px">●</span>' : '') + '</td>'
       + '<td class="tpt-score ' + scoreCl + '">' + scoreDisp + '</td>'
