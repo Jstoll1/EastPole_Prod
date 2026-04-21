@@ -223,7 +223,7 @@ async function toggleTermScorecard(playerName, rowEl) {
 
   // Fetch data
   delete SCORECARD_CACHE[playerName];
-  await Promise.all([fetchCourseHoles(), fetchPlayerScorecard(playerName)]);
+  await Promise.all([fetchCourseHoles(), fetchPlayerScorecard(playerName), fetchDGLivePreds()]);
 
   // Check we're still the open card
   if (_termOpenCard !== playerName) return;
