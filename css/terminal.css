@@ -210,10 +210,20 @@ html, body {
   cursor: pointer;
   user-select: none;
   position: relative;
+  padding-top: 12px;
 }
 .tp-table th[data-col]:hover { color: var(--term-amber); }
-.tp-table th.sort-asc::after  { content: ' ▲'; font-size: 8px; color: var(--term-amber); }
-.tp-table th.sort-desc::after { content: ' ▼'; font-size: 8px; color: var(--term-amber); }
+.tp-table th.sort-asc::before,
+.tp-table th.sort-desc::before {
+  position: absolute;
+  top: 1px;
+  left: 6px;
+  font-size: 8px;
+  line-height: 1;
+  color: var(--term-amber);
+}
+.tp-table th.sort-asc::before  { content: '▲'; }
+.tp-table th.sort-desc::before { content: '▼'; }
 .tp-table th .col-resize {
   position: absolute;
   right: 0; top: 0; bottom: 0;
