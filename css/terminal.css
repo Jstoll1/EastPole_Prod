@@ -369,6 +369,8 @@ html, body {
 .act-eagle .act-score { color: var(--term-amber-bright); font-weight: 800; }
 .act-bogey .act-score { color: var(--term-red); }
 .act-double .act-score { color: #ff4040; font-weight: 800; }
+.act-top-mover { background: rgba(212,168,67,0.08); border-left: 2px solid var(--term-amber); }
+.act-top-mover .act-text { font-weight: 700; }
 
 /* ── My Entries ─────────────────────────────────────────── */
 .my-entry-block {

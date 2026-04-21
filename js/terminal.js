@@ -571,34 +571,73 @@ function renderTermStandings() {
 function renderTermActivity() {
   var body = document.getElementById('term-act-body');
   if (!body) return;
-  var names = Object.keys(GOLFER_SCORES || {});
-  var movers = [];
 
-  names.forEach(function(n) {
+  var isPreT = (typeof TOURNAMENT_STARTED !== 'undefined' && !TOURNAMENT_STARTED);
+  var currentRound = (typeof ESPN_ROUND !== 'undefined' && ESPN_ROUND) ? Math.min(ESPN_ROUND, 4) : 0;
+
+  var allPlayers = Object.keys(GOLFER_SCORES || {}).map(function(n) {
     var g = GOLFER_SCORES[n];
-    if (!g || g.score === 11 || g.score === 12) return;
-    var prev = (typeof PREV_POSITIONS !== 'undefined') ? PREV_POSITIONS[n] : null;
-    var cur = parsePos(g.pos);
-    if (!prev || !cur) return;
-    var delta = prev - cur; // >0 climbed, <0 fell
-    if (delta === 0) return;
-    movers.push({ name: n, delta: delta, pos: g.pos, thru: g.thru, today: g.todayDisplay });
+    return { name: n, score: g.score, pos: g.pos, thru: g.thru, todayDisplay: g.todayDisplay };
+  });
+
+  // Prior positions inferred from (current score − today) across the full field,
+  // ranked with tie handling. Mirrors ui-leaderboard.js:178-196.
+  var priorPosMap = {};
+  if (!isPreT && currentRound >= 2) {
+    var fullPriorScores = allPlayers
+      .filter(function(p) { return p.score !== 11 && p.score !== 12; })
+      .map(function(p) {
+        var td = p.todayDisplay;
+        var todayVal = 0, hasToday = false;
+        if (td && td !== '—') { hasToday = true; todayVal = td === 'E' ? 0 : (parseInt(String(td).replace('+', '')) || 0); }
+        return { name: p.name, prior: hasToday ? p.score - todayVal : p.score };
+      })
+      .sort(function(a, b) { return a.prior - b.prior; });
+    var fpRk = 1;
+    fullPriorScores.forEach(function(ps, idx) {
+      if (idx > 0 && ps.prior !== fullPriorScores[idx - 1].prior) fpRk = idx + 1;
+      priorPosMap[ps.name] = fpRk;
+    });
+  }
+
+  // Build arrow map: delta = priorPos − currentPos (positive = climbed).
+  // Skip MC/WD and players who haven't teed off (thru='—' or 'HH:MM').
+  var arrowPlayers = new Map();
+  if (!isPreT && currentRound >= 2) {
+    allPlayers.forEach(function(p) {
+      if (p.score === 11 || p.score === 12) return;
+      if (p.thru === '—' || (p.thru && String(p.thru).indexOf(':') !== -1)) return;
+      var cP = parsePos(p.pos); if (!cP) return;
+      var sP = priorPosMap[p.name];
+      if (sP && sP !== cP) arrowPlayers.set(p.name, sP - cP);
+    });
+  }
+
+  var topMoverNames = (!isPreT && typeof getTopMovers === 'function') ? getTopMovers(arrowPlayers) : new Map();
+
+  var movers = [];
+  arrowPlayers.forEach(function(delta, name) {
+    var g = GOLFER_SCORES[name];
+    movers.push({ name: name, delta: delta, pos: g.pos, thru: g.thru, isTop: topMoverNames.has(name) });
+  });
+  // Top-of-list highlights: top movers first, then remaining sorted by |delta|
+  movers.sort(function(a, b) {
+    if (a.isTop !== b.isTop) return a.isTop ? -1 : 1;
+    return Math.abs(b.delta) - Math.abs(a.delta);
   });
 
   if (!movers.length) {
-    body.innerHTML = '<div class="empty">No movement</div>';
+    body.innerHTML = '<div class="empty">' + (isPreT ? 'Pre-tournament' : currentRound < 2 ? 'Round 1 — no prior positions yet' : 'No movement') + '</div>';
     var m0 = document.getElementById('act-meta');
     if (m0) m0.textContent = '—';
     return;
   }
 
-  movers.sort(function(a, b) { return Math.abs(b.delta) - Math.abs(a.delta); });
-
   body.innerHTML = movers.slice(0, 40).map(function(m) {
     var flag = FLAGS && FLAGS[m.name] || '';
     var hot = m.delta > 0;
-    var badge = hot ? '🔥' : '❄️';
-    var cls = hot ? 'act-birdie' : 'act-bogey';
+    var badge = hot ? '🔥' : '🧊'; // 🔥 / 🧊
+    var cls = (hot ? 'act-birdie' : 'act-bogey') + (m.isTop ? ' act-top-mover' : '');
     var deltaStr = hot ? '▲' + m.delta : '▼' + Math.abs(m.delta);
     return '<div class="act-row ' + cls + '">'
       + '<div class="act-time">' + badge + '</div>'
