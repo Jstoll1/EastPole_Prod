@@ -110,15 +110,19 @@ html, body {
   overflow: hidden;
   height: 100%;
   position: relative;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
 }
+.tt-track.tt-dragging { cursor: grabbing; }
 .tt-content {
   white-space: nowrap;
   position: absolute;
   top: 50%;
-  transform: translateY(-50%);
-  animation: ttScroll 90s linear infinite;
+  transform: translate(0, -50%);
   font-size: 11px;
   color: var(--term-text);
+  will-change: transform;
 }
 @keyframes ttScroll {
   0% { transform: translate(0, -50%); }

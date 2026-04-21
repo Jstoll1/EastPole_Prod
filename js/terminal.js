@@ -838,6 +838,88 @@ function renderTermThreat() {
 
 // ── Render Ticker ─────────────────────────────────────
 
+// ── Ticker: JS-driven auto-scroll + click-drag + momentum ─
+
+var _ticker = {
+  translate: 0,
+  velocity: 0,
+  dragging: false,
+  lastX: 0,
+  lastT: 0,
+  autoScrollActive: true,
+  resumeTimer: null,
+  AUTO_SPEED: 0.45   // px/frame when idle
+};
+
+function initTickerInteraction() {
+  var track = document.querySelector('.tt-track');
+  var content = document.getElementById('tt-content');
+  if (!track || !content) return;
+
+  function contentHalfWidth() { return content.scrollWidth / 2; } // doubled for wrap
+  function apply() {
+    var w = contentHalfWidth();
+    if (w > 0) {
+      while (_ticker.translate <= -w) _ticker.translate += w;
+      while (_ticker.translate > 0) _ticker.translate -= w;
+    }
+    content.style.transform = 'translate(' + _ticker.translate + 'px, -50%)';
+  }
+
+  function tick() {
+    if (_ticker.dragging) {
+      // position set directly by mousemove/touchmove
+    } else if (Math.abs(_ticker.velocity) > 0.2) {
+      _ticker.translate += _ticker.velocity;
+      _ticker.velocity *= 0.94;
+      if (Math.abs(_ticker.velocity) <= 0.2) {
+        if (_ticker.resumeTimer) clearTimeout(_ticker.resumeTimer);
+        _ticker.autoScrollActive = false;
+        _ticker.resumeTimer = setTimeout(function() { _ticker.autoScrollActive = true; }, 1500);
+      }
+    } else if (_ticker.autoScrollActive) {
+      _ticker.translate -= _ticker.AUTO_SPEED;
+    }
+    apply();
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  function onDown(x) {
+    _ticker.dragging = true;
+    _ticker.lastX = x;
+    _ticker.lastT = Date.now();
+    _ticker.velocity = 0;
+    _ticker.autoScrollActive = false;
+    if (_ticker.resumeTimer) { clearTimeout(_ticker.resumeTimer); _ticker.resumeTimer = null; }
+    track.classList.add('tt-dragging');
+  }
+  function onMove(x) {
+    if (!_ticker.dragging) return;
+    var now = Date.now();
+    var dx = x - _ticker.lastX;
+    var dt = Math.max(1, now - _ticker.lastT);
+    _ticker.velocity = (dx / dt) * 16; // px per ~60fps frame
+    _ticker.translate += dx;
+    _ticker.lastX = x;
+    _ticker.lastT = now;
+    apply();
+  }
+  function onUp() {
+    if (!_ticker.dragging) return;
+    _ticker.dragging = false;
+    track.classList.remove('tt-dragging');
+  }
+
+  track.addEventListener('mousedown', function(e) { onDown(e.pageX); e.preventDefault(); });
+  document.addEventListener('mousemove', function(e) { onMove(e.pageX); });
+  document.addEventListener('mouseup', onUp);
+  track.addEventListener('touchstart', function(e) { var t = e.touches[0]; if (t) onDown(t.pageX); }, { passive: true });
+  track.addEventListener('touchmove',  function(e) { var t = e.touches[0]; if (t) onMove(t.pageX); }, { passive: true });
+  track.addEventListener('touchend', onUp);
+  track.addEventListener('touchcancel', onUp);
+}
+
 function renderTermTicker() {
   var el = document.getElementById('tt-content');
   if (!el) return;
@@ -916,6 +998,7 @@ async function initTerminal() {
   }
   updateStatusBar();
   initTableFeatures();
+  initTickerInteraction();
 
   // Initial fetch
   try {
