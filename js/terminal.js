@@ -430,37 +430,55 @@ function renderTermMy() {
   if (meta) meta.textContent = teams.length + ' ' + (teams.length === 1 ? 'entry' : 'entries');
 }
 
-// ── Render Ownership ──────────────────────────────────
+// ── Render DataGolf Odds ──────────────────────────────
 
-function renderTermOwnership() {
-  var body = document.getElementById('term-own-body');
+function renderTermDataGolf() {
+  var body = document.getElementById('term-dg-body');
   if (!body) return;
-  if (!OWNERSHIP_DATA || !OWNERSHIP_DATA.length) {
-    body.innerHTML = '<tr><td colspan="5" class="empty">No ownership data</td></tr>';
+  var dg = (typeof DG_LIVE_PREDS !== 'undefined') ? DG_LIVE_PREDS : {};
+  var names = Object.keys(dg);
+  if (!names.length) {
+    body.innerHTML = '<tr><td colspan="6" class="empty">Loading DataGolf odds…</td></tr>';
+    var metaE = document.getElementById('dg-meta');
+    if (metaE) metaE.textContent = '—';
     return;
   }
 
-  body.innerHTML = OWNERSHIP_DATA.slice(0, 60).map(function(d) {
-    var gd = GOLFER_SCORES[d.player];
-    var mc = gd && (gd.score === 11 || gd.score === 12);
-    var flag = FLAGS && FLAGS[d.player] || '';
-    var scDisp = mc ? 'MC' : (gd ? fmtScore(gd.score) : '—');
-    var scCl = mc ? 'mc' : (gd ? scoreCls(gd.score) : '');
-    var todayDisp = mc ? '—' : (gd ? (gd.todayDisplay || '—') : '—');
-    var todayVal = todayDisp === 'E' ? 0 : parseInt(todayDisp.replace('+', '')) || 0;
-    var todayCl = todayDisp === '—' ? '' : scoreCls(todayVal);
-    var thruDisp = mc ? '' : (gd ? gd.thru : '');
+  var rows = names.map(function(n) {
+    var d = dg[n];
+    return { name: n, win: d.win || 0, top_5: d.top_5 || 0, top_10: d.top_10 || 0, top_20: d.top_20 || 0, make_cut: d.make_cut || 0 };
+  });
+  rows.sort(function(a, b) {
+    return b.win - a.win || b.top_5 - a.top_5 || b.top_10 - a.top_10 || b.top_20 - a.top_20 || b.make_cut - a.make_cut;
+  });
+
+  function fmtPct(v) {
+    var pct = v * 100;
+    if (pct >= 1) return pct.toFixed(1) + '%';
+    if (pct > 0) return '<1%';
+    return '—';
+  }
+  function pctCls(v) {
+    if (v >= 0.5) return 'dg-hi';
+    if (v >= 0.15) return 'dg-mid';
+    if (v > 0) return 'dg-lo';
+    return 'dg-zero';
+  }
+
+  body.innerHTML = rows.slice(0, 80).map(function(r) {
+    var flag = (FLAGS && FLAGS[r.name]) || '';
     return '<tr>'
-      + '<td class="tpt-pos">' + Math.round(d.pct * 100) + '%</td>'
-      + '<td class="tpt-name">' + flag + ' ' + termEsc(d.player) + '</td>'
-      + '<td class="tpt-score ' + scCl + '">' + scDisp + '</td>'
-      + '<td class="tpt-today ' + todayCl + '">' + termEsc(todayDisp) + '</td>'
-      + '<td class="tpt-thru">' + termEsc(thruDisp || '') + '</td>'
+      + '<td class="tpt-name">' + flag + ' ' + termEsc(r.name) + '</td>'
+      + '<td class="tpt-dg ' + pctCls(r.make_cut) + '">' + fmtPct(r.make_cut) + '</td>'
+      + '<td class="tpt-dg ' + pctCls(r.top_20) + '">' + fmtPct(r.top_20) + '</td>'
+      + '<td class="tpt-dg ' + pctCls(r.top_10) + '">' + fmtPct(r.top_10) + '</td>'
+      + '<td class="tpt-dg ' + pctCls(r.top_5) + '">' + fmtPct(r.top_5) + '</td>'
+      + '<td class="tpt-dg ' + pctCls(r.win) + '">' + fmtPct(r.win) + '</td>'
       + '</tr>';
   }).join('');
 
-  var meta = document.getElementById('own-meta');
-  if (meta) meta.textContent = OWNERSHIP_DATA.length + ' players';
+  var meta = document.getElementById('dg-meta');
+  if (meta) meta.textContent = rows.length + ' players';
 }
 
 // ── Render Threat Board ───────────────────────────────
@@ -525,7 +543,7 @@ function renderTerminal() {
   try { renderTermStandings(); } catch(e) { console.error('STD error', e); }
   try { renderTermActivity(); } catch(e) { console.error('ACT error', e); }
   try { renderTermMy(); } catch(e) { console.error('MY error', e); }
-  try { renderTermOwnership(); } catch(e) { console.error('OWN error', e); }
+  try { renderTermDataGolf(); } catch(e) { console.error('DG error', e); }
   try { renderTermThreat(); } catch(e) { console.error('THR error', e); }
   try { renderTermTicker(); } catch(e) { console.error('TICKER error', e); }
   updateStatusBar();
@@ -574,6 +592,8 @@ async function initTerminal() {
   try {
     termDiag('Calling fetchESPN...');
     await fetchESPN();
+    // Await DG so the F5 odds panel populates on first paint instead of waiting for the next auto-refresh
+    await fetchDGLivePreds(true);
     var count = Object.keys(GOLFER_SCORES || {}).length;
     termDiag('fetchESPN done. Golfers: ' + count + ', Tourney: ' + (typeof TOURNEY_NAME !== 'undefined' ? TOURNEY_NAME : 'UNDEF'));
     // Dump first 3 players' raw data
