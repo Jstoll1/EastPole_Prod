@@ -227,9 +227,13 @@ function lastName(n) {
 
 // ── Render Leaderboard ─────────────────────────────────
 
+var _pendingLbRender = false;
+
 function renderTermLeaderboard() {
   var body = document.getElementById('term-lb-body');
   if (!body) return;
+  // Skip re-render while a scorecard is open so the inserted <tr> isn't wiped
+  if (_termOpenCard !== null) { _pendingLbRender = true; return; }
   var names = Object.keys(GOLFER_SCORES || {});
   if (!names.length) { body.innerHTML = '<tr><td colspan="5" class="empty">Loading field…</td></tr>'; return; }
 
@@ -311,7 +315,12 @@ async function toggleTermScorecard(playerName, rowEl) {
   // Close existing
   var existing = document.getElementById('term-sc-inline');
   if (existing) existing.remove();
-  if (_termOpenCard === playerName) { _termOpenCard = null; return; }
+  if (_termOpenCard === playerName) {
+    _termOpenCard = null;
+    // Flush any leaderboard re-render that was deferred while the card was open
+    if (_pendingLbRender) { _pendingLbRender = false; renderTermLeaderboard(); }
+    return;
+  }
   _termOpenCard = playerName;
 
   // Insert loading row after clicked row
