@@ -580,9 +580,10 @@ function renderTermDataGolf() {
 
   function fmtPct(v) {
     var pct = v * 100;
-    if (pct >= 1) return pct.toFixed(1) + '%';
-    if (pct > 0) return '<1%';
-    return '—';
+    if (pct <= 0) return '—';
+    if (pct < 1) return '<1';
+    // Integer for whole values, one decimal otherwise; no % sign (column label implies it)
+    return pct >= 99.95 || pct === Math.round(pct) ? String(Math.round(pct)) : pct.toFixed(1);
   }
   function pctCls(v) {
     if (v >= 0.5) return 'dg-hi';
@@ -590,16 +591,23 @@ function renderTermDataGolf() {
     if (v > 0) return 'dg-lo';
     return 'dg-zero';
   }
+  function pctCell(v) {
+    var pct = Math.max(0, Math.min(1, v || 0)) * 100;
+    var bar = pct > 0
+      ? 'background:linear-gradient(to right, rgba(212,168,67,0.28) ' + pct.toFixed(1) + '%, transparent ' + pct.toFixed(1) + '%);'
+      : '';
+    return '<td class="tpt-dg ' + pctCls(v) + '" style="' + bar + '">' + fmtPct(v) + '</td>';
+  }
 
   body.innerHTML = rows.slice(0, 80).map(function(r) {
     var flag = (FLAGS && FLAGS[r.name]) || '';
     return '<tr>'
       + '<td class="tpt-name">' + flag + ' ' + termEsc(r.name) + '</td>'
-      + '<td class="tpt-dg ' + pctCls(r.make_cut) + '">' + fmtPct(r.make_cut) + '</td>'
-      + '<td class="tpt-dg ' + pctCls(r.top_20) + '">' + fmtPct(r.top_20) + '</td>'
-      + '<td class="tpt-dg ' + pctCls(r.top_10) + '">' + fmtPct(r.top_10) + '</td>'
-      + '<td class="tpt-dg ' + pctCls(r.top_5) + '">' + fmtPct(r.top_5) + '</td>'
-      + '<td class="tpt-dg ' + pctCls(r.win) + '">' + fmtPct(r.win) + '</td>'
+      + pctCell(r.make_cut)
+      + pctCell(r.top_20)
+      + pctCell(r.top_10)
+      + pctCell(r.top_5)
+      + pctCell(r.win)
       + '</tr>';
   }).join('');
 
