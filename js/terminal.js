@@ -240,6 +240,17 @@ async function toggleTermScorecard(playerName, rowEl) {
   html += '<span class="tsc-close" onclick="event.stopPropagation();toggleTermScorecard(\'' + playerName.replace(/'/g, "\\'") + '\')">✕</span>';
   html += '</div>';
 
+  // DG live predictions + pre-odds
+  html += buildDGLiveRow(playerName);
+  var pOdds = PRE_ODDS[playerName];
+  if (pOdds) {
+    html += '<div class="tsc-rounds">';
+    [['WIN',pOdds[0]],['TOP 5',pOdds[1]],['TOP 10',pOdds[2]]].forEach(function(o) {
+      html += '<div class="tsc-chip"><span class="tsc-chip-lbl">' + o[0] + '</span><span style="font-weight:800;color:var(--term-amber)">' + o[1] + '</span></div>';
+    });
+    html += '</div>';
+  }
+
   // Round scores
   if (gd) {
     html += '<div class="tsc-rounds">';
