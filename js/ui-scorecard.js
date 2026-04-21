@@ -414,18 +414,8 @@ async function openScorecardPopup(playerName) {
   html += '<span style="font-size:10px;color:var(--text3);font-weight:600;margin-left:auto">' + ownPct + '% owned</span>';
   html += '</div>';
 
-  // DG live predictions + pre-odds
+  // DataGolf live predictions
   html += buildDGLiveRow(playerName);
-  var pOdds = PRE_ODDS[playerName];
-  if (pOdds) {
-    html += '<div style="display:flex;gap:6px;padding:4px 12px;flex-wrap:wrap">';
-    [['WIN',pOdds[0]],['TOP 5',pOdds[1]],['TOP 10',pOdds[2]]].forEach(function(o) {
-      html += '<div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:4px 10px;text-align:center;min-width:50px">'
-        + '<div style="font-size:8px;color:var(--text3);font-weight:700">' + o[0] + '</div>'
-        + '<div style="font-size:12px;font-weight:800;color:var(--gold)">' + o[1] + '</div></div>';
-    });
-    html += '</div>';
-  }
 
   // Score summary
   if (gd) {
