@@ -355,6 +355,80 @@ html, body {
   transform: translateY(0);
 }
 
+/* ── Inline Scorecard ──────────────────────────────────── */
+.tsc-wrap {
+  padding: 0 !important;
+  background: var(--term-panel-alt);
+  border-left: 2px solid var(--term-amber);
+}
+.tsc-loading {
+  padding: 12px 10px;
+  font-size: 11px;
+  color: var(--term-text-dim);
+}
+.tsc-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px 4px;
+}
+.tsc-headshot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--term-amber);
+  background: rgba(0,0,0,0.3);
+  flex-shrink: 0;
+}
+.tsc-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--term-text);
+}
+.tsc-pos {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--term-amber);
+}
+.tsc-close {
+  margin-left: auto;
+  color: var(--term-text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 6px;
+}
+.tsc-close:hover { color: var(--term-text); }
+.tsc-rounds {
+  display: flex;
+  gap: 6px;
+  padding: 4px 10px 6px;
+  flex-wrap: wrap;
+}
+.tsc-chip {
+  background: var(--term-panel);
+  border: 1px solid var(--term-border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 36px;
+}
+.tsc-chip-lbl {
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--term-text-muted);
+  letter-spacing: 0.5px;
+}
+.tsc-grid {
+  padding: 2px 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 /* Empty state */
 .empty {
   padding: 30px 16px;

@@ -178,7 +178,7 @@ function renderTermLeaderboard() {
     var inPool = poolNames.has(p.name);
     var rowCls = mine ? 'is-mine' : '';
     var escapedName = p.name.replace(/'/g, "\\'");
-    return '<tr class="' + rowCls + '" onclick="openScorecardPopup(\'' + escapedName + '\')" style="cursor:pointer">'
+    return '<tr class="' + rowCls + '" onclick="toggleTermScorecard(\'' + escapedName + '\', this)" style="cursor:pointer">'
       + '<td class="tpt-pos">' + termEsc(posDisp) + '</td>'
       + '<td class="tpt-name">' + flag + ' ' + termEsc(p.name) + (inPool ? ' <span style="color:var(--term-text-muted);font-size:9px">●</span>' : '') + '</td>'
       + '<td class="tpt-score ' + scoreCl + '">' + scoreDisp + '</td>'
@@ -189,6 +189,82 @@ function renderTermLeaderboard() {
 
   var meta = document.getElementById('lb-meta');
   if (meta) meta.textContent = players.length + ' players';
+}
+
+// ── Inline Scorecard ──────────────────────────────────
+
+var _termOpenCard = null;
+
+async function toggleTermScorecard(playerName, rowEl) {
+  // Close existing
+  var existing = document.getElementById('term-sc-inline');
+  if (existing) existing.remove();
+  if (_termOpenCard === playerName) { _termOpenCard = null; return; }
+  _termOpenCard = playerName;
+
+  // Insert loading row after clicked row
+  var detailRow = document.createElement('tr');
+  detailRow.id = 'term-sc-inline';
+  detailRow.innerHTML = '<td colspan="5" class="tsc-wrap"><div class="tsc-loading">Loading scorecard…</div></td>';
+  rowEl.parentNode.insertBefore(detailRow, rowEl.nextSibling);
+
+  // Fetch data
+  delete SCORECARD_CACHE[playerName];
+  await Promise.all([fetchCourseHoles(), fetchPlayerScorecard(playerName)]);
+
+  // Check we're still the open card
+  if (_termOpenCard !== playerName) return;
+
+  var rounds = SCORECARD_CACHE[playerName];
+  var gd = GOLFER_SCORES[playerName];
+  var aid = ATHLETE_IDS[playerName];
+  var flag = (FLAGS && FLAGS[playerName]) || '';
+
+  var html = '<div class="tsc-header">';
+  if (aid) html += '<img class="tsc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + aid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">';
+  html += '<span class="tsc-name">' + flag + ' ' + termEsc(playerName) + '</span>';
+  if (gd) html += '<span class="tsc-pos">' + (gd.pos || '') + '</span>';
+  html += '<span class="tsc-close" onclick="event.stopPropagation();toggleTermScorecard(\'' + playerName.replace(/'/g, "\\'") + '\')">✕</span>';
+  html += '</div>';
+
+  // Round scores
+  if (gd) {
+    html += '<div class="tsc-rounds">';
+    html += '<div class="tsc-chip"><span class="tsc-chip-lbl">TOT</span><span class="' + cls(gd.score) + '" style="font-size:14px;font-weight:900">' + fmt(gd.score) + '</span></div>';
+    [{l:'R1',v:gd.r1},{l:'R2',v:gd.r2},{l:'R3',v:gd.r3},{l:'R4',v:gd.r4}].forEach(function(r) {
+      if (r.v == null) return;
+      var tp = r.v - COURSE_PAR;
+      html += '<div class="tsc-chip"><span class="tsc-chip-lbl">' + r.l + '</span><span style="font-weight:800">' + r.v + '</span>'
+        + '<span class="' + (tp<0?'neg':tp>0?'pos':'eve') + '" style="font-size:9px">' + (tp<0?''+tp:tp>0?'+'+tp:'E') + '</span></div>';
+    });
+    if (gd.todayDisplay && gd.todayDisplay !== '—') html += '<div class="tsc-chip"><span class="tsc-chip-lbl">TDY</span><span class="' + cls(parseInt(gd.todayDisplay.replace('+',''))||0) + '" style="font-weight:800">' + gd.todayDisplay + '</span></div>';
+    html += '</div>';
+  }
+
+  // Hole-by-hole
+  if (rounds && rounds.length) {
+    var roundsWithData = rounds.map(function(r, i) { return { round: r, idx: i }; }).filter(function(obj) { return obj.round.holes && obj.round.holes.length > 0; });
+    var activeRound = roundsWithData.length ? roundsWithData[roundsWithData.length - 1] : null;
+    if (activeRound) {
+      var r = activeRound.round;
+      var holeMap = {};
+      r.holes.forEach(function(h) { holeMap[h.hole] = h; });
+      html += '<div class="tsc-grid">';
+      html += '<div class="sc-nine"><div class="sc-nine-label">OUT</div><div class="sc-row sc-row-hdr">';
+      for (var hn=1;hn<=9;hn++) html += '<div class="sc-cell">' + hn + '</div>';
+      html += '</div><div class="sc-row sc-row-score">';
+      for (var hn=1;hn<=9;hn++) { var hd=holeMap[hn]; var par=getHolePar(hn); var scC=hd&&hd.strokes?scorecardClass(hd.strokes,par):''; html += '<div class="sc-cell ' + scC + '"><span class="sc-num">' + (hd&&hd.strokes?hd.strokes:'–') + '</span></div>'; }
+      html += '</div></div>';
+      html += '<div class="sc-nine"><div class="sc-nine-label">IN</div><div class="sc-row sc-row-hdr">';
+      for (var hn=10;hn<=18;hn++) html += '<div class="sc-cell">' + hn + '</div>';
+      html += '</div><div class="sc-row sc-row-score">';
+      for (var hn=10;hn<=18;hn++) { var hd=holeMap[hn]; var par=getHolePar(hn); var scC=hd&&hd.strokes?scorecardClass(hd.strokes,par):''; html += '<div class="sc-cell ' + scC + '"><span class="sc-num">' + (hd&&hd.strokes?hd.strokes:'–') + '</span></div>'; }
+      html += '</div></div></div>';
+    }
+  }
+
+  var cell = detailRow.querySelector('.tsc-wrap');
+  if (cell) cell.innerHTML = html;
 }
 
 // ── Render Standings ───────────────────────────────────
