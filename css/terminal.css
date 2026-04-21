@@ -206,6 +206,23 @@ html, body {
   border-bottom: 1px solid var(--term-border);
   text-transform: uppercase;
 }
+.tp-table th[data-col] {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+.tp-table th[data-col]:hover { color: var(--term-amber); }
+.tp-table th.sort-asc::after  { content: ' ▲'; font-size: 8px; color: var(--term-amber); }
+.tp-table th.sort-desc::after { content: ' ▼'; font-size: 8px; color: var(--term-amber); }
+.tp-table th .col-resize {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 5px;
+  cursor: col-resize;
+  user-select: none;
+  z-index: 3;
+}
+.tp-table th .col-resize:hover { background: rgba(212,168,67,0.35); }
 .tp-table td {
   padding: 3px 6px;
   border-bottom: 1px solid rgba(31,58,42,0.3);

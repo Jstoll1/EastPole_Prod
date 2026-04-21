@@ -61,6 +61,102 @@ if (typeof detectEntryActivity === 'undefined') window.detectEntryActivity = fun
 
 var _termLastUpdate = 0;
 
+// ── Table sort + column resize ─────────────────────────
+// Panel-keyed sort state; each render function applies the current col/dir.
+var _sortState = {
+  'panel-leaderboard': { col: 'score', dir: 'asc' },
+  'panel-standings':   { col: 'rank',  dir: 'asc' },
+  'panel-datagolf':    { col: 'win',   dir: 'desc' }
+};
+var _colWidths = {};
+try { _colWidths = JSON.parse(localStorage.getItem('term_col_widths') || '{}'); } catch(e) {}
+
+function _saveColWidths() {
+  try { localStorage.setItem('term_col_widths', JSON.stringify(_colWidths)); } catch(e) {}
+}
+
+function sortRowsBy(rows, col, dir, accessors) {
+  var get = accessors[col];
+  if (!get) return rows;
+  var sign = dir === 'desc' ? -1 : 1;
+  return rows.slice().sort(function(a, b) {
+    var va = get(a), vb = get(b);
+    if (va == null && vb == null) return 0;
+    if (va == null) return 1;   // nulls always last
+    if (vb == null) return -1;
+    if (typeof va === 'string' || typeof vb === 'string') return sign * String(va).localeCompare(String(vb));
+    return sign * (va - vb);
+  });
+}
+
+function updateSortIndicators(panelId) {
+  var st = _sortState[panelId];
+  if (!st) return;
+  var panel = document.getElementById(panelId);
+  if (!panel) return;
+  panel.querySelectorAll('thead th[data-col]').forEach(function(th) {
+    var hit = th.getAttribute('data-col') === st.col;
+    th.classList.toggle('sort-asc', hit && st.dir === 'asc');
+    th.classList.toggle('sort-desc', hit && st.dir === 'desc');
+  });
+}
+
+function initTableFeatures() {
+  document.querySelectorAll('.term-panel .tp-table').forEach(function(table) {
+    var panel = table.closest('.term-panel');
+    if (!panel) return;
+    var panelId = panel.id;
+    var ths = table.querySelectorAll('thead th[data-col]');
+
+    // Apply saved widths
+    ths.forEach(function(th) {
+      var key = panelId + ':' + th.getAttribute('data-col');
+      if (_colWidths[key]) th.style.width = _colWidths[key] + 'px';
+    });
+
+    ths.forEach(function(th, i) {
+      // Sort click (ignored while resizing / just after a resize drag)
+      th.addEventListener('click', function() {
+        if (th._suppressClick) return;
+        var col = th.getAttribute('data-col');
+        var st = _sortState[panelId];
+        if (!st) return;
+        if (st.col === col) st.dir = st.dir === 'asc' ? 'desc' : 'asc';
+        else { st.col = col; st.dir = 'asc'; }
+        renderTerminal();
+      });
+
+      // Resize handle on every column except the last one
+      if (i === ths.length - 1) return;
+      var handle = document.createElement('span');
+      handle.className = 'col-resize';
+      th.appendChild(handle);
+      handle.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        th._suppressClick = true;
+        var startX = e.pageX;
+        var startW = th.offsetWidth;
+        function onMove(ev) {
+          var w = Math.max(30, startW + (ev.pageX - startX));
+          th.style.width = w + 'px';
+        }
+        function onUp() {
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+          var key = panelId + ':' + th.getAttribute('data-col');
+          _colWidths[key] = th.offsetWidth;
+          _saveColWidths();
+          setTimeout(function() { th._suppressClick = false; }, 50);
+        }
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+    });
+  });
+  Object.keys(_sortState).forEach(updateSortIndicators);
+}
+
 function termToast(msg) {
   var t = document.getElementById('term-toast');
   if (!t) return;
@@ -146,13 +242,16 @@ function renderTermLeaderboard() {
     };
   });
 
-  players.sort(function(a, b) {
-    if (a.mc && !b.mc) return 1;
-    if (!a.mc && b.mc) return -1;
-    if (a.wd && !b.wd) return 1;
-    if (!a.wd && b.wd) return -1;
-    return a.score - b.score;
-  });
+  var lbSort = _sortState['panel-leaderboard'];
+  var lbAccessors = {
+    pos:   function(p) { return p.mc || p.wd ? 9999 : (parsePos(p.pos) || 9999); },
+    name:  function(p) { return p.name; },
+    score: function(p) { return p.mc || p.wd ? (lbSort.dir === 'desc' ? -Infinity : Infinity) : p.score; },
+    today: function(p) { var t = p.today; return t === 'E' ? 0 : (parseInt(String(t).replace('+','')) || 0); },
+    thru:  function(p) { return String(p.thru || ''); }
+  };
+  players = sortRowsBy(players, lbSort.col, lbSort.dir, lbAccessors);
+  updateSortIndicators('panel-leaderboard');
 
   // Get pool pick names
   var poolNames = new Set();
@@ -302,10 +401,9 @@ function renderTermStandings() {
   var ranked = getRanked();
   var myKey = (typeof currentUserEmail !== 'undefined') ? currentUserEmail : '';
 
-  body.innerHTML = ranked.slice(0, 60).map(function(e, i) {
+  // Precompute row data (rank / isMoney stay tied to original pool ranking)
+  var rows = ranked.map(function(e, i) {
     var rank = i + 1;
-    var isMine = e.email === myKey;
-    var isMoney = rank <= 3;
     var teamHolesLeft = e.top4.reduce(function(s, g) { return s + getHolesRemaining(g.name); }, 0);
     var teamToday = 0, hasToday = false;
     e.top4.forEach(function(g) {
@@ -313,20 +411,39 @@ function renderTermStandings() {
       if (!gd) return;
       if (gd.score === 11 || gd.score === 12) return;
       var td = gd.todayDisplay;
-      if (td && td !== '—') {
-        hasToday = true;
-        teamToday += (td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0);
-      }
+      if (td && td !== '—') { hasToday = true; teamToday += (td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0); }
     });
-    var todayDisp = hasToday ? fmtScore(teamToday) : '—';
-    var todayCl = hasToday ? scoreCls(teamToday) : '';
-    var cls = [isMine ? 'is-mine' : '', isMoney ? 'is-money' : ''].filter(Boolean).join(' ');
+    return {
+      entry: e, rank: rank,
+      isMine: e.email === myKey,
+      isMoney: rank <= 3,
+      total: e.total,
+      today: hasToday ? teamToday : null,
+      holes: teamHolesLeft
+    };
+  });
+
+  var stSort = _sortState['panel-standings'];
+  var stAccessors = {
+    rank:  function(r) { return r.rank; },
+    team:  function(r) { return r.entry.team; },
+    total: function(r) { return r.total; },
+    today: function(r) { return r.today; },
+    holes: function(r) { return r.holes; }
+  };
+  rows = sortRowsBy(rows, stSort.col, stSort.dir, stAccessors);
+  updateSortIndicators('panel-standings');
+
+  body.innerHTML = rows.slice(0, 60).map(function(r) {
+    var todayDisp = r.today == null ? '—' : fmtScore(r.today);
+    var todayCl = r.today == null ? '' : scoreCls(r.today);
+    var cls = [r.isMine ? 'is-mine' : '', r.isMoney ? 'is-money' : ''].filter(Boolean).join(' ');
     return '<tr class="' + cls + '">'
-      + '<td class="tpt-pos">' + rank + '</td>'
-      + '<td class="tpt-name">' + termEsc(e.team) + '</td>'
-      + '<td class="tpt-score ' + scoreCls(e.total) + '">' + fmtScore(e.total) + '</td>'
+      + '<td class="tpt-pos">' + r.rank + '</td>'
+      + '<td class="tpt-name">' + termEsc(r.entry.team) + '</td>'
+      + '<td class="tpt-score ' + scoreCls(r.total) + '">' + fmtScore(r.total) + '</td>'
       + '<td class="tpt-today ' + todayCl + '">' + termEsc(todayDisp) + '</td>'
-      + '<td class="tpt-thru">' + (teamHolesLeft > 0 ? teamHolesLeft : 'F') + '</td>'
+      + '<td class="tpt-thru">' + (r.holes > 0 ? r.holes : 'F') + '</td>'
       + '</tr>';
   }).join('');
 
@@ -448,9 +565,18 @@ function renderTermDataGolf() {
     var d = dg[n];
     return { name: n, win: d.win || 0, top_5: d.top_5 || 0, top_10: d.top_10 || 0, top_20: d.top_20 || 0, make_cut: d.make_cut || 0 };
   });
-  rows.sort(function(a, b) {
-    return b.win - a.win || b.top_5 - a.top_5 || b.top_10 - a.top_10 || b.top_20 - a.top_20 || b.make_cut - a.make_cut;
-  });
+
+  var dgSort = _sortState['panel-datagolf'];
+  var dgAccessors = {
+    name:     function(r) { return r.name; },
+    make_cut: function(r) { return r.make_cut; },
+    top_20:   function(r) { return r.top_20; },
+    top_10:   function(r) { return r.top_10; },
+    top_5:    function(r) { return r.top_5; },
+    win:      function(r) { return r.win; }
+  };
+  rows = sortRowsBy(rows, dgSort.col, dgSort.dir, dgAccessors);
+  updateSortIndicators('panel-datagolf');
 
   function fmtPct(v) {
     var pct = v * 100;
@@ -587,6 +713,7 @@ async function initTerminal() {
     termDiag('Empty render FAILED: ' + e.message, true);
   }
   updateStatusBar();
+  initTableFeatures();
 
   // Initial fetch
   try {
