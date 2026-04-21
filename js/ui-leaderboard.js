@@ -196,14 +196,16 @@ function renderLeaderboard() {
   }
   var roundLabels = ['FIRST ROUND','FIRST ROUND','SECOND ROUND','THIRD ROUND','FINAL ROUND'];
   var endOfRoundLabels = ['','END OF ROUND 1','END OF ROUND 2','END OF ROUND 3','FINAL ROUND'];
-  var isPlayoff = currentRound > 4 || ESPN_ROUND > 4 || activePlayingLb.some(function(p) {
+  // Cap currentRound at 4 — playoffs are not a separate round
+  if (currentRound > 4) currentRound = 4;
+  var isPlayoff = ESPN_ROUND > 4 || activePlayingLb.some(function(p) {
     var gd = GOLFER_SCORES[p.name];
     return gd && gd.roundCount >= 5;
   });
   var tvTitle = document.getElementById('lb-round-title');
   if (tvTitle) {
     if (isPlayoff) {
-      tvTitle.textContent = 'PLAYOFF';
+      tvTitle.textContent = 'FINAL ROUND · PLAYOFF';
     } else if (anyStillPlaying) {
       tvTitle.textContent = roundLabels[currentRound] || 'ROUND ' + currentRound;
     } else if (anyHaveTeeTime && currentRound > 0) {
@@ -263,19 +265,16 @@ function renderLeaderboard() {
     var thruDisp;
     if (preT) {
       thruDisp = teeStr || '—';
-    } else if (playerInPlayoff) {
-      var poHole = /^\d+$/.test(p.thru) ? p.thru : (roundDone ? 'F' : p.thru);
-      thruDisp = 'PO ' + poHole;
-    } else if (isPlayoff && !playerInPlayoff && lastRoundScore) {
-      thruDisp = lastRoundScore;
-    } else if (isTeeTime && !isPlayoff) {
+    } else if (playerInPlayoff && lastRoundScore) {
+      thruDisp = lastRoundScore + '*';
+    } else if (isTeeTime) {
       thruDisp = p.thru;
     } else if (roundDone && lastRoundScore) {
       thruDisp = lastRoundScore;
     } else {
       thruDisp = p.thru + (p.startHole === 10 && p.thru !== 'MC' && !roundDone && parseInt(p.thru) > 0 ? '*' : '');
     }
-    var todayDisp = preT ? '—' : (isTeeTime && !isPlayoff ? '—' : (p.todayDisplay || '—'));
+    var todayDisp = preT ? '—' : (isTeeTime ? '—' : (p.todayDisplay || '—'));
     var todayVal = todayDisp === 'E' || todayDisp === '—' ? 0 : parseInt(todayDisp.replace('+','')) || 0;
     var todayCls = todayDisp === '—' ? '' : (todayVal < 0 ? 'neg' : todayVal > 0 ? 'pos' : 'eve');
     var prevP = PREV_POSITIONS[p.name];
