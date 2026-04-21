@@ -143,6 +143,13 @@ html, body {
   padding: 1px;
 }
 
+/* Leaderboard spans full height on the left; bottom row has MY ENTRIES + DATAGOLF */
+#panel-leaderboard { grid-column: 1; grid-row: 1 / 3; }
+#panel-standings   { grid-column: 2; grid-row: 1; }
+#panel-activity    { grid-column: 3; grid-row: 1; }
+#panel-my          { grid-column: 2; grid-row: 2; }
+#panel-datagolf    { grid-column: 3; grid-row: 2; }
+
 .term-panel {
   background: var(--term-panel);
   display: flex;

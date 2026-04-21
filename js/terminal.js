@@ -678,7 +678,6 @@ function renderTerminal() {
   try { renderTermActivity(); } catch(e) { console.error('ACT error', e); }
   try { renderTermMy(); } catch(e) { console.error('MY error', e); }
   try { renderTermDataGolf(); } catch(e) { console.error('DG error', e); }
-  try { renderTermThreat(); } catch(e) { console.error('THR error', e); }
   try { renderTermTicker(); } catch(e) { console.error('TICKER error', e); }
   updateStatusBar();
 }
