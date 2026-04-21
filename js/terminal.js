@@ -221,9 +221,18 @@ async function toggleTermScorecard(playerName, rowEl) {
   detailRow.innerHTML = '<td colspan="5" class="tsc-wrap"><div class="tsc-loading">Loading scorecard…</div></td>';
   rowEl.parentNode.insertBefore(detailRow, rowEl.nextSibling);
 
-  // Fetch data
+  // Fetch data — force DG so a failed piggyback fetch gets retried on open
   delete SCORECARD_CACHE[playerName];
-  await Promise.all([fetchCourseHoles(), fetchPlayerScorecard(playerName), fetchDGLivePreds()]);
+  await Promise.all([fetchCourseHoles(), fetchPlayerScorecard(playerName), fetchDGLivePreds(true)]);
+
+  // Diagnostic: did DG populate?
+  var dgKeys = Object.keys(DG_LIVE_PREDS || {});
+  var dgHit = dgKeys.indexOf(playerName) !== -1;
+  termDiag('DG lookup ' + playerName + ' — keys=' + dgKeys.length + ' hit=' + dgHit, !dgHit);
+  if (!dgHit && dgKeys.length) {
+    var sample = dgKeys.slice(0, 3).join(' | ');
+    termDiag('DG sample names: ' + sample);
+  }
 
   // Check we're still the open card
   if (_termOpenCard !== playerName) return;

@@ -354,15 +354,23 @@ function refreshData() { setApiStatus('', 'Refreshing…'); fetchESPN(); }
 
 // ─── DataGolf live in-play predictions ───
 var _dgLastFetch = 0;
-async function fetchDGLivePreds() {
-  // Only fetch every 2 minutes (Worker caches & shields DataGolf)
-  if (Date.now() - _dgLastFetch < 120000) return;
+async function fetchDGLivePreds(force) {
+  // Only fetch every 2 minutes (Worker caches & shields DataGolf); force bypasses throttle
+  if (!force && Date.now() - _dgLastFetch < 120000) return;
   try {
     var res = await fetch('https://datagolf-proxy.jhs797.workers.dev/', { cache: 'no-store' });
-    if (!res.ok) { console.warn('⚠️ DataGolf fetch failed:', res.status); return; }
+    if (!res.ok) {
+      var msg = 'DataGolf fetch failed: HTTP ' + res.status;
+      console.warn('⚠️ ' + msg);
+      if (typeof termDiag === 'function') termDiag(msg, true);
+      return;
+    }
     var json = await res.json();
     var arr = json.data || json;
-    if (!Array.isArray(arr)) return;
+    if (!Array.isArray(arr)) {
+      if (typeof termDiag === 'function') termDiag('DataGolf: unexpected payload shape', true);
+      return;
+    }
     var fresh = {};
     arr.forEach(function(p) {
       // Convert "Last, First" → "First Last"
@@ -380,8 +388,10 @@ async function fetchDGLivePreds() {
     DG_LIVE_PREDS = fresh;
     _dgLastFetch = Date.now();
     console.log('✅ DataGolf live preds:', Object.keys(fresh).length, 'players');
+    if (typeof termDiag === 'function') termDiag('DataGolf preds loaded: ' + Object.keys(fresh).length + ' players');
   } catch(e) {
     console.warn('⚠️ DataGolf fetch failed:', e.message);
+    if (typeof termDiag === 'function') termDiag('DataGolf fetch threw: ' + e.message, true);
   }
 }
 
