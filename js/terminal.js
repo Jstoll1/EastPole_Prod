@@ -141,6 +141,7 @@ function renderTermLeaderboard() {
     var g = GOLFER_SCORES[n];
     return {
       name: n, pos: g.pos, score: g.score, today: g.todayDisplay, thru: g.thru, teeTime: g.teeTime,
+      r1: g.r1, r2: g.r2, r3: g.r3, r4: g.r4, roundCount: g.roundCount,
       mc: g.score === 11, wd: g.score === 12
     };
   });
@@ -157,6 +158,8 @@ function renderTermLeaderboard() {
   var poolNames = new Set();
   (ENTRIES || []).forEach(function(e) { e.picks.forEach(function(p) { poolNames.add(p); }); });
 
+  var isPlayoff = ESPN_ROUND > 4 || players.some(function(p) { return p.roundCount >= 5; });
+
   body.innerHTML = players.slice(0, 80).map(function(p) {
     var posDisp = p.mc ? 'MC' : p.wd ? 'WD' : (p.pos || '—');
     var scoreDisp = (p.mc || p.wd) ? '—' : fmtScore(p.score);
@@ -164,14 +167,24 @@ function renderTermLeaderboard() {
     var todayDisp = (p.mc || p.wd) ? '—' : (p.today || '—');
     var todayVal = todayDisp === 'E' ? 0 : parseInt(todayDisp.replace('+', '')) || 0;
     var todayCl = todayDisp === '—' ? '' : scoreCls(todayVal);
-    var thruDisp = (p.mc || p.wd) ? '' : (p.thru || '—');
-    if (thruDisp === '—' && p.teeTime && typeof p.teeTime === 'string' && p.teeTime.indexOf('T') !== -1) {
+    var playerInPlayoff = isPlayoff && p.roundCount >= 5;
+    var lastRoundScore = (function(){ var rs = [p.r1,p.r2,p.r3,p.r4]; for(var i=rs.length-1;i>=0;i--){ if(rs[i]&&rs[i]>50) return rs[i]; } return null; })();
+    var thruDisp;
+    if (p.mc || p.wd) {
+      thruDisp = '';
+    } else if (playerInPlayoff && lastRoundScore) {
+      thruDisp = lastRoundScore + '*';
+    } else if (p.thru === 'F' || p.thru === '18') {
+      thruDisp = lastRoundScore || 'F';
+    } else if (p.thru && p.thru.includes(':')) {
+      thruDisp = p.thru;
+    } else if (p.thru === '—' && p.teeTime && typeof p.teeTime === 'string' && p.teeTime.indexOf('T') !== -1) {
       try {
         var d = new Date(p.teeTime);
-        if (!isNaN(d.getTime())) {
-          thruDisp = d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
-        }
-      } catch(e){}
+        thruDisp = !isNaN(d.getTime()) ? d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) : '—';
+      } catch(e){ thruDisp = '—'; }
+    } else {
+      thruDisp = p.thru || '—';
     }
     var flag = (FLAGS && FLAGS[p.name]) || '';
     var mine = (typeof currentUserTeams !== 'undefined' && currentUserTeams.some(function(t) { return t.picks.indexOf(p.name) !== -1; }));
