@@ -112,8 +112,8 @@ html, body  {
   gap: 8px;
 }
 .hdr-tourney-icon {
-  width: 18px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
   filter: drop-shadow(0 1px 3px rgba(0,0,0,0.4));
 }

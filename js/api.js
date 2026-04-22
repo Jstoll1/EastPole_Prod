@@ -50,36 +50,34 @@ function _extractTourneyMeta(ev) {
     var endStr = end ? end.toLocaleDateString('en-US', opts) : '';
     TOURNEY_DATES = end ? startStr + ' – ' + endStr : startStr;
   }
-  // Update logos from ESPN
+  // Always render the East Pole brand mark — ignore ESPN's tournament logo so
+  // we're not swapping in course-specific imagery (e.g. the RBC Heritage
+  // Harbour Town lighthouse) week to week.
   var hdrLogo = document.getElementById('hdr-tourney-logo');
   var splashLogo = document.getElementById('splash-tourney-logo');
   var hdrCenter = document.querySelector('.hdr-logo-center');
-  if (TOURNEY_LOGO) {
-    if (hdrLogo) { hdrLogo.src = TOURNEY_LOGO; hdrLogo.alt = TOURNEY_NAME; hdrLogo.style.display = ''; }
-    if (splashLogo) { splashLogo.src = TOURNEY_LOGO; splashLogo.alt = TOURNEY_NAME; splashLogo.style.display = ''; }
-  } else if (TOURNEY_NAME && hdrCenter) {
+  var EP_MARK_SVG = '<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">'
+    + '<rect width="32" height="32" rx="6" fill="#1a4430"/>'
+    + '<text x="16" y="24" text-anchor="middle" font-family="Georgia, serif" font-size="26" font-weight="bold" font-style="italic" fill="#d4a843">E</text>'
+    + '</svg>';
+  var EP_MARK_DATA_URI = 'data:image/svg+xml;utf8,' + encodeURIComponent(EP_MARK_SVG);
+  if (splashLogo) {
+    splashLogo.src = EP_MARK_DATA_URI;
+    splashLogo.alt = 'East Pole';
+    splashLogo.style.display = '';
+  }
+  if (hdrCenter) {
     if (hdrLogo) hdrLogo.style.display = 'none';
     if (!document.getElementById('hdr-tourney-text')) {
       var wrap = document.createElement('div');
       wrap.id = 'hdr-tourney-text';
       wrap.className = 'hdr-tourney-name';
-      wrap.innerHTML = '<svg class="hdr-tourney-icon" viewBox="0 0 24 44" fill="none" xmlns="http://www.w3.org/2000/svg">'
-        + '<rect x="7" y="38" width="10" height="4" rx="0.5" fill="rgba(255,255,255,0.6)"/>'
-        + '<path d="M9 38 L8 14 L16 14 L15 38Z" fill="#fff"/>'
-        + '<rect x="8.2" y="17" width="7.6" height="3" fill="#c0392b"/>'
-        + '<rect x="8.6" y="23" width="6.8" height="3" fill="#c0392b"/>'
-        + '<rect x="9" y="29" width="6" height="3" fill="#c0392b"/>'
-        + '<rect x="9.3" y="35" width="5.4" height="2.5" fill="#c0392b"/>'
-        + '<rect x="6.5" y="12.5" width="11" height="2" rx="0.5" fill="rgba(255,255,255,0.8)"/>'
-        + '<rect x="7.5" y="7" width="9" height="6" rx="1" fill="rgba(255,255,255,0.9)" stroke="rgba(255,255,255,0.4)" stroke-width="0.5"/>'
-        + '<circle cx="12" cy="10" r="2" fill="#f5c518" opacity="0.9"/>'
-        + '<path d="M9 7 L12 2 L15 7Z" fill="rgba(255,255,255,0.7)"/>'
-        + '</svg>'
+      wrap.innerHTML = EP_MARK_SVG.replace('<svg ', '<svg class="hdr-tourney-icon" ')
         + '<span class="hdr-tourney-label"></span>';
       hdrCenter.appendChild(wrap);
     }
     var lblEl = document.querySelector('.hdr-tourney-label');
-    if (lblEl) lblEl.textContent = TOURNEY_NAME;
+    if (lblEl) lblEl.textContent = TOURNEY_NAME || '';
   }
   // Update splash text
   var subEl = document.querySelector('.brand-subtext');
