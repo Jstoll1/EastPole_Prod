@@ -478,6 +478,167 @@ html, body  {
   .nav-btn-entry .nav-entry-plus { animation: none; }
 }
 
+/* ── Native Pool Entry Form ───────────────────────────────── */
+#entry-form-container {
+  padding: 16px 16px 40px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  height: calc(100% - 48px);
+  color: var(--text);
+}
+.ef-form { display: flex; flex-direction: column; }
+.ef-intro {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.5;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  background: var(--card2);
+  border-radius: 8px;
+  border-left: 3px solid var(--gold);
+}
+.ef-field { margin-bottom: 14px; }
+.ef-field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+.ef-field .ef-req { color: var(--gold); }
+.ef-field-hint { font-size: 11px; color: var(--text3); margin-bottom: 6px; margin-top: -2px; }
+.ef-field input {
+  width: 100%;
+  padding: 11px 13px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 15px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+.ef-field input:focus { outline: none; border-color: var(--gold); }
+.ef-tier {
+  margin: 18px 0 6px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.ef-tier-hdr {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.ef-tier-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.ef-tier-count {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text3);
+  font-variant-numeric: tabular-nums;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--card2);
+}
+.ef-tier-count.ef-good { color: #0b1d14; background: var(--gold); }
+.ef-tier-count.ef-over { color: #fff; background: #c64545; }
+.ef-tier-desc {
+  font-size: 11px;
+  color: var(--text3);
+  margin-bottom: 10px;
+  letter-spacing: 0.2px;
+}
+.ef-team-list { display: flex; flex-direction: column; gap: 6px; }
+.ef-team-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13.5px;
+  color: var(--text);
+  transition: border-color 0.15s, background 0.15s;
+  line-height: 1.3;
+}
+.ef-team-card input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--gold);
+  flex-shrink: 0;
+}
+.ef-team-card.ef-selected {
+  border-color: var(--gold);
+  background: rgba(212,168,67,0.12);
+}
+.ef-team-card.ef-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.ef-team-txt { flex: 1; }
+.ef-submit {
+  width: 100%;
+  padding: 14px;
+  background: var(--gold);
+  color: #0b1d14;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 20px;
+  box-shadow: 0 4px 14px rgba(212,168,67,0.3);
+}
+.ef-submit:disabled {
+  background: var(--card2);
+  color: var(--text3);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.ef-submit-done { max-width: 240px; margin: 24px auto 0; display: block; }
+.ef-validation {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 8px;
+  text-align: center;
+  min-height: 16px;
+}
+.ef-success { text-align: center; padding: 48px 16px 16px; }
+.ef-success-mark {
+  width: 64px;
+  height: 64px;
+  line-height: 62px;
+  font-size: 36px;
+  font-weight: 900;
+  color: #0b1d14;
+  background: var(--gold);
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  box-shadow: 0 4px 20px rgba(212,168,67,0.4);
+}
+.ef-success-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+.ef-success-sub { color: var(--text2); font-size: 14px; margin-bottom: 4px; }
+.ef-success-note { color: var(--text3); font-size: 12px; }
+
 .section-pad  {
   padding: 0 0 100px;
 }

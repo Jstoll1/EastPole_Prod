@@ -25,27 +25,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-var ADDENTRY_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdb81xBTFvU2EvNqNlctTAWfP2cmh8gyypLQyfyW25WAs1p_g/viewform?embedded=true';
-
-function openAddEntry() {
-  var el = document.getElementById('addentry-overlay');
-  var bd = document.getElementById('addentry-backdrop');
-  var frame = document.getElementById('addentry-frame');
-  if (!el || !frame) return;
-  // Only set src on first open to avoid re-fetching on every toggle
-  if (frame.src === 'about:blank' || !frame.src) frame.src = ADDENTRY_FORM_URL;
-  el.classList.add('open');
-  if (bd) bd.classList.add('open');
-  if (typeof trackEvent === 'function') trackEvent('add-entry-open');
-}
-
-function closeAddEntry() {
-  var el = document.getElementById('addentry-overlay');
-  var bd = document.getElementById('addentry-backdrop');
-  if (el) el.classList.remove('open');
-  if (bd) bd.classList.remove('open');
-}
-
 function toggleSchedule() {
   var el = document.getElementById('schedule-overlay');
   var bd = document.getElementById('schedule-backdrop');
