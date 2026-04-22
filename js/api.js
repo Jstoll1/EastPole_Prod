@@ -366,7 +366,7 @@ async function fetchESPN() {
       }
     }
     console.log('✅ ESPN API returned', Object.keys(GOLFER_SCORES).length, 'golfers');
-    fetchDGLivePreds(); // piggyback — has its own 5-min throttle
+    fetchDGLivePreds(); // piggyback — has its own 60s throttle
     renderAll();
   } catch(e) {
     ErrorTracker.api('ESPN leaderboard/scores parse failed', { message: e.message, stack: e.stack });
@@ -397,8 +397,8 @@ function refreshData() { setApiStatus('', 'Refreshing…'); fetchESPN(); }
 // ─── DataGolf live in-play predictions ───
 var _dgLastFetch = 0;
 async function fetchDGLivePreds(force) {
-  // Only fetch every 2 minutes (Worker caches & shields DataGolf); force bypasses throttle
-  if (!force && Date.now() - _dgLastFetch < 120000) return;
+  // Only fetch every 60s (Worker caches & shields DataGolf); force bypasses throttle
+  if (!force && Date.now() - _dgLastFetch < 60000) return;
   try {
     var res = await fetch('https://datagolf-proxy.jhs797.workers.dev/', { cache: 'no-store' });
     if (!res.ok) {
@@ -456,10 +456,7 @@ async function fetchDGLivePreds(force) {
         stillMissing.push(espnName + (code ? ' (DG code: ' + code + ')' : ''));
       }
     });
-    if (crossFilled > 0) {
-      console.log('🏳️ Fuzzy-matched', crossFilled, 'flags from DG');
-      if (typeof renderAll === 'function') renderAll();
-    }
+    if (crossFilled > 0) console.log('🏳️ Fuzzy-matched', crossFilled, 'flags from DG');
     if (stillMissing.length > 0) {
       console.warn('⚠️ Missing flags for', stillMissing.length, 'golfers:', stillMissing.join(', '));
       ErrorTracker.api('Missing player flags', { count: stillMissing.length, players: stillMissing });
@@ -467,9 +464,13 @@ async function fetchDGLivePreds(force) {
     }
     console.log('✅ DataGolf live preds:', Object.keys(fresh).length, 'players' + (flagsFilled ? ' (filled ' + flagsFilled + ' flags)' : '') + (crossFilled ? ' (+' + crossFilled + ' fuzzy)' : ''));
     if (typeof termDiag === 'function') termDiag('DataGolf preds loaded: ' + Object.keys(fresh).length + ' players' + (flagsFilled ? ' · ' + flagsFilled + ' flags' : '') + (crossFilled ? ' · +' + crossFilled + ' fuzzy' : ''));
+    // Re-render so F5 odds + threat panels reflect the fresh DG numbers (not just flags)
+    if (typeof renderAll === 'function') renderAll();
   } catch(e) {
     console.warn('⚠️ DataGolf fetch failed:', e.message);
     if (typeof termDiag === 'function') termDiag('DataGolf fetch threw: ' + e.message, true);
+    // Don't let a transient failure lock us out for the full throttle window
+    _dgLastFetch = Math.min(_dgLastFetch, Date.now() - 45000);
   }
 }
 
