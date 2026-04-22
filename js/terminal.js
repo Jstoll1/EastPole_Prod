@@ -649,6 +649,25 @@ function renderForecastStrip() {
 function renderTermWeatherBar() {
   var el = document.getElementById('term-wx-bar');
   if (!el) return;
+  // Only show the "NEXT" bar when a tournament has just concluded (the
+  // post-event window between Sun evening and the next Thu tee-off).
+  var showBar = (typeof TOURNEY_FINAL !== 'undefined' && TOURNEY_FINAL);
+  document.body.classList.toggle('wx-hidden', !showBar);
+  if (!showBar) {
+    el.innerHTML = '';
+    return;
+  }
+  // Bar is about to show — ensure next-event info + forecast are loaded.
+  // (Forecast may have failed on initial fetch if coords weren't yet resolved.)
+  if (!_nextEvent && !_nextEventFetched) fetchNextEvent();
+  if (_nextEvent && !_nextEventForecast && _nextEvent.course) {
+    var c = findCourseCoords(_nextEvent.course);
+    if (c) {
+      fetchForecast(c.lat, c.lon).then(function(f) {
+        if (f) { _nextEventForecast = f; renderTermWeatherBar(); }
+      });
+    }
+  }
   if (!_nextEvent) {
     el.innerHTML = '<span class="wxb-tag">NEXT</span> <span class="wxb-course">loading…</span>';
     return;

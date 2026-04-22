@@ -83,6 +83,11 @@ html, body {
 #tsb-status.scheduled { color: var(--term-amber); }
 #tsb-status.offline { color: var(--term-red); }
 
+/* Hide the NEXT bar except when a tournament has just concluded */
+body.wx-hidden #term-wx-bar { display: none; }
+body.wx-hidden #term-ticker { top: var(--term-header-h); }
+body.wx-hidden #term-grid { top: calc(var(--term-header-h) + var(--term-ticker-h)); }
+
 /* ── Weather bar (next event forecast) ─────────────── */
 #term-wx-bar {
   position: fixed;
