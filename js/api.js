@@ -155,29 +155,12 @@ async function fetchESPN() {
     var freshScores = {};
     var freshAthleteIds = {};
     comps.forEach(function(c) {
-      var rawName = c.athlete?.displayName;
-      if (!rawName) return;
-      var name = resolvePlayerName(rawName);
-      if (c.athlete?.id) freshAthleteIds[name] = c.athlete.id;
-      // Auto-derive flag from ESPN's country code if we don't have one yet
-      if (!FLAGS[name] || FLAGS[name] === '🏳️' || FLAGS[name] === '') {
-        var flagObj = c.athlete?.flag;
-        var citObj = c.athlete?.citizenshipCountry;
-        var bpObj = c.athlete?.birthPlace;
-        var ccode = '';
-        if (flagObj) ccode = (flagObj.alt || flagObj.abbreviation || flagObj.text || '').toUpperCase();
-        if (!ccode && citObj) ccode = (citObj.abbreviation || citObj.alpha3 || citObj.alpha2 || citObj.countryCode || '').toUpperCase();
-        if (!ccode && bpObj) ccode = (bpObj.countryAbbreviation || bpObj.country || '').toUpperCase();
-        if (!ccode && flagObj && flagObj.href) {
-          var flagMatch = flagObj.href.match(/\/(\w{2,3})\.png/i);
-          if (flagMatch) ccode = flagMatch[1].toUpperCase();
-        }
-        if (ccode && CODE_TO_FLAG[ccode]) {
-          FLAGS[name] = CODE_TO_FLAG[ccode];
-        } else if (ccode && ccode.length === 2) {
-          FLAGS[name] = String.fromCodePoint(0x1F1E6 + ccode.charCodeAt(0) - 65, 0x1F1E6 + ccode.charCodeAt(1) - 65);
-        }
-      }
+      // Team events (e.g. Zurich Classic) expose `athletes` (plural); singles events use `athlete`.
+      // Expand team competitors into one row per golfer sharing the team's score/thru/linescores.
+      var teamAthletes = Array.isArray(c.athletes) ? c.athletes.filter(function(a) { return a && a.displayName; }) : null;
+      var athleteList = (teamAthletes && teamAthletes.length) ? teamAthletes : (c.athlete?.displayName ? [c.athlete] : []);
+      if (!athleteList.length) return;
+
       var state = c.status?.type?.name || '';
       var scheduled = state === 'STATUS_SCHEDULED';
       var dispVal = (c.status?.displayValue || '').toUpperCase();
@@ -191,7 +174,6 @@ async function fetchESPN() {
       var score = wd ? 12 : mc ? 11 : (scoreToPar ? scoreToPar.value : computedPar);
       var teeTime = c.status?.teeTime || '';
       var thruRaw = c.status?.thru;
-      var lastCompletedRound = lines.filter(function(l) { return l.value && l.value > 50; }).pop();
       var nextTeeStr = '';
       if (teeTime && teeTime.includes('T')) { try { nextTeeStr = new Date(teeTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); } catch(e) {} }
       var inProgress = state === 'STATUS_IN_PROGRESS';
@@ -212,16 +194,44 @@ async function fetchESPN() {
       var todayRound = activelyPlaying ? lines[activeRndIdx >= 0 ? activeRndIdx : 0] : (scheduled ? null : lines[activeRndIdx >= 0 ? activeRndIdx : 0]);
       var todayDisplay = (mc || wd) ? '—' : (todayRound?.displayValue || (todayRound?.value > 50 ? (function() { var tp = todayRound.value - COURSE_PAR; return tp === 0 ? 'E' : (tp > 0 ? '+' + tp : String(tp)); })() : '—'));
       var onCourse = activelyPlaying;
-      freshScores[name] = { pos: c.status?.position?.displayName || '—', score: wd ? 12 : mc ? 11 : score, thru: thru, teeTime: teeTime, startHole: startHole, tot: tot, todayDisplay: todayDisplay, r1: rval(0), r2: rval(1), r3: rval(2), r4: rval(3), roundCount: lines.filter(function(l) { return l.value != null; }).length, onCourse: onCourse };
+      var teamRecord = { pos: c.status?.position?.displayName || '—', score: wd ? 12 : mc ? 11 : score, thru: thru, teeTime: teeTime, startHole: startHole, tot: tot, todayDisplay: todayDisplay, r1: rval(0), r2: rval(1), r3: rval(2), r4: rval(3), roundCount: lines.filter(function(l) { return l.value != null; }).length, onCourse: onCourse };
+
+      athleteList.forEach(function(ath) {
+        var rawName = ath?.displayName;
+        if (!rawName) return;
+        var name = resolvePlayerName(rawName);
+        if (ath?.id) freshAthleteIds[name] = ath.id;
+        if (!FLAGS[name] || FLAGS[name] === '🏳️' || FLAGS[name] === '') {
+          var flagObj = ath?.flag;
+          var citObj = ath?.citizenshipCountry;
+          var bpObj = ath?.birthPlace;
+          var ccode = '';
+          if (flagObj) ccode = (flagObj.alt || flagObj.abbreviation || flagObj.text || '').toUpperCase();
+          if (!ccode && citObj) ccode = (citObj.abbreviation || citObj.alpha3 || citObj.alpha2 || citObj.countryCode || '').toUpperCase();
+          if (!ccode && bpObj) ccode = (bpObj.countryAbbreviation || bpObj.country || '').toUpperCase();
+          if (!ccode && flagObj && flagObj.href) {
+            var flagMatch = flagObj.href.match(/\/(\w{2,3})\.png/i);
+            if (flagMatch) ccode = flagMatch[1].toUpperCase();
+          }
+          if (ccode && CODE_TO_FLAG[ccode]) {
+            FLAGS[name] = CODE_TO_FLAG[ccode];
+          } else if (ccode && ccode.length === 2) {
+            FLAGS[name] = String.fromCodePoint(0x1F1E6 + ccode.charCodeAt(0) - 65, 0x1F1E6 + ccode.charCodeAt(1) - 65);
+          }
+        }
+        freshScores[name] = Object.assign({}, teamRecord);
+      });
     });
-    // Debug: log first 5 players with all status fields
+    // Debug: log first 5 competitors with all status fields
     comps.slice(0, 5).forEach(function(c) {
-      var n = resolvePlayerName(c.athlete?.displayName || '?');
+      var names = Array.isArray(c.athletes) && c.athletes.length
+        ? c.athletes.map(function(a) { return resolvePlayerName(a?.displayName || '?'); }).join(' / ')
+        : resolvePlayerName(c.athlete?.displayName || '?');
       var st = c.status?.type?.name || '';
       var sched = st === 'STATUS_SCHEDULED';
       var lines = c.linescores || [];
       var lastComp = lines.filter(function(l) { return l.value && l.value > 50; }).pop();
-      console.log('🔍 ESPN', n, '| state:', st, '| thru:', c.status?.thru, '| disp:', c.status?.displayValue, '| teeTime:', c.status?.teeTime, '| scheduled:', sched, '| lastCompRound:', lastComp?.value, '| lines:', lines.map(function(l){return l.value}).join(','));
+      console.log('🔍 ESPN', names, '| state:', st, '| thru:', c.status?.thru, '| disp:', c.status?.displayValue, '| teeTime:', c.status?.teeTime, '| scheduled:', sched, '| lastCompRound:', lastComp?.value, '| lines:', lines.map(function(l){return l.value}).join(','));
     });
 
     // Detect score changes for animations
