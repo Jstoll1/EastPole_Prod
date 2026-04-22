@@ -404,11 +404,12 @@ async function _fetchDGEndpoint(endpoint) {
     if (!res.ok) return { ok: false, status: res.status, endpoint: endpoint };
     var json = await res.json();
     // Two payload shapes:
-    //   in-play       → { event_name, last_updated, data: [...] }
-    //   pre-tournament → { event_name, last_updated, baseline: { players: [...] }, baseline_history_fit: {...} }
-    var base = json.baseline || json.baseline_history_fit;
+    //   in-play       → { event_name, last_updated, data: [...per-player rows...] }
+    //   pre-tournament → { event_name, last_updated, baseline: [...], baseline_history_fit: [...] }
+    //                    For team events, each row is a team: { team_name, p1_country, p2_country, win, top_5, ... }
     var arr = Array.isArray(json.data) ? json.data
-            : (base && Array.isArray(base.players)) ? base.players
+            : Array.isArray(json.baseline_history_fit) ? json.baseline_history_fit
+            : Array.isArray(json.baseline) ? json.baseline
             : Array.isArray(json) ? json
             : null;
     if (!arr) {
@@ -416,8 +417,8 @@ async function _fetchDGEndpoint(endpoint) {
       console.warn('🏌️ DG ' + endpoint + ' shape mismatch — top-level keys:', Object.keys(json), 'sample:', JSON.stringify(json).slice(0, 500));
       return { ok: false, reason: 'shape', endpoint: endpoint };
     }
-    var event_name = json.event_name || (base && base.event_name) || json.info?.event_name || '';
-    var last_updated = json.last_updated || (base && base.last_updated) || json.info?.last_updated || '';
+    var event_name = json.event_name || json.info?.event_name || '';
+    var last_updated = json.last_updated || json.info?.last_updated || '';
     // First time we successfully load this endpoint, log a sample row so payload shape is visible
     if (arr.length && !_dgSampleLogged[endpoint]) {
       _dgSampleLogged[endpoint] = true;
@@ -499,16 +500,70 @@ async function fetchDGLivePreds(force) {
         if (CODE_TO_FLAG[code]) { FLAGS[name] = CODE_TO_FLAG[code]; flagsFilled++; }
       }
     };
+    // Resolve a DataGolf abbreviated team-name part ("M. Fitzpatrick" or "Gerard")
+    // to a canonical FLAGS key by matching against existing FLAGS / GOLFER_SCORES names.
+    var _resolvePool = null;
+    var resolveDGTeamName = function(part) {
+      part = String(part || '').trim();
+      if (!part) return null;
+      if (!_resolvePool) {
+        var seen = {};
+        _resolvePool = Object.keys(FLAGS || {}).concat(Object.keys(GOLFER_SCORES || {})).filter(function(n) {
+          if (seen[n]) return false; seen[n] = true; return true;
+        });
+      }
+      var dotIdx = part.indexOf('.');
+      if (dotIdx === -1) {
+        // Last name only ("Gerard", "Yellamaraju") — match by trailing 1-or-2-word last name.
+        var lastLower = part.toLowerCase();
+        for (var i = 0; i < _resolvePool.length; i++) {
+          var nm = _resolvePool[i];
+          var ps = nm.split(/\s+/);
+          var l1 = ps[ps.length - 1].toLowerCase();
+          var l2 = ps.length >= 2 ? ps.slice(-2).join(' ').toLowerCase() : '';
+          if (l1 === lastLower || l2 === lastLower) return nm;
+        }
+        return null;
+      }
+      // "X. Lastname" — first initial(s) + last name (last name may be multi-word).
+      var m = part.match(/^([A-Za-z]+)\.?\s+(.+)$/);
+      if (!m) return null;
+      var initial = m[1].toLowerCase();
+      var last = m[2].toLowerCase();
+      for (var j = 0; j < _resolvePool.length; j++) {
+        var nm2 = _resolvePool[j];
+        var ps2 = nm2.split(/\s+/);
+        if (ps2.length < 2) continue;
+        if (!ps2[0].toLowerCase().startsWith(initial)) continue;
+        var rest = ps2.slice(1).join(' ').toLowerCase();
+        var lastSingle = ps2[ps2.length - 1].toLowerCase();
+        if (rest === last || lastSingle === last) return nm2;
+      }
+      return null;
+    };
+
+    var unresolved = [];
     arr.forEach(function(p) {
       var probs = probsOf(p);
-      // Team-event pre-tournament: each row is one team with two players sharing probs.
-      if (p.player_name_1 && p.player_name_2) {
+      // Team-event pre-tournament: row has team_name + p1_country/p2_country, no per-player names.
+      if (p.team_name && (p.p1_country !== undefined || p.p2_country !== undefined)) {
+        var tparts = String(p.team_name).split('/').map(function(s) { return s.trim(); });
+        var n1 = resolveDGTeamName(tparts[0]);
+        var n2 = resolveDGTeamName(tparts[1]);
+        if (n1) addPlayer(n1, p.p1_country, probs); else if (tparts[0]) unresolved.push(tparts[0]);
+        if (n2) addPlayer(n2, p.p2_country, probs); else if (tparts[1]) unresolved.push(tparts[1]);
+      } else if (p.player_name_1 && p.player_name_2) {
+        // (alternate team-event shape, kept for safety)
         addPlayer(p.player_name_1, p.country_1, probs);
         addPlayer(p.player_name_2, p.country_2, probs);
       } else {
         addPlayer(p.player_name, p.country, probs);
       }
     });
+    if (unresolved.length) {
+      console.warn('🏌️ DG: ' + unresolved.length + ' team-name parts unresolved:', unresolved.join(', '));
+      if (typeof termDiag === 'function') termDiag('DG unresolved names: ' + unresolved.length + ' (see console)', true);
+    }
     DG_LIVE_PREDS = fresh;
     _dgLastFetch = Date.now();
 
