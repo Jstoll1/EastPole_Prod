@@ -152,8 +152,12 @@ function buildEntryFormHTML() {
   h += '<div class="ef-intro">' + _efEscape(cfg.subtitle) + '. Tiers are ordered by DataGolf TOP 20 probability — Tier 1 favorites, Tier 4 longshots.</div>';
   h += '<div class="ef-field"><label>Email <span class="ef-req">*</span></label>'
     +  '<input type="email" name="email" required placeholder="you@example.com" oninput="validateEntryForm()"></div>';
+  h += '<div class="ef-field"><label>Username <span class="ef-req">*</span></label>'
+    +  '<div class="ef-field-hint">Your name (used to find + group your entries)</div>'
+    +  '<input type="text" name="entrant" required maxlength="40" placeholder="e.g. Jake" oninput="validateEntryForm()"></div>';
   h += '<div class="ef-field"><label>Entry Name <span class="ef-req">*</span></label>'
-    +  '<input type="text" name="entryName" required maxlength="60" placeholder="e.g. Jake - Entry 1" oninput="validateEntryForm()"></div>';
+    +  '<div class="ef-field-hint">Name this entry (e.g. "Skippers On Top" or "Entry 1")</div>'
+    +  '<input type="text" name="entryName" required maxlength="60" placeholder="e.g. Skippers On Top" oninput="validateEntryForm()"></div>';
 
   cfg.tiers.forEach(function(tier, i) {
     h += '<div class="ef-tier">';
@@ -211,6 +215,7 @@ function validateEntryForm() {
   if (!form || !btn) return;
   var issues = [];
   if (!form.email.value.trim()) issues.push('Email required');
+  if (!form.entrant.value.trim()) issues.push('Username required');
   if (!form.entryName.value.trim()) issues.push('Entry name required');
   POOL_ENTRY_CONFIG.tiers.forEach(function(tier, i) {
     var n = form.querySelectorAll('input[name="tier_' + i + '"]:checked').length;
@@ -231,8 +236,17 @@ function submitEntryForm(ev) {
 
   var cfg = POOL_ENTRY_CONFIG;
   var fd = new FormData();
+  var entrant = form.entrant.value.trim();
+  var entryName = form.entryName.value.trim();
   fd.append(cfg.fields.email, form.email.value.trim());
-  fd.append(cfg.fields.entryName, form.entryName.value.trim());
+  // If the Google Form has a dedicated Entrant entry ID, submit there.
+  // Otherwise prefix the entry name so the loader can split it back out.
+  if (cfg.fields.entrant) {
+    fd.append(cfg.fields.entrant, entrant);
+    fd.append(cfg.fields.entryName, entryName);
+  } else {
+    fd.append(cfg.fields.entryName, entrant + ' — ' + entryName);
+  }
   fd.append(cfg.fields.tieBreaker, form.tieBreaker.value.trim());
   cfg.tiers.forEach(function(tier, i) {
     var checked = form.querySelectorAll('input[name="tier_' + i + '"]:checked');

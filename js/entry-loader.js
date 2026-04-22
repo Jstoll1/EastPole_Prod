@@ -67,6 +67,17 @@ function parsePoolTSV(text) {
     var team = (idx.team >= 0 ? cells[idx.team] : '') || '';
     team = team.trim();
     if (!team) continue;
+    var entrantCell = (idx.entrant >= 0 ? cells[idx.entrant] : '').trim();
+    // If sheet doesn't have a separate entrant column but the entry name was
+    // submitted as "Username — Entry Name" (em dash) or "Username - Entry Name"
+    // (hyphen), split it back out so the username can be searched separately.
+    if (!entrantCell) {
+      var split = team.split(/\s+[—-]\s+/);
+      if (split.length === 2) {
+        entrantCell = split[0].trim();
+        team = split[1].trim();
+      }
+    }
     var picks = [];           // team-pair strings (e.g. "🏴 Matt Fitzpatrick / 🏴 Alex Fitzpatrick")
     var golferNames = [];     // flat individual names (kept for future solo-event scoring)
     var tierPicks = { tier1: [], tier2: [], tier3: [], tier4: [] };
@@ -88,7 +99,7 @@ function parsePoolTSV(text) {
     });
     entries.push({
       team: team,
-      entrant: (idx.entrant >= 0 ? cells[idx.entrant] : '').trim(),
+      entrant: entrantCell,
       email: (idx.email >= 0 ? cells[idx.email] : '').trim(),
       timestamp: (idx.timestamp >= 0 ? cells[idx.timestamp] : '').trim(),
       tieBreaker: (idx.tiebreaker >= 0 ? cells[idx.tiebreaker] : '').trim(),
