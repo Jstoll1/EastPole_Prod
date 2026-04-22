@@ -53,6 +53,104 @@ function closeAddEntryTerm() {
 }
 // entry-form.js calls closeAddEntry() from its success screen; alias to the terminal close on this surface
 if (typeof window !== 'undefined') window.closeAddEntry = closeAddEntryTerm;
+
+// ─── Terminal Login ─────────────────────────────────────────
+function openTermLogin() {
+  var modal = document.getElementById('term-login-modal');
+  var bd = document.getElementById('term-login-backdrop');
+  if (!modal) return;
+  modal.innerHTML = buildTermLoginMenu();
+  modal.style.display = 'block';
+  if (bd) bd.style.display = 'block';
+  setTimeout(function() {
+    var f = document.getElementById('tlogin-filter');
+    if (f) f.focus();
+  }, 80);
+}
+function closeTermLogin() {
+  var modal = document.getElementById('term-login-modal');
+  var bd = document.getElementById('term-login-backdrop');
+  if (modal) modal.style.display = 'none';
+  if (bd) bd.style.display = 'none';
+}
+function buildTermLoginMenu() {
+  var entries = (typeof ENTRIES !== 'undefined' && ENTRIES) ? ENTRIES : [];
+  var seen = {};
+  var users = [];
+  entries.forEach(function(e) {
+    if (!e.email || seen[e.email]) return;
+    seen[e.email] = true;
+    users.push({
+      email: e.email,
+      teams: entries.filter(function(x) { return x.email === e.email; }).map(function(x) { return x.team; })
+    });
+  });
+  users.sort(function(a, b) { return a.email.localeCompare(b.email); });
+
+  var currentEmail = (typeof currentUserEmail !== 'undefined') ? currentUserEmail : null;
+  var h = '<div class="tlogin-head">'
+    +    '<span>' + (currentEmail ? 'Switch Identity' : 'Select Your Email') + '</span>'
+    +    '<button class="tsb-btn" onclick="closeTermLogin()">✕</button>'
+    +  '</div>';
+  if (!users.length) {
+    h += '<div class="tlogin-empty">No entries loaded yet. Submit an entry via + ADD ENTRY above, then come back.</div>';
+    return h;
+  }
+  h += '<div class="tlogin-search"><input type="text" id="tlogin-filter" placeholder="search email or team…" oninput="filterTermLogin(this.value)"></div>';
+  h += '<div class="tlogin-list">';
+  users.forEach(function(u) {
+    var active = currentEmail && currentEmail.toLowerCase() === u.email.toLowerCase();
+    var escEmail = u.email.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    h += '<div class="tlogin-row' + (active ? ' tlogin-active' : '') + '" data-email="' + termEsc(u.email) + '" data-teams="' + termEsc(u.teams.join(' ')) + '" onclick="selectTermUser(\'' + escEmail + '\')">'
+      +   '<div class="tlogin-email">' + termEsc(u.email) + (active ? ' <span class="tlogin-you">YOU</span>' : '') + '</div>'
+      +   '<div class="tlogin-teams">' + u.teams.map(termEsc).join(' · ') + '</div>'
+      + '</div>';
+  });
+  h += '</div>';
+  if (currentEmail) {
+    h += '<div class="tlogin-foot"><button class="tsb-btn tlogin-logout" onclick="termLogOut()">LOG OUT</button></div>';
+  }
+  return h;
+}
+function filterTermLogin(q) {
+  q = (q || '').toLowerCase().trim();
+  var rows = document.querySelectorAll('.tlogin-row');
+  rows.forEach(function(r) {
+    var e = (r.getAttribute('data-email') || '').toLowerCase();
+    var t = (r.getAttribute('data-teams') || '').toLowerCase();
+    r.style.display = (!q || e.indexOf(q) !== -1 || t.indexOf(q) !== -1) ? '' : 'none';
+  });
+}
+function selectTermUser(email) {
+  window.currentUserEmail = email;
+  window.currentUserTeams = (ENTRIES || []).filter(function(e) { return e.email === email; });
+  window.activeTeamIdx = -1;
+  try { localStorage.setItem('eastpole_v2', JSON.stringify({ email: email, activeTeamIdx: -1 })); } catch(e) {}
+  updateTermLoginButton();
+  closeTermLogin();
+  if (typeof renderPoolRoster === 'function') renderPoolRoster();
+  renderTerminal();
+}
+function termLogOut() {
+  window.currentUserEmail = null;
+  window.currentUserTeams = [];
+  window.activeTeamIdx = -1;
+  try { localStorage.removeItem('eastpole_v2'); } catch(e) {}
+  updateTermLoginButton();
+  closeTermLogin();
+  if (typeof renderPoolRoster === 'function') renderPoolRoster();
+  renderTerminal();
+}
+function updateTermLoginButton() {
+  var btn = document.getElementById('term-login-btn');
+  if (!btn) return;
+  if (currentUserEmail) {
+    var short = currentUserEmail.split('@')[0].slice(0, 14);
+    btn.textContent = '👤 ' + short.toUpperCase();
+  } else {
+    btn.textContent = 'LOG IN';
+  }
+}
 var _refreshClicks = [];
 function handleRefreshClick() {
   var now = Date.now();
@@ -1316,6 +1414,7 @@ async function initTerminal() {
   if (typeof currentUserEmail === 'undefined') window.currentUserEmail = null;
   if (typeof currentUserTeams === 'undefined') window.currentUserTeams = [];
   if (typeof activeTeamIdx === 'undefined') window.activeTeamIdx = -1;
+  if (typeof updateTermLoginButton === 'function') updateTermLoginButton();
 
   // Render empty state immediately so user sees the panels
   try {

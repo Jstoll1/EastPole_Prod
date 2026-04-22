@@ -1203,3 +1203,94 @@ html, body {
 }
 #panel-standings .pr-mp-tb strong { color: var(--term-amber); }
 
+/* ── Terminal Login Modal ───────────────────────────────── */
+.tlogin-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--term-border);
+  background: var(--term-panel-alt);
+  color: var(--term-amber);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.tlogin-search { padding: 8px 12px; border-bottom: 1px solid var(--term-border); }
+.tlogin-search input {
+  width: 100%;
+  background: var(--term-bg);
+  border: 1px solid var(--term-border);
+  color: var(--term-text);
+  font-family: inherit;
+  font-size: 12px;
+  padding: 6px 10px;
+  outline: none;
+  box-sizing: border-box;
+}
+.tlogin-search input:focus { border-color: var(--term-amber); }
+.tlogin-empty {
+  padding: 20px 14px;
+  font-size: 11px;
+  color: var(--term-text-muted);
+  text-align: center;
+  line-height: 1.5;
+}
+.tlogin-list { padding: 4px 0; }
+.tlogin-row {
+  padding: 8px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--term-border);
+  transition: background 0.12s;
+}
+.tlogin-row:hover { background: var(--term-panel-alt); }
+.tlogin-row.tlogin-active {
+  background: rgba(212,168,67,0.1);
+  border-left: 3px solid var(--term-amber);
+  padding-left: 11px;
+}
+.tlogin-email {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--term-text);
+  letter-spacing: 0.2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tlogin-you {
+  font-size: 9px;
+  font-weight: 800;
+  color: #06120c;
+  background: var(--term-amber);
+  padding: 1px 5px;
+  letter-spacing: 0.8px;
+}
+.tlogin-teams {
+  font-size: 10px;
+  color: var(--term-text-muted);
+  margin-top: 3px;
+  letter-spacing: 0.3px;
+}
+.tlogin-foot {
+  padding: 8px 14px;
+  border-top: 1px solid var(--term-border);
+  display: flex;
+  justify-content: center;
+  background: var(--term-panel-alt);
+  position: sticky;
+  bottom: 0;
+}
+.tlogin-logout {
+  color: var(--term-red) !important;
+  border-color: var(--term-red) !important;
+}
+.tlogin-logout:hover {
+  background: var(--term-red) !important;
+  color: #fff !important;
+}
+

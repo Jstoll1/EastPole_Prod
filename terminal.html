@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./css/terminal.css?v=26">
+<link rel="stylesheet" href="./css/terminal.css?v=27">
 <script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
 <body>
@@ -35,9 +35,14 @@
 <span class="tsb-sep">|</span>
 <button onclick="openAddEntryTerm()" class="tsb-btn">+ ADD ENTRY</button>
 <span class="tsb-sep">|</span>
+<button id="term-login-btn" onclick="openTermLogin()" class="tsb-btn">LOG IN</button>
+<span class="tsb-sep">|</span>
 <button onclick="handleRefreshClick()" class="tsb-btn">REFRESH</button>
 </div>
 </div>
+
+<div id="term-login-backdrop" onclick="closeTermLogin()" style="display:none;position:fixed;inset:0;z-index:9996;background:rgba(0,0,0,0.65);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)"></div>
+<div id="term-login-modal" style="display:none;position:fixed;top:44px;right:12px;width:340px;max-height:70vh;z-index:9997;background:var(--term-panel,#0a1812);border:1px solid var(--term-amber,#d4a843);box-shadow:0 12px 40px rgba(0,0,0,0.7);overflow-y:auto;-webkit-overflow-scrolling:touch;font-family:inherit"></div>
 
 <div id="term-addentry-backdrop" onclick="closeAddEntryTerm()" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.75);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)"></div>
 <div id="term-addentry-overlay" style="display:none;position:fixed;inset:24px;z-index:9999;background:var(--term-bg,#0a0e12);border:1px solid var(--term-amber,#d4a843);box-shadow:0 16px 48px rgba(0,0,0,0.8);flex-direction:column">
@@ -158,8 +163,8 @@
 
 <!-- Terminal-only module -->
 <script defer src="./js/entry-form.js?v=2"></script>
-<script defer src="./js/entry-loader.js?v=3"></script>
-<script defer src="./js/terminal.js?v=35"></script>
+<script defer src="./js/entry-loader.js?v=4"></script>
+<script defer src="./js/terminal.js?v=36"></script>
 
 </body>
 </html>

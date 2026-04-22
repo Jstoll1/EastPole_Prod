@@ -120,6 +120,11 @@ async function loadPoolEntries(force) {
       entries.forEach(function(e) { ENTRIES.push(e); });
     }
     console.log('✅ Loaded', entries.length, 'pool entries from sheet');
+    // Refresh the logged-in user's team associations now that ENTRIES is populated
+    if (typeof currentUserEmail !== 'undefined' && currentUserEmail) {
+      window.currentUserTeams = ENTRIES.filter(function(e) { return e.email === currentUserEmail; });
+    }
+    if (typeof updateTermLoginButton === 'function') updateTermLoginButton();
     renderPoolRoster();
     if (typeof renderAll === 'function') renderAll();
   } catch(e) {
