@@ -1012,6 +1012,7 @@ function renderTermDataGolf() {
     var norm = function(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); };
     var stale = dgEvent && curEvent && norm(dgEvent) !== norm(curEvent);
     if (dgEvent) parts.push((stale ? '⚠ ' : '') + dgEvent);
+    if (DG_META && DG_META.source) parts.push(DG_META.source);
     if (DG_META && DG_META.last_updated) parts.push(DG_META.last_updated);
     meta.textContent = parts.join(' · ');
     meta.title = stale

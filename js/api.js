@@ -396,25 +396,60 @@ function refreshData() { setApiStatus('', 'Refreshing…'); fetchESPN(); }
 
 // ─── DataGolf live in-play predictions ───
 var _dgLastFetch = 0;
+var DG_PROXY = 'https://datagolf-proxy.jhs797.workers.dev/';
+
+async function _fetchDGEndpoint(endpoint) {
+  try {
+    var res = await fetch(DG_PROXY + '?endpoint=' + endpoint, { cache: 'no-store' });
+    if (!res.ok) return { ok: false, status: res.status, endpoint: endpoint };
+    var json = await res.json();
+    var arr = json.data || json;
+    if (!Array.isArray(arr)) return { ok: false, reason: 'shape', endpoint: endpoint };
+    return { ok: true, endpoint: endpoint, json: json, arr: arr,
+             event_name: json.event_name || json.info?.event_name || '',
+             last_updated: json.last_updated || json.info?.last_updated || '' };
+  } catch (e) {
+    return { ok: false, reason: e.message, endpoint: endpoint };
+  }
+}
+
 async function fetchDGLivePreds(force) {
   // Only fetch every 60s (Worker caches & shields DataGolf); force bypasses throttle
   if (!force && Date.now() - _dgLastFetch < 60000) return;
   try {
-    var res = await fetch('https://datagolf-proxy.jhs797.workers.dev/', { cache: 'no-store' });
-    if (!res.ok) {
-      var msg = 'DataGolf fetch failed: HTTP ' + res.status;
+    // Hit both endpoints in parallel — Worker proxies each upstream URL with
+    // independent caching. Then pick whichever payload's event matches the
+    // live ESPN TOURNEY_NAME. (If the Worker hasn't been updated to honor the
+    // ?endpoint= param, both will return the same data — harmless.)
+    var results = await Promise.all([
+      _fetchDGEndpoint('pre-tournament'),
+      _fetchDGEndpoint('in-play')
+    ]);
+    var pre = results[0], live = results[1];
+    var ok = results.filter(function(r) { return r.ok; });
+    if (!ok.length) {
+      var msg = 'DataGolf fetch failed: ' + results.map(function(r) { return r.endpoint + '=' + (r.status || r.reason); }).join(', ');
       console.warn('⚠️ ' + msg);
       if (typeof termDiag === 'function') termDiag(msg, true);
+      _dgLastFetch = Math.min(_dgLastFetch, Date.now() - 45000);
       return;
     }
-    var json = await res.json();
-    var arr = json.data || json;
-    if (!Array.isArray(arr)) {
-      if (typeof termDiag === 'function') termDiag('DataGolf: unexpected payload shape', true);
-      return;
+    var norm = function(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); };
+    var espnEvent = norm(typeof TOURNEY_NAME !== 'undefined' ? TOURNEY_NAME : '');
+    var chosen = null;
+    if (espnEvent) {
+      // Prefer in-play if its event matches ESPN (tournament is live), else pre-tournament if matches.
+      if (live.ok && norm(live.event_name) === espnEvent) chosen = live;
+      else if (pre.ok && norm(pre.event_name) === espnEvent) chosen = pre;
     }
-    DG_META.event_name = json.event_name || json.info?.event_name || '';
-    DG_META.last_updated = json.last_updated || json.info?.last_updated || '';
+    // No ESPN match — default to pre-tournament when available (we're in pre-event window),
+    // else whichever endpoint returned data.
+    if (!chosen) chosen = pre.ok ? pre : live;
+
+    var json = chosen.json, arr = chosen.arr;
+    DG_META.event_name = chosen.event_name;
+    DG_META.last_updated = chosen.last_updated;
+    DG_META.source = chosen.endpoint;
     DG_META.fetched_at = Date.now();
     var fresh = {};
     var dgByFuzzy = {}; // fuzzy key → DG country code (for cross-matching ESPN names)

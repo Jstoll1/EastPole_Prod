@@ -323,7 +323,7 @@ var TOURNEY_FINAL = false; // true when all 4 rounds complete, 0 holes left
 
 // Live probability predictions (keyed by canonical player name)
 var DG_LIVE_PREDS = {};
-var DG_META = { event_name: '', last_updated: '', fetched_at: 0 };
+var DG_META = { event_name: '', last_updated: '', source: '', fetched_at: 0 };
 var DG_API_KEY = '3a65d1e85639edeb0476c68b9215';
 
 var lastFetchTime = 0;
