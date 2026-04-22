@@ -1284,6 +1284,14 @@ html, body {
   margin-top: 3px;
   letter-spacing: 0.3px;
 }
+.tlogin-nomatch {
+  padding: 14px;
+  font-size: 11px;
+  color: var(--term-text-muted);
+  text-align: center;
+  letter-spacing: 0.3px;
+  line-height: 1.5;
+}
 .tlogin-foot {
   padding: 8px 14px;
   border-top: 1px solid var(--term-border);

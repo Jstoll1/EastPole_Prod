@@ -143,12 +143,43 @@ function buildTermLoginMenu() {
 function filterTermLogin(q) {
   q = (q || '').toLowerCase().trim();
   var rows = document.querySelectorAll('.tlogin-row');
+  var shown = 0;
   rows.forEach(function(r) {
     var e = (r.getAttribute('data-email') || '').toLowerCase();
     var t = (r.getAttribute('data-teams') || '').toLowerCase();
     var ent = (r.getAttribute('data-entrant') || '').toLowerCase();
-    r.style.display = (!q || e.indexOf(q) !== -1 || t.indexOf(q) !== -1 || ent.indexOf(q) !== -1) ? '' : 'none';
+    var match = !q || e.indexOf(q) !== -1 || t.indexOf(q) !== -1 || ent.indexOf(q) !== -1;
+    r.style.display = match ? '' : 'none';
+    if (match) shown++;
   });
+  // Show a "no matches" hint inside the list when nothing matches
+  var list = document.querySelector('#term-login-modal .tlogin-list');
+  if (list) {
+    var hint = list.querySelector('.tlogin-nomatch');
+    if (q && shown === 0) {
+      if (!hint) {
+        hint = document.createElement('div');
+        hint.className = 'tlogin-nomatch';
+        list.appendChild(hint);
+      }
+      hint.textContent = 'No entries match "' + q + '" — searched ' + rows.length + ' rows. Clear search to see all.';
+      hint.style.display = '';
+    } else if (hint) {
+      hint.style.display = 'none';
+    }
+  }
+  // Console diag — first 3 row attribute snapshots so misses are debuggable
+  if (q && shown === 0 && rows.length) {
+    var sample = [];
+    for (var i = 0; i < Math.min(3, rows.length); i++) {
+      sample.push({
+        email: rows[i].getAttribute('data-email'),
+        teams: rows[i].getAttribute('data-teams'),
+        entrant: rows[i].getAttribute('data-entrant')
+      });
+    }
+    console.warn('🔍 Login search "' + q + '" matched 0 of ' + rows.length + ' — first 3 rows:', sample);
+  }
 }
 function selectTermUser(key) {
   window.currentUserEmail = key;
