@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./css/terminal.css?v=20">
+<link rel="stylesheet" href="./css/terminal.css?v=21">
 <script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
 <body>
@@ -45,7 +45,7 @@
 <span style="font-family:var(--term-font,monospace);font-weight:700;color:var(--term-amber,#d4a843);letter-spacing:1px">+ ADD ENTRY</span>
 <button onclick="closeAddEntryTerm()" class="tsb-btn">CLOSE ✕</button>
 </div>
-<iframe id="term-addentry-frame" src="about:blank" style="flex:1;width:100%;border:0;background:#fff"></iframe>
+<div id="term-entry-form-container" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 24px 40px"></div>
 </div>
 
 <div id="term-wx-bar"><span class="wxb-tag">NEXT</span> <span class="wxb-course">loading…</span></div>
@@ -156,7 +156,8 @@
 <script defer src="./js/ui-scorecard.js?v=637"></script>
 
 <!-- Terminal-only module -->
-<script defer src="./js/terminal.js?v=29"></script>
+<script defer src="./js/entry-form.js?v=1"></script>
+<script defer src="./js/terminal.js?v=30"></script>
 
 </body>
 </html>
