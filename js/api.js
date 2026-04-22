@@ -156,8 +156,13 @@ async function fetchESPN() {
     var freshAthleteIds = {};
     comps.forEach(function(c) {
       // Team events (e.g. Zurich Classic) expose `athletes` (plural); singles events use `athlete`.
-      // Expand team competitors into one row per golfer sharing the team's score/thru/linescores.
-      var teamAthletes = Array.isArray(c.athletes) ? c.athletes.filter(function(a) { return a && a.displayName; }) : null;
+      // ESPN has shipped several shapes over the years — probe each before giving up.
+      var teamAthletes = null;
+      if (Array.isArray(c.athletes)) teamAthletes = c.athletes;
+      else if (c.roster && Array.isArray(c.roster.athletes)) teamAthletes = c.roster.athletes;
+      else if (Array.isArray(c.roster)) teamAthletes = c.roster.map(function(r) { return r && r.athlete ? r.athlete : r; });
+      else if (c.team && Array.isArray(c.team.athletes)) teamAthletes = c.team.athletes;
+      if (teamAthletes) teamAthletes = teamAthletes.filter(function(a) { return a && a.displayName; });
       var athleteList = (teamAthletes && teamAthletes.length) ? teamAthletes : (c.athlete?.displayName ? [c.athlete] : []);
       if (!athleteList.length) return;
 
@@ -222,6 +227,26 @@ async function fetchESPN() {
         freshScores[name] = Object.assign({}, teamRecord);
       });
     });
+    // If ESPN returned competitors but nothing parsed (unknown shape),
+    // dump the first competitor for diagnosis and fall back to the
+    // pre-tournament empty-state path so the UI doesn't silently blank.
+    if (Object.keys(freshScores).length === 0) {
+      console.warn('⚠️ ESPN returned', comps.length, 'competitors but none parsed — raw shape:', comps[0]);
+      ErrorTracker.api('ESPN competitors unparseable', {
+        count: comps.length,
+        firstKeys: comps[0] ? Object.keys(comps[0]) : null,
+        firstSample: comps[0] ? JSON.stringify(comps[0]).slice(0, 1500) : null
+      });
+      setApiStatus('scheduled', 'Pre-Tournament');
+      if (Object.keys(GOLFER_SCORES).length === 0) {
+        Object.keys(FLAGS).forEach(function(name) {
+          GOLFER_SCORES[name] = { pos: '—', score: 0, thru: '—', teeTime: '—', startHole: 1, tot: null, todayDisplay: '—', r1: null, r2: null, r3: null, r4: null };
+        });
+      }
+      lastFetchTime = Date.now();
+      renderAll();
+      return;
+    }
     // Debug: log first 5 competitors with all status fields
     comps.slice(0, 5).forEach(function(c) {
       var names = Array.isArray(c.athletes) && c.athletes.length
