@@ -411,14 +411,24 @@ async function _fetchDGEndpoint(endpoint) {
             : (base && Array.isArray(base.players)) ? base.players
             : Array.isArray(json) ? json
             : null;
-    if (!arr) return { ok: false, reason: 'shape', endpoint: endpoint };
+    if (!arr) {
+      // Dump a peek at the payload so we can see what shape DG actually returned
+      console.warn('🏌️ DG ' + endpoint + ' shape mismatch — top-level keys:', Object.keys(json), 'sample:', JSON.stringify(json).slice(0, 500));
+      return { ok: false, reason: 'shape', endpoint: endpoint };
+    }
     var event_name = json.event_name || (base && base.event_name) || json.info?.event_name || '';
     var last_updated = json.last_updated || (base && base.last_updated) || json.info?.last_updated || '';
+    // First time we successfully load this endpoint, log a sample row so payload shape is visible
+    if (arr.length && !_dgSampleLogged[endpoint]) {
+      _dgSampleLogged[endpoint] = true;
+      console.log('🏌️ DG ' + endpoint + ' sample row keys:', Object.keys(arr[0]), arr[0]);
+    }
     return { ok: true, endpoint: endpoint, json: json, arr: arr, event_name: event_name, last_updated: last_updated };
   } catch (e) {
     return { ok: false, reason: e.message, endpoint: endpoint };
   }
 }
+var _dgSampleLogged = {};
 
 async function fetchDGLivePreds(force) {
   // Only fetch every 60s (Worker caches & shields DataGolf); force bypasses throttle
