@@ -426,20 +426,57 @@ html, body  {
   width: 28px;
 }
 
-.nav-btn-entry { color: var(--gold); }
+/* Elevated center Entry button — FAB-style, pokes above the nav bar */
+.nav-btn-entry {
+  color: var(--gold);
+  position: relative;
+  padding-top: 0;
+  justify-content: flex-end;
+  gap: 4px;
+}
 .nav-btn-entry .nav-entry-plus {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  font-size: 22px;
-  font-weight: 800;
+  width: 52px;
+  height: 52px;
+  margin-top: -22px;
+  font-size: 30px;
+  font-weight: 900;
   line-height: 1;
-  color: var(--gold);
+  color: #0b1d14;
+  background: radial-gradient(circle at 35% 30%, #f0c470 0%, #d4a843 55%, #b8892e 100%);
+  border-radius: 50%;
+  border: 2px solid rgba(11,29,20,0.9);
+  box-shadow:
+    0 6px 14px rgba(0,0,0,0.45),
+    0 0 0 3px rgba(212,168,67,0.18),
+    0 0 18px rgba(212,168,67,0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  animation: entryPulse 2.4s ease-in-out infinite;
 }
-.nav-btn-entry::after { background: transparent; }
-.nav-btn-entry:active .nav-entry-plus { transform: scale(0.9); }
+.nav-btn-entry:active .nav-entry-plus {
+  transform: scale(0.92);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.5), 0 0 0 2px rgba(212,168,67,0.25);
+}
+.nav-btn-entry::after { background: transparent !important; }
+@keyframes entryPulse {
+  0%, 100% {
+    box-shadow:
+      0 6px 14px rgba(0,0,0,0.45),
+      0 0 0 3px rgba(212,168,67,0.18),
+      0 0 18px rgba(212,168,67,0.35);
+  }
+  50% {
+    box-shadow:
+      0 6px 14px rgba(0,0,0,0.45),
+      0 0 0 5px rgba(212,168,67,0.28),
+      0 0 26px rgba(212,168,67,0.55);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-btn-entry .nav-entry-plus { animation: none; }
+}
 
 .section-pad  {
   padding: 0 0 100px;
