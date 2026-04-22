@@ -427,10 +427,14 @@ async function fetchDGLivePreds(force) {
     ]);
     var pre = results[0], live = results[1];
     var ok = results.filter(function(r) { return r.ok; });
+    // Always emit a one-line diagnostic of what each endpoint returned
+    var diag = results.map(function(r) {
+      if (!r.ok) return r.endpoint + '=ERR(' + (r.status || r.reason) + ')';
+      return r.endpoint + '=' + (r.event_name || 'no-event') + '/' + r.arr.length + 'p';
+    }).join(' · ');
+    console.log('🏌️ DG endpoints:', diag);
+    if (typeof termDiag === 'function') termDiag('DG: ' + diag);
     if (!ok.length) {
-      var msg = 'DataGolf fetch failed: ' + results.map(function(r) { return r.endpoint + '=' + (r.status || r.reason); }).join(', ');
-      console.warn('⚠️ ' + msg);
-      if (typeof termDiag === 'function') termDiag(msg, true);
       _dgLastFetch = Math.min(_dgLastFetch, Date.now() - 45000);
       return;
     }
