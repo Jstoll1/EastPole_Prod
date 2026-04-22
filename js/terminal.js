@@ -83,10 +83,12 @@ function buildTermLoginMenu() {
     entries.forEach(function(e) {
       if (!e.email || seen[e.email]) return;
       seen[e.email] = true;
+      var grp = entries.filter(function(x) { return x.email === e.email; });
       users.push({
         key: e.email,
         label: e.email,
-        teams: entries.filter(function(x) { return x.email === e.email; }).map(function(x) { return x.team; })
+        entrants: Array.from(new Set(grp.map(function(x) { return x.entrant; }).filter(Boolean))),
+        teams: grp.map(function(x) { return x.team; })
       });
     });
   } else {
@@ -94,7 +96,12 @@ function buildTermLoginMenu() {
     entries.forEach(function(e) {
       if (!e.team || seen[e.team]) return;
       seen[e.team] = true;
-      users.push({ key: e.team, label: e.team, teams: [e.team] });
+      users.push({
+        key: e.team,
+        label: e.team,
+        entrants: e.entrant ? [e.entrant] : [],
+        teams: [e.team]
+      });
     });
   }
   users.sort(function(a, b) { return a.label.localeCompare(b.label); });
@@ -108,13 +115,22 @@ function buildTermLoginMenu() {
     h += '<div class="tlogin-empty">No entries loaded yet. Submit an entry via + ADD ENTRY above, then come back.</div>';
     return h;
   }
-  h += '<div class="tlogin-search"><input type="text" id="tlogin-filter" placeholder="search…" oninput="filterTermLogin(this.value)"></div>';
+  h += '<div class="tlogin-search"><input type="text" id="tlogin-filter" placeholder="search entrant, team, email…" oninput="filterTermLogin(this.value)"></div>';
   h += '<div class="tlogin-list">';
   users.forEach(function(u) {
     var active = currentEmail && currentEmail.toLowerCase() === u.key.toLowerCase();
     var escKey = u.key.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-    h += '<div class="tlogin-row' + (active ? ' tlogin-active' : '') + '" data-email="' + termEsc(u.label) + '" data-teams="' + termEsc(u.teams.join(' ')) + '" onclick="selectTermUser(\'' + escKey + '\')">'
-      +   '<div class="tlogin-email">' + termEsc(u.label) + (active ? ' <span class="tlogin-you">YOU</span>' : '') + '</div>'
+    var entrantStr = u.entrants.join(' · ');
+    h += '<div class="tlogin-row' + (active ? ' tlogin-active' : '') + '"'
+      +   ' data-email="' + termEsc(u.label) + '"'
+      +   ' data-teams="' + termEsc(u.teams.join(' ')) + '"'
+      +   ' data-entrant="' + termEsc(entrantStr) + '"'
+      +   ' onclick="selectTermUser(\'' + escKey + '\')">'
+      +   '<div class="tlogin-email">'
+      +     (entrantStr ? '<span class="tlogin-entrant">' + termEsc(entrantStr) + '</span>' : '')
+      +     '<span>' + termEsc(u.label) + '</span>'
+      +     (active ? ' <span class="tlogin-you">YOU</span>' : '')
+      +   '</div>'
       +   '<div class="tlogin-teams">' + u.teams.map(termEsc).join(' · ') + '</div>'
       + '</div>';
   });
@@ -130,7 +146,8 @@ function filterTermLogin(q) {
   rows.forEach(function(r) {
     var e = (r.getAttribute('data-email') || '').toLowerCase();
     var t = (r.getAttribute('data-teams') || '').toLowerCase();
-    r.style.display = (!q || e.indexOf(q) !== -1 || t.indexOf(q) !== -1) ? '' : 'none';
+    var ent = (r.getAttribute('data-entrant') || '').toLowerCase();
+    r.style.display = (!q || e.indexOf(q) !== -1 || t.indexOf(q) !== -1 || ent.indexOf(q) !== -1) ? '' : 'none';
   });
 }
 function selectTermUser(key) {
