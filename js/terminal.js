@@ -31,6 +31,22 @@ function toggleTermDebug() {
   _termDebugMode = !_termDebugMode;
   _renderDebugPanel();
 }
+var TERM_ADDENTRY_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdb81xBTFvU2EvNqNlctTAWfP2cmh8gyypLQyfyW25WAs1p_g/viewform?embedded=true';
+function openAddEntryTerm() {
+  var el = document.getElementById('term-addentry-overlay');
+  var bd = document.getElementById('term-addentry-backdrop');
+  var frame = document.getElementById('term-addentry-frame');
+  if (!el || !frame) return;
+  if (frame.src === 'about:blank' || !frame.src) frame.src = TERM_ADDENTRY_URL;
+  el.style.display = 'flex';
+  if (bd) bd.style.display = 'block';
+}
+function closeAddEntryTerm() {
+  var el = document.getElementById('term-addentry-overlay');
+  var bd = document.getElementById('term-addentry-backdrop');
+  if (el) el.style.display = 'none';
+  if (bd) bd.style.display = 'none';
+}
 var _refreshClicks = [];
 function handleRefreshClick() {
   var now = Date.now();

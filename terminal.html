@@ -33,8 +33,19 @@
 <span class="tsb-sep">|</span>
 <span id="tsb-time">--:--:--</span>
 <span class="tsb-sep">|</span>
+<button onclick="openAddEntryTerm()" class="tsb-btn">+ ADD ENTRY</button>
+<span class="tsb-sep">|</span>
 <button onclick="handleRefreshClick()" class="tsb-btn">REFRESH</button>
 </div>
+</div>
+
+<div id="term-addentry-backdrop" onclick="closeAddEntryTerm()" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.75);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)"></div>
+<div id="term-addentry-overlay" style="display:none;position:fixed;inset:24px;z-index:9999;background:var(--term-bg,#0a0e12);border:1px solid var(--term-amber,#d4a843);box-shadow:0 16px 48px rgba(0,0,0,0.8);flex-direction:column">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--term-border,#2a3440);background:var(--term-bg,#0a0e12)">
+<span style="font-family:var(--term-font,monospace);font-weight:700;color:var(--term-amber,#d4a843);letter-spacing:1px">+ ADD ENTRY</span>
+<button onclick="closeAddEntryTerm()" class="tsb-btn">CLOSE ✕</button>
+</div>
+<iframe id="term-addentry-frame" src="about:blank" style="flex:1;width:100%;border:0;background:#fff"></iframe>
 </div>
 
 <div id="term-wx-bar"><span class="wxb-tag">NEXT</span> <span class="wxb-course">loading…</span></div>
@@ -145,7 +156,7 @@
 <script defer src="./js/ui-scorecard.js?v=637"></script>
 
 <!-- Terminal-only module -->
-<script defer src="./js/terminal.js?v=28"></script>
+<script defer src="./js/terminal.js?v=29"></script>
 
 </body>
 </html>
