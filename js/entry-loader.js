@@ -62,20 +62,22 @@ function parsePoolTSV(text) {
     var team = (idx.team >= 0 ? cells[idx.team] : '') || '';
     team = team.trim();
     if (!team) continue;
-    var picks = [];
+    var picks = [];           // team-pair strings (e.g. "🏴 Matt Fitzpatrick / 🏴 Alex Fitzpatrick")
+    var golferNames = [];     // flat individual names (kept for future solo-event scoring)
     var tierPicks = { tier1: [], tier2: [], tier3: [], tier4: [] };
     ['tier1', 'tier2', 'tier3', 'tier4'].forEach(function(k) {
       var i = idx[k];
       if (i < 0 || !cells[i]) return;
       // Google stores multi-checkbox as ", "-joined string within the cell.
-      // Each entry is a team-pair "Flag A PlayerA / Flag B PlayerB".
       var teams = cells[i].split(/,\s*(?=[^\s])/).map(function(s) { return s.trim(); }).filter(Boolean);
       tierPicks[k] = teams;
       teams.forEach(function(pair) {
-        // Split team-pair into individual players and strip leading flag emoji.
+        picks.push(pair);
+        // Also extract individual players (strip leading flag) for any scoring
+        // code that still assumes solo entries.
         pair.split(/\s*\/\s*/).forEach(function(p) {
           var clean = p.replace(/^[\p{Extended_Pictographic}\p{Emoji_Presentation}\s🏴\u{E0020}-\u{E007F}]+/u, '').trim();
-          if (clean) picks.push(clean);
+          if (clean) golferNames.push(clean);
         });
       });
     });
@@ -85,7 +87,9 @@ function parsePoolTSV(text) {
       timestamp: (idx.timestamp >= 0 ? cells[idx.timestamp] : '').trim(),
       tieBreaker: (idx.tiebreaker >= 0 ? cells[idx.tiebreaker] : '').trim(),
       tierPicks: tierPicks,
-      picks: picks
+      picks: picks,
+      golferNames: golferNames,
+      isTeamEvent: picks.length > 0 && picks[0].indexOf(' / ') !== -1
     });
   }
   return entries;
@@ -130,6 +134,7 @@ function renderPoolRoster() {
     return;
   }
   var live = isTournamentLive();
+  var myEmail = (typeof currentUserEmail !== 'undefined') ? currentUserEmail : null;
   var h = '<div class="pr-card">';
   h += '<div class="pr-head">'
     +    '<span class="pr-title">Pool Roster</span>'
@@ -138,16 +143,54 @@ function renderPoolRoster() {
   h += '<div class="pr-note">'
     +    (live
             ? 'Picks visible on Standings view'
-            : '🔒 Picks hidden until Thursday tee-off')
+            : '🔒 Picks hidden until Thursday tee-off · tap your entry to view your own picks')
     +  '</div>';
   h += '<div class="pr-list">';
   entries.slice().sort(function(a, b) {
     return (a.timestamp || '').localeCompare(b.timestamp || '');
-  }).forEach(function(e) {
-    h += '<div class="pr-row"><span class="pr-team">' + _efEscape(e.team) + '</span></div>';
+  }).forEach(function(e, i) {
+    var mine = myEmail && e.email && e.email.toLowerCase() === String(myEmail).toLowerCase();
+    h += '<div class="pr-row' + (mine ? ' pr-row-mine' : '') + '"'
+      +    (mine ? ' onclick="toggleMyPicks(' + i + ')"' : '')
+      +    '>'
+      +    '<span class="pr-team">' + _efEscape(e.team) + '</span>'
+      +    (mine ? '<span class="pr-mine-tag">YOU</span>' : '')
+      +  '</div>';
   });
-  h += '</div></div>';
+  h += '</div>';
+  h += '<div id="pr-my-picks" class="pr-my-picks" style="display:none"></div>';
+  h += '</div>';
   mount.innerHTML = h;
+}
+
+function toggleMyPicks(idx) {
+  var entries = (typeof ENTRIES !== 'undefined' && ENTRIES) ? ENTRIES : [];
+  var e = entries[idx];
+  if (!e) return;
+  var panel = document.getElementById('pr-my-picks');
+  if (!panel) return;
+  if (panel.dataset.open === '1' && panel.dataset.idx === String(idx)) {
+    panel.style.display = 'none';
+    panel.dataset.open = '0';
+    return;
+  }
+  panel.dataset.open = '1';
+  panel.dataset.idx = String(idx);
+  var tierLabels = { tier1: 'Tier 1 · Favorites', tier2: 'Tier 2 · Contenders', tier3: 'Tier 3 · Midfield', tier4: 'Tier 4 · Longshots' };
+  var html = '<div class="pr-mp-head">' + _efEscape(e.team) + ' — your picks</div>';
+  ['tier1', 'tier2', 'tier3', 'tier4'].forEach(function(k) {
+    var teams = (e.tierPicks && e.tierPicks[k]) || [];
+    if (!teams.length) return;
+    html += '<div class="pr-mp-tier">';
+    html += '<div class="pr-mp-tier-lbl">' + tierLabels[k] + '</div>';
+    teams.forEach(function(t) {
+      html += '<div class="pr-mp-team">' + _efEscape(t) + '</div>';
+    });
+    html += '</div>';
+  });
+  if (e.tieBreaker) html += '<div class="pr-mp-tb">Tiebreaker: <strong>' + _efEscape(e.tieBreaker) + '</strong></div>';
+  panel.innerHTML = html;
+  panel.style.display = 'block';
 }
 
 document.addEventListener('DOMContentLoaded', function() {

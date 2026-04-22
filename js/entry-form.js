@@ -2,6 +2,21 @@
 // Replaces the embedded Google Form iframe with an in-app tiered picker.
 // Submits via Google Forms formResponse endpoint (no-cors POST) so
 // responses still land in the existing sheet.
+//
+// PER-EVENT CONFIG — swap POOL_ENTRY_CONFIG each week. Works for both:
+//
+//   • TEAM EVENTS (like Zurich Classic): tier.teams[] holds team-pair
+//     strings ("🏴 Player A / 🏴 Player B"), tier.picks is the count to
+//     select per tier. Current week's shape.
+//
+//   • SOLO EVENTS: tier.teams[] holds individual golfer strings
+//     ("🇺🇸 Scottie Scheffler"); subtitle / rules text updated
+//     accordingly; submit payload unchanged (still checkbox multi-select
+//     against the same Google Forms entry.NNNNN IDs).
+//
+// Entry parsing, pool roster, and the "My Picks" panel auto-detect team
+// vs solo via the presence of " / " in each pick string — no other code
+// changes needed to switch modes.
 
 var POOL_ENTRY_CONFIG = {
   eventName: 'Zurich Classic of New Orleans',

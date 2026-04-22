@@ -1151,5 +1151,60 @@ body.wx-hidden #term-grid { top: calc(var(--term-header-h) + var(--term-ticker-h
   color: var(--term-text);
   font-weight: 700;
   letter-spacing: 0.2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
+#panel-standings .pr-row-mine {
+  cursor: pointer;
+  border-color: var(--term-amber);
+  background: rgba(212,168,67,0.1);
+}
+#panel-standings .pr-mine-tag {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: #06120c;
+  background: var(--term-amber);
+  padding: 1px 4px;
+}
+#panel-standings .pr-my-picks {
+  margin: 6px 10px 8px;
+  padding: 8px 10px;
+  background: var(--term-panel);
+  border: 1px solid var(--term-amber);
+}
+#panel-standings .pr-mp-head {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--term-amber);
+  margin-bottom: 6px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+#panel-standings .pr-mp-tier { margin-bottom: 8px; }
+#panel-standings .pr-mp-tier-lbl {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--term-text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+#panel-standings .pr-mp-team {
+  font-size: 11px;
+  color: var(--term-text);
+  padding: 3px 0;
+  border-bottom: 1px solid var(--term-border);
+}
+#panel-standings .pr-mp-team:last-child { border-bottom: none; }
+#panel-standings .pr-mp-tb {
+  font-size: 10.5px;
+  color: var(--term-text-dim);
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--term-border);
+  letter-spacing: 0.3px;
+}
+#panel-standings .pr-mp-tb strong { color: var(--term-amber); }
 
