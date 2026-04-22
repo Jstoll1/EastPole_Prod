@@ -974,7 +974,10 @@ function renderTermStandings() {
   }).join('');
 
   var meta = document.getElementById('std-meta');
-  if (meta) meta.textContent = ranked.length + ' entries';
+  if (meta) {
+    var locked = (typeof isTournamentLive === 'function') && !isTournamentLive();
+    meta.textContent = ranked.length + ' entries' + (locked ? ' · 🔒 picks locked' : '');
+  }
 }
 
 // ── Render Movers (flame/ice) ──────────────────────────
