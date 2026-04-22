@@ -347,15 +347,17 @@ function renderTermLeaderboard() {
     } else {
       thruDisp = p.thru || '—';
     }
-    var flag = Array.from(new Set(p.names.map(function(n) { return (FLAGS && FLAGS[n]) || ''; }).filter(Boolean))).join(' ');
+    var isTeam = p.names.length > 1;
     var mine = (typeof currentUserTeams !== 'undefined' && currentUserTeams.some(function(t) { return p.names.some(function(n) { return t.picks.indexOf(n) !== -1; }); }));
     var inPool = p.names.some(function(n) { return poolNames.has(n); });
     var rowCls = mine ? 'is-mine' : '';
     var escapedName = p.name.replace(/'/g, "\\'");
-    var displayName = p.names.join(' / ');
+    var nameCell = isTeam
+      ? p.names.map(function(n) { var f = (FLAGS && FLAGS[n]) || ''; return (f ? f + ' ' : '') + termEsc(n); }).join(' / ')
+      : (((FLAGS && FLAGS[p.name]) || '') + ' ' + termEsc(p.name));
     return '<tr class="' + rowCls + '" onclick="toggleTermScorecard(\'' + escapedName + '\', this)" style="cursor:pointer">'
       + '<td class="tpt-pos">' + termEsc(posDisp) + '</td>'
-      + '<td class="tpt-name">' + flag + ' ' + termEsc(displayName) + (inPool ? ' <span style="color:var(--term-text-muted);font-size:9px">●</span>' : '') + '</td>'
+      + '<td class="tpt-name">' + nameCell + (inPool ? ' <span style="color:var(--term-text-muted);font-size:9px">●</span>' : '') + '</td>'
       + '<td class="tpt-score ' + scoreCl + '">' + scoreDisp + '</td>'
       + '<td class="tpt-today ' + todayCl + '">' + termEsc(todayDisp) + '</td>'
       + '<td class="tpt-thru">' + termEsc(thruDisp) + '</td>'

@@ -270,7 +270,7 @@ function renderLeaderboard() {
     if (lbSort === 'score' && !estCutInserted && !cutInserted && estCutScore !== null && !mc && p.score > estCutScore) { rows += '<div class="est-cut-line-row"><div class="est-cut-line-label">── Estimated Cut Line ──</div></div>'; estCutInserted = true; }
     var sc = p.score, scf = fmt(sc);
     var scClass = mc ? 'mc' : sc < 0 ? 'neg' : sc > 0 ? 'pos' : 'eve';
-    var flag = Array.from(new Set(p.names.map(function(n) { return FLAGS[n] || ''; }).filter(Boolean))).join(' ');
+    var flag = isTeam ? '' : (FLAGS[p.name] || '');
     var cc = isTeam ? '' : getCountryCode(p.name);
     var preT = p.thru === '—';
     var teeStr = '';
@@ -316,7 +316,9 @@ function renderLeaderboard() {
     var escapedName = p.name.replace(/'/g, "\\'");
     var scoreChange = p.names.reduce(function(acc, n) { return acc || SCORE_CHANGES[n] || ''; }, '');
     var flashCls = scoreChange === 'birdie' ? ' birdie-flash' : scoreChange === 'bogey' ? ' bogey-flash' : scoreChange === 'eagle' ? ' eagle-flash' : '';
-    var displayName = p.names.join(' / ');
+    var displayName = isTeam
+      ? p.names.map(function(n) { var f = FLAGS[n] || ''; return (f ? f + ' ' : '') + n; }).join(' / ')
+      : p.name;
     var amTag = p.names.some(function(n) { return AMATEURS.has(n); }) ? ' <span class="tv-am">(a)</span>' : '';
     var emojiTag = (function() { for (var i = 0; i < p.names.length; i++) { var e = getPlayerEmoji(p.names[i]); if (e) return e; } return ''; })();
     rows += '<div class="tv-row' + (mc?' tv-mc':'') + (isMyPick?' is-my-team':'') + (isPrevWinner?' tv-prev-winner':'') + flashCls + '" onclick="toggleScorecard(' + ri + ',\'' + escapedName + '\')" style="cursor:pointer">'
