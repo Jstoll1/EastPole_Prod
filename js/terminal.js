@@ -650,7 +650,7 @@ var _currentEventForecast = null;
 
 function renderTermWeatherBar() {
   var el = document.getElementById('term-wx-bar');
-  if (!el) return;
+  if (!el) { console.warn('🌦️ #term-wx-bar element missing'); return; }
   // Always show weather. Source depends on tournament state:
   //   • TOURNEY_FINAL true  → NEXT event (between-events window)
   //   • otherwise           → CURRENT event (live or pre-tournament)
@@ -673,6 +673,7 @@ function renderTermWeatherBar() {
     evName = (typeof TOURNEY_NAME !== 'undefined' ? TOURNEY_NAME : '') || '';
     evCourse = (typeof TOURNEY_COURSE !== 'undefined' ? TOURNEY_COURSE : '') || '';
     forecast = _currentEventForecast;
+    if (typeof termDiag === 'function') termDiag('WX: LIVE ' + (evName || '?') + ' @ ' + (evCourse || '?') + ' · fc=' + (forecast ? 'ok' : 'pending'));
     if (!evName && !evCourse) {
       el.innerHTML = '<span class="wxb-tag">LIVE</span> <span class="wxb-course">loading…</span>';
       return;
