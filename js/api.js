@@ -514,14 +514,17 @@ async function fetchDGLivePreds(force) {
       }
       var dotIdx = part.indexOf('.');
       if (dotIdx === -1) {
-        // Last name only ("Gerard", "Yellamaraju") — match by trailing 1-or-2-word last name.
+        // Last name only ("Gerard", "Yellamaraju", "Dumont De Chassart") — match
+        // by the trailing last-name chunk (up to 3 words for names like
+        // "Dumont De Chassart").
         var lastLower = part.toLowerCase();
         for (var i = 0; i < _resolvePool.length; i++) {
           var nm = _resolvePool[i];
           var ps = nm.split(/\s+/);
           var l1 = ps[ps.length - 1].toLowerCase();
           var l2 = ps.length >= 2 ? ps.slice(-2).join(' ').toLowerCase() : '';
-          if (l1 === lastLower || l2 === lastLower) return nm;
+          var l3 = ps.length >= 3 ? ps.slice(-3).join(' ').toLowerCase() : '';
+          if (l1 === lastLower || l2 === lastLower || l3 === lastLower) return nm;
         }
         return null;
       }
