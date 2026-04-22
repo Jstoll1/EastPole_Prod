@@ -68,6 +68,23 @@ function renderLeaderboard() {
   var myPicksMap = getMyPicksMap();
   var myAllPicks = getActiveTeamPicks();
   var players = Object.entries(GOLFER_SCORES).map(function(entry) { var name = entry[0], d = entry[1]; return Object.assign({ name: name }, d); });
+  // Team events (Zurich): collapse teammates sharing teamId into a single row.
+  // Each entry carries `names` (array) so pool/search/pick checks can match either teammate.
+  (function collapseTeamRows() {
+    var seen = {};
+    var out = [];
+    players.forEach(function(p) {
+      if (p.teamId) {
+        if (seen[p.teamId]) { seen[p.teamId].names.push(p.name); return; }
+        var copy = Object.assign({}, p, { names: [p.name] });
+        seen[p.teamId] = copy;
+        out.push(copy);
+      } else {
+        out.push(Object.assign({}, p, { names: [p.name] }));
+      }
+    });
+    players = out;
+  })();
   var parseTodayVal = function(p) {
     if (p.score === 11 || p.score === 12) return 999;
     if (p.thru === '—') return 999;
@@ -128,9 +145,9 @@ function renderLeaderboard() {
   mcPlayers.sort(function(a,b) { return a.score - b.score; });
   players = activePlayers.concat(mcPlayers);
   var allPlayers = players;
-  if (lbFilter==='pool') players = players.filter(function(p) { return poolNames.has(p.name); });
-  if (lbFilter==='myPicks') players = players.filter(function(p) { return myAllPicks.has(p.name); });
-  if (lbSearch) players = players.filter(function(p) { return p.name.toLowerCase().indexOf(lbSearch) !== -1; });
+  if (lbFilter==='pool') players = players.filter(function(p) { return p.names.some(function(n) { return poolNames.has(n); }); });
+  if (lbFilter==='myPicks') players = players.filter(function(p) { return p.names.some(function(n) { return myAllPicks.has(n); }); });
+  if (lbSearch) players = players.filter(function(p) { return p.names.some(function(n) { return n.toLowerCase().indexOf(lbSearch) !== -1; }); });
   var countEl = document.getElementById('lb-count');
   if (countEl) {
     if (lbFilter==='pool') countEl.textContent = players.length + ' pool picks';
@@ -247,13 +264,14 @@ function renderLeaderboard() {
   var topMoverNames = isPreT ? new Map() : getTopMovers(arrowPlayers);
   var rowIdx = 0;
   players.forEach(function(p) {
-    var mc = p.thru==='MC'||p.thru==='WD'||p.score===11||p.score===12, inPool = poolNames.has(p.name);
+    var isTeam = p.names && p.names.length > 1;
+    var mc = p.thru==='MC'||p.thru==='WD'||p.score===11||p.score===12, inPool = p.names.some(function(n) { return poolNames.has(n); });
     if (!cutInserted && mc && currentRound >= 2 && lbSort === 'score' && lbSortAsc) { rows += '<div class="cut-line-row"><div class="cut-line-label">── Cut Line ──</div></div>'; cutInserted = true; }
     if (lbSort === 'score' && !estCutInserted && !cutInserted && estCutScore !== null && !mc && p.score > estCutScore) { rows += '<div class="est-cut-line-row"><div class="est-cut-line-label">── Estimated Cut Line ──</div></div>'; estCutInserted = true; }
     var sc = p.score, scf = fmt(sc);
     var scClass = mc ? 'mc' : sc < 0 ? 'neg' : sc > 0 ? 'pos' : 'eve';
-    var flag = FLAGS[p.name] || '';
-    var cc = getCountryCode(p.name);
+    var flag = Array.from(new Set(p.names.map(function(n) { return FLAGS[n] || ''; }).filter(Boolean))).join(' ');
+    var cc = isTeam ? '' : getCountryCode(p.name);
     var preT = p.thru === '—';
     var teeStr = '';
     if (p.teeTime && p.teeTime.includes('T')) { try { teeStr = new Date(p.teeTime).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}); } catch(e){} }
@@ -290,19 +308,22 @@ function renderLeaderboard() {
     }
     var moverInfo = topMoverNames.get(p.name);
     var isMover = !!moverInfo;
-    var myTeamIdxs = myPicksMap[p.name] || [];
+    var myTeamIdxs = Array.from(new Set(p.names.reduce(function(acc, n) { (myPicksMap[n] || []).forEach(function(i) { acc.push(i); }); return acc; }, [])));
     var pills = myTeamIdxs.map(function(i) { return '<span class="team-pill ' + (PILL_CLASSES[i]||'') + '">' + pillLabel(i) + '</span>'; }).join('');
     var isMyPick = myTeamIdxs.length > 0;
-    var isPrevWinner = isPreT && p.name === PREV_WINNER;
+    var isPrevWinner = isPreT && p.names.some(function(n) { return n === PREV_WINNER; });
     var ri = rowIdx++;
     var escapedName = p.name.replace(/'/g, "\\'");
-    var scoreChange = SCORE_CHANGES[p.name] || '';
+    var scoreChange = p.names.reduce(function(acc, n) { return acc || SCORE_CHANGES[n] || ''; }, '');
     var flashCls = scoreChange === 'birdie' ? ' birdie-flash' : scoreChange === 'bogey' ? ' bogey-flash' : scoreChange === 'eagle' ? ' eagle-flash' : '';
+    var displayName = p.names.join(' / ');
+    var amTag = p.names.some(function(n) { return AMATEURS.has(n); }) ? ' <span class="tv-am">(a)</span>' : '';
+    var emojiTag = (function() { for (var i = 0; i < p.names.length; i++) { var e = getPlayerEmoji(p.names[i]); if (e) return e; } return ''; })();
     rows += '<div class="tv-row' + (mc?' tv-mc':'') + (isMyPick?' is-my-team':'') + (isPrevWinner?' tv-prev-winner':'') + flashCls + '" onclick="toggleScorecard(' + ri + ',\'' + escapedName + '\')" style="cursor:pointer">'
         + '<div class="tv-pos">' + (mc?(p.thru==='WD'||p.score===12?'WD':'MC'):p.pos) + moveHtml + '</div>'
         + '<div class="tv-pill-slot">' + pills + '</div>'
-        + '<div class="tv-player"><span class="tv-name ' + (isMyPick?'is-my-pick':'') + '">' + p.name + (AMATEURS.has(p.name)?' <span class="tv-am">(a)</span>':'') + '</span> <span class="tv-country">' + flag + (cc?' '+cc:'') + '</span>'
-        + (getPlayerEmoji(p.name) ? '<span class="tv-emoji-tag">' + getPlayerEmoji(p.name) + '</span>' : '')
+        + '<div class="tv-player"><span class="tv-name ' + (isMyPick?'is-my-pick':'') + '">' + displayName + amTag + '</span> <span class="tv-country">' + flag + (cc?' '+cc:'') + '</span>'
+        + (emojiTag ? '<span class="tv-emoji-tag">' + emojiTag + '</span>' : '')
         + (isMover ? (moverInfo.sign === 'up' ? '<span class="top-mover"><span class="mover-arrow">\uD83D\uDD25</span>' + Math.abs(roundDelta) + '</span>' : '<span class="top-mover down"><span class="mover-arrow">\uD83E\uDDCA</span>' + Math.abs(roundDelta) + '</span>') : '')
         + (isPrevWinner?'<span class="prev-winner-badge">Def. Champion</span>':'')
         + (inPool&&!isMyPick?'<span class="tv-pool-dot"></span>':'')

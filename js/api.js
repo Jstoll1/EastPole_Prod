@@ -199,7 +199,13 @@ async function fetchESPN() {
       var todayRound = activelyPlaying ? lines[activeRndIdx >= 0 ? activeRndIdx : 0] : (scheduled ? null : lines[activeRndIdx >= 0 ? activeRndIdx : 0]);
       var todayDisplay = (mc || wd) ? '—' : (todayRound?.displayValue || (todayRound?.value > 50 ? (function() { var tp = todayRound.value - COURSE_PAR; return tp === 0 ? 'E' : (tp > 0 ? '+' + tp : String(tp)); })() : '—'));
       var onCourse = activelyPlaying;
-      var teamRecord = { pos: c.status?.position?.displayName || '—', score: wd ? 12 : mc ? 11 : score, thru: thru, teeTime: teeTime, startHole: startHole, tot: tot, todayDisplay: todayDisplay, r1: rval(0), r2: rval(1), r3: rval(2), r4: rval(3), roundCount: lines.filter(function(l) { return l.value != null; }).length, onCourse: onCourse };
+      // For team events, tag each golfer's record with a shared teamId so the
+      // leaderboard can collapse teammates into a single row (still one entry
+      // per golfer in GOLFER_SCORES so pool picks resolve normally elsewhere).
+      var isTeamEvent = athleteList.length > 1;
+      var teamId = isTeamEvent ? ('team-' + (c.id || c.uid || athleteList.map(function(a){return a.id||a.displayName;}).join('|'))) : null;
+      var teammateNames = isTeamEvent ? athleteList.map(function(a) { return resolvePlayerName(a.displayName); }) : null;
+      var teamRecord = { pos: c.status?.position?.displayName || '—', score: wd ? 12 : mc ? 11 : score, thru: thru, teeTime: teeTime, startHole: startHole, tot: tot, todayDisplay: todayDisplay, r1: rval(0), r2: rval(1), r3: rval(2), r4: rval(3), roundCount: lines.filter(function(l) { return l.value != null; }).length, onCourse: onCourse, teamId: teamId, teammateNames: teammateNames };
 
       athleteList.forEach(function(ath) {
         var rawName = ath?.displayName;

@@ -276,9 +276,27 @@ function renderTermLeaderboard() {
     return {
       name: n, pos: g.pos, score: g.score, today: g.todayDisplay, thru: g.thru, teeTime: g.teeTime,
       r1: g.r1, r2: g.r2, r3: g.r3, r4: g.r4, roundCount: g.roundCount,
-      mc: g.score === 11, wd: g.score === 12
+      mc: g.score === 11, wd: g.score === 12,
+      teamId: g.teamId
     };
   });
+  // Team events (Zurich): collapse teammates into one row, keeping `names` array for lookups.
+  (function() {
+    var seen = {};
+    var out = [];
+    players.forEach(function(p) {
+      if (p.teamId) {
+        if (seen[p.teamId]) { seen[p.teamId].names.push(p.name); return; }
+        p.names = [p.name];
+        seen[p.teamId] = p;
+        out.push(p);
+      } else {
+        p.names = [p.name];
+        out.push(p);
+      }
+    });
+    players = out;
+  })();
 
   var lbSort = _sortState['panel-leaderboard'];
   var lbAccessors = {
@@ -294,7 +312,7 @@ function renderTermLeaderboard() {
   // Filter by search input
   var q = (_lbSearch || '').trim().toLowerCase();
   if (q) {
-    players = players.filter(function(p) { return p.name.toLowerCase().indexOf(q) !== -1; });
+    players = players.filter(function(p) { return p.names.some(function(n) { return n.toLowerCase().indexOf(q) !== -1; }); });
   }
 
   // Get pool pick names
@@ -329,14 +347,15 @@ function renderTermLeaderboard() {
     } else {
       thruDisp = p.thru || '—';
     }
-    var flag = (FLAGS && FLAGS[p.name]) || '';
-    var mine = (typeof currentUserTeams !== 'undefined' && currentUserTeams.some(function(t) { return t.picks.indexOf(p.name) !== -1; }));
-    var inPool = poolNames.has(p.name);
+    var flag = Array.from(new Set(p.names.map(function(n) { return (FLAGS && FLAGS[n]) || ''; }).filter(Boolean))).join(' ');
+    var mine = (typeof currentUserTeams !== 'undefined' && currentUserTeams.some(function(t) { return p.names.some(function(n) { return t.picks.indexOf(n) !== -1; }); }));
+    var inPool = p.names.some(function(n) { return poolNames.has(n); });
     var rowCls = mine ? 'is-mine' : '';
     var escapedName = p.name.replace(/'/g, "\\'");
+    var displayName = p.names.join(' / ');
     return '<tr class="' + rowCls + '" onclick="toggleTermScorecard(\'' + escapedName + '\', this)" style="cursor:pointer">'
       + '<td class="tpt-pos">' + termEsc(posDisp) + '</td>'
-      + '<td class="tpt-name">' + flag + ' ' + termEsc(p.name) + (inPool ? ' <span style="color:var(--term-text-muted);font-size:9px">●</span>' : '') + '</td>'
+      + '<td class="tpt-name">' + flag + ' ' + termEsc(displayName) + (inPool ? ' <span style="color:var(--term-text-muted);font-size:9px">●</span>' : '') + '</td>'
       + '<td class="tpt-score ' + scoreCl + '">' + scoreDisp + '</td>'
       + '<td class="tpt-today ' + todayCl + '">' + termEsc(todayDisp) + '</td>'
       + '<td class="tpt-thru">' + termEsc(thruDisp) + '</td>'
