@@ -403,11 +403,18 @@ async function _fetchDGEndpoint(endpoint) {
     var res = await fetch(DG_PROXY + '?endpoint=' + endpoint, { cache: 'no-store' });
     if (!res.ok) return { ok: false, status: res.status, endpoint: endpoint };
     var json = await res.json();
-    var arr = json.data || json;
-    if (!Array.isArray(arr)) return { ok: false, reason: 'shape', endpoint: endpoint };
-    return { ok: true, endpoint: endpoint, json: json, arr: arr,
-             event_name: json.event_name || json.info?.event_name || '',
-             last_updated: json.last_updated || json.info?.last_updated || '' };
+    // Two payload shapes:
+    //   in-play       → { event_name, last_updated, data: [...] }
+    //   pre-tournament → { event_name, last_updated, baseline: { players: [...] }, baseline_history_fit: {...} }
+    var base = json.baseline || json.baseline_history_fit;
+    var arr = Array.isArray(json.data) ? json.data
+            : (base && Array.isArray(base.players)) ? base.players
+            : Array.isArray(json) ? json
+            : null;
+    if (!arr) return { ok: false, reason: 'shape', endpoint: endpoint };
+    var event_name = json.event_name || (base && base.event_name) || json.info?.event_name || '';
+    var last_updated = json.last_updated || (base && base.last_updated) || json.info?.last_updated || '';
+    return { ok: true, endpoint: endpoint, json: json, arr: arr, event_name: event_name, last_updated: last_updated };
   } catch (e) {
     return { ok: false, reason: e.message, endpoint: endpoint };
   }
@@ -461,23 +468,35 @@ async function fetchDGLivePreds(force) {
     var fuzzyKey = function(s) {
       return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z]/g, '');
     };
-    arr.forEach(function(p) {
-      // Convert "Last, First" → "First Last"
-      var parts = (p.player_name || '').split(', ');
-      var name = parts.length === 2 ? (parts[1] + ' ' + parts[0]) : p.player_name;
-      name = NAME_ALIASES[name] || name;
-      fresh[name] = {
+    var probsOf = function(p) {
+      return {
         win: p.win || 0,
         top_5: p.top_5 || 0,
         top_10: p.top_10 || 0,
         top_20: p.top_20 || 0,
         make_cut: p.make_cut || 0
       };
-      if (p.country) dgByFuzzy[fuzzyKey(name)] = String(p.country).toUpperCase();
-      // Fallback flag from DataGolf when ESPN didn't provide a country
-      if (p.country && (!FLAGS[name] || FLAGS[name] === '🏳️' || FLAGS[name] === '')) {
-        var code = String(p.country).toUpperCase();
+    };
+    var addPlayer = function(rawName, country, probs) {
+      var parts = (rawName || '').split(', ');
+      var name = parts.length === 2 ? (parts[1] + ' ' + parts[0]) : rawName;
+      name = NAME_ALIASES[name] || name;
+      if (!name) return;
+      fresh[name] = probs;
+      if (country) dgByFuzzy[fuzzyKey(name)] = String(country).toUpperCase();
+      if (country && (!FLAGS[name] || FLAGS[name] === '🏳️' || FLAGS[name] === '')) {
+        var code = String(country).toUpperCase();
         if (CODE_TO_FLAG[code]) { FLAGS[name] = CODE_TO_FLAG[code]; flagsFilled++; }
+      }
+    };
+    arr.forEach(function(p) {
+      var probs = probsOf(p);
+      // Team-event pre-tournament: each row is one team with two players sharing probs.
+      if (p.player_name_1 && p.player_name_2) {
+        addPlayer(p.player_name_1, p.country_1, probs);
+        addPlayer(p.player_name_2, p.country_2, probs);
+      } else {
+        addPlayer(p.player_name, p.country, probs);
       }
     });
     DG_LIVE_PREDS = fresh;
