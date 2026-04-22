@@ -1091,3 +1091,60 @@ html, body {
   letter-spacing: 0.3px;
 }
 
+/* ── Pool Roster (F2 panel) ─────────────────────────────────── */
+#panel-standings #pool-roster { flex-shrink: 0; }
+#panel-standings .pr-empty {
+  padding: 10px 12px;
+  font-size: 11px;
+  color: var(--term-text-muted);
+  border-bottom: 1px solid var(--term-border);
+  letter-spacing: 0.3px;
+}
+#panel-standings .pr-card {
+  padding: 8px 10px 4px;
+  background: var(--term-panel-alt);
+  border-bottom: 1px solid var(--term-border);
+}
+#panel-standings .pr-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+#panel-standings .pr-title {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--term-amber);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+#panel-standings .pr-count {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--term-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+#panel-standings .pr-note {
+  font-size: 10px;
+  color: var(--term-text-muted);
+  margin-bottom: 6px;
+  letter-spacing: 0.4px;
+}
+#panel-standings .pr-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding-bottom: 6px;
+  max-height: 140px;
+  overflow-y: auto;
+}
+#panel-standings .pr-row {
+  padding: 3px 8px;
+  background: var(--term-panel);
+  border: 1px solid var(--term-border);
+  font-size: 10.5px;
+  color: var(--term-text);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
