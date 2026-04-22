@@ -118,7 +118,8 @@ async function fetchESPN() {
     }
     EVENT_ID = discoveredId || EVENT_ID || null;
     if (!comps.length) {
-      console.log('⚠️ ESPN API returned event but no competitors — field not published yet');
+      console.log('⚠️ ESPN API returned event but no competitors — field not published yet.',
+        'ev.competitions[0] keys:', ev?.competitions?.[0] ? Object.keys(ev.competitions[0]) : '(none)');
       setApiStatus('scheduled', 'Pre-Tournament');
       if (Object.keys(GOLFER_SCORES).length === 0) {
         Object.keys(FLAGS).forEach(function(name) {
@@ -129,6 +130,11 @@ async function fetchESPN() {
       renderAll();
       return;
     }
+    console.log('📊 ESPN competitors:', comps.length,
+      '| first competitor keys:', Object.keys(comps[0] || {}),
+      '| roster?', Array.isArray(comps[0]?.roster) ? comps[0].roster.length : 'no',
+      '| athletes?', Array.isArray(comps[0]?.athletes) ? comps[0].athletes.length : 'no',
+      '| athlete?', comps[0]?.athlete?.displayName || 'no');
     var evStatus = ev?.status?.type?.name || '';
     var evDetail = ev?.status?.type?.detail || '';
     var evDesc = ev?.status?.type?.description || '';
@@ -154,30 +160,20 @@ async function fetchESPN() {
 
     var freshScores = {};
     var freshAthleteIds = {};
+    // Team events (e.g. Zurich Classic) send multiple athletes per competitor,
+    // sharing a single status / teeTime / linescores. Flatten roster/athletes
+    // arrays into per-athlete rows while keeping individual events unchanged.
     comps.forEach(function(c) {
-      var rawName = c.athlete?.displayName;
-      if (!rawName) return;
-      var name = resolvePlayerName(rawName);
-      if (c.athlete?.id) freshAthleteIds[name] = c.athlete.id;
-      // Auto-derive flag from ESPN's country code if we don't have one yet
-      if (!FLAGS[name] || FLAGS[name] === '🏳️' || FLAGS[name] === '') {
-        var flagObj = c.athlete?.flag;
-        var citObj = c.athlete?.citizenshipCountry;
-        var bpObj = c.athlete?.birthPlace;
-        var ccode = '';
-        if (flagObj) ccode = (flagObj.alt || flagObj.abbreviation || flagObj.text || '').toUpperCase();
-        if (!ccode && citObj) ccode = (citObj.abbreviation || citObj.alpha3 || citObj.alpha2 || citObj.countryCode || '').toUpperCase();
-        if (!ccode && bpObj) ccode = (bpObj.countryAbbreviation || bpObj.country || '').toUpperCase();
-        if (!ccode && flagObj && flagObj.href) {
-          var flagMatch = flagObj.href.match(/\/(\w{2,3})\.png/i);
-          if (flagMatch) ccode = flagMatch[1].toUpperCase();
-        }
-        if (ccode && CODE_TO_FLAG[ccode]) {
-          FLAGS[name] = CODE_TO_FLAG[ccode];
-        } else if (ccode && ccode.length === 2) {
-          FLAGS[name] = String.fromCodePoint(0x1F1E6 + ccode.charCodeAt(0) - 65, 0x1F1E6 + ccode.charCodeAt(1) - 65);
-        }
+      var athletesList = [];
+      if (Array.isArray(c.roster) && c.roster.length) {
+        c.roster.forEach(function(r) { var a = r?.athlete || r; if (a?.displayName) athletesList.push(a); });
+      } else if (Array.isArray(c.athletes) && c.athletes.length) {
+        c.athletes.forEach(function(a) { if (a?.displayName) athletesList.push(a); });
+      } else if (c.athlete?.displayName) {
+        athletesList.push(c.athlete);
       }
+      if (!athletesList.length) return;
+      // Compute shared team/individual status ONCE per competitor
       var state = c.status?.type?.name || '';
       var scheduled = state === 'STATUS_SCHEDULED';
       var dispVal = (c.status?.displayValue || '').toUpperCase();
@@ -191,7 +187,6 @@ async function fetchESPN() {
       var score = wd ? 12 : mc ? 11 : (scoreToPar ? scoreToPar.value : computedPar);
       var teeTime = c.status?.teeTime || '';
       var thruRaw = c.status?.thru;
-      var lastCompletedRound = lines.filter(function(l) { return l.value && l.value > 50; }).pop();
       var nextTeeStr = '';
       if (teeTime && teeTime.includes('T')) { try { nextTeeStr = new Date(teeTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); } catch(e) {} }
       var inProgress = state === 'STATUS_IN_PROGRESS';
@@ -212,16 +207,46 @@ async function fetchESPN() {
       var todayRound = activelyPlaying ? lines[activeRndIdx >= 0 ? activeRndIdx : 0] : (scheduled ? null : lines[activeRndIdx >= 0 ? activeRndIdx : 0]);
       var todayDisplay = (mc || wd) ? '—' : (todayRound?.displayValue || (todayRound?.value > 50 ? (function() { var tp = todayRound.value - COURSE_PAR; return tp === 0 ? 'E' : (tp > 0 ? '+' + tp : String(tp)); })() : '—'));
       var onCourse = activelyPlaying;
-      freshScores[name] = { pos: c.status?.position?.displayName || '—', score: wd ? 12 : mc ? 11 : score, thru: thru, teeTime: teeTime, startHole: startHole, tot: tot, todayDisplay: todayDisplay, r1: rval(0), r2: rval(1), r3: rval(2), r4: rval(3), roundCount: lines.filter(function(l) { return l.value != null; }).length, onCourse: onCourse };
+      var teamPos = c.status?.position?.displayName || '—';
+      var roundCount = lines.filter(function(l) { return l.value != null; }).length;
+      athletesList.forEach(function(athlete) {
+        var rawName = athlete.displayName;
+        var name = resolvePlayerName(rawName);
+        if (athlete.id) freshAthleteIds[name] = athlete.id;
+        // Auto-derive flag from ESPN's country code if we don't have one yet
+        if (!FLAGS[name] || FLAGS[name] === '🏳️' || FLAGS[name] === '') {
+          var flagObj = athlete.flag;
+          var citObj = athlete.citizenshipCountry;
+          var bpObj = athlete.birthPlace;
+          var ccode = '';
+          if (flagObj) ccode = (flagObj.alt || flagObj.abbreviation || flagObj.text || '').toUpperCase();
+          if (!ccode && citObj) ccode = (citObj.abbreviation || citObj.alpha3 || citObj.alpha2 || citObj.countryCode || '').toUpperCase();
+          if (!ccode && bpObj) ccode = (bpObj.countryAbbreviation || bpObj.country || '').toUpperCase();
+          if (!ccode && flagObj && flagObj.href) {
+            var flagMatch = flagObj.href.match(/\/(\w{2,3})\.png/i);
+            if (flagMatch) ccode = flagMatch[1].toUpperCase();
+          }
+          if (ccode && CODE_TO_FLAG[ccode]) {
+            FLAGS[name] = CODE_TO_FLAG[ccode];
+          } else if (ccode && ccode.length === 2) {
+            FLAGS[name] = String.fromCodePoint(0x1F1E6 + ccode.charCodeAt(0) - 65, 0x1F1E6 + ccode.charCodeAt(1) - 65);
+          }
+        }
+        freshScores[name] = { pos: teamPos, score: wd ? 12 : mc ? 11 : score, thru: thru, teeTime: teeTime, startHole: startHole, tot: tot, todayDisplay: todayDisplay, r1: rval(0), r2: rval(1), r3: rval(2), r4: rval(3), roundCount: roundCount, onCourse: onCourse };
+      });
     });
-    // Debug: log first 5 players with all status fields
+    // Debug: log first 5 competitors with all status fields. For team events
+    // (e.g. Zurich Classic) we log each athlete in the roster.
     comps.slice(0, 5).forEach(function(c) {
-      var n = resolvePlayerName(c.athlete?.displayName || '?');
+      var names = [];
+      if (Array.isArray(c.roster) && c.roster.length) names = c.roster.map(function(r) { return r?.athlete?.displayName || r?.displayName || '?'; });
+      else if (Array.isArray(c.athletes) && c.athletes.length) names = c.athletes.map(function(a) { return a?.displayName || '?'; });
+      else names = [c.athlete?.displayName || '?'];
       var st = c.status?.type?.name || '';
       var sched = st === 'STATUS_SCHEDULED';
       var lines = c.linescores || [];
       var lastComp = lines.filter(function(l) { return l.value && l.value > 50; }).pop();
-      console.log('🔍 ESPN', n, '| state:', st, '| thru:', c.status?.thru, '| disp:', c.status?.displayValue, '| teeTime:', c.status?.teeTime, '| scheduled:', sched, '| lastCompRound:', lastComp?.value, '| lines:', lines.map(function(l){return l.value}).join(','));
+      console.log('🔍 ESPN', names.join(' / '), '| state:', st, '| thru:', c.status?.thru, '| disp:', c.status?.displayValue, '| teeTime:', c.status?.teeTime, '| scheduled:', sched, '| lastCompRound:', lastComp?.value, '| lines:', lines.map(function(l){return l.value}).join(','));
     });
 
     // Detect score changes for animations
