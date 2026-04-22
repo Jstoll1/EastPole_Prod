@@ -646,40 +646,66 @@ function renderForecastStrip() {
   return items.length ? '<div class="wx-strip">' + items.join('') + '</div>' : '';
 }
 
+var _currentEventForecast = null;
+
 function renderTermWeatherBar() {
   var el = document.getElementById('term-wx-bar');
   if (!el) return;
-  // Only show the "NEXT" bar when a tournament has just concluded (the
-  // post-event window between Sun evening and the next Thu tee-off).
-  var showBar = (typeof TOURNEY_FINAL !== 'undefined' && TOURNEY_FINAL);
-  document.body.classList.toggle('wx-hidden', !showBar);
-  if (!showBar) {
-    el.innerHTML = '';
-    return;
+  // Always show weather. Source depends on tournament state:
+  //   • TOURNEY_FINAL true  → NEXT event (between-events window)
+  //   • otherwise           → CURRENT event (live or pre-tournament)
+  document.body.classList.remove('wx-hidden');
+
+  var isFinal = (typeof TOURNEY_FINAL !== 'undefined' && TOURNEY_FINAL);
+  var evName, evCourse, evDate, endDate, forecast, tag;
+  if (isFinal) {
+    tag = 'NEXT';
+    if (!_nextEvent && !_nextEventFetched) fetchNextEvent();
+    if (!_nextEvent) {
+      el.innerHTML = '<span class="wxb-tag">NEXT</span> <span class="wxb-course">loading…</span>';
+      return;
+    }
+    evName = _nextEvent.name; evCourse = _nextEvent.course;
+    evDate = _nextEvent.date; endDate = _nextEvent.endDate;
+    forecast = _nextEventForecast;
+  } else {
+    tag = 'LIVE';
+    evName = (typeof TOURNEY_NAME !== 'undefined' ? TOURNEY_NAME : '') || '';
+    evCourse = (typeof TOURNEY_COURSE !== 'undefined' ? TOURNEY_COURSE : '') || '';
+    forecast = _currentEventForecast;
+    if (!evName && !evCourse) {
+      el.innerHTML = '<span class="wxb-tag">LIVE</span> <span class="wxb-course">loading…</span>';
+      return;
+    }
   }
-  // Bar is about to show — ensure next-event info + forecast are loaded.
-  // (Forecast may have failed on initial fetch if coords weren't yet resolved.)
-  if (!_nextEvent && !_nextEventFetched) fetchNextEvent();
-  if (_nextEvent && !_nextEventForecast && _nextEvent.course) {
-    var c = findCourseCoords(_nextEvent.course);
+
+  // Retry forecast if missing and we have coords
+  if (!forecast && evCourse) {
+    var c = findCourseCoords(evCourse);
     if (c) {
       fetchForecast(c.lat, c.lon).then(function(f) {
-        if (f) { _nextEventForecast = f; renderTermWeatherBar(); }
+        if (!f) return;
+        if (isFinal) _nextEventForecast = f; else _currentEventForecast = f;
+        renderTermWeatherBar();
       });
     }
   }
-  if (!_nextEvent) {
-    el.innerHTML = '<span class="wxb-tag">NEXT</span> <span class="wxb-course">loading…</span>';
-    return;
-  }
-  var parts = ['<span class="wxb-tag">NEXT</span>',
-    '<span class="wxb-event">' + termEsc(_nextEvent.name) + '</span>'];
-  if (_nextEvent.course) parts.push('<span class="wxb-sep">·</span> <span class="wxb-course">' + termEsc(_nextEvent.course) + '</span>');
 
-  var f = _nextEventForecast;
-  if (f && f.time && _nextEvent.date) {
+  var parts = ['<span class="wxb-tag">' + tag + '</span>'];
+  if (evName)   parts.push('<span class="wxb-event">' + termEsc(evName) + '</span>');
+  if (evCourse) parts.push('<span class="wxb-sep">·</span> <span class="wxb-course">' + termEsc(evCourse) + '</span>');
+
+  var f = forecast;
+  if (f && f.time) {
     var dayLabels = ['THU', 'FRI', 'SAT', 'SUN'];
-    var start = new Date(_nextEvent.date);
+    // Anchor to the nearest Thursday — either the event's start date (if known)
+    // or this week's Thursday (for live events with no date object).
+    var start;
+    if (evDate) {
+      start = new Date(evDate);
+    } else {
+      start = new Date();
+    }
     var dow = start.getDay();
     if (dow !== 4) {
       var delta = (4 - dow + 7) % 7;
@@ -705,9 +731,8 @@ function renderTermWeatherBar() {
     parts.push('<span class="wxb-sep">·</span> <span class="wxb-course">forecast loading…</span>');
   }
 
-  // Countdown on the right edge
-  if (_nextEvent.date) {
-    var days = Math.max(0, Math.ceil((_nextEvent.date.getTime() - Date.now()) / 86400000));
+  if (isFinal && evDate) {
+    var days = Math.max(0, Math.ceil((evDate.getTime() - Date.now()) / 86400000));
     parts.push('<span class="wxb-countdown">' + (days === 0 ? 'TODAY' : 'T-' + days + 'd') + '</span>');
   }
 
