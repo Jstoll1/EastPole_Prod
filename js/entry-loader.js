@@ -8,13 +8,15 @@ var _lastPoolFetch = 0;
 
 function isTournamentLive() {
   if (typeof GOLFER_SCORES === 'undefined' || !GOLFER_SCORES) return false;
+  // Only consider "live" when someone has actually posted a round score.
+  // Don't use thru because pre-tournament it holds tee-time strings ("8:00").
   var names = Object.keys(GOLFER_SCORES);
   for (var i = 0; i < names.length; i++) {
     var g = GOLFER_SCORES[names[i]];
     if (!g) continue;
     if (g.roundCount && g.roundCount > 0) return true;
-    if (g.r1 != null && g.r1 !== 0 && g.r1 !== '—') return true;
-    if (g.thru && g.thru !== '—' && g.thru !== 'TBD' && g.thru !== '') return true;
+    // Round scores are real golf totals (60-100ish) — filter out 0/null/strings
+    if (typeof g.r1 === 'number' && g.r1 > 30) return true;
   }
   return false;
 }

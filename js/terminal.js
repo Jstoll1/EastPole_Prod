@@ -521,7 +521,47 @@ var COURSE_COORDS = {
   'The Renaissance Club':             { lat: 56.043, lon: -2.804 }
 };
 
-function findCourseCoords(venueName) {
+// Fallback event-name → course map for when ESPN doesn't include venue
+// data (common on scheduled/upcoming events before tee-off).
+var EVENT_TO_COURSE = {
+  'zurich classic':          'TPC Louisiana',
+  'rbc heritage':            'Harbour Town Golf Links',
+  'masters':                 'Augusta National Golf Club',
+  'pga championship':        'Quail Hollow Club',
+  'charles schwab':          'Colonial Country Club',
+  'memorial':                'Muirfield Village Golf Club',
+  'travelers':               'TPC River Highlands',
+  'pebble beach':            'Pebble Beach Golf Links',
+  'arnold palmer':           'Bay Hill Club & Lodge',
+  'players championship':    'TPC Sawgrass',
+  'genesis invitational':    'Riviera Country Club',
+  'cognizant':               'PGA National Resort',
+  'phoenix open':            'TPC Scottsdale',
+  'wm phoenix':              'TPC Scottsdale',
+  'sony open':               'Waialae Country Club',
+  'sentry':                  'Plantation Course at Kapalua',
+  'byron nelson':            'TPC Craig Ranch',
+  'valspar':                 'Copperhead Course',
+  'tour championship':       'East Lake Golf Club',
+  'bmw championship':        'Castle Pines Golf Club',
+  '3m open':                 'TPC Twin Cities',
+  'rocket classic':          'Detroit Golf Club',
+  'john deere':              'TPC Deere Run',
+  'wyndham':                 'Sedgefield Country Club',
+  'northern trust':          'Liberty National Golf Club',
+  'mexico open':             'Vidanta Vallarta',
+  'scottish open':           'The Renaissance Club',
+  'open championship':       'Royal Liverpool',
+  'truist championship':     'Quail Hollow Club'
+};
+
+function findCourseCoords(venueName, eventName) {
+  if (!venueName && eventName) {
+    var elow = eventName.toLowerCase();
+    for (var ek in EVENT_TO_COURSE) {
+      if (elow.indexOf(ek) !== -1) { venueName = EVENT_TO_COURSE[ek]; break; }
+    }
+  }
   if (!venueName) return null;
   if (COURSE_COORDS[venueName]) return COURSE_COORDS[venueName];
   var lower = venueName.toLowerCase();
@@ -680,10 +720,18 @@ function renderTermWeatherBar() {
     }
   }
 
-  // Retry forecast if missing and we have coords
-  if (!forecast && evCourse) {
-    var c = findCourseCoords(evCourse);
+  // Retry forecast if missing — pass event name as fallback so we can still
+  // resolve coords when ESPN hasn't populated venue for scheduled events.
+  if (!forecast) {
+    var c = findCourseCoords(evCourse, evName);
     if (c) {
+      // If course was missing but we resolved via event name, fill the display
+      if (!evCourse) {
+        var elow = (evName || '').toLowerCase();
+        for (var ek in EVENT_TO_COURSE) {
+          if (elow.indexOf(ek) !== -1) { evCourse = EVENT_TO_COURSE[ek]; break; }
+        }
+      }
       fetchForecast(c.lat, c.lon).then(function(f) {
         if (!f) return;
         if (isFinal) _nextEventForecast = f; else _currentEventForecast = f;
