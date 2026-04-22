@@ -1005,7 +1005,20 @@ function renderTermDataGolf() {
   }).join('');
 
   var meta = document.getElementById('dg-meta');
-  if (meta) meta.textContent = rows.length + ' players';
+  if (meta) {
+    var parts = [rows.length + ' players'];
+    var dgEvent = (typeof DG_META !== 'undefined' && DG_META.event_name) || '';
+    var curEvent = (typeof TOURNEY_NAME !== 'undefined' && TOURNEY_NAME) || '';
+    var norm = function(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); };
+    var stale = dgEvent && curEvent && norm(dgEvent) !== norm(curEvent);
+    if (dgEvent) parts.push((stale ? '⚠ ' : '') + dgEvent);
+    if (DG_META && DG_META.last_updated) parts.push(DG_META.last_updated);
+    meta.textContent = parts.join(' · ');
+    meta.title = stale
+      ? 'DataGolf is still showing ' + dgEvent + ' — odds for ' + curEvent + ' not yet published'
+      : '';
+    meta.style.color = stale ? 'var(--warn, #e0a030)' : '';
+  }
 }
 
 // ── Render Threat Board ───────────────────────────────

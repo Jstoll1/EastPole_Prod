@@ -413,6 +413,9 @@ async function fetchDGLivePreds(force) {
       if (typeof termDiag === 'function') termDiag('DataGolf: unexpected payload shape', true);
       return;
     }
+    DG_META.event_name = json.event_name || json.info?.event_name || '';
+    DG_META.last_updated = json.last_updated || json.info?.last_updated || '';
+    DG_META.fetched_at = Date.now();
     var fresh = {};
     var dgByFuzzy = {}; // fuzzy key → DG country code (for cross-matching ESPN names)
     var flagsFilled = 0;
