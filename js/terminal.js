@@ -75,34 +75,46 @@ function closeTermLogin() {
 }
 function buildTermLoginMenu() {
   var entries = (typeof ENTRIES !== 'undefined' && ENTRIES) ? ENTRIES : [];
+  var hasAnyEmail = entries.some(function(e) { return e.email; });
   var seen = {};
   var users = [];
-  entries.forEach(function(e) {
-    if (!e.email || seen[e.email]) return;
-    seen[e.email] = true;
-    users.push({
-      email: e.email,
-      teams: entries.filter(function(x) { return x.email === e.email; }).map(function(x) { return x.team; })
+  if (hasAnyEmail) {
+    // Group by email when present
+    entries.forEach(function(e) {
+      if (!e.email || seen[e.email]) return;
+      seen[e.email] = true;
+      users.push({
+        key: e.email,
+        label: e.email,
+        teams: entries.filter(function(x) { return x.email === e.email; }).map(function(x) { return x.team; })
+      });
     });
-  });
-  users.sort(function(a, b) { return a.email.localeCompare(b.email); });
+  } else {
+    // Fallback: one identity per team when sheet has no email column
+    entries.forEach(function(e) {
+      if (!e.team || seen[e.team]) return;
+      seen[e.team] = true;
+      users.push({ key: e.team, label: e.team, teams: [e.team] });
+    });
+  }
+  users.sort(function(a, b) { return a.label.localeCompare(b.label); });
 
   var currentEmail = (typeof currentUserEmail !== 'undefined') ? currentUserEmail : null;
   var h = '<div class="tlogin-head">'
-    +    '<span>' + (currentEmail ? 'Switch Identity' : 'Select Your Email') + '</span>'
+    +    '<span>' + (currentEmail ? 'Switch Identity' : (hasAnyEmail ? 'Select Your Email' : 'Select Your Entry')) + '</span>'
     +    '<button class="tsb-btn" onclick="closeTermLogin()">✕</button>'
     +  '</div>';
   if (!users.length) {
     h += '<div class="tlogin-empty">No entries loaded yet. Submit an entry via + ADD ENTRY above, then come back.</div>';
     return h;
   }
-  h += '<div class="tlogin-search"><input type="text" id="tlogin-filter" placeholder="search email or team…" oninput="filterTermLogin(this.value)"></div>';
+  h += '<div class="tlogin-search"><input type="text" id="tlogin-filter" placeholder="search…" oninput="filterTermLogin(this.value)"></div>';
   h += '<div class="tlogin-list">';
   users.forEach(function(u) {
-    var active = currentEmail && currentEmail.toLowerCase() === u.email.toLowerCase();
-    var escEmail = u.email.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-    h += '<div class="tlogin-row' + (active ? ' tlogin-active' : '') + '" data-email="' + termEsc(u.email) + '" data-teams="' + termEsc(u.teams.join(' ')) + '" onclick="selectTermUser(\'' + escEmail + '\')">'
-      +   '<div class="tlogin-email">' + termEsc(u.email) + (active ? ' <span class="tlogin-you">YOU</span>' : '') + '</div>'
+    var active = currentEmail && currentEmail.toLowerCase() === u.key.toLowerCase();
+    var escKey = u.key.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    h += '<div class="tlogin-row' + (active ? ' tlogin-active' : '') + '" data-email="' + termEsc(u.label) + '" data-teams="' + termEsc(u.teams.join(' ')) + '" onclick="selectTermUser(\'' + escKey + '\')">'
+      +   '<div class="tlogin-email">' + termEsc(u.label) + (active ? ' <span class="tlogin-you">YOU</span>' : '') + '</div>'
       +   '<div class="tlogin-teams">' + u.teams.map(termEsc).join(' · ') + '</div>'
       + '</div>';
   });
@@ -121,11 +133,14 @@ function filterTermLogin(q) {
     r.style.display = (!q || e.indexOf(q) !== -1 || t.indexOf(q) !== -1) ? '' : 'none';
   });
 }
-function selectTermUser(email) {
-  window.currentUserEmail = email;
-  window.currentUserTeams = (ENTRIES || []).filter(function(e) { return e.email === email; });
+function selectTermUser(key) {
+  window.currentUserEmail = key;
+  // Match by email when present; fall back to team-name match for sheets without an email column
+  window.currentUserTeams = (ENTRIES || []).filter(function(e) {
+    return (e.email && e.email === key) || (!e.email && e.team === key);
+  });
   window.activeTeamIdx = -1;
-  try { localStorage.setItem('eastpole_v2', JSON.stringify({ email: email, activeTeamIdx: -1 })); } catch(e) {}
+  try { localStorage.setItem('eastpole_v2', JSON.stringify({ email: key, activeTeamIdx: -1 })); } catch(e) {}
   updateTermLoginButton();
   closeTermLogin();
   if (typeof renderPoolRoster === 'function') renderPoolRoster();

@@ -47,10 +47,11 @@ function parsePoolTSV(text) {
   var lines = text.replace(/\r/g, '').split('\n').filter(function(l) { return l.length > 0; });
   if (lines.length < 2) return [];
   var headers = _parseTSVLine(lines[0]).map(function(h) { return h.trim(); });
+  console.log('📋 Pool sheet headers:', headers);
   var find = function(re) { return headers.findIndex(function(h) { return re.test(h); }); };
   var idx = {
     timestamp:  find(/timestamp/i),
-    email:      find(/email/i),
+    email:      find(/e.?mail/i),
     team:       find(/entry\s*name|team\s*name/i),
     tier1:      find(/tier\s*1/i),
     tier2:      find(/tier\s*2/i),
@@ -58,6 +59,7 @@ function parsePoolTSV(text) {
     tier4:      find(/tier\s*4/i),
     tiebreaker: find(/tie.?break/i)
   };
+  console.log('📋 Pool sheet column indices:', idx);
   var entries = [];
   for (var r = 1; r < lines.length; r++) {
     var cells = _parseTSVLine(lines[r]);
