@@ -426,6 +426,21 @@ html, body  {
   width: 28px;
 }
 
+.nav-btn-entry { color: var(--gold); }
+.nav-btn-entry .nav-entry-plus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--gold);
+}
+.nav-btn-entry::after { background: transparent; }
+.nav-btn-entry:active .nav-entry-plus { transform: scale(0.9); }
+
 .section-pad  {
   padding: 0 0 100px;
 }
