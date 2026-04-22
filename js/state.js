@@ -115,7 +115,21 @@ var FLAGS = {
   'Samuel Stevens':'🇺🇸','Sepp Straka':'🇦🇹','Nick Taylor':'🇨🇦',
   'Justin Thomas':'🇺🇸','Sami Valimaki':'🇫🇮','Bubba Watson':'🇺🇸',
   'Matt Wallace':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Mike Weir':'🇨🇦','Danny Willett':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Gary Woodland':'🇺🇸',
-  'Cameron Young':'🇺🇸'
+  'Cameron Young':'🇺🇸',
+  // PGA Tour regulars (non-Masters field) — seeded to cover Zurich/RBC/etc.
+  'Adam Hadwin':'🇨🇦','Adam Svensson':'🇨🇦','Russell Knox':'🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  'Ben Silverman':'🇨🇦','Rafael Campos':'🇵🇷','Alejandro Tosti':'🇦🇷',
+  'Kevin Yu':'🇹🇼','Tom Kim':'🇰🇷','Christo Lamprecht':'🇿🇦',
+  'Jeremy Paul':'🇩🇪','Alex Fitzpatrick':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','A.J. Ewart':'🇨🇦',
+  'Matthieu Pavon':'🇫🇷','Martin Couvra':'🇫🇷','Adrien Dumont De Chassart':'🇧🇪',
+  'Dan Brown':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','John Parry':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Kris Ventura':'🇳🇴',
+  'Takumi Kanaya':'🇯🇵','Jacob Skov Olesen':'🇩🇰','Camilo Villegas':'🇨🇴',
+  'Marcelo Rozo':'🇨🇴','Henrik Norlander':'🇸🇪','Zecheng Dou':'🇨🇳',
+  'Stephan Jaeger':'🇩🇪','David Skinns':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Keita Nakajima':'🇯🇵',
+  'Kensei Hirata':'🇯🇵','Geoff Ogilvy':'🇦🇺','Cam Davis':'🇦🇺',
+  'Christiaan Bezuidenhout':'🇿🇦','Erik van Rooyen':'🇿🇦','Rico Hoey':'🇵🇭',
+  'Mackenzie Hughes':'🇨🇦','Pontus Nyholm':'🇸🇪','Jesper Svensson':'🇸🇪',
+  'Séamus Power':'🇮🇪','Matti Schmid':'🇩🇪'
 };
 
 var TIERS = [];
@@ -140,7 +154,15 @@ var NAME_ALIASES = {
   'Sam Stevens':'Samuel Stevens',
   'Sung-Jae Im':'Sungjae Im',
   'Nico Echavarria':'Nicolas Echavarria',
-  'Pongsapak Laopakdee':'Fifa Laopakdee'
+  'Pongsapak Laopakdee':'Fifa Laopakdee',
+  'Joohyung Kim':'Tom Kim',
+  'Cameron Davis':'Cam Davis',
+  'Alexander Fitzpatrick':'Alex Fitzpatrick',
+  'Alex J. Fitzpatrick':'Alex Fitzpatrick',
+  'Seamus Power':'Séamus Power',
+  'Christian Bezuidenhout':'Christiaan Bezuidenhout',
+  'Erik Van Rooyen':'Erik van Rooyen',
+  'Adrien Dumont de Chassart':'Adrien Dumont De Chassart'
 };
 var FLAG_TO_CODE = {'🇺🇸':'USA','🇦🇺':'AUS','🇰🇷':'KOR','🇨🇦':'CAN','🇿🇦':'RSA','🇩🇰':'DEN','🇸🇪':'SWE','🇫🇷':'FRA','🇯🇵':'JPN','🇮🇪':'IRL','🇧🇪':'BEL','🇦🇷':'ARG','🇹🇼':'TPE','🇻🇪':'VEN','🇵🇭':'PHI','🇵🇷':'PUR','🇩🇪':'GER','🇳🇿':'NZL','🇨🇴':'COL','🇨🇳':'CHN','🇳🇴':'NOR','🏴󠁧󠁢󠁥󠁮󠁧󠁿':'ENG','🏴󠁧󠁢󠁳󠁣󠁴󠁿':'SCO','🏴󠁧󠁢󠁷󠁬󠁳󠁿':'WAL','🇫🇮':'FIN','🇦🇹':'AUT','🇮🇹':'ITA','🇪🇸':'ESP','🇨🇭':'CHE','🇳🇱':'NED','🇮🇸':'ISL','🇲🇽':'MEX','🇹🇭':'THA','🇫🇯':'FIJ','🇬🇧':'NIR','🏳️':'—'};
 // ESPN serves country codes (3-letter) on c.athlete.flag.alt — convert to emoji

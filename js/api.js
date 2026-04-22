@@ -416,7 +416,9 @@ async function fetchDGLivePreds(force) {
     var fresh = {};
     var dgByFuzzy = {}; // fuzzy key → DG country code (for cross-matching ESPN names)
     var flagsFilled = 0;
-    var fuzzyKey = function(s) { return String(s || '').toLowerCase().replace(/[^a-z]/g, ''); };
+    var fuzzyKey = function(s) {
+      return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z]/g, '');
+    };
     arr.forEach(function(p) {
       // Convert "Last, First" → "First Last"
       var parts = (p.player_name || '').split(', ');
