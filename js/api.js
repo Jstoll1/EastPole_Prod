@@ -414,7 +414,9 @@ async function fetchDGLivePreds(force) {
       return;
     }
     var fresh = {};
+    var dgByFuzzy = {}; // fuzzy key → DG country code (for cross-matching ESPN names)
     var flagsFilled = 0;
+    var fuzzyKey = function(s) { return String(s || '').toLowerCase().replace(/[^a-z]/g, ''); };
     arr.forEach(function(p) {
       // Convert "Last, First" → "First Last"
       var parts = (p.player_name || '').split(', ');
@@ -427,6 +429,7 @@ async function fetchDGLivePreds(force) {
         top_20: p.top_20 || 0,
         make_cut: p.make_cut || 0
       };
+      if (p.country) dgByFuzzy[fuzzyKey(name)] = String(p.country).toUpperCase();
       // Fallback flag from DataGolf when ESPN didn't provide a country
       if (p.country && (!FLAGS[name] || FLAGS[name] === '🏳️' || FLAGS[name] === '')) {
         var code = String(p.country).toUpperCase();
@@ -435,8 +438,33 @@ async function fetchDGLivePreds(force) {
     });
     DG_LIVE_PREDS = fresh;
     _dgLastFetch = Date.now();
-    console.log('✅ DataGolf live preds:', Object.keys(fresh).length, 'players' + (flagsFilled ? ' (filled ' + flagsFilled + ' flags)' : ''));
-    if (typeof termDiag === 'function') termDiag('DataGolf preds loaded: ' + Object.keys(fresh).length + ' players' + (flagsFilled ? ' · ' + flagsFilled + ' flags' : ''));
+
+    // Cross-match: any GOLFER_SCORES row without a flag — try a fuzzy name
+    // lookup against DataGolf's country data before giving up.
+    var crossFilled = 0;
+    var stillMissing = [];
+    Object.keys(GOLFER_SCORES || {}).forEach(function(espnName) {
+      var f = FLAGS[espnName];
+      if (f && f !== '🏳️' && f !== '') return;
+      var code = dgByFuzzy[fuzzyKey(espnName)];
+      if (code && CODE_TO_FLAG[code]) {
+        FLAGS[espnName] = CODE_TO_FLAG[code];
+        crossFilled++;
+      } else {
+        stillMissing.push(espnName + (code ? ' (DG code: ' + code + ')' : ''));
+      }
+    });
+    if (crossFilled > 0) {
+      console.log('🏳️ Fuzzy-matched', crossFilled, 'flags from DG');
+      if (typeof renderAll === 'function') renderAll();
+    }
+    if (stillMissing.length > 0) {
+      console.warn('⚠️ Missing flags for', stillMissing.length, 'golfers:', stillMissing.join(', '));
+      ErrorTracker.api('Missing player flags', { count: stillMissing.length, players: stillMissing });
+      if (typeof termDiag === 'function') termDiag('Missing flags: ' + stillMissing.length + ' — see console', true);
+    }
+    console.log('✅ DataGolf live preds:', Object.keys(fresh).length, 'players' + (flagsFilled ? ' (filled ' + flagsFilled + ' flags)' : '') + (crossFilled ? ' (+' + crossFilled + ' fuzzy)' : ''));
+    if (typeof termDiag === 'function') termDiag('DataGolf preds loaded: ' + Object.keys(fresh).length + ' players' + (flagsFilled ? ' · ' + flagsFilled + ' flags' : '') + (crossFilled ? ' · +' + crossFilled + ' fuzzy' : ''));
   } catch(e) {
     console.warn('⚠️ DataGolf fetch failed:', e.message);
     if (typeof termDiag === 'function') termDiag('DataGolf fetch threw: ' + e.message, true);
