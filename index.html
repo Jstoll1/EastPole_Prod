@@ -115,6 +115,14 @@
 </div>
 <div id="schedule-list" class="schedule-list"></div>
 </div>
+<div id="addentry-backdrop" class="schedule-backdrop" onclick="closeAddEntry()"></div>
+<div id="addentry-overlay" class="schedule-overlay" style="left:0;right:0;top:0;bottom:0;border-radius:0">
+<div class="schedule-header">
+<span class="schedule-title">Add Entry</span>
+<button class="schedule-close" onclick="closeAddEntry()">✕</button>
+</div>
+<iframe id="addentry-frame" src="about:blank" style="display:block;width:100%;height:calc(100% - 48px);border:0;background:#fff"></iframe>
+</div>
 <div class="hdr-right">
 <div id="hdr-team-display" onclick="toggleTeamDropdown()" style="cursor:pointer">
 <span style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(212,168,67,0.7);text-align:right;display:block;margin-bottom:2px">My Entry</span>
@@ -134,6 +142,7 @@
 <span style="font-size:12px;color:var(--text2);font-weight:600">Theme</span>
 <button id="theme-toggle-btn" onclick="event.stopPropagation();toggleTheme()" style="background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--text);cursor:pointer;font-weight:600">🌙 Dark</button>
 </div>
+<button class="td-change-btn" onclick="event.stopPropagation();closeTeamDropdown();openAddEntry()" style="background:var(--gold);color:#000;border:none;margin-bottom:8px">+ Add Entry</button>
 <button class="td-change-btn" onclick="event.stopPropagation();closeTeamDropdown();showOnboarding()">Change User</button>
 </div>
 </header>
@@ -411,7 +420,7 @@
 <script defer src="./js/state.js?v=446"></script>
 <script defer src="./js/utils.js?v=443"></script>
 <script defer src="./js/api.js?v=455"></script>
-<script defer src="./js/ui-header.js?v=443"></script>
+<script defer src="./js/ui-header.js?v=444"></script>
 <script defer src="./js/ui-standings.js?v=443"></script>
 <script defer src="./js/ui-leaderboard.js?v=446"></script>
 <script defer src="./js/ui-threat.js?v=443"></script>
