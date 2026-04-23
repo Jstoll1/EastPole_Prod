@@ -564,7 +564,32 @@ function renderTermLeaderboard() {
     name:  function(p) { return p.name; },
     score: function(p) { return p.mc || p.wd ? (lbSort.dir === 'desc' ? -Infinity : Infinity) : p.score; },
     today: function(p) { var t = p.today; return t === 'E' ? 0 : (parseInt(String(t).replace('+','')) || 0); },
-    thru:  function(p) { return String(p.thru || ''); }
+    thru:  function(p) {
+      // Sort by real tee time chronologically — earliest tees first in ASC.
+      // Handles AM/PM correctly unlike the old string-based sort. Mid-round
+      // and finished players both carry teeTime too, so they sort to their
+      // original tee slot; thru column then shows their current state.
+      if (p.teeTime && typeof p.teeTime === 'string' && p.teeTime.indexOf('T') !== -1) {
+        var t = new Date(p.teeTime).getTime();
+        if (!isNaN(t)) return t;
+      }
+      var raw = (p.thru == null) ? '' : String(p.thru).trim();
+      // Fallback: parse a displayed time like "8:00 AM" directly.
+      var m = raw.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+      if (m) {
+        var h = parseInt(m[1], 10), mm = parseInt(m[2], 10);
+        if (m[3]) {
+          var ampm = m[3].toUpperCase();
+          if (ampm === 'PM' && h !== 12) h += 12;
+          if (ampm === 'AM' && h === 12) h = 0;
+        }
+        return h * 60 + mm;
+      }
+      // F / hole number / unknown — bubble to end with a cap so stable ordering.
+      if (raw.charAt(0).toUpperCase() === 'F') return Infinity;
+      if (/^\d{1,2}$/.test(raw)) return 9e12 + parseInt(raw, 10);
+      return Infinity;
+    }
   };
   players = sortRowsBy(players, lbSort.col, lbSort.dir, lbAccessors);
   updateSortIndicators('panel-leaderboard');
