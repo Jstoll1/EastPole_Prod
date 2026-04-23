@@ -1291,19 +1291,32 @@ function renderTermMy() {
 function renderTermDataGolf() {
   var body = document.getElementById('term-dg-body');
   if (!body) return;
+  // Prefer team rows when the current DG payload is a team event.
+  var teamRows = (typeof DG_TEAM_PREDS !== 'undefined' && DG_TEAM_PREDS) ? DG_TEAM_PREDS : [];
   var dg = (typeof DG_LIVE_PREDS !== 'undefined') ? DG_LIVE_PREDS : {};
   var names = Object.keys(dg);
-  if (!names.length) {
+  if (!names.length && !teamRows.length) {
     body.innerHTML = '<tr><td colspan="6" class="empty">Loading DataGolf odds…</td></tr>';
     var metaE = document.getElementById('dg-meta');
     if (metaE) metaE.textContent = '—';
     return;
   }
 
-  var rows = names.map(function(n) {
-    var d = dg[n];
-    return { name: n, win: d.win || 0, top_5: d.top_5 || 0, top_10: d.top_10 || 0, top_20: d.top_20 || 0, make_cut: d.make_cut || 0 };
-  });
+  var rows;
+  if (teamRows.length) {
+    rows = teamRows.map(function(t) {
+      return {
+        name: t.display || t.team_name,
+        win: t.win || 0, top_5: t.top_5 || 0, top_10: t.top_10 || 0,
+        top_20: t.top_20 || 0, make_cut: t.make_cut || 0
+      };
+    });
+  } else {
+    rows = names.map(function(n) {
+      var d = dg[n];
+      return { name: n, win: d.win || 0, top_5: d.top_5 || 0, top_10: d.top_10 || 0, top_20: d.top_20 || 0, make_cut: d.make_cut || 0 };
+    });
+  }
 
   var dgSort = _sortState['panel-datagolf'];
   var dgAccessors = {
@@ -1340,8 +1353,11 @@ function renderTermDataGolf() {
 
   body.innerHTML = rows.slice(0, 80).map(function(r) {
     var flag = (FLAGS && FLAGS[r.name]) || '';
+    // Team-event rows already encode flags inline in the name ("🏴 A / 🏴 B"),
+    // so skip the prefix when no FLAGS lookup matches to avoid a leading space.
+    var nameCell = flag ? (flag + ' ' + termEsc(r.name)) : termEsc(r.name);
     return '<tr>'
-      + '<td class="tpt-name">' + flag + ' ' + termEsc(r.name) + '</td>'
+      + '<td class="tpt-name">' + nameCell + '</td>'
       + pctCell(r.make_cut)
       + pctCell(r.top_20)
       + pctCell(r.top_10)

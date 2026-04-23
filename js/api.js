@@ -546,6 +546,7 @@ async function fetchDGLivePreds(force) {
     };
 
     var unresolved = [];
+    var freshTeams = []; // populated only for team-event payloads
     arr.forEach(function(p) {
       var probs = probsOf(p);
       // Team-event pre-tournament: row has team_name + p1_country/p2_country, no per-player names.
@@ -555,14 +556,26 @@ async function fetchDGLivePreds(force) {
         var n2 = resolveDGTeamName(tparts[1]);
         if (n1) addPlayer(n1, p.p1_country, probs); else if (tparts[0]) unresolved.push(tparts[0]);
         if (n2) addPlayer(n2, p.p2_country, probs); else if (tparts[1]) unresolved.push(tparts[1]);
+        // Build a team row keyed by the original team_name so F5 can render teams.
+        // Use the resolved canonical names + flag emojis when available.
+        var p1Display = n1 ? ((FLAGS[n1] || '') + ' ' + n1).trim() : tparts[0];
+        var p2Display = n2 ? ((FLAGS[n2] || '') + ' ' + n2).trim() : tparts[1];
+        freshTeams.push({
+          team_name: p.team_name,
+          display: p1Display + ' / ' + p2Display,
+          p1_country: p.p1_country,
+          p2_country: p.p2_country,
+          win: probs.win, top_5: probs.top_5, top_10: probs.top_10,
+          top_20: probs.top_20, make_cut: probs.make_cut
+        });
       } else if (p.player_name_1 && p.player_name_2) {
-        // (alternate team-event shape, kept for safety)
         addPlayer(p.player_name_1, p.country_1, probs);
         addPlayer(p.player_name_2, p.country_2, probs);
       } else {
         addPlayer(p.player_name, p.country, probs);
       }
     });
+    DG_TEAM_PREDS = freshTeams;
     if (unresolved.length) {
       console.warn('🏌️ DG: ' + unresolved.length + ' team-name parts unresolved:', unresolved.join(', '));
       if (typeof termDiag === 'function') termDiag('DG unresolved names: ' + unresolved.length + ' (see console)', true);
