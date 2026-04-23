@@ -179,8 +179,9 @@ async function fetchESPN() {
       var score = wd ? 12 : mc ? 11 : (scoreToPar ? scoreToPar.value : computedPar);
       var teeTime = c.status?.teeTime || '';
       var thruRaw = c.status?.thru;
-      var nextTeeStr = '';
-      if (teeTime && teeTime.includes('T')) { try { nextTeeStr = new Date(teeTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); } catch(e) {} }
+      // Format in the event's local timezone (e.g. CT for TPC Louisiana) so
+      // tee times match what ESPN.com / pgatour.com display.
+      var nextTeeStr = (teeTime && teeTime.includes('T')) ? fmtTeeTime(teeTime, TOURNEY_COURSE) : '';
       var inProgress = state === 'STATUS_IN_PROGRESS';
       var activelyPlaying = inProgress && thruRaw != null && thruRaw > 0 && thruRaw < 18;
       var thru;

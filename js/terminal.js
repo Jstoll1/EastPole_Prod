@@ -558,8 +558,7 @@ function renderTermLeaderboard() {
       thruDisp = p.thru;
     } else if (p.thru === '—' && p.teeTime && typeof p.teeTime === 'string' && p.teeTime.indexOf('T') !== -1) {
       try {
-        var d = new Date(p.teeTime);
-        thruDisp = !isNaN(d.getTime()) ? d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) : '—';
+        thruDisp = fmtTeeTime(p.teeTime, typeof TOURNEY_COURSE !== 'undefined' ? TOURNEY_COURSE : '') || '—';
       } catch(e){ thruDisp = '—'; }
     } else {
       thruDisp = p.thru || '—';
@@ -582,7 +581,18 @@ function renderTermLeaderboard() {
   }).join('');
 
   var meta = document.getElementById('lb-meta');
-  if (meta) meta.textContent = players.length + ' players';
+  if (meta) {
+    var tz = (typeof getEventTZ === 'function') ? getEventTZ(typeof TOURNEY_COURSE !== 'undefined' ? TOURNEY_COURSE : '') : null;
+    var tzAbbrev = '';
+    if (tz) {
+      try {
+        var parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'short' }).formatToParts(new Date());
+        var p = parts.find(function(p) { return p.type === 'timeZoneName'; });
+        tzAbbrev = p ? ' · times ' + p.value : '';
+      } catch(e) {}
+    }
+    meta.textContent = players.length + ' players' + tzAbbrev;
+  }
 }
 
 // ── Inline Scorecard ──────────────────────────────────

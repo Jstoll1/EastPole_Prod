@@ -318,6 +318,66 @@ var TOURNEY_DATES = '';
 var TOURNEY_COURSE = '';
 var TOURNEY_LOGO = '';
 
+// Course → IANA timezone, used to render tee times in event-local time
+// (matching what ESPN.com / pgatour.com show) instead of the user's browser TZ.
+var COURSE_TZ = {
+  'TPC Louisiana':                'America/Chicago',
+  'Harbour Town Golf Links':      'America/New_York',
+  'Quail Hollow Club':            'America/New_York',
+  'Colonial Country Club':        'America/Chicago',
+  'Muirfield Village Golf Club':  'America/New_York',
+  'TPC River Highlands':          'America/New_York',
+  'Pebble Beach Golf Links':      'America/Los_Angeles',
+  'Augusta National Golf Club':   'America/New_York',
+  'Bay Hill Club & Lodge':        'America/New_York',
+  'TPC Sawgrass':                 'America/New_York',
+  'Torrey Pines Golf Course':     'America/Los_Angeles',
+  'Riviera Country Club':         'America/Los_Angeles',
+  'PGA National Resort':          'America/New_York',
+  'TPC Scottsdale':               'America/Phoenix',
+  'Waialae Country Club':         'Pacific/Honolulu',
+  'Plantation Course at Kapalua': 'Pacific/Honolulu',
+  'Medinah Country Club':         'America/Chicago',
+  'East Lake Golf Club':          'America/New_York',
+  'Caves Valley Golf Club':       'America/New_York',
+  'Castle Pines Golf Club':       'America/Denver',
+  'TPC Twin Cities':              'America/Chicago',
+  'Detroit Golf Club':            'America/Detroit',
+  'TPC Deere Run':                'America/Chicago',
+  'Sedgefield Country Club':      'America/New_York',
+  'Liberty National Golf Club':   'America/New_York',
+  'Vidanta Vallarta':             'America/Mexico_City',
+  'The Renaissance Club':         'Europe/London',
+  'TPC Craig Ranch':              'America/Chicago',
+  'Copperhead Course':            'America/New_York',
+  'Royal Liverpool':              'Europe/London'
+};
+
+function getEventTZ(courseName) {
+  if (!courseName) return null;
+  if (COURSE_TZ[courseName]) return COURSE_TZ[courseName];
+  var lower = courseName.toLowerCase();
+  for (var k in COURSE_TZ) {
+    var kl = k.toLowerCase();
+    if (lower.indexOf(kl) !== -1 || kl.indexOf(lower) !== -1) return COURSE_TZ[k];
+  }
+  return null;
+}
+
+// Format an ISO tee-time string in the event's local timezone, e.g. "8:00 AM CT"
+function fmtTeeTime(iso, courseName) {
+  if (!iso || iso.indexOf('T') === -1) return '';
+  try {
+    var tz = getEventTZ(courseName);
+    var opts = { hour: 'numeric', minute: '2-digit' };
+    if (tz) opts.timeZone = tz;
+    return new Date(iso).toLocaleTimeString('en-US', opts);
+  } catch (e) {
+    try { return new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); }
+    catch (e2) { return ''; }
+  }
+}
+
 var WINNING_SCORE = null; // actual tournament winner's score to par (set when tourney final)
 var TOURNEY_FINAL = false; // true when all 4 rounds complete, 0 holes left
 
