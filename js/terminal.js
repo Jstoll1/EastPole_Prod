@@ -76,6 +76,7 @@ function closeTermLogin() {
 function buildTermLoginMenu() {
   var entries = (typeof ENTRIES !== 'undefined' && ENTRIES) ? ENTRIES : [];
   var hasAnyEmail = entries.some(function(e) { return e.email; });
+  var hasAnyEntrant = entries.some(function(e) { return e.entrant; });
   var seen = {};
   var users = [];
   if (hasAnyEmail) {
@@ -91,8 +92,35 @@ function buildTermLoginMenu() {
         teams: grp.map(function(x) { return x.team; })
       });
     });
+  } else if (hasAnyEntrant) {
+    // Group by entrant (case-insensitive) so Jake's multiple entries collapse to one identity
+    entries.forEach(function(e) {
+      var key = (e.entrant || '').toLowerCase().trim();
+      if (!key || seen[key]) return;
+      seen[key] = true;
+      var grp = entries.filter(function(x) { return (x.entrant || '').toLowerCase().trim() === key; });
+      users.push({
+        key: e.entrant,
+        label: e.entrant,
+        entrants: [e.entrant],
+        teams: grp.map(function(x) { return x.team; })
+      });
+    });
+    // Catch entries with no entrant — list them by team so they're still selectable
+    entries.forEach(function(e) {
+      if (e.entrant) return;
+      var teamKey = '__team__' + e.team;
+      if (!e.team || seen[teamKey]) return;
+      seen[teamKey] = true;
+      users.push({
+        key: e.team,
+        label: e.team + ' (no username)',
+        entrants: [],
+        teams: [e.team]
+      });
+    });
   } else {
-    // Fallback: one identity per team when sheet has no email column
+    // Fallback: one identity per team when sheet has no email or entrant column
     entries.forEach(function(e) {
       if (!e.team || seen[e.team]) return;
       seen[e.team] = true;
@@ -107,15 +135,18 @@ function buildTermLoginMenu() {
   users.sort(function(a, b) { return a.label.localeCompare(b.label); });
 
   var currentEmail = (typeof currentUserEmail !== 'undefined') ? currentUserEmail : null;
+  var headerLabel = currentEmail
+    ? 'Switch Identity'
+    : (hasAnyEmail ? 'Select Your Email' : (hasAnyEntrant ? 'Select Your Username' : 'Select Your Entry'));
   var h = '<div class="tlogin-head">'
-    +    '<span>' + (currentEmail ? 'Switch Identity' : (hasAnyEmail ? 'Select Your Email' : 'Select Your Entry')) + '</span>'
+    +    '<span>' + headerLabel + '</span>'
     +    '<button class="tsb-btn" onclick="closeTermLogin()">✕</button>'
     +  '</div>';
   if (!users.length) {
     h += '<div class="tlogin-empty">No entries loaded yet. Submit an entry via + ADD ENTRY above, then come back.</div>';
     return h;
   }
-  h += '<div class="tlogin-search"><input type="text" id="tlogin-filter" placeholder="search entrant, team, email…" oninput="filterTermLogin(this.value)"></div>';
+  h += '<div class="tlogin-search"><input type="text" id="tlogin-filter" placeholder="search username, team, email…" oninput="filterTermLogin(this.value)"></div>';
   h += '<div class="tlogin-list">';
   users.forEach(function(u) {
     var active = currentEmail && currentEmail.toLowerCase() === u.key.toLowerCase();
@@ -127,11 +158,10 @@ function buildTermLoginMenu() {
       +   ' data-entrant="' + termEsc(entrantStr) + '"'
       +   ' onclick="selectTermUser(\'' + escKey + '\')">'
       +   '<div class="tlogin-email">'
-      +     (entrantStr ? '<span class="tlogin-entrant">' + termEsc(entrantStr) + '</span>' : '')
       +     '<span>' + termEsc(u.label) + '</span>'
       +     (active ? ' <span class="tlogin-you">YOU</span>' : '')
       +   '</div>'
-      +   '<div class="tlogin-teams">' + u.teams.map(termEsc).join(' · ') + '</div>'
+      +   '<div class="tlogin-teams">' + (u.teams.length === 1 ? termEsc(u.teams[0]) : u.teams.length + ' entries · ' + u.teams.map(termEsc).join(' · ')) + '</div>'
       + '</div>';
   });
   h += '</div>';
@@ -183,9 +213,13 @@ function filterTermLogin(q) {
 }
 function selectTermUser(key) {
   window.currentUserEmail = key;
-  // Match by email when present; fall back to team-name match for sheets without an email column
+  // Match by email when present, then by entrant (case-insensitive), then by team
+  var keyLow = String(key || '').toLowerCase();
   window.currentUserTeams = (ENTRIES || []).filter(function(e) {
-    return (e.email && e.email === key) || (!e.email && e.team === key);
+    if (e.email && e.email === key) return true;
+    if (!e.email && e.entrant && e.entrant.toLowerCase() === keyLow) return true;
+    if (!e.email && !e.entrant && e.team === key) return true;
+    return false;
   });
   window.activeTeamIdx = -1;
   try { localStorage.setItem('eastpole_v2', JSON.stringify({ email: key, activeTeamIdx: -1 })); } catch(e) {}
