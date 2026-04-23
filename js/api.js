@@ -88,11 +88,20 @@ function _extractTourneyMeta(ev) {
 
 async function fetchESPN() {
   try {
-    // First fetch: discover the current tournament from the scoreboard endpoint.
-    // Once we have an event ID, switch to the leaderboard endpoint for full data.
+    // First fetch: discover the tournament from the scoreboard endpoint.
+    // If POOL_CONFIG pins us to a specific tournament date (e.g. Masters week),
+    // pass ?dates=YYYYMMDD so we resolve to THAT event instead of "this week",
+    // and reject any event whose name doesn't match the pool's configured
+    // tournament — otherwise, once the pool's event ends, ESPN would hand back
+    // next week's competitors and every Masters pick would collapse to a
+    // missing-player WD/MC penalty score.
+    var pinDate = (typeof POOL_CONFIG !== 'undefined' && POOL_CONFIG.tournamentDate) ? POOL_CONFIG.tournamentDate : '';
+    var pinName = (typeof POOL_CONFIG !== 'undefined' && POOL_CONFIG.tournamentNameMatch) ? POOL_CONFIG.tournamentNameMatch : '';
     var fetchUrl;
     if (EVENT_ID) {
       fetchUrl = 'https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?event=' + EVENT_ID;
+    } else if (pinDate) {
+      fetchUrl = ESPN_LEADERBOARD_URL + '?dates=' + pinDate;
     } else {
       fetchUrl = ESPN_LEADERBOARD_URL;
     }
@@ -102,6 +111,17 @@ async function fetchESPN() {
     var ev = data.events && data.events[0];
     var comps = ev?.competitions?.[0]?.competitors || [];
     var discoveredId = ev?.id || null;
+
+    // Refuse to adopt an event that doesn't match the pool's target tournament.
+    // Prevents post-event data drift (e.g. serving Zurich Classic scores to a
+    // Masters pool once the Masters has concluded).
+    if (pinName && ev && (ev.name || '').toLowerCase().indexOf(pinName.toLowerCase()) === -1) {
+      console.warn('🔒 ESPN event "' + ev.name + '" does not match pool target "' + pinName + '" — skipping scores update');
+      lastFetchTime = Date.now();
+      renderAll();
+      return;
+    }
+
     _extractTourneyMeta(ev);
 
     // If we just discovered the event ID from scoreboard, re-fetch from

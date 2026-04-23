@@ -284,7 +284,13 @@ var POOL_CONFIG = {
   bestN: 4,
   // 1st = 70% of (pot - 3rd reimbursement), 2nd = 30% of (pot - 3rd reimbursement)
   // 3rd = single entry fee reimbursed ($20)
-  payoutPctOfNet: { first: 0.70, second: 0.30 }
+  payoutPctOfNet: { first: 0.70, second: 0.30 },
+  // Pin to the 2026 Masters so the app keeps serving final Masters results
+  // after the tournament ends, instead of auto-following ESPN's scoreboard
+  // into the next PGA event (which would strand all Masters picks and
+  // collapse every entry to max MC/WD penalty scores).
+  tournamentDate: '20260412',
+  tournamentNameMatch: 'Masters'
 };
 
 var PILL_CLASSES = ['pill-a', 'pill-b', 'pill-c', 'pill-d', 'pill-e'];
