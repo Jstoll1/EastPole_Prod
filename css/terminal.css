@@ -1292,10 +1292,23 @@ html, body {
 .ed-tier-pick {
   font-size: 11px;
   color: var(--term-text);
-  padding: 3px 0;
+  padding: 4px 0;
   border-bottom: 1px dashed var(--term-border);
+  line-height: 1.35;
 }
 .ed-tier-pick:last-child { border-bottom: none; }
+.ed-tier-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ed-tier-name + .ed-tier-name { padding-left: 10px; position: relative; }
+.ed-tier-name + .ed-tier-name::before {
+  content: '/';
+  position: absolute;
+  left: 2px;
+  color: var(--term-text-muted);
+}
 
 .ed-picks-flat {
   display: grid;

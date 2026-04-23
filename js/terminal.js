@@ -245,7 +245,14 @@ function _buildEntryDetailRow(entry, colspan) {
       if (!picks.length) return;
       body += '<div class="ed-tier">'
         +    '<div class="ed-tier-lbl">' + tierLabels[k] + '</div>'
-        +    picks.map(function(p) { return '<div class="ed-tier-pick">' + termEsc(p) + '</div>'; }).join('')
+        +    picks.map(function(p) {
+               // Split team-pair "Flag A / Flag B" onto two lines so neither gets
+               // truncated inside the narrow F2 panel.
+               var parts = String(p).split(/\s*\/\s*/);
+               return '<div class="ed-tier-pick">'
+                 + parts.map(function(pp) { return '<div class="ed-tier-name">' + termEsc(pp) + '</div>'; }).join('')
+                 + '</div>';
+             }).join('')
         +  '</div>';
     });
     body += '</div>';
