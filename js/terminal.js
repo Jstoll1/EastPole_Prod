@@ -1334,11 +1334,12 @@ function renderTermMy() {
   }
 
   // Team-event entries (Zurich-style) carry tierPicks + team-pair pick strings.
-  // Render those directly from the sheet data — getRanked() doesn't score
-  // team-pair strings against GOLFER_SCORES so we'd otherwise show blank rows.
-  var live = (typeof isTournamentLive === 'function') && isTournamentLive();
+  // Always render these as tier blocks — scoring individual golfer strings
+  // against GOLFER_SCORES is wrong (picks are pairs) and was surfacing the
+  // score=11 "missed cut" sentinel as "+11" per pick. When team-event-aware
+  // scoring lands, pre-live render will switch to a scored view.
   var anyTeamEvent = teams.some(function(t) { return t.isTeamEvent || (t.tierPicks && Object.keys(t.tierPicks).some(function(k) { return t.tierPicks[k].length; })); });
-  if (anyTeamEvent && !live) {
+  if (anyTeamEvent) {
     body.innerHTML = teams.map(function(t, idx) {
       var entrant = t.entrant ? '<span class="my-entry-by">' + termEsc(t.entrant) + ' · </span>' : '';
       var tb = t.tieBreaker ? '<span class="my-tb">TB: <strong>' + termEsc(t.tieBreaker) + '</strong></span>' : '';
