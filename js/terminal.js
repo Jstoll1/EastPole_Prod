@@ -1367,7 +1367,14 @@ function renderTermMy() {
           allPairScores.push({ pair: p, tier: k, gd: gd, score: gd ? gd.score : null });
         });
       });
-      var playedPairs = allPairScores.filter(function(x) { return x.gd && x.score !== 11 && x.score !== 12; });
+      var playedPairs = allPairScores.filter(function(x) {
+        if (!x.gd) return false;
+        if (x.score === 11 || x.score === 12) return false;
+        // Haven't teed off yet when thru is still a tee-time string
+        var thruStr = String(x.gd.thru || '');
+        if (/\d+:\d+\s*(AM|PM)?/i.test(thruStr)) return false;
+        return true;
+      });
       var best4 = playedPairs.slice().sort(function(a, b) { return (a.score || 0) - (b.score || 0); }).slice(0, 4);
       var teamTotal = best4.reduce(function(s, x) { return s + (x.score || 0); }, 0);
       var teamToday = 0, hasToday = false;
@@ -1387,9 +1394,11 @@ function renderTermMy() {
           + picks.map(function(p) {
               var gd = _scoreForPair(p);
               var sc, scCls, thru = '';
+              var thruIsTee = gd && gd.thru && /\d+:\d+\s*(AM|PM)?/i.test(String(gd.thru));
               if (!gd) { sc = '—'; scCls = 'eve'; }
-              else if (gd.score === 11) { sc = 'MC'; scCls = 'mc'; }
+              else if (gd.score === 11) { sc = 'MC'; scCls = 'mc'; thru = gd.thru || ''; }
               else if (gd.score === 12) { sc = 'WD'; scCls = 'mc'; }
+              else if (thruIsTee && gd.score === 0) { sc = '—'; scCls = 'eve'; thru = gd.thru || ''; }
               else { sc = fmtScore(gd.score); scCls = scoreCls(gd.score); thru = gd.thru || ''; }
               var starred = top4Pairs.has(p) && hasAnyScore;
               return '<div class="my-tier-pick' + (starred ? ' my-tier-star' : '') + '">'
