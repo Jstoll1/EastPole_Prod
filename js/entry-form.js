@@ -25,6 +25,7 @@ var POOL_ENTRY_CONFIG = {
   fields: {
     email: 'emailAddress',
     entryName: 'entry.1263544329',
+    entrant: 'entry.499845155',
     tier1: 'entry.1319784930',
     tier2: 'entry.1885727326',
     tier3: 'entry.1111188814',
