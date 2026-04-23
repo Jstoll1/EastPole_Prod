@@ -315,6 +315,10 @@ html, body {
   border-bottom: 1px solid var(--term-border);
   text-transform: uppercase;
 }
+/* Center headers for centered numeric cells (score, today, thru) */
+.tp-table th.tpt-score,
+.tp-table th.tpt-today,
+.tp-table th.tpt-thru { text-align: center; padding-left: 2px; padding-right: 2px; }
 .tp-table th[data-col] {
   cursor: pointer;
   user-select: none;
@@ -364,18 +368,18 @@ html, body {
 
 .tpt-pos { width: 38px; text-align: right; padding-right: 8px; color: var(--term-text-dim); font-weight: 600; }
 .tpt-name { font-weight: 600; }
-.tpt-score { width: 48px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
-.tpt-today { width: 44px; text-align: center; font-variant-numeric: tabular-nums; }
-.tpt-thru { width: 52px; text-align: center; color: var(--term-text-dim); font-size: 10px; font-variant-numeric: tabular-nums; }
+.tpt-score { width: 60px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; padding: 0 4px; }
+.tpt-today { width: 56px; text-align: center; font-variant-numeric: tabular-nums; padding: 0 4px; }
+.tpt-thru { width: 64px; text-align: center; color: var(--term-text-dim); font-size: 10px; font-variant-numeric: tabular-nums; padding: 0 4px; }
 .tpt-dg { width: 46px; text-align: right; font-weight: 700; }
 .tpt-dg.dg-hi { color: var(--term-amber); }
 .tpt-dg.dg-mid { color: var(--term-text); }
 .tpt-dg.dg-lo { color: var(--term-text-muted); }
 .tpt-dg.dg-zero { color: var(--term-text-dim); font-weight: 500; }
 
-.neg, .score-neg { color: var(--term-red); }
-.pos, .score-pos { color: var(--term-green); }
-.eve, .score-eve { color: var(--term-text); }
+.neg, .score-neg, .tp-table td.neg { color: var(--term-red); }
+.pos, .score-pos, .tp-table td.pos { color: var(--term-green); }
+.eve, .score-eve, .tp-table td.eve { color: var(--term-text); }
 .mc { color: var(--term-text-muted); font-size: 10px; }
 
 /* ── Activity Feed ──────────────────────────────────────── */
