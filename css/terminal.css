@@ -433,6 +433,48 @@ html, body {
   color: var(--term-text-dim);
   font-size: 10px;
 }
+.my-entry-by {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--term-text-dim);
+  letter-spacing: 0.3px;
+}
+.my-pre-tag {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #06120c;
+  background: var(--term-amber);
+  padding: 2px 6px;
+}
+.my-tb {
+  font-size: 10px;
+  color: var(--term-text-muted);
+  margin-left: auto;
+  letter-spacing: 0.3px;
+}
+.my-tb strong { color: var(--term-amber); }
+.my-tier-group {
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: var(--term-bg);
+  border: 1px solid var(--term-border);
+}
+.my-tier-lbl {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--term-amber);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.my-tier-pick {
+  font-size: 11px;
+  color: var(--term-text);
+  padding: 3px 0;
+  border-bottom: 1px dashed var(--term-border);
+}
+.my-tier-pick:last-child { border-bottom: none; }
 .my-entry-stats {
   display: flex;
   gap: 14px;

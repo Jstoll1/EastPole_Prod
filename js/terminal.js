@@ -1200,10 +1200,43 @@ function renderTermMy() {
   var teams = (typeof currentUserTeams !== 'undefined') ? currentUserTeams : [];
   if (!teams.length) {
     var isFinal = (typeof TOURNEY_FINAL !== 'undefined' && TOURNEY_FINAL);
-    var empty = '<div class="empty">Log in on mobile app to link your entries</div>';
+    var empty = '<div class="empty">Tap LOG IN above to choose your username and link your entries</div>';
     body.innerHTML = isFinal ? renderCourseStatsBlock() : empty;
     var mm = document.getElementById('my-meta');
     if (mm) mm.textContent = isFinal ? 'course' : '—';
+    return;
+  }
+
+  // Team-event entries (Zurich-style) carry tierPicks + team-pair pick strings.
+  // Render those directly from the sheet data — getRanked() doesn't score
+  // team-pair strings against GOLFER_SCORES so we'd otherwise show blank rows.
+  var live = (typeof isTournamentLive === 'function') && isTournamentLive();
+  var anyTeamEvent = teams.some(function(t) { return t.isTeamEvent || (t.tierPicks && Object.keys(t.tierPicks).some(function(k) { return t.tierPicks[k].length; })); });
+  if (anyTeamEvent && !live) {
+    body.innerHTML = teams.map(function(t, idx) {
+      var entrant = t.entrant ? '<span class="my-entry-by">' + termEsc(t.entrant) + ' · </span>' : '';
+      var tb = t.tieBreaker ? '<span class="my-tb">TB: <strong>' + termEsc(t.tieBreaker) + '</strong></span>' : '';
+      var tierLabels = { tier1: 'T1 Favorites', tier2: 'T2 Contenders', tier3: 'T3 Midfield', tier4: 'T4 Longshots' };
+      var tiersHtml = '';
+      ['tier1', 'tier2', 'tier3', 'tier4'].forEach(function(k) {
+        var picks = (t.tierPicks && t.tierPicks[k]) || [];
+        if (!picks.length) return;
+        tiersHtml += '<div class="my-tier-group">'
+          + '<div class="my-tier-lbl">' + tierLabels[k] + '</div>'
+          + picks.map(function(p) { return '<div class="my-tier-pick">' + termEsc(p) + '</div>'; }).join('')
+          + '</div>';
+      });
+      return '<div class="my-entry-block">'
+        + '<div class="my-entry-header">'
+        +   '<span class="my-entry-name">' + termEsc(t.team) + '</span>'
+        +   '<span class="my-entry-rank">#' + (idx + 1) + ' of ' + teams.length + '</span>'
+        + '</div>'
+        + '<div class="my-entry-stats">' + entrant + '<span class="my-pre-tag">PRE-TOURNAMENT</span>' + tb + '</div>'
+        + tiersHtml
+        + '</div>';
+    }).join('');
+    var meta2 = document.getElementById('my-meta');
+    if (meta2) meta2.textContent = teams.length + ' ' + (teams.length === 1 ? 'entry' : 'entries');
     return;
   }
 
