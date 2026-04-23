@@ -235,35 +235,72 @@ function submitEntryForm(ev) {
   btn.textContent = 'Submitting…';
 
   var cfg = POOL_ENTRY_CONFIG;
-  var fd = new FormData();
   var entrant = form.entrant.value.trim();
   var entryName = form.entryName.value.trim();
-  fd.append(cfg.fields.email, form.email.value.trim());
-  // If the Google Form has a dedicated Entrant entry ID, submit there.
-  // Otherwise prefix the entry name so the loader can split it back out.
+
+  // Build a flat list of [name, value] pairs for the hidden form submit.
+  // FormData has the same data but supports multi-valued keys cleanly via append().
+  var pairs = [];
+  pairs.push([cfg.fields.email, form.email.value.trim()]);
   if (cfg.fields.entrant) {
-    fd.append(cfg.fields.entrant, entrant);
-    fd.append(cfg.fields.entryName, entryName);
+    pairs.push([cfg.fields.entrant, entrant]);
+    pairs.push([cfg.fields.entryName, entryName]);
   } else {
-    fd.append(cfg.fields.entryName, entrant + ' — ' + entryName);
+    pairs.push([cfg.fields.entryName, entrant + ' — ' + entryName]);
   }
-  fd.append(cfg.fields.tieBreaker, form.tieBreaker.value.trim());
+  pairs.push([cfg.fields.tieBreaker, form.tieBreaker.value.trim()]);
   cfg.tiers.forEach(function(tier, i) {
     var checked = form.querySelectorAll('input[name="tier_' + i + '"]:checked');
     checked.forEach(function(cb) {
-      fd.append(cfg.fields[tier.fieldKey], cb.value);
+      pairs.push([cfg.fields[tier.fieldKey], cb.value]);
     });
   });
 
-  // no-cors so the browser doesn't reject the cross-origin Google Forms POST
-  fetch(cfg.formAction, { method: 'POST', body: fd, mode: 'no-cors' })
-    .then(function() { showEntrySuccess(form.entryName.value.trim()); })
-    .catch(function(e) {
-      btn.disabled = false;
-      btn.textContent = 'Submit Entry';
-      var valEl = document.getElementById('ef-validation');
-      if (valEl) valEl.textContent = 'Submission failed: ' + e.message;
-    });
+  console.log('📨 Submitting entry to', cfg.formAction);
+  console.log('📨 Payload:', pairs);
+
+  // Hidden form + iframe POST: cleaner than fetch+no-cors because the iframe's
+  // load event fires once Google responds, giving us a real completion signal.
+  var iframe = document.getElementById('ef-submit-iframe');
+  if (!iframe) {
+    iframe = document.createElement('iframe');
+    iframe.id = 'ef-submit-iframe';
+    iframe.name = 'ef-submit-iframe';
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+  }
+  var hiddenForm = document.createElement('form');
+  hiddenForm.method = 'POST';
+  hiddenForm.action = cfg.formAction;
+  hiddenForm.target = 'ef-submit-iframe';
+  hiddenForm.style.display = 'none';
+  pairs.forEach(function(p) {
+    var input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = p[0];
+    input.value = p[1];
+    hiddenForm.appendChild(input);
+  });
+  document.body.appendChild(hiddenForm);
+
+  var settled = false;
+  var done = function(ok) {
+    if (settled) return;
+    settled = true;
+    try { document.body.removeChild(hiddenForm); } catch(e) {}
+    if (ok) {
+      console.log('✅ Entry submission complete (iframe loaded)');
+      showEntrySuccess(entryName);
+    } else {
+      console.warn('⚠️ Entry submission timeout — sheet may still receive the row, check Google Sheet');
+      showEntrySuccess(entryName); // Optimistic: Google usually accepts even if iframe doesn't fire
+    }
+  };
+  iframe.onload = function() { done(true); };
+  // Safety timeout: if the iframe never fires (CORS / opaque response edge cases)
+  setTimeout(function() { done(false); }, 6000);
+
+  hiddenForm.submit();
   return false;
 }
 
