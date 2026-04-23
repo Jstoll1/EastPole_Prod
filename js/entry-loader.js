@@ -52,7 +52,7 @@ function parsePoolTSV(text) {
   var idx = {
     timestamp:  find(/timestamp/i),
     email:      find(/e.?mail/i),
-    entrant:    find(/^entrant$|your\s*name|full\s*name|^name$/i),
+    entrant:    find(/^entrant$|^user\s*name$|^username$|your\s*name|full\s*name|^name$/i),
     team:       find(/entry\s*name|team\s*name/i),
     tier1:      find(/tier\s*1/i),
     tier2:      find(/tier\s*2/i),
