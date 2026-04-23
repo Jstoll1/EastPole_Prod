@@ -75,71 +75,44 @@ function closeTermLogin() {
 }
 function buildTermLoginMenu() {
   var entries = (typeof ENTRIES !== 'undefined' && ENTRIES) ? ENTRIES : [];
-  var hasAnyEmail = entries.some(function(e) { return e.email; });
-  var hasAnyEntrant = entries.some(function(e) { return e.entrant; });
   var seen = {};
   var users = [];
-  if (hasAnyEmail) {
-    // Group by email when present
-    entries.forEach(function(e) {
-      if (!e.email || seen[e.email]) return;
-      seen[e.email] = true;
-      var grp = entries.filter(function(x) { return x.email === e.email; });
-      users.push({
-        key: e.email,
-        label: e.email,
-        entrants: Array.from(new Set(grp.map(function(x) { return x.entrant; }).filter(Boolean))),
-        teams: grp.map(function(x) { return x.team; })
-      });
+
+  // Group by ENTRANT first (case-insensitive) — handles the common case where
+  // one person submits multiple entries with varying emails. Fall back to
+  // email for entries without a username, then team as a last resort.
+  entries.forEach(function(e) {
+    var key, label;
+    if (e.entrant) {
+      key = '__ent__' + e.entrant.toLowerCase().trim();
+      label = e.entrant;
+    } else if (e.email) {
+      key = '__eml__' + e.email.toLowerCase();
+      label = e.email;
+    } else {
+      key = '__team__' + e.team;
+      label = e.team;
+    }
+    if (seen[key]) return;
+    seen[key] = true;
+    var grp = entries.filter(function(x) {
+      if (e.entrant) return (x.entrant || '').toLowerCase().trim() === e.entrant.toLowerCase().trim();
+      if (e.email) return (x.email || '').toLowerCase() === e.email.toLowerCase() && !x.entrant;
+      return x.team === e.team && !x.email && !x.entrant;
     });
-  } else if (hasAnyEntrant) {
-    // Group by entrant (case-insensitive) so Jake's multiple entries collapse to one identity
-    entries.forEach(function(e) {
-      var key = (e.entrant || '').toLowerCase().trim();
-      if (!key || seen[key]) return;
-      seen[key] = true;
-      var grp = entries.filter(function(x) { return (x.entrant || '').toLowerCase().trim() === key; });
-      users.push({
-        key: e.entrant,
-        label: e.entrant,
-        entrants: [e.entrant],
-        teams: grp.map(function(x) { return x.team; })
-      });
+    users.push({
+      key: key,
+      label: label,
+      entrant: e.entrant || '',
+      emails: Array.from(new Set(grp.map(function(x) { return x.email; }).filter(Boolean))),
+      teams: grp.map(function(x) { return x.team; })
     });
-    // Catch entries with no entrant — list them by team so they're still selectable
-    entries.forEach(function(e) {
-      if (e.entrant) return;
-      var teamKey = '__team__' + e.team;
-      if (!e.team || seen[teamKey]) return;
-      seen[teamKey] = true;
-      users.push({
-        key: e.team,
-        label: e.team + ' (no username)',
-        entrants: [],
-        teams: [e.team]
-      });
-    });
-  } else {
-    // Fallback: one identity per team when sheet has no email or entrant column
-    entries.forEach(function(e) {
-      if (!e.team || seen[e.team]) return;
-      seen[e.team] = true;
-      users.push({
-        key: e.team,
-        label: e.team,
-        entrants: e.entrant ? [e.entrant] : [],
-        teams: [e.team]
-      });
-    });
-  }
+  });
   users.sort(function(a, b) { return a.label.localeCompare(b.label); });
 
   var currentEmail = (typeof currentUserEmail !== 'undefined') ? currentUserEmail : null;
-  var headerLabel = currentEmail
-    ? 'Switch Identity'
-    : (hasAnyEmail ? 'Select Your Email' : (hasAnyEntrant ? 'Select Your Username' : 'Select Your Entry'));
   var h = '<div class="tlogin-head">'
-    +    '<span>' + headerLabel + '</span>'
+    +    '<span>' + (currentEmail ? 'Switch Identity' : 'Select Your Identity') + '</span>'
     +    '<button class="tsb-btn" onclick="closeTermLogin()">✕</button>'
     +  '</div>';
   if (!users.length) {
@@ -149,19 +122,23 @@ function buildTermLoginMenu() {
   h += '<div class="tlogin-search"><input type="text" id="tlogin-filter" placeholder="search username, team, email…" oninput="filterTermLogin(this.value)"></div>';
   h += '<div class="tlogin-list">';
   users.forEach(function(u) {
-    var active = currentEmail && currentEmail.toLowerCase() === u.key.toLowerCase();
+    var active = currentEmail && String(currentEmail).toLowerCase() === u.key.toLowerCase();
     var escKey = u.key.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-    var entrantStr = u.entrants.join(' · ');
+    var emailStr = u.emails.join(' · ');
     h += '<div class="tlogin-row' + (active ? ' tlogin-active' : '') + '"'
-      +   ' data-email="' + termEsc(u.label) + '"'
+      +   ' data-label="' + termEsc(u.label) + '"'
+      +   ' data-email="' + termEsc(emailStr) + '"'
       +   ' data-teams="' + termEsc(u.teams.join(' ')) + '"'
-      +   ' data-entrant="' + termEsc(entrantStr) + '"'
+      +   ' data-entrant="' + termEsc(u.entrant) + '"'
       +   ' onclick="selectTermUser(\'' + escKey + '\')">'
       +   '<div class="tlogin-email">'
-      +     '<span>' + termEsc(u.label) + '</span>'
+      +     '<span class="tlogin-name">' + termEsc(u.label) + '</span>'
       +     (active ? ' <span class="tlogin-you">YOU</span>' : '')
       +   '</div>'
-      +   '<div class="tlogin-teams">' + (u.teams.length === 1 ? termEsc(u.teams[0]) : u.teams.length + ' entries · ' + u.teams.map(termEsc).join(' · ')) + '</div>'
+      +   '<div class="tlogin-teams">'
+      +     (u.teams.length === 1 ? '1 entry · ' + termEsc(u.teams[0]) : u.teams.length + ' entries · ' + u.teams.map(termEsc).join(' · '))
+      +     (emailStr ? '<div class="tlogin-emails">' + termEsc(emailStr) + '</div>' : '')
+      +   '</div>'
       + '</div>';
   });
   h += '</div>';
@@ -175,14 +152,14 @@ function filterTermLogin(q) {
   var rows = document.querySelectorAll('.tlogin-row');
   var shown = 0;
   rows.forEach(function(r) {
+    var label = (r.getAttribute('data-label') || '').toLowerCase();
     var e = (r.getAttribute('data-email') || '').toLowerCase();
     var t = (r.getAttribute('data-teams') || '').toLowerCase();
     var ent = (r.getAttribute('data-entrant') || '').toLowerCase();
-    var match = !q || e.indexOf(q) !== -1 || t.indexOf(q) !== -1 || ent.indexOf(q) !== -1;
+    var match = !q || label.indexOf(q) !== -1 || e.indexOf(q) !== -1 || t.indexOf(q) !== -1 || ent.indexOf(q) !== -1;
     r.style.display = match ? '' : 'none';
     if (match) shown++;
   });
-  // Show a "no matches" hint inside the list when nothing matches
   var list = document.querySelector('#term-login-modal .tlogin-list');
   if (list) {
     var hint = list.querySelector('.tlogin-nomatch');
@@ -192,34 +169,32 @@ function filterTermLogin(q) {
         hint.className = 'tlogin-nomatch';
         list.appendChild(hint);
       }
-      hint.textContent = 'No entries match "' + q + '" — searched ' + rows.length + ' rows. Clear search to see all.';
+      hint.textContent = 'No entries match "' + q + '" — searched ' + rows.length + ' identities. Clear search to see all.';
       hint.style.display = '';
     } else if (hint) {
       hint.style.display = 'none';
     }
   }
-  // Console diag — first 3 row attribute snapshots so misses are debuggable
-  if (q && shown === 0 && rows.length) {
-    var sample = [];
-    for (var i = 0; i < Math.min(3, rows.length); i++) {
-      sample.push({
-        email: rows[i].getAttribute('data-email'),
-        teams: rows[i].getAttribute('data-teams'),
-        entrant: rows[i].getAttribute('data-entrant')
-      });
-    }
-    console.warn('🔍 Login search "' + q + '" matched 0 of ' + rows.length + ' — first 3 rows:', sample);
-  }
 }
 function selectTermUser(key) {
   window.currentUserEmail = key;
-  // Match by email when present, then by entrant (case-insensitive), then by team
-  var keyLow = String(key || '').toLowerCase();
+  // New identity keys are prefixed: __ent__jake, __eml__foo@bar.com, __team__X
   window.currentUserTeams = (ENTRIES || []).filter(function(e) {
-    if (e.email && e.email === key) return true;
-    if (!e.email && e.entrant && e.entrant.toLowerCase() === keyLow) return true;
-    if (!e.email && !e.entrant && e.team === key) return true;
-    return false;
+    if (typeof key !== 'string') return false;
+    if (key.indexOf('__ent__') === 0) {
+      return (e.entrant || '').toLowerCase().trim() === key.slice(7);
+    }
+    if (key.indexOf('__eml__') === 0) {
+      return (e.email || '').toLowerCase() === key.slice(7) && !e.entrant;
+    }
+    if (key.indexOf('__team__') === 0) {
+      return e.team === key.slice(8) && !e.email && !e.entrant;
+    }
+    // Legacy: loose match by email, entrant, or team
+    var kl = String(key).toLowerCase();
+    return (e.email && e.email.toLowerCase() === kl)
+        || (e.entrant && e.entrant.toLowerCase() === kl)
+        || (e.team === key);
   });
   window.activeTeamIdx = -1;
   try { localStorage.setItem('eastpole_v2', JSON.stringify({ email: key, activeTeamIdx: -1 })); } catch(e) {}
@@ -310,8 +285,21 @@ function updateTermLoginButton() {
   var btn = document.getElementById('term-login-btn');
   if (!btn) return;
   if (currentUserEmail) {
-    var short = currentUserEmail.split('@')[0].slice(0, 14);
-    btn.textContent = '👤 ' + short.toUpperCase();
+    var key = String(currentUserEmail);
+    var display;
+    if (key.indexOf('__ent__') === 0) {
+      // Look up the original cased entrant from ENTRIES
+      var ent = key.slice(7);
+      var match = (ENTRIES || []).find(function(e) { return (e.entrant || '').toLowerCase().trim() === ent; });
+      display = match && match.entrant ? match.entrant : ent;
+    } else if (key.indexOf('__eml__') === 0) {
+      display = key.slice(7).split('@')[0];
+    } else if (key.indexOf('__team__') === 0) {
+      display = key.slice(8);
+    } else {
+      display = key.split('@')[0];
+    }
+    btn.textContent = '👤 ' + display.slice(0, 14).toUpperCase();
   } else {
     btn.textContent = 'LOG IN';
   }

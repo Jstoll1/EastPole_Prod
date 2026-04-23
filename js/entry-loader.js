@@ -135,16 +135,9 @@ async function loadPoolEntries(force) {
       entries.forEach(function(e) { ENTRIES.push(e); });
     }
     console.log('✅ Loaded', entries.length, 'pool entries from sheet');
-    // Refresh the logged-in user's team associations now that ENTRIES is populated.
-    // Match by email, then by entrant (case-insensitive), then by team.
-    if (typeof currentUserEmail !== 'undefined' && currentUserEmail) {
-      var keyLow = String(currentUserEmail).toLowerCase();
-      window.currentUserTeams = ENTRIES.filter(function(e) {
-        if (e.email && e.email === currentUserEmail) return true;
-        if (!e.email && e.entrant && e.entrant.toLowerCase() === keyLow) return true;
-        if (!e.email && !e.entrant && e.team === currentUserEmail) return true;
-        return false;
-      });
+    // Rebind the logged-in user's team associations now that ENTRIES is populated.
+    if (typeof currentUserEmail !== 'undefined' && currentUserEmail && typeof _matchUserKey === 'function') {
+      window.currentUserTeams = ENTRIES.filter(function(e) { return _matchUserKey(e, currentUserEmail); });
     }
     if (typeof updateTermLoginButton === 'function') updateTermLoginButton();
     renderPoolRoster();

@@ -469,21 +469,25 @@ function markSplashSeen() {
 
 function saveUser() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ email: currentUserEmail, activeTeamIdx: activeTeamIdx })); } catch(e) {} }
 
-// Match an identity key against an entry: email → entrant key (__ent__lowercased)
-// → team key (__team__name) → raw email/team string. Mirrors buildObList grouping.
+// Match an identity key against an entry. New keys are prefixed:
+//   __ent__<lowercased entrant>  · __eml__<lowercased email>  · __team__<team>
+// Legacy keys (bare email / team / entrant) are matched loosely.
 function _matchUserKey(e, key) {
   if (!key) return false;
-  if (e.email && e.email === key) return true;
   if (typeof key === 'string') {
     if (key.indexOf('__ent__') === 0) {
-      var entLow = key.slice(7);
-      return !!(e.entrant && e.entrant.toLowerCase().trim() === entLow);
+      return !!(e.entrant && e.entrant.toLowerCase().trim() === key.slice(7));
+    }
+    if (key.indexOf('__eml__') === 0) {
+      return !!(e.email && e.email.toLowerCase() === key.slice(7));
     }
     if (key.indexOf('__team__') === 0) {
       return e.team === key.slice(8);
     }
-    // Legacy/loose match: by entrant case-insensitive, then by team
-    if (e.entrant && e.entrant.toLowerCase() === String(key).toLowerCase()) return true;
+    // Legacy/loose match: email → entrant → team
+    var kl = String(key).toLowerCase();
+    if (e.email && e.email === key) return true;
+    if (e.entrant && e.entrant.toLowerCase() === kl) return true;
     if (e.team === key) return true;
   }
   return false;

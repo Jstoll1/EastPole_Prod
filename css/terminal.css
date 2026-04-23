@@ -1381,6 +1381,20 @@ html, body {
   letter-spacing: 0.3px;
   text-transform: uppercase;
 }
+.tlogin-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--term-amber);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.tlogin-emails {
+  font-size: 10px;
+  color: var(--term-text-muted);
+  margin-top: 3px;
+  letter-spacing: 0.2px;
+  font-style: italic;
+}
 .tlogin-you {
   font-size: 9px;
   font-weight: 800;
