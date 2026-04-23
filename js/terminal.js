@@ -713,9 +713,18 @@ async function toggleTermScorecard(playerName, rowEl) {
   var aid = ATHLETE_IDS[playerName];
   var flag = (FLAGS && FLAGS[playerName]) || '';
 
+  // Team event (Zurich): show both teammate names separated by " / " since
+  // the scorecard below is the TEAM's combined twoball/alternate-shot score,
+  // not one golfer's. Falls through to the single clicked name whenever
+  // gd.teammateNames is absent (singles events), so auto-reverts next week.
+  var _isTeamCard = gd && gd.teammateNames && gd.teammateNames.length > 1;
+  var _headerName = _isTeamCard
+    ? gd.teammateNames.map(function(n) { var f = (FLAGS && FLAGS[n]) || ''; return (f ? f + ' ' : '') + termEsc(n); }).join(' / ')
+    : (flag + ' ' + termEsc(playerName));
+
   var html = '<div class="tsc-header">';
   if (aid) html += '<img class="tsc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + aid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">';
-  html += '<span class="tsc-name">' + flag + ' ' + termEsc(playerName) + '</span>';
+  html += '<span class="tsc-name">' + _headerName + '</span>';
   if (gd) html += '<span class="tsc-pos">' + (gd.pos || '') + '</span>';
   html += '<span class="tsc-close" onclick="event.stopPropagation();toggleTermScorecard(\'' + playerName.replace(/'/g, "\\'") + '\')">✕</span>';
   html += '</div>';

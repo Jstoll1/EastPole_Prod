@@ -107,10 +107,19 @@ async function toggleScorecard(idx, playerName) {
     if (btn) btn.addEventListener('click', function(e) { e.stopPropagation(); showPickerPopup(ownOwners, e); });
   }
 
+  // Team-event header: join both teammate names (with flags) since scores on
+  // the card are the team's combined twoball/alternate-shot line, not one
+  // golfer's. Falls back to the single clicked name whenever gd.teammateNames
+  // is absent (i.e. every singles event), so this auto-reverts next week.
+  var _isTeamCard = gd && gd.teammateNames && gd.teammateNames.length > 1;
+  var _headerName = _isTeamCard
+    ? gd.teammateNames.map(function(n) { var f = FLAGS[n] || ''; return (f ? f + ' ' : '') + n; }).join(' / ')
+    : playerName;
+
   // Fallback: round-level summary if no hole-by-hole data
   if (!rounds || !rounds.length || !rounds.some(function(r) { return r.holes && r.holes.length > 0; })) {
     var fbAid = ATHLETE_IDS[playerName];
-    var fb = '<div class="sc-header">' + (fbAid ? '<img class="sc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + fbAid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">' : '') + '<span class="sc-player-name">' + playerName + '</span>';
+    var fb = '<div class="sc-header">' + (fbAid ? '<img class="sc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + fbAid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">' : '') + '<span class="sc-player-name">' + _headerName + '</span>';
     fb += emojiButtonHtml(escapedName);
     if (gd) fb += '<span class="sc-player-pos">' + gd.pos + '</span>';
     fb += buildOwnBadge();
@@ -149,7 +158,7 @@ async function toggleScorecard(idx, playerName) {
   }
 
   var scAid = ATHLETE_IDS[playerName];
-  var html = '<div class="sc-header">' + (scAid ? '<img class="sc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + scAid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">' : '') + '<span class="sc-player-name">' + playerName + '</span>';
+  var html = '<div class="sc-header">' + (scAid ? '<img class="sc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + scAid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">' : '') + '<span class="sc-player-name">' + _headerName + '</span>';
   html += emojiButtonHtml(escapedName);
   if (gd) html += '<span class="sc-player-pos">' + gd.pos + '</span>';
   html += buildOwnBadge();
@@ -265,9 +274,15 @@ async function toggleStandingsScorecard(panelId, playerName) {
     if (btn) btn.addEventListener('click', function(e) { e.stopPropagation(); showPickerPopup(ownOwners, e); });
   }
 
+  // See toggleScorecard — auto-reverts to the clicked name outside team events.
+  var _isTeamCard = gd && gd.teammateNames && gd.teammateNames.length > 1;
+  var _headerName = _isTeamCard
+    ? gd.teammateNames.map(function(n) { var f = FLAGS[n] || ''; return (f ? f + ' ' : '') + n; }).join(' / ')
+    : playerName;
+
   if (!rounds || !rounds.length || !rounds.some(function(r) { return r.holes && r.holes.length > 0; })) {
     var fbAid = ATHLETE_IDS[playerName];
-    var fb = '<div class="sc-header">' + (fbAid ? '<img class="sc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + fbAid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">' : '') + '<span class="sc-player-name">' + playerName + '</span>';
+    var fb = '<div class="sc-header">' + (fbAid ? '<img class="sc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + fbAid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">' : '') + '<span class="sc-player-name">' + _headerName + '</span>';
     fb += emojiButtonHtml(escapedName);
     if (gd) fb += '<span class="sc-player-pos">' + gd.pos + '</span>';
     fb += buildOwnBadge();
@@ -306,7 +321,7 @@ async function toggleStandingsScorecard(panelId, playerName) {
   }
 
   var scAid = ATHLETE_IDS[playerName];
-  var html = '<div class="sc-header">' + (scAid ? '<img class="sc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + scAid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">' : '') + '<span class="sc-player-name">' + playerName + '</span>';
+  var html = '<div class="sc-header">' + (scAid ? '<img class="sc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + scAid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">' : '') + '<span class="sc-player-name">' + _headerName + '</span>';
   html += emojiButtonHtml(escapedName);
   if (gd) html += '<span class="sc-player-pos">' + gd.pos + '</span>';
   html += buildOwnBadge();
