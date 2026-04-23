@@ -233,8 +233,13 @@ async function fetchESPN() {
       // per golfer in GOLFER_SCORES so pool picks resolve normally elsewhere).
       var isTeamEvent = athleteList.length > 1;
       var teamId = isTeamEvent ? ('team-' + (c.id || c.uid || athleteList.map(function(a){return a.id||a.displayName;}).join('|'))) : null;
+      // Raw ESPN competitor ID for the team. Used by fetchPlayerScorecard to
+      // hit /competitors/{id}/linescores — in team events the competitor is
+      // the TEAM, so the athlete ID 404s but the team competitor ID resolves
+      // to the team's hole-by-hole (twoball / alternate-shot) score.
+      var teamCompId = isTeamEvent ? (c.id || c.uid || null) : null;
       var teammateNames = isTeamEvent ? athleteList.map(function(a) { return resolvePlayerName(a.displayName); }) : null;
-      var teamRecord = { pos: c.status?.position?.displayName || '—', score: wd ? 12 : mc ? 11 : score, thru: thru, teeTime: teeTime, startHole: startHole, tot: tot, todayDisplay: todayDisplay, r1: rval(0), r2: rval(1), r3: rval(2), r4: rval(3), roundCount: lines.filter(function(l) { return l.value != null; }).length, onCourse: onCourse, teamId: teamId, teammateNames: teammateNames };
+      var teamRecord = { pos: c.status?.position?.displayName || '—', score: wd ? 12 : mc ? 11 : score, thru: thru, teeTime: teeTime, startHole: startHole, tot: tot, todayDisplay: todayDisplay, r1: rval(0), r2: rval(1), r3: rval(2), r4: rval(3), roundCount: lines.filter(function(l) { return l.value != null; }).length, onCourse: onCourse, teamId: teamId, teamCompId: teamCompId, teammateNames: teammateNames };
 
       athleteList.forEach(function(ath) {
         var rawName = ath?.displayName;
@@ -701,9 +706,14 @@ async function fetchPlayerScorecard(playerName, forceRefresh) {
   if (!forceRefresh && SCORECARD_CACHE[playerName]) return SCORECARD_CACHE[playerName];
   // Share inflight request — prevents concurrent fetches for same player
   if (_scorecardInflight[playerName]) return _scorecardInflight[playerName];
-  var playerId = ATHLETE_IDS[playerName];
-  if (!playerId || !EVENT_ID) return null;
-  _scorecardInflight[playerName] = _fetchScorecardImpl(playerName, playerId);
+  // Team events: ESPN's competitor is the TEAM, so /competitors/{athleteId}
+  // 404s. Fall back to the team competitor ID so the linescores endpoint
+  // returns the team's twoball/alternate-shot hole-by-hole scores. Singles
+  // events have no teamCompId and keep using the athlete ID as before.
+  var gd = GOLFER_SCORES[playerName];
+  var competitorId = (gd && gd.teamCompId) || ATHLETE_IDS[playerName];
+  if (!competitorId || !EVENT_ID) return null;
+  _scorecardInflight[playerName] = _fetchScorecardImpl(playerName, competitorId);
   try { return await _scorecardInflight[playerName]; } finally { delete _scorecardInflight[playerName]; }
 }
 
