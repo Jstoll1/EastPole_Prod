@@ -71,8 +71,32 @@ function getHolesRemaining(playerName) {
   return Math.max(0, (4 - roundCount) * 18);
 }
 
+// Strip leading flag emoji / regional-indicator codepoints from a raw pick
+// segment and resolve to the canonical GOLFER_SCORES key.
+function _cleanPickName(raw) {
+  if (typeof raw !== 'string') return '';
+  var stripped = raw.replace(/^[\p{Extended_Pictographic}\p{Emoji_Presentation}\s🏴\u{E0020}-\u{E007F}]+/u, '').trim();
+  return (typeof resolvePlayerName === 'function') ? resolvePlayerName(stripped) : stripped;
+}
+
+// Score one pick. Team-event pair strings ("🏴 Matt F / 🏴 Alex F") share a
+// single team score in GOLFER_SCORES (same record written for both teammates)
+// — resolve either teammate instead of feeding the whole pair string to gs(),
+// which would miss and fall through to the MC=11 penalty (collapsing every
+// entry in a Zurich-style team pool to +44).
+function scorePick(pick) {
+  if (typeof pick === 'string' && pick.indexOf(' / ') !== -1) {
+    var names = pick.split(/\s*\/\s*/).map(_cleanPickName).filter(Boolean);
+    for (var i = 0; i < names.length; i++) {
+      if (GOLFER_SCORES[names[i]]) return GOLFER_SCORES[names[i]].score;
+    }
+    return gs(names[0] || pick);
+  }
+  return gs(pick);
+}
+
 function calcEntry(e) {
-  var scores = e.picks.map(function(n) { return { name: n, score: gs(n) }; }).sort(function(a, b) { return a.score - b.score; });
+  var scores = e.picks.map(function(n) { return { name: n, score: scorePick(n) }; }).sort(function(a, b) { return a.score - b.score; });
   var bestN = (typeof POOL_CONFIG !== 'undefined' && POOL_CONFIG.bestN) ? POOL_CONFIG.bestN : 4;
   var top4 = scores.slice(0, bestN);
   return Object.assign({}, e, {
