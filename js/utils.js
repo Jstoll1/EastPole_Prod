@@ -34,8 +34,35 @@ function normalCDF(x) {
 }
 
 // Score formatting helpers
+
+// Strip leading flag emoji / regional-indicator sequences from a pair teammate fragment.
+function _stripFlag(s) {
+  return String(s || '').replace(/^[\s\u{1F1E6}-\u{1F1FF}\u{1F3F4}\u{E0020}-\u{E007F}]+/u, '').trim();
+}
+
+// Resolve a pool pick string to its GOLFER_SCORES record. Handles:
+//   • plain golfer names: "Scottie Scheffler"
+//   • team-event pair strings: "🏴 Matt Fitzpatrick / 🏴 Alex Fitzpatrick"
+// Both teammates share the same team record in team events, so the first
+// matching teammate is returned. Returns null if nothing resolves.
+function resolvePickData(pick) {
+  if (!pick || typeof GOLFER_SCORES === 'undefined') return null;
+  if (GOLFER_SCORES[pick]) return GOLFER_SCORES[pick];
+  var str = String(pick);
+  if (str.indexOf(' / ') !== -1) {
+    var parts = str.split(/\s*\/\s*/);
+    for (var i = 0; i < parts.length; i++) {
+      var nm = _stripFlag(parts[i]);
+      var alias = (typeof NAME_ALIASES !== 'undefined' && NAME_ALIASES[nm]) ? NAME_ALIASES[nm] : nm;
+      if (GOLFER_SCORES[alias]) return GOLFER_SCORES[alias];
+    }
+  }
+  return null;
+}
+
 var gs = function(n) {
-  if (GOLFER_SCORES[n]) return GOLFER_SCORES[n].score;
+  var gd = resolvePickData(n);
+  if (gd) return gd.score;
   if (Object.keys(GOLFER_SCORES).length > 0) console.warn('⚠️ Player not found in GOLFER_SCORES:', n);
   return TOURNAMENT_STARTED ? 11 : 0;
 };
@@ -52,7 +79,7 @@ function resolvePlayerName(name) { return NAME_ALIASES[name] || name; }
 function getCountryCode(name) { return FLAG_TO_CODE[FLAGS[name]] || ''; }
 
 function getHolesRemaining(playerName) {
-  var gd = GOLFER_SCORES[playerName];
+  var gd = resolvePickData(playerName);
   if (!gd) return 0;
   if (gd.thru === 'MC' || gd.thru === 'WD' || gd.score === 11 || gd.score === 12) return 0;
   // roundCount = total linescores with any value (includes in-progress)
@@ -72,7 +99,15 @@ function getHolesRemaining(playerName) {
 }
 
 function calcEntry(e) {
-  var scores = e.picks.map(function(n) { return { name: n, score: gs(n) }; }).sort(function(a, b) { return a.score - b.score; });
+  // Attach `gd` (the resolved GOLFER_SCORES record) to each pick so downstream
+  // renderers can look up thru / today / rounds without redoing pair-string
+  // resolution. For team events, `name` stays the pair string for display and
+  // `gd` points to the shared team record.
+  var scores = e.picks.map(function(n) {
+    var gd = resolvePickData(n);
+    var sc = gd ? gd.score : (TOURNAMENT_STARTED ? 11 : 0);
+    return { name: n, score: sc, gd: gd };
+  }).sort(function(a, b) { return a.score - b.score; });
   var bestN = (typeof POOL_CONFIG !== 'undefined' && POOL_CONFIG.bestN) ? POOL_CONFIG.bestN : 4;
   var top4 = scores.slice(0, bestN);
   return Object.assign({}, e, {

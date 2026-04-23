@@ -260,7 +260,7 @@ function _buildEntryDetailRow(entry, colspan) {
     var picks = (entry.picks || []).slice(0, 20);
     body += '<div class="ed-picks-flat">';
     picks.forEach(function(p) {
-      var gd = GOLFER_SCORES[p];
+      var gd = (typeof resolvePickData === 'function') ? resolvePickData(p) : GOLFER_SCORES[p];
       var sc = gd ? (gd.score === 11 ? 'MC' : gd.score === 12 ? 'WD' : fmtScore(gd.score)) : '—';
       var cls = gd ? (gd.score === 11 || gd.score === 12 ? 'mc' : scoreCls(gd.score)) : '';
       var flag = (FLAGS && FLAGS[p]) || '';
@@ -1109,13 +1109,22 @@ function renderTermStandings() {
   var ranked = getRanked();
   var myKey = (typeof currentUserEmail !== 'undefined') ? currentUserEmail : '';
 
+  // Ranks respect 2026 tiebreaker rules: equal entries per compareEntries()
+  // share a rank instead of getting sequential numbers.
+  var rankMap = {};
+  var curRank = 1;
+  ranked.forEach(function(e, i) {
+    if (i > 0 && compareEntries(ranked[i - 1], e) !== 0) curRank = i + 1;
+    rankMap[e.team + '|' + e.email] = curRank;
+  });
+
   // Precompute row data (rank / isMoney stay tied to original pool ranking)
   var rows = ranked.map(function(e, i) {
-    var rank = i + 1;
+    var rank = rankMap[e.team + '|' + e.email];
     var teamHolesLeft = e.top4.reduce(function(s, g) { return s + getHolesRemaining(g.name); }, 0);
     var teamToday = 0, hasToday = false;
     e.top4.forEach(function(g) {
-      var gd = GOLFER_SCORES[g.name];
+      var gd = g.gd || GOLFER_SCORES[g.name];
       if (!gd) return;
       if (gd.score === 11 || gd.score === 12) return;
       var td = gd.todayDisplay;
@@ -1442,7 +1451,11 @@ function renderTermMy() {
 
   var ranked = getRanked();
   var rankMap = {};
-  ranked.forEach(function(e, i) { rankMap[e.team + '|' + e.email] = i + 1; });
+  var curRank = 1;
+  ranked.forEach(function(e, i) {
+    if (i > 0 && compareEntries(ranked[i - 1], e) !== 0) curRank = i + 1;
+    rankMap[e.team + '|' + e.email] = curRank;
+  });
 
   body.innerHTML = teams.map(function(t) {
     var entry = ranked.find(function(e) { return e.team === t.team && e.email === t.email; });
@@ -1451,7 +1464,7 @@ function renderTermMy() {
     var total = entry.total;
     var teamToday = 0, hasToday = false;
     entry.top4.forEach(function(g) {
-      var gd = GOLFER_SCORES[g.name];
+      var gd = g.gd || GOLFER_SCORES[g.name];
       if (!gd || gd.score === 11 || gd.score === 12) return;
       var td = gd.todayDisplay;
       if (td && td !== '—') { hasToday = true; teamToday += (td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0); }
@@ -1460,7 +1473,7 @@ function renderTermMy() {
     var picks = entry.scores.slice(0, 10).map(function(g, i) {
       var isTop = i < 4;
       var flag = FLAGS && FLAGS[g.name] || '';
-      var gd = GOLFER_SCORES[g.name];
+      var gd = g.gd || GOLFER_SCORES[g.name];
       var sc = gd && (gd.score === 11 || gd.score === 12) ? (gd.score === 12 ? 'WD' : 'MC') : fmtScore(g.score);
       var scCl = gd && (gd.score === 11 || gd.score === 12) ? 'mc' : scoreCls(g.score);
       return '<div class="pick ' + (isTop ? 'top' : '') + '">'

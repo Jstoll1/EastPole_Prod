@@ -91,8 +91,8 @@ function renderStandings() {
       var dir = standingsSortDir;
       if (standingsSort === 'today') {
         var todayA = 0, todayB = 0;
-        a.top4.forEach(function(g) { var gd = GOLFER_SCORES[g.name]; if (gd && (gd.score === 11 || gd.score === 12)) return; var td = gd ? gd.todayDisplay : null; if (td && td !== '—') todayA += td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0; });
-        b.top4.forEach(function(g) { var gd = GOLFER_SCORES[g.name]; if (gd && (gd.score === 11 || gd.score === 12)) return; var td = gd ? gd.todayDisplay : null; if (td && td !== '—') todayB += td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0; });
+        a.top4.forEach(function(g) { var gd = g.gd || GOLFER_SCORES[g.name]; if (gd && (gd.score === 11 || gd.score === 12)) return; var td = gd ? gd.todayDisplay : null; if (td && td !== '—') todayA += td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0; });
+        b.top4.forEach(function(g) { var gd = g.gd || GOLFER_SCORES[g.name]; if (gd && (gd.score === 11 || gd.score === 12)) return; var td = gd ? gd.todayDisplay : null; if (td && td !== '—') todayB += td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0; });
         return (todayA - todayB) * dir || a.total - b.total;
       }
       if (standingsSort === 'entry') {
@@ -132,7 +132,7 @@ function renderStandings() {
     var wScoreDisp = fmtTeam(w.total);
     var wScoreCls = cls(w.total);
     var wGolfers = w.top4.map(function(g) {
-      var gd = GOLFER_SCORES[g.name];
+      var gd = g.gd || GOLFER_SCORES[g.name];
       var flag = FLAGS[g.name] || '';
       var isMc = gd && (gd.score === 11 || gd.score === 12);
       var gScore = isMc ? (gd.score === 12 ? 'WD' : 'MC') : fmt(g.score);
@@ -229,7 +229,7 @@ function renderStandings() {
     var priorEntries = ranked.map(function(e) {
       var priorTotal = 0;
       e.top4.forEach(function(g) {
-        var gd = GOLFER_SCORES[g.name];
+        var gd = g.gd || GOLFER_SCORES[g.name];
         var td = gd ? gd.todayDisplay : null;
         var todayVal = 0;
         if (td && td !== '—') {
@@ -276,7 +276,7 @@ function renderStandings() {
           moveHtml = mv > 0 ? '<div class="pos-move up">▲' + mv + '</div>' : '<div class="pos-move dn">▼' + Math.abs(mv) + '</div>';
         }
         var myTeamToday = 0, myTodayCount = 0;
-        myEntry.top4.forEach(function(g) { var gd = GOLFER_SCORES[g.name]; if (gd && (gd.score === 11 || gd.score === 12)) return; var td = gd ? gd.todayDisplay : null; if (td && td !== '—') { myTeamToday += td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0; myTodayCount++; } });
+        myEntry.top4.forEach(function(g) { var gd = g.gd || GOLFER_SCORES[g.name]; if (gd && (gd.score === 11 || gd.score === 12)) return; var td = gd ? gd.todayDisplay : null; if (td && td !== '—') { myTeamToday += td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0; myTodayCount++; } });
         var myTodayDisp = myTodayCount > 0 ? (myTeamToday > 0 ? '+' + myTeamToday : myTeamToday === 0 ? 'E' : '' + myTeamToday) : '—';
         var myTodayCls = myTeamToday < 0 ? 'neg' : myTeamToday > 0 ? 'pos' : 'eve';
         var teamJumpArg = escHtml(JSON.stringify(myEntry.team));
@@ -289,7 +289,7 @@ function renderStandings() {
         // Top-4 golfer summary line
         var t4parts = [];
         myEntry.top4.forEach(function(g) {
-          var gd = GOLFER_SCORES[g.name] || {};
+          var gd = g.gd || GOLFER_SCORES[g.name] || {};
           var lastName = g.name.split(' ').slice(-1)[0];
           var flag = FLAGS[g.name] || '';
           var sc = gd.score;
@@ -365,7 +365,7 @@ function renderStandings() {
       moveHtml = mv > 0 ? '<div class="pos-move up">▲' + mv + '</div>' : '<div class="pos-move dn">▼' + Math.abs(mv) + '</div>';
     }
     var teamToday = 0, teamTodayCount = 0;
-    e.top4.forEach(function(g) { var gd = GOLFER_SCORES[g.name]; if (gd && (gd.score === 11 || gd.score === 12)) return; var td = gd ? gd.todayDisplay : null; if (td && td !== '—') { teamToday += (td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0); teamTodayCount++; } });
+    e.top4.forEach(function(g) { var gd = g.gd || GOLFER_SCORES[g.name]; if (gd && (gd.score === 11 || gd.score === 12)) return; var td = gd ? gd.todayDisplay : null; if (td && td !== '—') { teamToday += (td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0); teamTodayCount++; } });
     var todayDisp = teamTodayCount > 0 ? (teamToday > 0 ? '+' + teamToday : teamToday === 0 ? 'E' : '' + teamToday) : '—';
     var todayCls = teamToday < 0 ? 'neg' : teamToday > 0 ? 'pos' : 'eve';
     var holesTag = ROUND_START_ROUND >= 4 ? (teamHolesLeft > 0 ? '<span class="s-holes">' + teamHolesLeft + '</span>' : '') : '';
@@ -380,7 +380,7 @@ function renderStandings() {
         + '</div>'
         + '<div class="picks-panel" id="panel-' + i + '"> ' + e.scores.map(function(g, j) {
       var isTop = j < 4;
-      var gd = GOLFER_SCORES[g.name];
+      var gd = g.gd || GOLFER_SCORES[g.name];
       var preT = !TOURNAMENT_STARTED;
       var pos = gd ? (gd.thru === 'WD' || gd.score === 12 ? 'WD' : gd.pos) : '';
       var rounds = gd ? [gd.r1,gd.r2,gd.r3,gd.r4].filter(function(r){return r!=null;}) : [];
