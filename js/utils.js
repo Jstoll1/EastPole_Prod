@@ -71,13 +71,18 @@ function getHolesRemaining(playerName) {
   return Math.max(0, (4 - roundCount) * 18);
 }
 
-// Strip leading flag emoji / regional-indicator codepoints from a raw pick
-// segment and resolve to the canonical GOLFER_SCORES key.
+// Strip any non-letter prefix (flag emoji, regional-indicator codepoints,
+// whitespace, ZWJ, etc.) from a raw pick segment and normalize to the
+// canonical GOLFER_SCORES key. Using [^\p{L}]+ is more robust than an
+// emoji-property allow-list, which historically missed regional-indicator
+// flag sequences under some JS engines.
 function _cleanPickName(raw) {
   if (typeof raw !== 'string') return '';
-  var stripped = raw.replace(/^[\p{Extended_Pictographic}\p{Emoji_Presentation}\s🏴\u{E0020}-\u{E007F}]+/u, '').trim();
+  var stripped = raw.replace(/^[^\p{L}]+/u, '').trim();
   return (typeof resolvePlayerName === 'function') ? resolvePlayerName(stripped) : stripped;
 }
+
+var _scorePickWarned = {};
 
 // Score one pick. Team-event pair strings ("🏴 Matt F / 🏴 Alex F") share a
 // single team score in GOLFER_SCORES (same record written for both teammates)
@@ -89,6 +94,12 @@ function scorePick(pick) {
     var names = pick.split(/\s*\/\s*/).map(_cleanPickName).filter(Boolean);
     for (var i = 0; i < names.length; i++) {
       if (GOLFER_SCORES[names[i]]) return GOLFER_SCORES[names[i]].score;
+    }
+    // Neither teammate matched — log once per pair so a miss is visible in
+    // the console (instead of silently collapsing to the MC penalty).
+    if (!_scorePickWarned[pick]) {
+      _scorePickWarned[pick] = 1;
+      console.warn('⚠️ scorePick: team pair unresolved', { pick: pick, cleaned: names, inScores: names.map(function(n){return !!GOLFER_SCORES[n];}) });
     }
     return gs(names[0] || pick);
   }
