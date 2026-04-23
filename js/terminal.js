@@ -228,14 +228,12 @@ function openEntryDetails(rowKey) {
 }
 
 function _buildEntryDetailRow(entry, colspan) {
-  var tierLabels = { tier1: 'T1 · Favorites', tier2: 'T2 · Contenders', tier3: 'T3 · Midfield', tier4: 'T4 · Longshots' };
-  var live = (typeof isTournamentLive === 'function') && isTournamentLive();
-  var hasTiers = entry.tierPicks && Object.keys(entry.tierPicks).some(function(k) { return (entry.tierPicks[k] || []).length; });
-
   var meta = [];
   if (entry.entrant)    meta.push('<span class="ed-entrant">' + termEsc(entry.entrant) + '</span>');
   if (entry.email)      meta.push('<span class="ed-email">' + termEsc(entry.email) + '</span>');
   if (entry.tieBreaker) meta.push('<span class="ed-tb">TB: <strong>' + termEsc(entry.tieBreaker) + '</strong></span>');
+
+  var body = '';
 
   // Rank picks so the four counting toward the score are starred, and sort
   // by score ascending so the contributing picks read top-down.
