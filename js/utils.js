@@ -84,22 +84,35 @@ function _cleanPickName(raw) {
 
 var _scorePickWarned = {};
 
+// Resolve a pick (solo name OR team-pair string like "🏴 A / 🏴 B") to its
+// GOLFER_SCORES record. For pair picks both teammates share the same team
+// record, so returning either teammate's entry gives the team's thru /
+// todayDisplay / round data — needed anywhere we render per-pick live info,
+// not just the score.
+function pickGolferData(pick) {
+  if (typeof pick === 'string' && pick.indexOf(' / ') !== -1) {
+    var names = pick.split(/\s*\/\s*/).map(_cleanPickName).filter(Boolean);
+    for (var i = 0; i < names.length; i++) {
+      if (GOLFER_SCORES[names[i]]) return GOLFER_SCORES[names[i]];
+    }
+    return null;
+  }
+  return GOLFER_SCORES[pick] || null;
+}
+
 // Score one pick. Team-event pair strings ("🏴 Matt F / 🏴 Alex F") share a
 // single team score in GOLFER_SCORES (same record written for both teammates)
 // — resolve either teammate instead of feeding the whole pair string to gs(),
 // which would miss and fall through to the MC=11 penalty (collapsing every
 // entry in a Zurich-style team pool to +44).
 function scorePick(pick) {
+  var gd = pickGolferData(pick);
+  if (gd) return gd.score;
   if (typeof pick === 'string' && pick.indexOf(' / ') !== -1) {
     var names = pick.split(/\s*\/\s*/).map(_cleanPickName).filter(Boolean);
-    for (var i = 0; i < names.length; i++) {
-      if (GOLFER_SCORES[names[i]]) return GOLFER_SCORES[names[i]].score;
-    }
-    // Neither teammate matched — log once per pair so a miss is visible in
-    // the console (instead of silently collapsing to the MC penalty).
     if (!_scorePickWarned[pick]) {
       _scorePickWarned[pick] = 1;
-      console.warn('⚠️ scorePick: team pair unresolved', { pick: pick, cleaned: names, inScores: names.map(function(n){return !!GOLFER_SCORES[n];}) });
+      console.warn('⚠️ scorePick: team pair unresolved', { pick: pick, cleaned: names });
     }
     return gs(names[0] || pick);
   }

@@ -237,37 +237,54 @@ function _buildEntryDetailRow(entry, colspan) {
   if (entry.email)      meta.push('<span class="ed-email">' + termEsc(entry.email) + '</span>');
   if (entry.tieBreaker) meta.push('<span class="ed-tb">TB: <strong>' + termEsc(entry.tieBreaker) + '</strong></span>');
 
-  var body = '';
-  if (hasTiers && !live) {
-    body += '<div class="ed-picks-grid">';
-    ['tier1', 'tier2', 'tier3', 'tier4'].forEach(function(k) {
-      var picks = (entry.tierPicks && entry.tierPicks[k]) || [];
-      if (!picks.length) return;
-      body += '<div class="ed-tier">'
-        +    '<div class="ed-tier-lbl">' + tierLabels[k] + '</div>'
-        +    picks.map(function(p) {
-               // Split team-pair "Flag A / Flag B" onto two lines so neither gets
-               // truncated inside the narrow F2 panel.
-               var parts = String(p).split(/\s*\/\s*/);
-               return '<div class="ed-tier-pick">'
-                 + parts.map(function(pp) { return '<div class="ed-tier-name">' + termEsc(pp) + '</div>'; }).join('')
-                 + '</div>';
-             }).join('')
-        +  '</div>';
-    });
-    body += '</div>';
-  } else {
-    var picks = (entry.picks || []).slice(0, 20);
-    body += '<div class="ed-picks-flat">';
-    picks.forEach(function(p) {
-      var gd = GOLFER_SCORES[p];
-      var sc = gd ? (gd.score === 11 ? 'MC' : gd.score === 12 ? 'WD' : fmtScore(gd.score)) : '—';
-      var cls = gd ? (gd.score === 11 || gd.score === 12 ? 'mc' : scoreCls(gd.score)) : '';
-      var flag = (FLAGS && FLAGS[p]) || '';
-      body += '<div class="ed-pick"><span class="ed-pick-name">' + flag + ' ' + termEsc(p) + '</span><span class="ed-pick-sc ' + cls + '">' + sc + '</span></div>';
-    });
-    body += '</div>';
-  }
+  // Rank picks so the four counting toward the score are starred, and sort
+  // by score ascending so the contributing picks read top-down.
+  var allPicks = (entry.picks || []);
+  var _scored = allPicks.map(function(p) {
+    var gd = (typeof pickGolferData === 'function') ? pickGolferData(p) : (GOLFER_SCORES[p] || null);
+    return { pick: p, gd: gd, score: gd ? gd.score : null };
+  });
+  var _bestN = (typeof POOL_CONFIG !== 'undefined' && POOL_CONFIG.bestN) ? POOL_CONFIG.bestN : 4;
+  var _sorted = _scored.slice().sort(function(a, b) {
+    if (a.score == null && b.score == null) return 0;
+    if (a.score == null) return 1;
+    if (b.score == null) return -1;
+    return a.score - b.score;
+  });
+  var _topSet = new Set(_sorted.slice(0, _bestN).filter(function(x) { return x.gd; }).map(function(x) { return x.pick; }));
+
+  // Single-column list — each pick renders name + TOT + TDY + THRU, same row,
+  // tabular columns so the eye tracks across entries cleanly. Replaces the
+  // old two-column tier/flat grids. The tier labels are dropped here in favor
+  // of the score columns; if you want tier groupings back later, wrap this
+  // list in per-tier sections.
+  body += '<div class="ed-picks-list">';
+  _sorted.forEach(function(x) {
+    var gd = x.gd;
+    var star = _topSet.has(x.pick) ? '★' : '';
+    var isMc = gd && (gd.score === 11 || gd.score === 12);
+    var totDisp = gd ? (isMc ? (gd.score === 12 ? 'WD' : 'MC') : fmtScore(gd.score)) : '—';
+    var totCls = gd ? (isMc ? 'mc' : scoreCls(gd.score)) : '';
+    var tdyRaw = gd && !isMc ? gd.todayDisplay : null;
+    var tdyDisp = tdyRaw && tdyRaw !== '—' ? tdyRaw : '—';
+    var tdyVal = tdyDisp === '—' ? null : (tdyDisp === 'E' ? 0 : parseInt(tdyDisp.replace('+', '')) || 0);
+    var tdyCls = tdyVal !== null ? scoreCls(tdyVal) : '';
+    var thruDisp = '—';
+    if (gd && !isMc) {
+      if (gd.thru === 'F' || gd.thru === '18') thruDisp = 'F';
+      else if (gd.thru && gd.thru !== '—') thruDisp = String(gd.thru);
+    } else if (isMc) {
+      thruDisp = gd.score === 12 ? 'WD' : 'MC';
+    }
+    body += '<div class="ed-pick-row' + (_topSet.has(x.pick) ? ' is-top' : '') + '">'
+      +     '<div class="ed-pick-star">' + star + '</div>'
+      +     '<div class="ed-pick-nm">' + termEsc(x.pick) + '</div>'
+      +     '<div class="ed-pick-col ' + totCls + '"><span class="ed-pick-col-lbl">TOT</span><span class="ed-pick-col-val">' + totDisp + '</span></div>'
+      +     '<div class="ed-pick-col ' + tdyCls + '"><span class="ed-pick-col-lbl">TDY</span><span class="ed-pick-col-val">' + tdyDisp + '</span></div>'
+      +     '<div class="ed-pick-col"><span class="ed-pick-col-lbl">THRU</span><span class="ed-pick-col-val">' + termEsc(thruDisp) + '</span></div>'
+      +   '</div>';
+  });
+  body += '</div>';
 
   return '<tr class="ed-detail-row"><td colspan="' + colspan + '" class="ed-detail-cell">'
     + (meta.length ? '<div class="ed-sub">' + meta.join(' · ') + '</div>' : '')
@@ -732,17 +749,21 @@ async function toggleTermScorecard(playerName, rowEl) {
   // DataGolf live predictions
   html += buildDGLiveRow(playerName);
 
-  // Round scores
+  // Round scores — uniform chips: LABEL + colored to-par. TOT keeps fmt()
+  // so MC/WD render instead of a numeric to-par; rounds and TDY use fmtTeam
+  // so large to-par values don't collapse to MC/WD.
   if (gd) {
     html += '<div class="tsc-rounds">';
-    html += '<div class="tsc-chip"><span class="tsc-chip-lbl">TOT</span><span class="' + cls(gd.score) + '" style="font-size:14px;font-weight:900">' + fmt(gd.score) + '</span></div>';
+    html += '<div class="tsc-chip"><span class="tsc-chip-lbl">TOT</span><span class="tsc-chip-val ' + cls(gd.score) + '">' + fmt(gd.score) + '</span></div>';
     [{l:'R1',v:gd.r1},{l:'R2',v:gd.r2},{l:'R3',v:gd.r3},{l:'R4',v:gd.r4}].forEach(function(r) {
       if (r.v == null) return;
       var tp = r.v - COURSE_PAR;
-      html += '<div class="tsc-chip"><span class="tsc-chip-lbl">' + r.l + '</span><span style="font-weight:800">' + r.v + '</span>'
-        + '<span class="' + (tp<0?'neg':tp>0?'pos':'eve') + '" style="font-size:9px">' + (tp<0?''+tp:tp>0?'+'+tp:'E') + '</span></div>';
+      html += '<div class="tsc-chip"><span class="tsc-chip-lbl">' + r.l + '</span><span class="tsc-chip-val ' + cls(tp) + '">' + fmtTeam(tp) + '</span></div>';
     });
-    if (gd.todayDisplay && gd.todayDisplay !== '—') html += '<div class="tsc-chip"><span class="tsc-chip-lbl">TDY</span><span class="' + cls(parseInt(gd.todayDisplay.replace('+',''))||0) + '" style="font-weight:800">' + gd.todayDisplay + '</span></div>';
+    if (gd.todayDisplay && gd.todayDisplay !== '—') {
+      var tdy = gd.todayDisplay === 'E' ? 0 : parseInt(gd.todayDisplay.replace('+','')) || 0;
+      html += '<div class="tsc-chip"><span class="tsc-chip-lbl">TDY</span><span class="tsc-chip-val ' + cls(tdy) + '">' + gd.todayDisplay + '</span></div>';
+    }
     html += '</div>';
   }
 

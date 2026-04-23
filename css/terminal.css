@@ -644,6 +644,11 @@ html, body {
   color: var(--term-text-muted);
   letter-spacing: 0.5px;
 }
+.tsc-chip-val {
+  font-size: 14px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
 .tsc-grid {
   padding: 2px 10px 8px;
   display: flex;
@@ -1352,6 +1357,52 @@ html, body {
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 3px;
 }
+
+/* Single-column pick list shown on F2 entry expand — one pick per row with
+   name + TOT + TDY + THRU columns. Replaces the old two-column grid of
+   tier blocks (too cramped to read scores in a team event). */
+.ed-picks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
+}
+.ed-pick-row {
+  display: grid;
+  grid-template-columns: 16px 1fr auto auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 8px;
+  background: var(--term-panel);
+  border: 1px solid var(--term-border);
+  font-size: 11px;
+  color: var(--term-text-dim);
+}
+.ed-pick-row.is-top { color: var(--term-text); }
+.ed-pick-star { color: var(--term-amber); font-weight: 700; text-align: center; }
+.ed-pick-nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+.ed-pick-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 42px;
+  line-height: 1.1;
+}
+.ed-pick-col-lbl {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--term-text-muted);
+}
+.ed-pick-col-val {
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.ed-pick-col.pos .ed-pick-col-val { color: var(--term-green); }
+.ed-pick-col.neg .ed-pick-col-val { color: var(--term-red); }
+.ed-pick-col.eve .ed-pick-col-val { color: var(--term-text-dim); }
+.ed-pick-col.mc  .ed-pick-col-val { color: var(--term-text-muted); }
 .ed-pick {
   display: flex;
   justify-content: space-between;

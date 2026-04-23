@@ -136,19 +136,27 @@ async function toggleScorecard(idx, playerName) {
       fb += '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;text-align:center;min-width:60px;"><div style="font-size:9px;color:var(--text3);font-weight:700;">TOP 10</div><div style="font-size:14px;font-weight:800;color:var(--gold)">' + pOdds[2] + '</div></div>';
       fb += '</div>';
     }
+    // Uniform chip format — LABEL on top, colored to-par on bottom, same
+    // sizing across TOT/R1-R4/TDY so the row reads consistently.
+    var _chip = 'background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;text-align:center;min-width:60px;';
+    var _chipLbl = 'font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;';
+    var _chipVal = 'font-size:18px;font-weight:900;';
     fb += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
-    var scTotal = gd ? fmt(gd.score) : '—';
-    fb += '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;text-align:center;min-width:60px;">'
-      + '<div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;">Total</div>'
-      + '<div style="font-size:18px;font-weight:900;" class="' + (gd ? cls(gd.score) : '') + '">' + scTotal + '</div></div>';
+    fb += '<div style="' + _chip + '">'
+      + '<div style="' + _chipLbl + '">Total</div>'
+      + '<div style="' + _chipVal + '" class="' + (gd ? cls(gd.score) : '') + '">' + (gd ? fmt(gd.score) : '—') + '</div></div>';
     [{ label:'R1', val:gd?.r1 },{ label:'R2', val:gd?.r2 },{ label:'R3', val:gd?.r3 },{ label:'R4', val:gd?.r4 }].filter(function(r) { return r.val != null; }).forEach(function(r) {
       var toPar = r.val - COURSE_PAR;
-      var toParStr = toPar < 0 ? String(toPar) : toPar > 0 ? '+' + toPar : 'E';
-      fb += '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;text-align:center;min-width:60px;">'
-        + '<div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;">' + r.label + '</div>'
-        + '<div style="font-size:16px;font-weight:800;">' + r.val + '</div>'
-        + '<div style="font-size:10px;font-weight:700;" class="' + (toPar < 0 ? 'neg' : toPar > 0 ? 'pos' : 'eve') + '">' + toParStr + '</div></div>';
+      fb += '<div style="' + _chip + '">'
+        + '<div style="' + _chipLbl + '">' + r.label + '</div>'
+        + '<div style="' + _chipVal + '" class="' + (toPar < 0 ? 'neg' : toPar > 0 ? 'pos' : 'eve') + '">' + fmtTeam(toPar) + '</div></div>';
     });
+    if (gd && gd.todayDisplay && gd.todayDisplay !== '—') {
+      var _tdy = gd.todayDisplay === 'E' ? 0 : parseInt(gd.todayDisplay.replace('+','')) || 0;
+      fb += '<div style="' + _chip + '">'
+        + '<div style="' + _chipLbl + '">TDY</div>'
+        + '<div style="' + _chipVal + '" class="' + cls(_tdy) + '">' + gd.todayDisplay + '</div></div>';
+    }
     fb += '</div>';
     if (gd?.thru && gd.thru !== '—') fb += '<div style="margin-top:8px;font-size:10px;color:var(--text3);">Thru ' + gd.thru + (gd.todayDisplay !== '—' ? ' · Today: ' + gd.todayDisplay : '') + '</div>';
     fb += '</div>';
@@ -299,19 +307,27 @@ async function toggleStandingsScorecard(panelId, playerName) {
       fb += '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;text-align:center;min-width:60px;"><div style="font-size:9px;color:var(--text3);font-weight:700;">TOP 10</div><div style="font-size:14px;font-weight:800;color:var(--gold)">' + pOdds[2] + '</div></div>';
       fb += '</div>';
     }
+    // Uniform chip format — LABEL on top, colored to-par on bottom, same
+    // sizing across TOT/R1-R4/TDY so the row reads consistently.
+    var _chip = 'background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;text-align:center;min-width:60px;';
+    var _chipLbl = 'font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;';
+    var _chipVal = 'font-size:18px;font-weight:900;';
     fb += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
-    var scTotal = gd ? fmt(gd.score) : '—';
-    fb += '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;text-align:center;min-width:60px;">'
-      + '<div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;">Total</div>'
-      + '<div style="font-size:18px;font-weight:900;" class="' + (gd ? cls(gd.score) : '') + '">' + scTotal + '</div></div>';
+    fb += '<div style="' + _chip + '">'
+      + '<div style="' + _chipLbl + '">Total</div>'
+      + '<div style="' + _chipVal + '" class="' + (gd ? cls(gd.score) : '') + '">' + (gd ? fmt(gd.score) : '—') + '</div></div>';
     [{ label:'R1', val:gd?.r1 },{ label:'R2', val:gd?.r2 },{ label:'R3', val:gd?.r3 },{ label:'R4', val:gd?.r4 }].filter(function(r) { return r.val != null; }).forEach(function(r) {
       var toPar = r.val - COURSE_PAR;
-      var toParStr = toPar < 0 ? String(toPar) : toPar > 0 ? '+' + toPar : 'E';
-      fb += '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;text-align:center;min-width:60px;">'
-        + '<div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;">' + r.label + '</div>'
-        + '<div style="font-size:16px;font-weight:800;">' + r.val + '</div>'
-        + '<div style="font-size:10px;font-weight:700;" class="' + (toPar < 0 ? 'neg' : toPar > 0 ? 'pos' : 'eve') + '">' + toParStr + '</div></div>';
+      fb += '<div style="' + _chip + '">'
+        + '<div style="' + _chipLbl + '">' + r.label + '</div>'
+        + '<div style="' + _chipVal + '" class="' + (toPar < 0 ? 'neg' : toPar > 0 ? 'pos' : 'eve') + '">' + fmtTeam(toPar) + '</div></div>';
     });
+    if (gd && gd.todayDisplay && gd.todayDisplay !== '—') {
+      var _tdy = gd.todayDisplay === 'E' ? 0 : parseInt(gd.todayDisplay.replace('+','')) || 0;
+      fb += '<div style="' + _chip + '">'
+        + '<div style="' + _chipLbl + '">TDY</div>'
+        + '<div style="' + _chipVal + '" class="' + cls(_tdy) + '">' + gd.todayDisplay + '</div></div>';
+    }
     fb += '</div>';
     if (gd?.thru && gd.thru !== '—') fb += '<div style="margin-top:8px;font-size:10px;color:var(--text3);">Thru ' + gd.thru + (gd.todayDisplay !== '—' ? ' · Today: ' + gd.todayDisplay : '') + '</div>';
     fb += '</div>';
