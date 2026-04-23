@@ -469,12 +469,45 @@ html, body {
   margin-bottom: 4px;
 }
 .my-tier-pick {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 11px;
   color: var(--term-text);
-  padding: 3px 0;
+  padding: 4px 0;
   border-bottom: 1px dashed var(--term-border);
 }
 .my-tier-pick:last-child { border-bottom: none; }
+.my-tier-pair { flex: 1; min-width: 0; }
+.my-tier-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.my-tier-right {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.my-tier-score {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  min-width: 28px;
+  text-align: right;
+}
+.my-tier-thru {
+  color: var(--term-text-dim);
+  font-size: 9px;
+  min-width: 34px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.my-tier-star .my-tier-name { color: var(--term-amber); font-weight: 700; }
+.my-entry-stats strong.pos { color: var(--term-green); }
+.my-entry-stats strong.neg { color: var(--term-red); }
+.my-entry-stats strong.eve { color: var(--term-text); }
+.my-entry-stats strong.mc { color: var(--term-text-muted); }
 .my-entry-stats {
   display: flex;
   gap: 14px;

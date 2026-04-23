@@ -1340,25 +1340,89 @@ function renderTermMy() {
   // scoring lands, pre-live render will switch to a scored view.
   var anyTeamEvent = teams.some(function(t) { return t.isTeamEvent || (t.tierPicks && Object.keys(t.tierPicks).some(function(k) { return t.tierPicks[k].length; })); });
   if (anyTeamEvent) {
+    // Strip leading flag emoji to get a plain name we can look up in GOLFER_SCORES.
+    var _nameFromPart = function(s) {
+      return String(s || '').replace(/^[\s\u{1F1E6}-\u{1F1FF}\u{1F3F4}\u{E0020}-\u{E007F}]+/u, '').trim();
+    };
+    var _scoreForPair = function(pair) {
+      var parts = String(pair).split(/\s*\/\s*/);
+      for (var i = 0; i < parts.length; i++) {
+        var nm = NAME_ALIASES[_nameFromPart(parts[i])] || _nameFromPart(parts[i]);
+        var gd = GOLFER_SCORES[nm];
+        if (gd) return gd;
+      }
+      return null;
+    };
     body.innerHTML = teams.map(function(t, idx) {
       var entrant = t.entrant ? '<span class="my-entry-by">' + termEsc(t.entrant) + ' · </span>' : '';
       var tb = t.tieBreaker ? '<span class="my-tb">TB: <strong>' + termEsc(t.tieBreaker) + '</strong></span>' : '';
       var tierLabels = { tier1: 'T1 Favorites', tier2: 'T2 Contenders', tier3: 'T3 Midfield', tier4: 'T4 Longshots' };
+
+      // Gather all 8 team-pair scores across the entry, compute best-4 total.
+      var allPairScores = [];
+      ['tier1', 'tier2', 'tier3', 'tier4'].forEach(function(k) {
+        var picks = (t.tierPicks && t.tierPicks[k]) || [];
+        picks.forEach(function(p) {
+          var gd = _scoreForPair(p);
+          allPairScores.push({ pair: p, tier: k, gd: gd, score: gd ? gd.score : null });
+        });
+      });
+      var playedPairs = allPairScores.filter(function(x) { return x.gd && x.score !== 11 && x.score !== 12; });
+      var best4 = playedPairs.slice().sort(function(a, b) { return (a.score || 0) - (b.score || 0); }).slice(0, 4);
+      var teamTotal = best4.reduce(function(s, x) { return s + (x.score || 0); }, 0);
+      var teamToday = 0, hasToday = false;
+      best4.forEach(function(x) {
+        var td = x.gd && x.gd.todayDisplay;
+        if (td && td !== '—') { hasToday = true; teamToday += (td === 'E' ? 0 : parseInt(String(td).replace('+', '')) || 0); }
+      });
+      var hasAnyScore = playedPairs.length > 0;
+      var top4Pairs = new Set(best4.map(function(x) { return x.pair; }));
+
       var tiersHtml = '';
       ['tier1', 'tier2', 'tier3', 'tier4'].forEach(function(k) {
         var picks = (t.tierPicks && t.tierPicks[k]) || [];
         if (!picks.length) return;
         tiersHtml += '<div class="my-tier-group">'
           + '<div class="my-tier-lbl">' + tierLabels[k] + '</div>'
-          + picks.map(function(p) { return '<div class="my-tier-pick">' + termEsc(p) + '</div>'; }).join('')
+          + picks.map(function(p) {
+              var gd = _scoreForPair(p);
+              var sc, scCls, thru = '';
+              if (!gd) { sc = '—'; scCls = 'eve'; }
+              else if (gd.score === 11) { sc = 'MC'; scCls = 'mc'; }
+              else if (gd.score === 12) { sc = 'WD'; scCls = 'mc'; }
+              else { sc = fmtScore(gd.score); scCls = scoreCls(gd.score); thru = gd.thru || ''; }
+              var starred = top4Pairs.has(p) && hasAnyScore;
+              return '<div class="my-tier-pick' + (starred ? ' my-tier-star' : '') + '">'
+                + '<div class="my-tier-pair">'
+                +   '<div class="my-tier-name">' + (starred ? '★ ' : '') + termEsc(p) + '</div>'
+                + '</div>'
+                + '<div class="my-tier-right">'
+                +   '<span class="my-tier-score ' + scCls + '">' + sc + '</span>'
+                +   (thru ? '<span class="my-tier-thru">' + termEsc(String(thru)) + '</span>' : '')
+                + '</div>'
+                + '</div>';
+            }).join('')
           + '</div>';
       });
+
+      var statsHtml;
+      if (hasAnyScore) {
+        statsHtml = '<span class="my-entry-stats">'
+          + entrant
+          + '<span>TOT <strong class="' + scoreCls(teamTotal) + '">' + fmtScore(teamTotal) + '</strong></span>'
+          + '<span>TDY <strong class="' + (hasToday ? scoreCls(teamToday) : 'eve') + '">' + (hasToday ? fmtScore(teamToday) : '—') + '</strong></span>'
+          + tb
+          + '</span>';
+      } else {
+        statsHtml = '<span class="my-entry-stats">' + entrant + '<span class="my-pre-tag">PRE-TOURNAMENT</span>' + tb + '</span>';
+      }
+
       return '<div class="my-entry-block">'
         + '<div class="my-entry-header">'
         +   '<span class="my-entry-name">' + termEsc(t.team) + '</span>'
         +   '<span class="my-entry-rank">#' + (idx + 1) + ' of ' + teams.length + '</span>'
         + '</div>'
-        + '<div class="my-entry-stats">' + entrant + '<span class="my-pre-tag">PRE-TOURNAMENT</span>' + tb + '</div>'
+        + statsHtml
         + tiersHtml
         + '</div>';
     }).join('');
