@@ -480,8 +480,8 @@ function fmtScore(s) {
 }
 function scoreCls(s) {
   if (s == null) return 'eve';
-  if (s < 0) return 'pos';  // under par is GOOD
-  if (s > 0) return 'neg';  // over par is BAD
+  if (s < 0) return 'neg';  // negative number → red (per user preference)
+  if (s > 0) return 'pos';  // positive number → green
   return 'eve';
 }
 function termEsc(s) {
