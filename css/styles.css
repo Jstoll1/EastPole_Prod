@@ -641,7 +641,7 @@ html, body  {
 
 /* ── Pool Roster card ─────────────────────────────────────── */
 .pr-empty {
-  padding: 14px 16px;
+  padding: 12px 14px;
   font-size: 12px;
   color: var(--text3);
   text-align: center;
@@ -653,45 +653,125 @@ html, body  {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 12px 14px 4px;
+  overflow: hidden;
 }
-.pr-head {
+.pr-summary {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 4px;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  font-size: 11.5px;
 }
 .pr-title {
-  font-size: 12px;
   font-weight: 800;
   color: var(--gold);
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
+  letter-spacing: 1px;
 }
+.pr-dot { color: var(--text3); }
 .pr-count {
-  font-size: 11px;
   font-weight: 700;
-  color: var(--text3);
+  color: var(--text);
   font-variant-numeric: tabular-nums;
 }
-.pr-note {
-  font-size: 11px;
+.pr-lock {
   color: var(--text3);
-  margin-bottom: 10px;
   letter-spacing: 0.2px;
 }
+.pr-toggle {
+  margin-left: auto;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  text-transform: uppercase;
+}
+.pr-toggle:active { background: var(--card2); }
+.pr-mine-section {
+  border-top: 1px solid var(--border);
+  padding: 8px 12px 4px;
+  background: rgba(212,168,67,0.04);
+}
+.pr-mine-head {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.pr-mine-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text);
+}
+.pr-mine-row.pr-expanded {
+  border-color: var(--gold);
+  background: rgba(212,168,67,0.1);
+}
+.pr-caret {
+  color: var(--gold);
+  font-weight: 800;
+  font-size: 12px;
+}
+.pr-mine-tb {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.3px;
+}
+.pr-mine-detail {
+  padding: 8px 10px 4px;
+  margin-bottom: 4px;
+  background: var(--card2);
+  border: 1px solid var(--gold);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  margin-top: -8px;
+  padding-top: 10px;
+}
+.pr-mine-tier { margin-bottom: 10px; }
+.pr-mine-tier-lbl {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--text3);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.pr-mine-pick {
+  font-size: 12px;
+  color: var(--text);
+  padding: 3px 0;
+  border-bottom: 1px dashed var(--border);
+}
+.pr-mine-pick:last-child { border-bottom: none; }
 .pr-list {
+  border-top: 1px solid var(--border);
+  padding: 10px 12px;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  padding-bottom: 10px;
+  gap: 5px;
 }
 .pr-row {
-  padding: 6px 12px;
+  padding: 4px 10px;
   background: var(--card2);
   border: 1px solid var(--border);
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text);
   display: inline-flex;
   align-items: center;

@@ -147,42 +147,88 @@ async function loadPoolEntries(force) {
   }
 }
 
+var _prRosterExpanded = false;
+var _prMyExpandedIdx = null;
+function togglePoolRoster() { _prRosterExpanded = !_prRosterExpanded; renderPoolRoster(); }
+
 function renderPoolRoster() {
   var mount = document.getElementById('pool-roster');
   if (!mount) return;
   var entries = (typeof ENTRIES !== 'undefined' && ENTRIES) ? ENTRIES : [];
   if (!entries.length) {
-    mount.innerHTML = '<div class="pr-empty">No entries submitted yet — tap + ENTRY below to be first in.</div>';
+    mount.innerHTML = '<div class="pr-empty">No entries yet — tap + ENTRY to be first in.</div>';
     return;
   }
   var live = isTournamentLive();
-  var myEmail = (typeof currentUserEmail !== 'undefined') ? currentUserEmail : null;
+  var mine = (typeof currentUserTeams !== 'undefined' && currentUserTeams) ? currentUserTeams : [];
+
   var h = '<div class="pr-card">';
-  h += '<div class="pr-head">'
-    +    '<span class="pr-title">Pool Roster</span>'
+
+  // Compact summary line (always visible)
+  h += '<div class="pr-summary">'
+    +    '<span class="pr-title">POOL</span>'
+    +    '<span class="pr-dot">·</span>'
     +    '<span class="pr-count">' + entries.length + ' ' + (entries.length === 1 ? 'entry' : 'entries') + '</span>'
+    +    (live ? '' : '<span class="pr-dot">·</span><span class="pr-lock">🔒 locked until tee-off</span>')
+    +    '<button class="pr-toggle" onclick="togglePoolRoster()">' + (_prRosterExpanded ? 'hide all ▴' : 'view all ▾') + '</button>'
     +  '</div>';
-  h += '<div class="pr-note">'
-    +    (live
-            ? 'Picks visible on Standings view'
-            : '🔒 Picks hidden until Thursday tee-off · tap your entry to view your own picks')
-    +  '</div>';
-  h += '<div class="pr-list">';
-  entries.slice().sort(function(a, b) {
-    return (a.timestamp || '').localeCompare(b.timestamp || '');
-  }).forEach(function(e, i) {
-    var mine = myEmail && e.email && e.email.toLowerCase() === String(myEmail).toLowerCase();
-    h += '<div class="pr-row' + (mine ? ' pr-row-mine' : '') + '"'
-      +    (mine ? ' onclick="toggleMyPicks(' + i + ')"' : '')
-      +    '>'
-      +    '<span class="pr-team">' + _efEscape(e.team) + '</span>'
-      +    (mine ? '<span class="pr-mine-tag">YOU</span>' : '')
-      +  '</div>';
-  });
-  h += '</div>';
-  h += '<div id="pr-my-picks" class="pr-my-picks" style="display:none"></div>';
+
+  // Logged-in user's entries (prominent, expandable)
+  if (mine.length) {
+    h += '<div class="pr-mine-section">';
+    h += '<div class="pr-mine-head">Your ' + mine.length + ' ' + (mine.length === 1 ? 'entry' : 'entries') + '</div>';
+    mine.forEach(function(e, i) {
+      var expanded = _prMyExpandedIdx === i;
+      h += '<div class="pr-mine-row' + (expanded ? ' pr-expanded' : '') + '" onclick="togglePoolRosterMyPick(' + i + ')">'
+        +   '<span class="pr-caret">' + (expanded ? '▾' : '▸') + '</span>'
+        +   '<span class="pr-team">' + _efEscape(e.team) + '</span>'
+        +   (e.tieBreaker ? '<span class="pr-mine-tb">TB ' + _efEscape(e.tieBreaker) + '</span>' : '')
+        + '</div>';
+      if (expanded) h += _renderMineDetail(e);
+    });
+    h += '</div>';
+  }
+
+  // Full roster (collapsed by default)
+  if (_prRosterExpanded) {
+    h += '<div class="pr-list">';
+    entries.slice().sort(function(a, b) {
+      return (a.team || '').localeCompare(b.team || '');
+    }).forEach(function(e) {
+      h += '<div class="pr-row"><span class="pr-team">' + _efEscape(e.team) + '</span></div>';
+    });
+    h += '</div>';
+  }
+
   h += '</div>';
   mount.innerHTML = h;
+}
+
+function togglePoolRosterMyPick(idx) {
+  _prMyExpandedIdx = (_prMyExpandedIdx === idx) ? null : idx;
+  renderPoolRoster();
+}
+
+function _renderMineDetail(e) {
+  var tierLabels = { tier1: 'T1 Favorites', tier2: 'T2 Contenders', tier3: 'T3 Midfield', tier4: 'T4 Longshots' };
+  var hasTiers = e.tierPicks && Object.keys(e.tierPicks).some(function(k) { return (e.tierPicks[k] || []).length; });
+  var h = '<div class="pr-mine-detail">';
+  if (hasTiers) {
+    ['tier1', 'tier2', 'tier3', 'tier4'].forEach(function(k) {
+      var picks = (e.tierPicks && e.tierPicks[k]) || [];
+      if (!picks.length) return;
+      h += '<div class="pr-mine-tier">'
+        + '<div class="pr-mine-tier-lbl">' + tierLabels[k] + '</div>'
+        + picks.map(function(p) { return '<div class="pr-mine-pick">' + _efEscape(p) + '</div>'; }).join('')
+        + '</div>';
+    });
+  } else if (e.picks && e.picks.length) {
+    h += '<div class="pr-mine-tier">'
+      + e.picks.map(function(p) { return '<div class="pr-mine-pick">' + _efEscape(p) + '</div>'; }).join('')
+      + '</div>';
+  }
+  h += '</div>';
+  return h;
 }
 
 function toggleMyPicks(idx) {
