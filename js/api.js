@@ -108,15 +108,23 @@ async function fetchESPN() {
     var res = await fetch(fetchUrl, { cache: 'no-store' });
     if (!res.ok) { ErrorTracker.api('ESPN leaderboard fetch failed', { status: res.status, statusText: res.statusText }); throw new Error(); }
     var data = await res.json();
-    var ev = data.events && data.events[0];
+    var events = (data.events && data.events.length) ? data.events : [];
+    var ev;
+    if (pinName) {
+      // Scan the entire events array for the pool's target — ESPN sometimes
+      // returns multiple events on a given date (e.g. PGA + Korn Ferry).
+      ev = events.find(function(e) { return (e && e.name || '').toLowerCase().indexOf(pinName.toLowerCase()) !== -1; });
+    }
+    if (!ev) ev = events[0];
     var comps = ev?.competitions?.[0]?.competitors || [];
     var discoveredId = ev?.id || null;
 
     // Refuse to adopt an event that doesn't match the pool's target tournament.
     // Prevents post-event data drift (e.g. serving Zurich Classic scores to a
-    // Masters pool once the Masters has concluded).
-    if (pinName && ev && (ev.name || '').toLowerCase().indexOf(pinName.toLowerCase()) === -1) {
-      console.warn('🔒 ESPN event "' + ev.name + '" does not match pool target "' + pinName + '" — skipping scores update');
+    // Masters pool once the Masters has concluded). Also short-circuits when
+    // ESPN returned nothing at all for the pinned date.
+    if (pinName && (!ev || (ev.name || '').toLowerCase().indexOf(pinName.toLowerCase()) === -1)) {
+      console.warn('🔒 ESPN response did not include pool target "' + pinName + '" (got: ' + events.map(function(e){return e && e.name;}).join(' / ') + ') — skipping scores update');
       lastFetchTime = Date.now();
       renderAll();
       return;
