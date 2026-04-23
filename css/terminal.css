@@ -1245,6 +1245,75 @@ html, body {
 }
 #panel-standings .pr-mp-tb strong { color: var(--term-amber); }
 
+/* ── F2 row click → Entry Details modal ───────────────────── */
+#term-std-body tr.std-clickable { cursor: pointer; transition: background 0.1s; }
+#term-std-body tr.std-clickable:hover { background: rgba(212,168,67,0.08); }
+
+.ed-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--term-border);
+  background: var(--term-panel-alt);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.ed-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--term-amber);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.ed-sub {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--term-border);
+  font-size: 11px;
+  color: var(--term-text-dim);
+  letter-spacing: 0.3px;
+}
+.ed-entrant { color: var(--term-amber); font-weight: 800; text-transform: uppercase; }
+.ed-email { color: var(--term-text-muted); }
+.ed-tb { margin-left: auto; color: var(--term-text-muted); }
+.ed-tb strong { color: var(--term-amber); }
+.ed-picks { padding: 12px 16px; }
+.ed-tier { margin-bottom: 14px; }
+.ed-tier-lbl {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--term-amber);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.ed-tier-pick {
+  font-size: 12px;
+  color: var(--term-text);
+  padding: 5px 0;
+  border-bottom: 1px dashed var(--term-border);
+}
+.ed-tier-pick:last-child { border-bottom: none; }
+.ed-picks-flat { display: flex; flex-direction: column; gap: 2px; }
+.ed-pick {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: var(--term-bg);
+  border: 1px solid var(--term-border);
+  font-size: 12px;
+}
+.ed-pick-name { color: var(--term-text); }
+.ed-pick-sc { font-weight: 700; font-variant-numeric: tabular-nums; }
+.ed-pick-sc.pos { color: var(--term-green); }
+.ed-pick-sc.neg { color: var(--term-red); }
+.ed-pick-sc.eve { color: var(--term-text-dim); }
+.ed-pick-sc.mc { color: var(--term-text-muted); }
+
 /* ── Terminal Login Modal ───────────────────────────────── */
 .tlogin-head {
   display: flex;

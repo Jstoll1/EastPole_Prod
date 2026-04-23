@@ -238,6 +238,74 @@ function termLogOut() {
   if (typeof renderPoolRoster === 'function') renderPoolRoster();
   renderTerminal();
 }
+// ─── Entry Details Modal (click an F2 row to view picks) ───────
+function openEntryDetails(rowKey) {
+  if (!rowKey) return;
+  var sep = rowKey.indexOf('|');
+  var team = sep >= 0 ? rowKey.slice(0, sep) : rowKey;
+  var ident = sep >= 0 ? rowKey.slice(sep + 1) : '';
+  var entry = (ENTRIES || []).find(function(e) {
+    var eIdent = e.email || e.entrant || '';
+    return e.team === team && eIdent === ident;
+  });
+  if (!entry) entry = (ENTRIES || []).find(function(e) { return e.team === team; });
+  if (!entry) return;
+
+  var modal = document.getElementById('term-entrydetail-modal');
+  var bd = document.getElementById('term-entrydetail-backdrop');
+  if (!modal) return;
+  var tierLabels = { tier1: 'T1 · Favorites', tier2: 'T2 · Contenders', tier3: 'T3 · Midfield', tier4: 'T4 · Longshots' };
+  var live = (typeof isTournamentLive === 'function') && isTournamentLive();
+  var hasTiers = entry.tierPicks && Object.keys(entry.tierPicks).some(function(k) { return (entry.tierPicks[k] || []).length; });
+
+  var h = '<div class="ed-head">'
+    +    '<div class="ed-title">' + termEsc(entry.team) + '</div>'
+    +    '<button class="tsb-btn" onclick="closeEntryDetails()">✕</button>'
+    +  '</div>';
+  h += '<div class="ed-sub">'
+    + (entry.entrant ? '<span class="ed-entrant">' + termEsc(entry.entrant) + '</span>' : '')
+    + (entry.email ? '<span class="ed-email">' + termEsc(entry.email) + '</span>' : '')
+    + (entry.tieBreaker ? '<span class="ed-tb">TB: <strong>' + termEsc(entry.tieBreaker) + '</strong></span>' : '')
+    + '</div>';
+
+  if (hasTiers && !live) {
+    h += '<div class="ed-picks">';
+    ['tier1', 'tier2', 'tier3', 'tier4'].forEach(function(k) {
+      var picks = (entry.tierPicks && entry.tierPicks[k]) || [];
+      if (!picks.length) return;
+      h += '<div class="ed-tier">'
+        + '<div class="ed-tier-lbl">' + tierLabels[k] + '</div>';
+      picks.forEach(function(p) {
+        h += '<div class="ed-tier-pick">' + termEsc(p) + '</div>';
+      });
+      h += '</div>';
+    });
+    h += '</div>';
+  } else {
+    // Live / solo event: show per-pick scores
+    var picks = (entry.picks || []).slice(0, 20);
+    h += '<div class="ed-picks ed-picks-flat">';
+    picks.forEach(function(p) {
+      var gd = GOLFER_SCORES[p];
+      var sc = gd ? (gd.score === 11 ? 'MC' : gd.score === 12 ? 'WD' : fmtScore(gd.score)) : '—';
+      var cls = gd ? (gd.score === 11 || gd.score === 12 ? 'mc' : scoreCls(gd.score)) : '';
+      var flag = (FLAGS && FLAGS[p]) || '';
+      h += '<div class="ed-pick"><span class="ed-pick-name">' + flag + ' ' + termEsc(p) + '</span><span class="ed-pick-sc ' + cls + '">' + sc + '</span></div>';
+    });
+    h += '</div>';
+  }
+
+  modal.innerHTML = h;
+  modal.style.display = 'block';
+  if (bd) bd.style.display = 'block';
+}
+function closeEntryDetails() {
+  var modal = document.getElementById('term-entrydetail-modal');
+  var bd = document.getElementById('term-entrydetail-backdrop');
+  if (modal) modal.style.display = 'none';
+  if (bd) bd.style.display = 'none';
+}
+
 function updateTermLoginButton() {
   var btn = document.getElementById('term-login-btn');
   if (!btn) return;
@@ -1070,8 +1138,9 @@ function renderTermStandings() {
   body.innerHTML = rows.slice(0, 60).map(function(r) {
     var todayDisp = r.today == null ? '—' : fmtScore(r.today);
     var todayCl = r.today == null ? '' : scoreCls(r.today);
-    var cls = [r.isMine ? 'is-mine' : '', r.isMoney ? 'is-money' : ''].filter(Boolean).join(' ');
-    return '<tr class="' + cls + '">'
+    var cls = [r.isMine ? 'is-mine' : '', r.isMoney ? 'is-money' : '', 'std-clickable'].filter(Boolean).join(' ');
+    var rowKey = (r.entry.team + '|' + (r.entry.email || r.entry.entrant || '')).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    return '<tr class="' + cls + '" onclick="openEntryDetails(\'' + rowKey + '\')">'
       + '<td class="tpt-pos">' + r.rank + '</td>'
       + '<td class="tpt-name">' + termEsc(r.entry.team) + '</td>'
       + '<td class="tpt-score ' + scoreCls(r.total) + '">' + fmtScore(r.total) + '</td>'
