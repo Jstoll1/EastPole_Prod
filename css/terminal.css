@@ -1330,6 +1330,61 @@ html, body {
 .ed-pick-sc.eve { color: var(--term-text-dim); }
 .ed-pick-sc.mc { color: var(--term-text-muted); }
 
+/* ── F3 Pool Pick Heatmap ─────────────────────────────────── */
+.ph-row {
+  display: grid;
+  grid-template-columns: 22px 1fr 40px 28px 34px;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  font-size: 10.5px;
+  border-bottom: 1px solid var(--term-border);
+  position: relative;
+}
+.ph-rank {
+  color: var(--term-text-muted);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: 9px;
+  text-align: right;
+}
+.ph-name {
+  color: var(--term-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ph-bar {
+  height: 8px;
+  background: var(--term-border);
+  position: relative;
+  overflow: hidden;
+}
+.ph-bar-fill {
+  height: 100%;
+  background: var(--term-amber);
+  transition: width 0.25s ease;
+}
+.ph-count {
+  color: var(--term-text);
+  font-weight: 800;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+}
+.ph-share {
+  color: var(--term-text-muted);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-size: 9px;
+}
+.ph-row.ph-hot  { background: rgba(212,168,67,0.10); }
+.ph-row.ph-hot  .ph-bar-fill { background: var(--term-amber-bright, var(--term-amber)); }
+.ph-row.ph-warm .ph-bar-fill { background: var(--term-amber); }
+.ph-row.ph-cool .ph-bar-fill { background: rgba(212,168,67,0.55); }
+.ph-row.ph-cold .ph-bar-fill { background: rgba(212,168,67,0.25); }
+.ph-row.ph-cold .ph-name { color: var(--term-text-dim); }
+
 /* ── Terminal Login Modal ───────────────────────────────── */
 .tlogin-head {
   display: flex;

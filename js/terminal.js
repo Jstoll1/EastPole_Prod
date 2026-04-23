@@ -1172,6 +1172,43 @@ function renderTermActivity() {
   var body = document.getElementById('term-act-body');
   if (!body) return;
 
+  // Pool Pick Heatmap — counts how many entries picked each team / golfer.
+  // Works pre-tournament (the movers branch below needs round data).
+  var entries = (typeof ENTRIES !== 'undefined' && ENTRIES) ? ENTRIES : [];
+  if (entries.length) {
+    var counts = {};
+    entries.forEach(function(e) {
+      (e.picks || []).forEach(function(p) {
+        counts[p] = (counts[p] || 0) + 1;
+      });
+    });
+    var pickRows = Object.keys(counts).map(function(name) {
+      return { name: name, count: counts[name] };
+    }).sort(function(a, b) { return b.count - a.count || a.name.localeCompare(b.name); });
+    if (pickRows.length) {
+      var maxCount = pickRows[0].count;
+      var totalEntries = entries.length;
+      body.innerHTML = pickRows.slice(0, 80).map(function(r, i) {
+        var pct = maxCount > 0 ? (r.count / maxCount) * 100 : 0;
+        var share = totalEntries > 0 ? Math.round((r.count / totalEntries) * 100) : 0;
+        var heat = r.count >= maxCount * 0.75 ? 'ph-hot' :
+                   r.count >= maxCount * 0.4  ? 'ph-warm' :
+                   r.count >= maxCount * 0.15 ? 'ph-cool' : 'ph-cold';
+        return '<div class="ph-row ' + heat + '">'
+          + '<div class="ph-rank">' + (i + 1) + '</div>'
+          + '<div class="ph-name">' + termEsc(r.name) + '</div>'
+          + '<div class="ph-bar"><div class="ph-bar-fill" style="width:' + pct.toFixed(1) + '%"></div></div>'
+          + '<div class="ph-count">' + r.count + '</div>'
+          + '<div class="ph-share">' + share + '%</div>'
+          + '</div>';
+      }).join('');
+      var metaP = document.getElementById('act-meta');
+      if (metaP) metaP.textContent = pickRows.length + ' picks · ' + totalEntries + ' entries';
+      return;
+    }
+  }
+
+  // Fall-through: movers view for live play with no entries loaded
   var isPreT = (typeof TOURNAMENT_STARTED !== 'undefined' && !TOURNAMENT_STARTED);
   var currentRound = (typeof ESPN_ROUND !== 'undefined' && ESPN_ROUND) ? Math.min(ESPN_ROUND, 4) : 0;
 
