@@ -646,7 +646,7 @@ function renderTermLeaderboard() {
     var nameCell = isTeam
       ? p.names.map(function(n) { var f = (FLAGS && FLAGS[n]) || ''; return (f ? f + ' ' : '') + termEsc(n); }).join(' / ')
       : (((FLAGS && FLAGS[p.name]) || '') + ' ' + termEsc(p.name));
-    return '<tr class="' + rowCls + '"' + (isTeam ? '' : ' onclick="toggleTermScorecard(\'' + escapedName + '\', this)" style="cursor:pointer"') + '>'
+    return '<tr class="' + rowCls + '" onclick="toggleTermScorecard(\'' + escapedName + '\', this)" style="cursor:pointer">'
       + '<td class="tpt-pos">' + termEsc(posDisp) + '</td>'
       + '<td class="tpt-name">' + nameCell + (inPool ? ' <span style="color:var(--term-text-muted);font-size:9px">●</span>' : '') + '</td>'
       + '<td class="tpt-score ' + scoreCl + '">' + scoreDisp + '</td>'

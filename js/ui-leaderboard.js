@@ -321,7 +321,7 @@ function renderLeaderboard() {
       : p.name;
     var amTag = p.names.some(function(n) { return AMATEURS.has(n); }) ? ' <span class="tv-am">(a)</span>' : '';
     var emojiTag = (function() { for (var i = 0; i < p.names.length; i++) { var e = getPlayerEmoji(p.names[i]); if (e) return e; } return ''; })();
-    rows += '<div class="tv-row' + (mc?' tv-mc':'') + (isMyPick?' is-my-team':'') + (isPrevWinner?' tv-prev-winner':'') + flashCls + '"' + (isTeam ? '' : ' onclick="toggleScorecard(' + ri + ',\'' + escapedName + '\')" style="cursor:pointer"') + '>'
+    rows += '<div class="tv-row' + (mc?' tv-mc':'') + (isMyPick?' is-my-team':'') + (isPrevWinner?' tv-prev-winner':'') + flashCls + '" onclick="toggleScorecard(' + ri + ',\'' + escapedName + '\')" style="cursor:pointer">'
         + '<div class="tv-pos">' + (mc?(p.thru==='WD'||p.score===12?'WD':'MC'):p.pos) + moveHtml + '</div>'
         + '<div class="tv-pill-slot">' + pills + '</div>'
         + '<div class="tv-player"><span class="tv-name ' + (isMyPick?'is-my-pick':'') + '">' + displayName + amTag + '</span> <span class="tv-country">' + flag + (cc?' '+cc:'') + '</span>'
