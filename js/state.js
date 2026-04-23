@@ -406,10 +406,30 @@ function markSplashSeen() {
 
 function saveUser() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ email: currentUserEmail, activeTeamIdx: activeTeamIdx })); } catch(e) {} }
 
+// Match an identity key against an entry: email → entrant key (__ent__lowercased)
+// → team key (__team__name) → raw email/team string. Mirrors buildObList grouping.
+function _matchUserKey(e, key) {
+  if (!key) return false;
+  if (e.email && e.email === key) return true;
+  if (typeof key === 'string') {
+    if (key.indexOf('__ent__') === 0) {
+      var entLow = key.slice(7);
+      return !!(e.entrant && e.entrant.toLowerCase().trim() === entLow);
+    }
+    if (key.indexOf('__team__') === 0) {
+      return e.team === key.slice(8);
+    }
+    // Legacy/loose match: by entrant case-insensitive, then by team
+    if (e.entrant && e.entrant.toLowerCase() === String(key).toLowerCase()) return true;
+    if (e.team === key) return true;
+  }
+  return false;
+}
+
 function loadUser() {
   try {
     var s = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-    if (s?.email && ENTRIES.some(function(e) { return e.email === s.email; })) {
+    if (s?.email && ENTRIES.some(function(e) { return _matchUserKey(e, s.email); })) {
       setUser(s.email, s.activeTeamIdx != null ? s.activeTeamIdx : -1, false);
       return true;
     }
@@ -420,7 +440,7 @@ function loadUser() {
 function setUser(email, teamIdx, save) {
   if (save === undefined) save = true;
   currentUserEmail = email;
-  currentUserTeams = ENTRIES.filter(function(e) { return e.email === email; });
+  currentUserTeams = ENTRIES.filter(function(e) { return _matchUserKey(e, email); });
   activeTeamIdx = teamIdx === -1 ? -1 : Math.min(teamIdx, Math.max(0, currentUserTeams.length - 1));
   if (save) saveUser();
   updateHeaderDisplay();

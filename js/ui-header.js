@@ -498,15 +498,33 @@ function dismissSplashBrowse() {
 function buildObList(filter) {
   if (!filter) filter = '';
   var people = {};
+  // Group precedence: email → entrant (case-insensitive) → team. Sheet without
+  // an email column would otherwise collapse all entries into a single bucket.
+  var hasAnyEmail = ENTRIES.some(function(e) { return e.email; });
+  var hasAnyEntrant = ENTRIES.some(function(e) { return e.entrant; });
   ENTRIES.forEach(function(e) {
-    if (!people[e.email]) people[e.email] = { name: e.name || e.email, email: e.email, teams: [] };
-    people[e.email].teams.push(e.team);
+    var key, name;
+    if (hasAnyEmail && e.email) {
+      key = e.email;
+      name = e.entrant || e.name || e.email;
+    } else if (hasAnyEntrant && e.entrant) {
+      key = '__ent__' + e.entrant.toLowerCase().trim();
+      name = e.entrant;
+    } else {
+      key = '__team__' + e.team;
+      name = e.entrant || e.name || e.team;
+    }
+    if (!people[key]) people[key] = { name: name, email: key, teams: [], entrant: e.entrant || '' };
+    people[key].teams.push(e.team);
   });
   var list = Object.values(people)
     .filter(function(p) {
       if (!filter) return true;
       var q = filter.toLowerCase();
-      return p.name.toLowerCase().includes(q) || p.email.toLowerCase().includes(q) || p.teams.some(function(t) { return t.toLowerCase().includes(q); });
+      return p.name.toLowerCase().includes(q)
+          || (p.entrant || '').toLowerCase().includes(q)
+          || p.email.toLowerCase().includes(q)
+          || p.teams.some(function(t) { return t.toLowerCase().includes(q); });
     })
     .sort(function(a, b) { return a.name.localeCompare(b.name); });
   var el = document.getElementById('ob-list');
