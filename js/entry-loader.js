@@ -5,6 +5,9 @@
 
 var POOL_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQjBiF7GjL0OV--o5cqjWnIDtx2ON0TfZpTwX_zNNpESl8w731mzdKGTsU4gGPbpGT0F5fERvaednpL/pub?output=tsv';
 var _lastPoolFetch = 0;
+// Tracks whether the first loadPoolEntries() attempt has resolved. Lets the
+// terminal distinguish "fetching, please wait" from "really have zero entries".
+window.POOL_FETCH_STATE = window.POOL_FETCH_STATE || 'idle'; // idle | loading | ok | error
 
 function isTournamentLive() {
   if (typeof GOLFER_SCORES === 'undefined' || !GOLFER_SCORES) return false;
@@ -115,10 +118,12 @@ function parsePoolTSV(text) {
 async function loadPoolEntries(force) {
   // Throttle — don't refetch more than once every 2 minutes unless forced.
   if (!force && Date.now() - _lastPoolFetch < 120000) return;
+  window.POOL_FETCH_STATE = 'loading';
   try {
     var res = await fetch(POOL_SHEET_URL, { cache: 'no-store' });
     if (!res.ok) {
       console.warn('⚠️ Pool sheet fetch HTTP ' + res.status);
+      window.POOL_FETCH_STATE = 'error';
       return;
     }
     var text = await res.text();
@@ -126,6 +131,7 @@ async function loadPoolEntries(force) {
     _lastPoolFetch = Date.now();
     if (!entries.length) {
       console.warn('⚠️ Pool sheet returned 0 entries (check headers)');
+      window.POOL_FETCH_STATE = 'error';
       return;
     }
     // Replace the global ENTRIES array in place so everything already
@@ -134,6 +140,7 @@ async function loadPoolEntries(force) {
       ENTRIES.length = 0;
       entries.forEach(function(e) { ENTRIES.push(e); });
     }
+    window.POOL_FETCH_STATE = 'ok';
     console.log('✅ Loaded', entries.length, 'pool entries from sheet');
     // Rebind the logged-in user's team associations now that ENTRIES is populated.
     if (typeof currentUserEmail !== 'undefined' && currentUserEmail && typeof _matchUserKey === 'function') {
@@ -143,6 +150,7 @@ async function loadPoolEntries(force) {
     renderPoolRoster();
     if (typeof renderAll === 'function') renderAll();
   } catch(e) {
+    window.POOL_FETCH_STATE = 'error';
     console.warn('⚠️ Pool entries fetch failed:', e.message);
   }
 }

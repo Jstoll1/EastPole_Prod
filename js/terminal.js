@@ -474,7 +474,10 @@ function termToast(msg) {
 
 async function termRefresh() {
   termToast('REFRESHING...');
-  await fetchESPN();
+  // Force-retry the pool sheet fetch too — the 2-minute throttle can otherwise
+  // leave the user staring at "No entries loaded" if the first fetch failed.
+  var poolRetry = (typeof loadPoolEntries === 'function') ? loadPoolEntries(true) : Promise.resolve();
+  await Promise.all([fetchESPN(), poolRetry]);
   renderTerminal();
   _termLastUpdate = Date.now();
   updateStatusBar();
@@ -1243,7 +1246,12 @@ function renderTermStandings() {
       });
       fetchNextEvent();
     } else {
-      body.innerHTML = '<tr><td colspan="5" class="empty">No entries loaded</td></tr>';
+      var poolState = (typeof window !== 'undefined' && window.POOL_FETCH_STATE) || 'idle';
+      var msg;
+      if (poolState === 'loading' || poolState === 'idle') msg = 'Loading pool entries…';
+      else if (poolState === 'error') msg = 'Pool entries failed to load — tap REFRESH to retry';
+      else msg = 'No entries loaded';
+      body.innerHTML = '<tr><td colspan="5" class="empty">' + msg + '</td></tr>';
     }
     var m = document.getElementById('std-meta');
     if (m) m.textContent = isFinal ? 'between events' : '—';

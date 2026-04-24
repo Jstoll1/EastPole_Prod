@@ -366,7 +366,7 @@ html, body {
 }
 .tp-table tr.is-money .tpt-pos { color: var(--term-amber); font-weight: 800; }
 
-.tpt-pos { width: 38px; text-align: right; padding-right: 8px; color: var(--term-text-dim); font-weight: 600; }
+.tpt-pos { width: 60px; text-align: right; padding-right: 6px; color: var(--term-text-dim); font-weight: 600; white-space: nowrap; }
 .tpt-name { font-weight: 600; }
 .tpt-score { width: 60px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; padding: 0 4px; }
 .tpt-today { width: 56px; text-align: center; font-variant-numeric: tabular-nums; padding: 0 4px; }
@@ -383,11 +383,12 @@ html, body {
    a player into a better position. */
 .tlb-mv {
   display: inline-block;
-  margin-left: 4px;
-  font-size: 8px;
+  margin-left: 3px;
+  font-size: 7px;
   font-weight: 900;
   font-variant-numeric: tabular-nums;
   vertical-align: middle;
+  letter-spacing: -0.2px;
 }
 .tlb-mv.up { color: #52b788; }
 .tlb-mv.dn { color: #ff7070; }
