@@ -336,6 +336,18 @@ function renderStandings() {
     displayRanks = friendRanks;
   }
 
+  // Defensive rank-ascending sort: when the user hasn't explicitly picked a
+  // column to sort by, guarantee the filtered/visible list renders in true
+  // pool-rank order. Without this, any upstream mutation (e.g. a toggle that
+  // reversed `ranked`) would leave the # column non-monotonic in the
+  // filtered list, which reads as "sorting is broken".
+  if (standingsSort === 'total' && standingsSortDir === 1) {
+    var pairs = displayRanked.map(function(e, i) { return { e: e, r: displayRanks[i] }; });
+    pairs.sort(function(a, b) { return a.r - b.r; });
+    displayRanked = pairs.map(function(p) { return p.e; });
+    displayRanks = pairs.map(function(p) { return p.r; });
+  }
+
   var html = '';
   if (_friendFilterActive) {
     html += '<div class="friend-filter-banner" onclick="_clearFriendFilter()">'
