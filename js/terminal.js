@@ -656,7 +656,38 @@ function renderTermLeaderboard() {
   // Prior position = (current_score − today_score) re-ranked across the full field.
   // Mirrors the mobile leaderboard so the two views stay in sync.
   var isPreT = (typeof TOURNAMENT_STARTED !== 'undefined') ? !TOURNAMENT_STARTED : true;
-  var currentRound = (typeof ESPN_ROUND !== 'undefined' && ESPN_ROUND) ? Math.min(ESPN_ROUND, 4) : 0;
+
+  // Round inference — ESPN often returns status.period=0 mid-tournament, so
+  // derive the round from the field's linescore state the same way the mobile
+  // leaderboard does. Otherwise movers never activate on live rounds.
+  var activePlayingLb = players.filter(function(p) { return !p.mc && !p.wd && p.thru !== '—'; });
+  var maxCompletedRounds = 0;
+  players.forEach(function(p) {
+    if (p.thru === '—' || p.mc || p.wd) return;
+    var cnt = [p.r1, p.r2, p.r3, p.r4].filter(function(r) { return r != null; }).length;
+    if (cnt > maxCompletedRounds) maxCompletedRounds = cnt;
+  });
+  var anyStillPlaying = activePlayingLb.some(function(p) { return /^\d+$/.test(p.thru) && parseInt(p.thru) >= 1 && parseInt(p.thru) < 18; });
+  var anyHaveTeeTime = activePlayingLb.some(function(p) { return p.thru && typeof p.thru === 'string' && p.thru.includes(':'); });
+  var inferredRound = 0;
+  if (anyStillPlaying) {
+    var activeOnCourse = activePlayingLb.filter(function(p) { return /^\d+$/.test(p.thru) && parseInt(p.thru) >= 1 && parseInt(p.thru) < 18; });
+    var gd0 = activeOnCourse.length ? GOLFER_SCORES[activeOnCourse[0].name] : null;
+    inferredRound = (gd0 && gd0.roundCount) ? gd0.roundCount : 1;
+  } else if (anyHaveTeeTime) {
+    var waiting = activePlayingLb.find(function(p) { return p.thru && typeof p.thru === 'string' && p.thru.includes(':'); });
+    var wgd = waiting ? GOLFER_SCORES[waiting.name] : null;
+    inferredRound = (wgd && wgd.roundCount) ? wgd.roundCount + 1 : maxCompletedRounds + 1;
+  } else if (maxCompletedRounds) {
+    inferredRound = maxCompletedRounds;
+  }
+  var currentRound = Math.min(
+    Math.max(
+      (typeof ESPN_ROUND !== 'undefined' && ESPN_ROUND) ? ESPN_ROUND : 0,
+      inferredRound
+    ),
+    4
+  );
   var priorPosMap = {};
   if (!isPreT && currentRound >= 2) {
     var priorList = players
