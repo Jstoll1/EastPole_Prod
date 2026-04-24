@@ -498,23 +498,25 @@ function dismissSplashBrowse() {
 function buildObList(filter) {
   if (!filter) filter = '';
   var people = {};
-  // Group precedence: email → entrant (case-insensitive) → team. Sheet without
-  // an email column would otherwise collapse all entries into a single bucket.
-  var hasAnyEmail = ENTRIES.some(function(e) { return e.email; });
-  var hasAnyEntrant = ENTRIES.some(function(e) { return e.entrant; });
+  // Group by entrant name first (case-insensitive) so three people named
+  // "Jake" with three different emails collapse into one selectable row
+  // that expands to reveal each team. Fall back to email, then team, when
+  // an entry has no entrant. Keys use __ent__/__eml__/__team__ prefixes so
+  // _matchUserKey in state.js resolves them correctly at login time.
   ENTRIES.forEach(function(e) {
     var key, name;
-    if (hasAnyEmail && e.email) {
-      key = e.email;
-      name = e.entrant || e.name || e.email;
-    } else if (hasAnyEntrant && e.entrant) {
-      key = '__ent__' + e.entrant.toLowerCase().trim();
-      name = e.entrant;
+    var ent = (e.entrant || '').trim();
+    if (ent) {
+      key = '__ent__' + ent.toLowerCase();
+      name = ent;
+    } else if (e.email) {
+      key = '__eml__' + e.email.toLowerCase();
+      name = e.name || e.email;
     } else {
       key = '__team__' + e.team;
-      name = e.entrant || e.name || e.team;
+      name = e.name || e.team;
     }
-    if (!people[key]) people[key] = { name: name, email: key, teams: [], entrant: e.entrant || '' };
+    if (!people[key]) people[key] = { name: name, email: key, teams: [], entrant: ent };
     people[key].teams.push(e.team);
   });
   var list = Object.values(people)
@@ -556,7 +558,7 @@ function confirmOnboarding() {
   hideOnboarding();
   try {
     setUser(obSelectedEmail, -1, true);
-    var userTeams = ENTRIES.filter(function(e) { return e.email === obSelectedEmail; });
+    var userTeams = ENTRIES.filter(function(e) { return _matchUserKey(e, obSelectedEmail); });
     trackEvent('user-login');
     trackEvent('login-entries-' + userTeams.length);
     showToast('✓ Team locked in');
