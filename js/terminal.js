@@ -240,6 +240,17 @@ function openPickTeams(pickName) {
   renderTermActivity();
 }
 
+// Delegated click handler — avoids embedding pick names (flag emoji, slashes,
+// apostrophes) inside inline onclick attributes, which fails to re-quote
+// cleanly for team-pair picks. Data-pick-name is set as a textContent-safe
+// attribute via setAttribute in the render pass.
+document.addEventListener('click', function(ev) {
+  var row = ev.target && ev.target.closest && ev.target.closest('.ph-row.ph-clickable');
+  if (!row) return;
+  var name = row.getAttribute('data-pick-name');
+  if (name) openPickTeams(name);
+});
+
 function _buildEntryDetailRow(entry, colspan) {
   var meta = [];
   if (entry.entrant)    meta.push('<span class="ed-entrant">' + termEsc(entry.entrant) + '</span>');
@@ -1246,8 +1257,7 @@ function renderTermActivity() {
                    r.count >= maxCount * 0.4  ? 'ph-warm' :
                    r.count >= maxCount * 0.15 ? 'ph-cool' : 'ph-cold';
         var isExpanded = _expandedPickName === r.name;
-        var rowKey = r.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-        var html = '<div class="ph-row ' + heat + ' ph-clickable' + (isExpanded ? ' is-expanded' : '') + '" onclick="openPickTeams(\'' + rowKey + '\')">'
+        var html = '<div class="ph-row ' + heat + ' ph-clickable' + (isExpanded ? ' is-expanded' : '') + '" data-pick-name="' + termEsc(r.name) + '">'
           + '<div class="ph-rank">' + (i + 1) + '</div>'
           + '<div class="ph-name">' + (isExpanded ? '▾ ' : '▸ ') + termEsc(r.name) + '</div>'
           + '<div class="ph-bar"><div class="ph-bar-fill" style="width:' + pct.toFixed(1) + '%"></div></div>'
