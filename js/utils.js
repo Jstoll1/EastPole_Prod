@@ -52,7 +52,9 @@ function resolvePlayerName(name) { return NAME_ALIASES[name] || name; }
 function getCountryCode(name) { return FLAG_TO_CODE[FLAGS[name]] || ''; }
 
 function getHolesRemaining(playerName) {
-  var gd = GOLFER_SCORES[playerName];
+  // Pair strings like "🏴 A / 🏴 B" (team events) need pickGolferData to
+  // resolve to the shared team record; solo names fall through to GOLFER_SCORES.
+  var gd = (typeof pickGolferData === 'function') ? pickGolferData(playerName) : GOLFER_SCORES[playerName];
   if (!gd) return 0;
   if (gd.thru === 'MC' || gd.thru === 'WD' || gd.score === 11 || gd.score === 12) return 0;
   // roundCount = total linescores with any value (includes in-progress)

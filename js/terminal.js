@@ -227,6 +227,19 @@ function openEntryDetails(rowKey) {
   renderTermStandings();
 }
 
+// ─── Pick Heat Details (inline accordion in F3 Pick Heat) ────────
+var _expandedPickName = null;
+
+function openPickTeams(pickName) {
+  if (!pickName) return;
+  if (_expandedPickName === pickName) {
+    _expandedPickName = null;
+  } else {
+    _expandedPickName = pickName;
+  }
+  renderTermActivity();
+}
+
 function _buildEntryDetailRow(entry, colspan) {
   var meta = [];
   if (entry.entrant)    meta.push('<span class="ed-entrant">' + termEsc(entry.entrant) + '</span>');
@@ -1143,7 +1156,8 @@ function renderTermStandings() {
     var teamHolesLeft = e.top4.reduce(function(s, g) { return s + getHolesRemaining(g.name); }, 0);
     var teamToday = 0, hasToday = false;
     e.top4.forEach(function(g) {
-      var gd = GOLFER_SCORES[g.name];
+      // pickGolferData handles team-pair picks ("A / B") that don't key into GOLFER_SCORES directly.
+      var gd = pickGolferData(g.name);
       if (!gd) return;
       if (gd.score === 11 || gd.score === 12) return;
       var td = gd.todayDisplay;
@@ -1216,19 +1230,46 @@ function renderTermActivity() {
     if (pickRows.length) {
       var maxCount = pickRows[0].count;
       var totalEntries = entries.length;
+      // Index entries that chose each pick so we can expand a list of teams
+      // when the user clicks a row.
+      var pickToEntries = {};
+      entries.forEach(function(e) {
+        (e.picks || []).forEach(function(p) {
+          if (!pickToEntries[p]) pickToEntries[p] = [];
+          pickToEntries[p].push(e);
+        });
+      });
       body.innerHTML = pickRows.slice(0, 80).map(function(r, i) {
         var pct = maxCount > 0 ? (r.count / maxCount) * 100 : 0;
         var share = totalEntries > 0 ? Math.round((r.count / totalEntries) * 100) : 0;
         var heat = r.count >= maxCount * 0.75 ? 'ph-hot' :
                    r.count >= maxCount * 0.4  ? 'ph-warm' :
                    r.count >= maxCount * 0.15 ? 'ph-cool' : 'ph-cold';
-        return '<div class="ph-row ' + heat + '">'
+        var isExpanded = _expandedPickName === r.name;
+        var rowKey = r.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        var html = '<div class="ph-row ' + heat + ' ph-clickable' + (isExpanded ? ' is-expanded' : '') + '" onclick="openPickTeams(\'' + rowKey + '\')">'
           + '<div class="ph-rank">' + (i + 1) + '</div>'
-          + '<div class="ph-name">' + termEsc(r.name) + '</div>'
+          + '<div class="ph-name">' + (isExpanded ? '▾ ' : '▸ ') + termEsc(r.name) + '</div>'
           + '<div class="ph-bar"><div class="ph-bar-fill" style="width:' + pct.toFixed(1) + '%"></div></div>'
           + '<div class="ph-count">' + r.count + '</div>'
           + '<div class="ph-share">' + share + '%</div>'
           + '</div>';
+        if (isExpanded) {
+          var picking = (pickToEntries[r.name] || []).slice().sort(function(a, b) {
+            return (a.team || '').localeCompare(b.team || '');
+          });
+          html += '<div class="ph-teams">'
+            + '<div class="ph-teams-hdr">' + picking.length + ' ' + (picking.length === 1 ? 'entry' : 'entries') + ' picked this</div>'
+            + picking.map(function(e) {
+                var entrant = e.entrant ? '<span class="ph-team-by">' + termEsc(e.entrant) + '</span>' : '';
+                return '<div class="ph-team-row">'
+                  + '<span class="ph-team-name">' + termEsc(e.team) + '</span>'
+                  + entrant
+                  + '</div>';
+              }).join('')
+            + '</div>';
+        }
+        return html;
       }).join('');
       var metaP = document.getElementById('act-meta');
       if (metaP) metaP.textContent = pickRows.length + ' picks · ' + totalEntries + ' entries';
@@ -1381,6 +1422,12 @@ function renderTermMy() {
       }
       return null;
     };
+    // Pool rank map so the header can surface each entry's current standing
+    // alongside the team name (same pool rank F2 shows).
+    var _rankedAll = (typeof getRanked === 'function') ? getRanked() : [];
+    var _poolRankMap = {};
+    _rankedAll.forEach(function(e, i) { _poolRankMap[e.team + '|' + (e.email || '')] = i + 1; });
+    var _poolSize = _rankedAll.length;
     body.innerHTML = teams.map(function(t, idx) {
       var entrant = t.entrant ? '<span class="my-entry-by">' + termEsc(t.entrant) + ' · </span>' : '';
       var tb = t.tieBreaker ? '<span class="my-tb">TB: <strong>' + termEsc(t.tieBreaker) + '</strong></span>' : '';
@@ -1446,7 +1493,6 @@ function renderTermMy() {
       if (hasAnyScore) {
         statsHtml = '<span class="my-entry-stats">'
           + entrant
-          + '<span>TOT <strong class="' + scoreCls(teamTotal) + '">' + fmtScore(teamTotal) + '</strong></span>'
           + '<span>TDY <strong class="' + (hasToday ? scoreCls(teamToday) : 'eve') + '">' + (hasToday ? fmtScore(teamToday) : '—') + '</strong></span>'
           + tb
           + '</span>';
@@ -1454,10 +1500,21 @@ function renderTermMy() {
         statsHtml = '<span class="my-entry-stats">' + entrant + '<span class="my-pre-tag">PRE-TOURNAMENT</span>' + tb + '</span>';
       }
 
+      var poolRank = _poolRankMap[t.team + '|' + (t.email || '')];
+      var posHtml = '';
+      if (hasAnyScore && poolRank) {
+        posHtml = '<span class="my-entry-pos">'
+          + '<span class="mep-rank">#' + poolRank + (_poolSize ? '/' + _poolSize : '') + '</span>'
+          + '<span class="mep-tot ' + scoreCls(teamTotal) + '">' + fmtScore(teamTotal) + '</span>'
+          + '</span>';
+      } else if (poolRank) {
+        posHtml = '<span class="my-entry-pos"><span class="mep-rank">#' + poolRank + (_poolSize ? '/' + _poolSize : '') + '</span></span>';
+      }
+
       return '<div class="my-entry-block">'
         + '<div class="my-entry-header">'
         +   '<span class="my-entry-name">' + termEsc(t.team) + '</span>'
-        +   '<span class="my-entry-rank">#' + (idx + 1) + ' of ' + teams.length + '</span>'
+        +   posHtml
         + '</div>'
         + statsHtml
         + tiersHtml
@@ -1500,10 +1557,12 @@ function renderTermMy() {
     return '<div class="my-entry-block">'
       + '<div class="my-entry-header">'
       + '<span class="my-entry-name">' + termEsc(t.team) + '</span>'
-      + '<span class="my-entry-rank">#' + rank + ' of ' + ranked.length + '</span>'
+      + '<span class="my-entry-pos">'
+      +   '<span class="mep-rank">#' + rank + '/' + ranked.length + '</span>'
+      +   '<span class="mep-tot ' + scoreCls(total) + '">' + fmtScore(total) + '</span>'
+      + '</span>'
       + '</div>'
       + '<div class="my-entry-stats">'
-      + '<span><span class="lbl">TOT:</span><span class="' + scoreCls(total) + '">' + fmtScore(total) + '</span></span>'
       + '<span><span class="lbl">TDY:</span><span class="' + scoreCls(teamToday) + '">' + (hasToday ? fmtScore(teamToday) : '—') + '</span></span>'
       + '</div>'
       + '<div class="my-entry-picks">' + picks + '</div>'

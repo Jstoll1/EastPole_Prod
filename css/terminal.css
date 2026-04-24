@@ -433,10 +433,29 @@ html, body {
   font-weight: 700;
   font-size: 12px;
 }
-.my-entry-rank {
-  color: var(--term-text-dim);
-  font-size: 10px;
+.my-entry-pos {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 2px 8px;
+  background: rgba(212,168,67,0.12);
+  border: 1px solid var(--term-amber);
+  font-variant-numeric: tabular-nums;
 }
+.mep-rank {
+  color: var(--term-amber);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+.mep-tot {
+  font-weight: 800;
+  font-size: 14px;
+}
+.mep-tot.pos { color: var(--term-green); }
+.mep-tot.neg { color: var(--term-red); }
+.mep-tot.eve { color: var(--term-text); }
+.mep-tot.mc  { color: var(--term-text-muted); }
 .my-entry-by {
   font-size: 10px;
   font-weight: 700;
@@ -1472,6 +1491,34 @@ html, body {
 .ph-row.ph-cool .ph-bar-fill { background: rgba(212,168,67,0.55); }
 .ph-row.ph-cold .ph-bar-fill { background: rgba(212,168,67,0.25); }
 .ph-row.ph-cold .ph-name { color: var(--term-text-dim); }
+.ph-row.ph-clickable { cursor: pointer; }
+.ph-row.ph-clickable:hover { background: rgba(212,168,67,0.18); }
+.ph-row.is-expanded { background: rgba(212,168,67,0.22); }
+.ph-row.is-expanded .ph-name { color: var(--term-amber); font-weight: 700; }
+.ph-teams {
+  padding: 6px 10px 10px 36px;
+  background: rgba(212,168,67,0.06);
+  border-bottom: 1px solid var(--term-border);
+}
+.ph-teams-hdr {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--term-amber);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.ph-team-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 2px 0;
+  font-size: 10.5px;
+  border-bottom: 1px dotted rgba(31,58,42,0.5);
+}
+.ph-team-row:last-child { border-bottom: none; }
+.ph-team-name { color: var(--term-text); font-weight: 600; }
+.ph-team-by { color: var(--term-text-dim); font-size: 9.5px; }
 
 /* ── Terminal Login Modal ───────────────────────────────── */
 .tlogin-head {
