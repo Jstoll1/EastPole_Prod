@@ -652,6 +652,41 @@ function renderTermLeaderboard() {
 
   var isPlayoff = ESPN_ROUND > 4 || players.some(function(p) { return p.roundCount >= 5; });
 
+  // ── Movers: round-over-round arrows + top-3 flame/ice badges ──────────
+  // Prior position = (current_score − today_score) re-ranked across the full field.
+  // Mirrors the mobile leaderboard so the two views stay in sync.
+  var isPreT = (typeof TOURNAMENT_STARTED !== 'undefined') ? !TOURNAMENT_STARTED : true;
+  var currentRound = (typeof ESPN_ROUND !== 'undefined' && ESPN_ROUND) ? Math.min(ESPN_ROUND, 4) : 0;
+  var priorPosMap = {};
+  if (!isPreT && currentRound >= 2) {
+    var priorList = players
+      .filter(function(p) { return !p.mc && !p.wd; })
+      .map(function(p) {
+        var td = p.today;
+        var todayVal = 0, hasToday = false;
+        if (td && td !== '—') { hasToday = true; todayVal = td === 'E' ? 0 : (parseInt(String(td).replace('+', '')) || 0); }
+        // For team events, any teammate name in priorPosMap is fine since they share a record.
+        return { key: p.names[0], prior: hasToday ? p.score - todayVal : p.score };
+      })
+      .sort(function(a, b) { return a.prior - b.prior; });
+    var rk = 1;
+    priorList.forEach(function(ps, idx) {
+      if (idx > 0 && ps.prior !== priorList[idx - 1].prior) rk = idx + 1;
+      priorPosMap[ps.key] = rk;
+    });
+  }
+  var arrowMap = new Map();
+  if (!isPreT && currentRound >= 2) {
+    players.forEach(function(p) {
+      if (p.mc || p.wd) return;
+      if (p.thru === '—' || (typeof p.thru === 'string' && p.thru.indexOf(':') !== -1)) return;
+      var cP = parsePos(p.pos); if (!cP) return;
+      var sP = priorPosMap[p.names[0]];
+      if (sP && sP !== cP) arrowMap.set(p.names[0], sP - cP);
+    });
+  }
+  var topMoverMap = isPreT ? new Map() : (typeof getTopMovers === 'function' ? getTopMovers(arrowMap) : new Map());
+
   body.innerHTML = players.slice(0, 80).map(function(p) {
     var posDisp = p.mc ? 'MC' : p.wd ? 'WD' : (p.pos || '—');
     var scoreDisp = (p.mc || p.wd) ? '—' : fmtScore(p.score);
@@ -680,14 +715,40 @@ function renderTermLeaderboard() {
     var isTeam = p.names.length > 1;
     var mine = (typeof currentUserTeams !== 'undefined' && currentUserTeams.some(function(t) { return p.names.some(function(n) { return t.picks.indexOf(n) !== -1; }); }));
     var inPool = p.names.some(function(n) { return poolNames.has(n); });
-    var rowCls = mine ? 'is-mine' : '';
+
+    // Position-change flash: red-tinted highlight when this player's current
+    // position is strictly better (lower) than their last-polled position.
+    var currP = parsePos(p.pos);
+    var prevP = (typeof PREV_POSITIONS !== 'undefined') ? PREV_POSITIONS[p.names[0]] : null;
+    var justMovedUp = !isPreT && currP && prevP && currP < prevP;
+    var rowCls = [mine ? 'is-mine' : '', justMovedUp ? 'tlb-just-up' : ''].filter(Boolean).join(' ');
+
+    // Round-over-round arrow next to POS
+    var arrowDelta = arrowMap.has(p.names[0]) ? arrowMap.get(p.names[0]) : 0;
+    var arrowHtml = '';
+    if (!isPreT && currP && arrowDelta !== 0) {
+      arrowHtml = arrowDelta > 0
+        ? '<span class="tlb-mv up">▲' + arrowDelta + '</span>'
+        : '<span class="tlb-mv dn">▼' + Math.abs(arrowDelta) + '</span>';
+    }
+
+    // Top-3 flame (up) / ice (down) badges — same thresholds as mobile.
+    var moverInfo = topMoverMap.get(p.names[0]);
+    var moverHtml = '';
+    if (moverInfo) {
+      var mag = Math.abs(arrowDelta);
+      moverHtml = moverInfo.sign === 'up'
+        ? ' <span class="tlb-top-mv up">🔥' + mag + '</span>'
+        : ' <span class="tlb-top-mv dn">🧊' + mag + '</span>';
+    }
+
     var escapedName = p.name.replace(/'/g, "\\'");
     var nameCell = isTeam
       ? p.names.map(function(n) { var f = (FLAGS && FLAGS[n]) || ''; return (f ? f + ' ' : '') + termEsc(n); }).join(' / ')
       : (((FLAGS && FLAGS[p.name]) || '') + ' ' + termEsc(p.name));
     return '<tr class="' + rowCls + '" onclick="toggleTermScorecard(\'' + escapedName + '\', this)" style="cursor:pointer">'
-      + '<td class="tpt-pos">' + termEsc(posDisp) + '</td>'
-      + '<td class="tpt-name">' + nameCell + (inPool ? ' <span style="color:var(--term-text-muted);font-size:9px">●</span>' : '') + '</td>'
+      + '<td class="tpt-pos">' + termEsc(posDisp) + arrowHtml + '</td>'
+      + '<td class="tpt-name">' + nameCell + moverHtml + (inPool ? ' <span style="color:var(--term-text-muted);font-size:9px">●</span>' : '') + '</td>'
       + '<td class="tpt-score ' + scoreCl + '">' + scoreDisp + '</td>'
       + '<td class="tpt-today ' + todayCl + '">' + termEsc(todayDisp) + '</td>'
       + '<td class="tpt-thru">' + termEsc(thruDisp) + '</td>'
