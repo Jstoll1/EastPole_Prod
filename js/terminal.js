@@ -377,6 +377,14 @@ var _sortState = {
 var _colWidths = {};
 try { _colWidths = JSON.parse(localStorage.getItem('term_col_widths') || '{}'); } catch(e) {}
 
+// One-time migration: the leaderboard POS column's CSS minimum was raised to
+// fit 2-digit mover arrows ("T17 ▲33"). Any persisted pos width smaller than
+// that came from the pre-fix era and would re-clip the arrow, so drop it.
+var _POS_MIN_W = 96;
+Object.keys(_colWidths).forEach(function(key) {
+  if (/:(pos|rank)$/.test(key) && _colWidths[key] < _POS_MIN_W) delete _colWidths[key];
+});
+
 function _saveColWidths() {
   try { localStorage.setItem('term_col_widths', JSON.stringify(_colWidths)); } catch(e) {}
 }
@@ -443,8 +451,10 @@ function initTableFeatures() {
         th._suppressClick = true;
         var startX = e.pageX;
         var startW = th.offsetWidth;
+        var col = th.getAttribute('data-col');
+        var minW = (col === 'pos' || col === 'rank') ? _POS_MIN_W : 30;
         function onMove(ev) {
-          var w = Math.max(30, startW + (ev.pageX - startX));
+          var w = Math.max(minW, startW + (ev.pageX - startX));
           th.style.width = w + 'px';
         }
         function onUp() {
