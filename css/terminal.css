@@ -1388,7 +1388,7 @@ html, body {
 }
 .ed-pick-row {
   display: grid;
-  grid-template-columns: 16px 1fr auto auto auto;
+  grid-template-columns: 16px 1fr 48px 48px 64px;
   align-items: center;
   gap: 10px;
   padding: 5px 8px;
@@ -1404,7 +1404,6 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  min-width: 42px;
   line-height: 1.1;
 }
 .ed-pick-col-lbl {
