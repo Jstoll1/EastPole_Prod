@@ -1964,7 +1964,7 @@ async function initTerminal() {
       var parsed = JSON.parse(userData);
       window.currentUserEmail = parsed.email || null;
       window.activeTeamIdx = parsed.activeTeamIdx == null ? -1 : parsed.activeTeamIdx;
-      window.currentUserTeams = (ENTRIES || []).filter(function(e) { return e.email === currentUserEmail; });
+      window.currentUserTeams = (ENTRIES || []).filter(function(e) { return _matchUserKey(e, currentUserEmail); });
     } catch(e) {}
   }
   if (typeof currentUserEmail === 'undefined') window.currentUserEmail = null;

@@ -358,7 +358,7 @@ function renderStandings() {
   displayRanked.forEach(function(e, i) {
     var rank = displayRanks[i];
     var sc = e.total, scf = fmtTeam(sc), scc = cls(sc);
-    var isMyTeam = e.email === currentTeamEmail ? ' is-my-team' : '';
+    var isMyTeam = _matchUserKey(e, currentUserEmail) ? ' is-my-team' : '';
     var entryIdx = ENTRIES.findIndex(function(x) { return x.team === e.team && x.email === e.email; });
     var isCmpSelected = compareMode && cmpSelections.includes(entryIdx);
     var cmpNum = isCmpSelected ? (cmpSelections.indexOf(entryIdx) + 1) : 0;
