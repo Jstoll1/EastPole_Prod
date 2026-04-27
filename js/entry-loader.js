@@ -81,24 +81,15 @@ function parsePoolTSV(text) {
         team = split[1].trim();
       }
     }
-    var picks = [];           // team-pair strings (e.g. "🏴 Matt Fitzpatrick / 🏴 Alex Fitzpatrick")
-    var golferNames = [];     // flat individual names (kept for future solo-event scoring)
+    var picks = [];
     var tierPicks = { tier1: [], tier2: [], tier3: [], tier4: [] };
     ['tier1', 'tier2', 'tier3', 'tier4'].forEach(function(k) {
       var i = idx[k];
       if (i < 0 || !cells[i]) return;
       // Google stores multi-checkbox as ", "-joined string within the cell.
-      var teams = cells[i].split(/,\s*(?=[^\s])/).map(function(s) { return s.trim(); }).filter(Boolean);
-      tierPicks[k] = teams;
-      teams.forEach(function(pair) {
-        picks.push(pair);
-        // Also extract individual players (strip leading flag) for any scoring
-        // code that still assumes solo entries.
-        pair.split(/\s*\/\s*/).forEach(function(p) {
-          var clean = p.replace(/^[\p{Extended_Pictographic}\p{Emoji_Presentation}\s🏴\u{E0020}-\u{E007F}]+/u, '').trim();
-          if (clean) golferNames.push(clean);
-        });
-      });
+      var golfers = cells[i].split(/,\s*(?=[^\s])/).map(function(s) { return s.trim(); }).filter(Boolean);
+      tierPicks[k] = golfers;
+      golfers.forEach(function(g) { picks.push(g); });
     });
     entries.push({
       team: team,
@@ -108,8 +99,7 @@ function parsePoolTSV(text) {
       tieBreaker: (idx.tiebreaker >= 0 ? cells[idx.tiebreaker] : '').trim(),
       tierPicks: tierPicks,
       picks: picks,
-      golferNames: golferNames,
-      isTeamEvent: picks.length > 0 && picks[0].indexOf(' / ') !== -1
+      golferNames: picks.slice()
     });
   }
   return entries;

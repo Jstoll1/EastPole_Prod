@@ -432,12 +432,7 @@ function renderStandings() {
       var isMc = gd && (gd.thru === 'MC' || gd.thru === 'WD' || gd.score === 11 || gd.score === 12);
       var escapedGName = g.name.replace(/'/g, "\\'");
       var stScId = 'st-sc-' + i + '-' + j;
-      // Team-event pair picks ("🏴 A / 🏴 B") can't resolve against ESPN's
-      // per-competitor scorecard endpoint (competitors are teams, not
-      // athletes), so suppress the click instead of opening an empty panel.
-      // Self-reverts next week once picks go back to solo golfer names.
-      var isPairPick = typeof g.name === 'string' && g.name.indexOf(' / ') !== -1;
-      var pickClick = isPairPick ? '' : ' onclick="event.stopPropagation();toggleStandingsScorecard(\'' + stScId + '\',\'' + escapedGName + '\')" style="cursor:pointer"';
+      var pickClick = ' onclick="event.stopPropagation();toggleStandingsScorecard(\'' + stScId + '\',\'' + escapedGName + '\')" style="cursor:pointer"';
       return '<div class="tv-row st-pick-row ' + (isTop ? 'is-top' : 'is-bench') + '"' + pickClick + '>'
           + '<div class="tv-pos" style="font-size:10px">' + (isTop ? '★' : '') + '</div>'
           + '<div class="tv-player"><span class="st-pick-name">' + (flag ? flag + ' ' : '') + g.name + '</span>'

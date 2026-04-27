@@ -183,16 +183,8 @@ async function fetchESPN() {
     var freshScores = {};
     var freshAthleteIds = {};
     comps.forEach(function(c) {
-      // Team events (e.g. Zurich Classic) expose `athletes` (plural); singles events use `athlete`.
-      // ESPN has shipped several shapes over the years — probe each before giving up.
-      var teamAthletes = null;
-      if (Array.isArray(c.athletes)) teamAthletes = c.athletes;
-      else if (c.roster && Array.isArray(c.roster.athletes)) teamAthletes = c.roster.athletes;
-      else if (Array.isArray(c.roster)) teamAthletes = c.roster.map(function(r) { return r && r.athlete ? r.athlete : r; });
-      else if (c.team && Array.isArray(c.team.athletes)) teamAthletes = c.team.athletes;
-      if (teamAthletes) teamAthletes = teamAthletes.filter(function(a) { return a && a.displayName; });
-      var athleteList = (teamAthletes && teamAthletes.length) ? teamAthletes : (c.athlete?.displayName ? [c.athlete] : []);
-      if (!athleteList.length) return;
+      var ath = c.athlete;
+      if (!ath || !ath.displayName) return;
 
       var state = c.status?.type?.name || '';
       var scheduled = state === 'STATUS_SCHEDULED';
@@ -228,44 +220,27 @@ async function fetchESPN() {
       var todayRound = activelyPlaying ? lines[activeRndIdx >= 0 ? activeRndIdx : 0] : (scheduled ? null : lines[activeRndIdx >= 0 ? activeRndIdx : 0]);
       var todayDisplay = (mc || wd) ? '—' : (todayRound?.displayValue || (todayRound?.value > 50 ? (function() { var tp = todayRound.value - COURSE_PAR; return tp === 0 ? 'E' : (tp > 0 ? '+' + tp : String(tp)); })() : '—'));
       var onCourse = activelyPlaying;
-      // For team events, tag each golfer's record with a shared teamId so the
-      // leaderboard can collapse teammates into a single row (still one entry
-      // per golfer in GOLFER_SCORES so pool picks resolve normally elsewhere).
-      var isTeamEvent = athleteList.length > 1;
-      var teamId = isTeamEvent ? ('team-' + (c.id || c.uid || athleteList.map(function(a){return a.id||a.displayName;}).join('|'))) : null;
-      // Raw ESPN competitor ID for the team. Used by fetchPlayerScorecard to
-      // hit /competitors/{id}/linescores — in team events the competitor is
-      // the TEAM, so the athlete ID 404s but the team competitor ID resolves
-      // to the team's hole-by-hole (twoball / alternate-shot) score.
-      var teamCompId = isTeamEvent ? (c.id || c.uid || null) : null;
-      var teammateNames = isTeamEvent ? athleteList.map(function(a) { return resolvePlayerName(a.displayName); }) : null;
-      var teamRecord = { pos: c.status?.position?.displayName || '—', score: wd ? 12 : mc ? 11 : score, thru: thru, teeTime: teeTime, startHole: startHole, tot: tot, todayDisplay: todayDisplay, r1: rval(0), r2: rval(1), r3: rval(2), r4: rval(3), roundCount: lines.filter(function(l) { return l.value != null; }).length, onCourse: onCourse, teamId: teamId, teamCompId: teamCompId, teammateNames: teammateNames };
-
-      athleteList.forEach(function(ath) {
-        var rawName = ath?.displayName;
-        if (!rawName) return;
-        var name = resolvePlayerName(rawName);
-        if (ath?.id) freshAthleteIds[name] = ath.id;
-        if (!FLAGS[name] || FLAGS[name] === '🏳️' || FLAGS[name] === '') {
-          var flagObj = ath?.flag;
-          var citObj = ath?.citizenshipCountry;
-          var bpObj = ath?.birthPlace;
-          var ccode = '';
-          if (flagObj) ccode = (flagObj.alt || flagObj.abbreviation || flagObj.text || '').toUpperCase();
-          if (!ccode && citObj) ccode = (citObj.abbreviation || citObj.alpha3 || citObj.alpha2 || citObj.countryCode || '').toUpperCase();
-          if (!ccode && bpObj) ccode = (bpObj.countryAbbreviation || bpObj.country || '').toUpperCase();
-          if (!ccode && flagObj && flagObj.href) {
-            var flagMatch = flagObj.href.match(/\/(\w{2,3})\.png/i);
-            if (flagMatch) ccode = flagMatch[1].toUpperCase();
-          }
-          if (ccode && CODE_TO_FLAG[ccode]) {
-            FLAGS[name] = CODE_TO_FLAG[ccode];
-          } else if (ccode && ccode.length === 2) {
-            FLAGS[name] = String.fromCodePoint(0x1F1E6 + ccode.charCodeAt(0) - 65, 0x1F1E6 + ccode.charCodeAt(1) - 65);
-          }
+      var name = resolvePlayerName(ath.displayName);
+      if (ath.id) freshAthleteIds[name] = ath.id;
+      if (!FLAGS[name] || FLAGS[name] === '🏳️' || FLAGS[name] === '') {
+        var flagObj = ath.flag;
+        var citObj = ath.citizenshipCountry;
+        var bpObj = ath.birthPlace;
+        var ccode = '';
+        if (flagObj) ccode = (flagObj.alt || flagObj.abbreviation || flagObj.text || '').toUpperCase();
+        if (!ccode && citObj) ccode = (citObj.abbreviation || citObj.alpha3 || citObj.alpha2 || citObj.countryCode || '').toUpperCase();
+        if (!ccode && bpObj) ccode = (bpObj.countryAbbreviation || bpObj.country || '').toUpperCase();
+        if (!ccode && flagObj && flagObj.href) {
+          var flagMatch = flagObj.href.match(/\/(\w{2,3})\.png/i);
+          if (flagMatch) ccode = flagMatch[1].toUpperCase();
         }
-        freshScores[name] = Object.assign({}, teamRecord);
-      });
+        if (ccode && CODE_TO_FLAG[ccode]) {
+          FLAGS[name] = CODE_TO_FLAG[ccode];
+        } else if (ccode && ccode.length === 2) {
+          FLAGS[name] = String.fromCodePoint(0x1F1E6 + ccode.charCodeAt(0) - 65, 0x1F1E6 + ccode.charCodeAt(1) - 65);
+        }
+      }
+      freshScores[name] = { pos: c.status?.position?.displayName || '—', score: wd ? 12 : mc ? 11 : score, thru: thru, teeTime: teeTime, startHole: startHole, tot: tot, todayDisplay: todayDisplay, r1: rval(0), r2: rval(1), r3: rval(2), r4: rval(3), roundCount: lines.filter(function(l) { return l.value != null; }).length, onCourse: onCourse };
     });
     // If ESPN returned competitors but nothing parsed (unknown shape),
     // dump the first competitor for diagnosis and fall back to the
@@ -289,14 +264,12 @@ async function fetchESPN() {
     }
     // Debug: log first 5 competitors with all status fields
     comps.slice(0, 5).forEach(function(c) {
-      var names = Array.isArray(c.athletes) && c.athletes.length
-        ? c.athletes.map(function(a) { return resolvePlayerName(a?.displayName || '?'); }).join(' / ')
-        : resolvePlayerName(c.athlete?.displayName || '?');
+      var name = resolvePlayerName(c.athlete?.displayName || '?');
       var st = c.status?.type?.name || '';
       var sched = st === 'STATUS_SCHEDULED';
       var lines = c.linescores || [];
       var lastComp = lines.filter(function(l) { return l.value && l.value > 50; }).pop();
-      console.log('🔍 ESPN', names, '| state:', st, '| thru:', c.status?.thru, '| disp:', c.status?.displayValue, '| teeTime:', c.status?.teeTime, '| scheduled:', sched, '| lastCompRound:', lastComp?.value, '| lines:', lines.map(function(l){return l.value}).join(','));
+      console.log('🔍 ESPN', name, '| state:', st, '| thru:', c.status?.thru, '| disp:', c.status?.displayValue, '| teeTime:', c.status?.teeTime, '| scheduled:', sched, '| lastCompRound:', lastComp?.value, '| lines:', lines.map(function(l){return l.value}).join(','));
     });
 
     // Detect score changes for animations
@@ -440,7 +413,6 @@ async function _fetchDGEndpoint(endpoint) {
     // Two payload shapes:
     //   in-play       → { event_name, last_updated, data: [...per-player rows...] }
     //   pre-tournament → { event_name, last_updated, baseline: [...], baseline_history_fit: [...] }
-    //                    For team events, each row is a team: { team_name, p1_country, p2_country, win, top_5, ... }
     var arr = Array.isArray(json.data) ? json.data
             : Array.isArray(json.baseline_history_fit) ? json.baseline_history_fit
             : Array.isArray(json.baseline) ? json.baseline
@@ -534,86 +506,10 @@ async function fetchDGLivePreds(force) {
         if (CODE_TO_FLAG[code]) { FLAGS[name] = CODE_TO_FLAG[code]; flagsFilled++; }
       }
     };
-    // Resolve a DataGolf abbreviated team-name part ("M. Fitzpatrick" or "Gerard")
-    // to a canonical FLAGS key by matching against existing FLAGS / GOLFER_SCORES names.
-    var _resolvePool = null;
-    var resolveDGTeamName = function(part) {
-      part = String(part || '').trim();
-      if (!part) return null;
-      if (!_resolvePool) {
-        var seen = {};
-        _resolvePool = Object.keys(FLAGS || {}).concat(Object.keys(GOLFER_SCORES || {})).filter(function(n) {
-          if (seen[n]) return false; seen[n] = true; return true;
-        });
-      }
-      var dotIdx = part.indexOf('.');
-      if (dotIdx === -1) {
-        // Last name only ("Gerard", "Yellamaraju", "Dumont De Chassart") — match
-        // by the trailing last-name chunk (up to 3 words for names like
-        // "Dumont De Chassart").
-        var lastLower = part.toLowerCase();
-        for (var i = 0; i < _resolvePool.length; i++) {
-          var nm = _resolvePool[i];
-          var ps = nm.split(/\s+/);
-          var l1 = ps[ps.length - 1].toLowerCase();
-          var l2 = ps.length >= 2 ? ps.slice(-2).join(' ').toLowerCase() : '';
-          var l3 = ps.length >= 3 ? ps.slice(-3).join(' ').toLowerCase() : '';
-          if (l1 === lastLower || l2 === lastLower || l3 === lastLower) return nm;
-        }
-        return null;
-      }
-      // "X. Lastname" — first initial(s) + last name (last name may be multi-word).
-      var m = part.match(/^([A-Za-z]+)\.?\s+(.+)$/);
-      if (!m) return null;
-      var initial = m[1].toLowerCase();
-      var last = m[2].toLowerCase();
-      for (var j = 0; j < _resolvePool.length; j++) {
-        var nm2 = _resolvePool[j];
-        var ps2 = nm2.split(/\s+/);
-        if (ps2.length < 2) continue;
-        if (!ps2[0].toLowerCase().startsWith(initial)) continue;
-        var rest = ps2.slice(1).join(' ').toLowerCase();
-        var lastSingle = ps2[ps2.length - 1].toLowerCase();
-        if (rest === last || lastSingle === last) return nm2;
-      }
-      return null;
-    };
-
-    var unresolved = [];
-    var freshTeams = []; // populated only for team-event payloads
     arr.forEach(function(p) {
       var probs = probsOf(p);
-      // Team-event pre-tournament: row has team_name + p1_country/p2_country, no per-player names.
-      if (p.team_name && (p.p1_country !== undefined || p.p2_country !== undefined)) {
-        var tparts = String(p.team_name).split('/').map(function(s) { return s.trim(); });
-        var n1 = resolveDGTeamName(tparts[0]);
-        var n2 = resolveDGTeamName(tparts[1]);
-        if (n1) addPlayer(n1, p.p1_country, probs); else if (tparts[0]) unresolved.push(tparts[0]);
-        if (n2) addPlayer(n2, p.p2_country, probs); else if (tparts[1]) unresolved.push(tparts[1]);
-        // Build a team row keyed by the original team_name so F5 can render teams.
-        // Use the resolved canonical names + flag emojis when available.
-        var p1Display = n1 ? ((FLAGS[n1] || '') + ' ' + n1).trim() : tparts[0];
-        var p2Display = n2 ? ((FLAGS[n2] || '') + ' ' + n2).trim() : tparts[1];
-        freshTeams.push({
-          team_name: p.team_name,
-          display: p1Display + ' / ' + p2Display,
-          p1_country: p.p1_country,
-          p2_country: p.p2_country,
-          win: probs.win, top_5: probs.top_5, top_10: probs.top_10,
-          top_20: probs.top_20, make_cut: probs.make_cut
-        });
-      } else if (p.player_name_1 && p.player_name_2) {
-        addPlayer(p.player_name_1, p.country_1, probs);
-        addPlayer(p.player_name_2, p.country_2, probs);
-      } else {
-        addPlayer(p.player_name, p.country, probs);
-      }
+      addPlayer(p.player_name, p.country, probs);
     });
-    DG_TEAM_PREDS = freshTeams;
-    if (unresolved.length) {
-      console.warn('🏌️ DG: ' + unresolved.length + ' team-name parts unresolved:', unresolved.join(', '));
-      if (typeof termDiag === 'function') termDiag('DG unresolved names: ' + unresolved.length + ' (see console)', true);
-    }
     DG_LIVE_PREDS = fresh;
     _dgLastFetch = Date.now();
 
@@ -706,12 +602,7 @@ async function fetchPlayerScorecard(playerName, forceRefresh) {
   if (!forceRefresh && SCORECARD_CACHE[playerName]) return SCORECARD_CACHE[playerName];
   // Share inflight request — prevents concurrent fetches for same player
   if (_scorecardInflight[playerName]) return _scorecardInflight[playerName];
-  // Team events: ESPN's competitor is the TEAM, so /competitors/{athleteId}
-  // 404s. Fall back to the team competitor ID so the linescores endpoint
-  // returns the team's twoball/alternate-shot hole-by-hole scores. Singles
-  // events have no teamCompId and keep using the athlete ID as before.
-  var gd = GOLFER_SCORES[playerName];
-  var competitorId = (gd && gd.teamCompId) || ATHLETE_IDS[playerName];
+  var competitorId = ATHLETE_IDS[playerName];
   if (!competitorId || !EVENT_ID) return null;
   _scorecardInflight[playerName] = _fetchScorecardImpl(playerName, competitorId);
   try { return await _scorecardInflight[playerName]; } finally { delete _scorecardInflight[playerName]; }

@@ -240,9 +240,7 @@ function openPickTeams(pickName) {
   renderTermActivity();
 }
 
-// Delegated click handler — avoids embedding pick names (flag emoji, slashes,
-// apostrophes) inside inline onclick attributes, which fails to re-quote
-// cleanly for team-pair picks. Data-pick-name is set as a textContent-safe
+// Delegated click handler — data-pick-name is set as a textContent-safe
 // attribute via setAttribute in the render pass.
 document.addEventListener('click', function(ev) {
   var row = ev.target && ev.target.closest && ev.target.closest('.ph-row.ph-clickable');
@@ -263,7 +261,7 @@ function _buildEntryDetailRow(entry, colspan) {
   // by score ascending so the contributing picks read top-down.
   var allPicks = (entry.picks || []);
   var _scored = allPicks.map(function(p) {
-    var gd = (typeof pickGolferData === 'function') ? pickGolferData(p) : (GOLFER_SCORES[p] || null);
+    var gd = GOLFER_SCORES[p] || null;
     return { pick: p, gd: gd, score: gd ? gd.score : null };
   });
   var _bestN = (typeof POOL_CONFIG !== 'undefined' && POOL_CONFIG.bestN) ? POOL_CONFIG.bestN : 4;
@@ -593,29 +591,11 @@ function renderTermLeaderboard() {
   var players = names.map(function(n) {
     var g = GOLFER_SCORES[n];
     return {
-      name: n, pos: g.pos, score: g.score, today: g.todayDisplay, thru: g.thru, teeTime: g.teeTime,
+      name: n, names: [n], pos: g.pos, score: g.score, today: g.todayDisplay, thru: g.thru, teeTime: g.teeTime,
       r1: g.r1, r2: g.r2, r3: g.r3, r4: g.r4, roundCount: g.roundCount,
-      mc: g.score === 11, wd: g.score === 12,
-      teamId: g.teamId
+      mc: g.score === 11, wd: g.score === 12
     };
   });
-  // Team events (Zurich): collapse teammates into one row, keeping `names` array for lookups.
-  (function() {
-    var seen = {};
-    var out = [];
-    players.forEach(function(p) {
-      if (p.teamId) {
-        if (seen[p.teamId]) { seen[p.teamId].names.push(p.name); return; }
-        p.names = [p.name];
-        seen[p.teamId] = p;
-        out.push(p);
-      } else {
-        p.names = [p.name];
-        out.push(p);
-      }
-    });
-    players = out;
-  })();
 
   var lbSort = _sortState['panel-leaderboard'];
   var lbAccessors = {
@@ -656,7 +636,7 @@ function renderTermLeaderboard() {
   // Filter by search input
   var q = (_lbSearch || '').trim().toLowerCase();
   if (q) {
-    players = players.filter(function(p) { return p.names.some(function(n) { return n.toLowerCase().indexOf(q) !== -1; }); });
+    players = players.filter(function(p) { return p.name.toLowerCase().indexOf(q) !== -1; });
   }
 
   // Get pool pick names
@@ -709,8 +689,7 @@ function renderTermLeaderboard() {
         var td = p.today;
         var todayVal = 0, hasToday = false;
         if (td && td !== '—') { hasToday = true; todayVal = td === 'E' ? 0 : (parseInt(String(td).replace('+', '')) || 0); }
-        // For team events, any teammate name in priorPosMap is fine since they share a record.
-        return { key: p.names[0], prior: hasToday ? p.score - todayVal : p.score };
+        return { key: p.name, prior: hasToday ? p.score - todayVal : p.score };
       })
       .sort(function(a, b) { return a.prior - b.prior; });
     var rk = 1;
@@ -725,8 +704,8 @@ function renderTermLeaderboard() {
       if (p.mc || p.wd) return;
       if (p.thru === '—' || (typeof p.thru === 'string' && p.thru.indexOf(':') !== -1)) return;
       var cP = parsePos(p.pos); if (!cP) return;
-      var sP = priorPosMap[p.names[0]];
-      if (sP && sP !== cP) arrowMap.set(p.names[0], sP - cP);
+      var sP = priorPosMap[p.name];
+      if (sP && sP !== cP) arrowMap.set(p.name, sP - cP);
     });
   }
   var topMoverMap = isPreT ? new Map() : (typeof getTopMovers === 'function' ? getTopMovers(arrowMap) : new Map());
@@ -756,19 +735,18 @@ function renderTermLeaderboard() {
     } else {
       thruDisp = p.thru || '—';
     }
-    var isTeam = p.names.length > 1;
-    var mine = (typeof currentUserTeams !== 'undefined' && currentUserTeams.some(function(t) { return p.names.some(function(n) { return t.picks.indexOf(n) !== -1; }); }));
-    var inPool = p.names.some(function(n) { return poolNames.has(n); });
+    var mine = (typeof currentUserTeams !== 'undefined' && currentUserTeams.some(function(t) { return t.picks.indexOf(p.name) !== -1; }));
+    var inPool = poolNames.has(p.name);
 
     // Position-change flash: red-tinted highlight when this player's current
     // position is strictly better (lower) than their last-polled position.
     var currP = parsePos(p.pos);
-    var prevP = (typeof PREV_POSITIONS !== 'undefined') ? PREV_POSITIONS[p.names[0]] : null;
+    var prevP = (typeof PREV_POSITIONS !== 'undefined') ? PREV_POSITIONS[p.name] : null;
     var justMovedUp = !isPreT && currP && prevP && currP < prevP;
     var rowCls = [mine ? 'is-mine' : '', justMovedUp ? 'tlb-just-up' : ''].filter(Boolean).join(' ');
 
     // Round-over-round arrow next to POS
-    var arrowDelta = arrowMap.has(p.names[0]) ? arrowMap.get(p.names[0]) : 0;
+    var arrowDelta = arrowMap.has(p.name) ? arrowMap.get(p.name) : 0;
     var arrowHtml = '';
     if (!isPreT && currP && arrowDelta !== 0) {
       arrowHtml = arrowDelta > 0
@@ -777,7 +755,7 @@ function renderTermLeaderboard() {
     }
 
     // Top-3 flame (up) / ice (down) badges — same thresholds as mobile.
-    var moverInfo = topMoverMap.get(p.names[0]);
+    var moverInfo = topMoverMap.get(p.name);
     var moverHtml = '';
     if (moverInfo) {
       var mag = Math.abs(arrowDelta);
@@ -787,9 +765,7 @@ function renderTermLeaderboard() {
     }
 
     var escapedName = p.name.replace(/'/g, "\\'");
-    var nameCell = isTeam
-      ? p.names.map(function(n) { var f = (FLAGS && FLAGS[n]) || ''; return (f ? f + ' ' : '') + termEsc(n); }).join(' / ')
-      : (((FLAGS && FLAGS[p.name]) || '') + ' ' + termEsc(p.name));
+    var nameCell = ((FLAGS && FLAGS[p.name]) || '') + ' ' + termEsc(p.name);
     return '<tr class="' + rowCls + '" onclick="toggleTermScorecard(\'' + escapedName + '\', this)" style="cursor:pointer">'
       + '<td class="tpt-pos">' + termEsc(posDisp) + arrowHtml + '</td>'
       + '<td class="tpt-name">' + nameCell + moverHtml + (inPool ? ' <span style="color:var(--term-text-muted);font-size:9px">●</span>' : '') + '</td>'
@@ -857,18 +833,9 @@ async function toggleTermScorecard(playerName, rowEl) {
   var aid = ATHLETE_IDS[playerName];
   var flag = (FLAGS && FLAGS[playerName]) || '';
 
-  // Team event (Zurich): show both teammate names separated by " / " since
-  // the scorecard below is the TEAM's combined twoball/alternate-shot score,
-  // not one golfer's. Falls through to the single clicked name whenever
-  // gd.teammateNames is absent (singles events), so auto-reverts next week.
-  var _isTeamCard = gd && gd.teammateNames && gd.teammateNames.length > 1;
-  var _headerName = _isTeamCard
-    ? gd.teammateNames.map(function(n) { var f = (FLAGS && FLAGS[n]) || ''; return (f ? f + ' ' : '') + termEsc(n); }).join(' / ')
-    : (flag + ' ' + termEsc(playerName));
-
   var html = '<div class="tsc-header">';
   if (aid) html += '<img class="tsc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + aid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">';
-  html += '<span class="tsc-name">' + _headerName + '</span>';
+  html += '<span class="tsc-name">' + flag + ' ' + termEsc(playerName) + '</span>';
   if (gd) html += '<span class="tsc-pos">' + (gd.pos || '') + '</span>';
   html += '<span class="tsc-close" onclick="event.stopPropagation();toggleTermScorecard(\'' + playerName.replace(/'/g, "\\'") + '\')">✕</span>';
   html += '</div>';
@@ -1277,8 +1244,7 @@ function renderTermStandings() {
     var teamHolesLeft = e.top4.reduce(function(s, g) { return s + getHolesRemaining(g.name); }, 0);
     var teamToday = 0, hasToday = false;
     e.top4.forEach(function(g) {
-      // pickGolferData handles team-pair picks ("A / B") that don't key into GOLFER_SCORES directly.
-      var gd = pickGolferData(g.name);
+      var gd = GOLFER_SCORES[g.name];
       if (!gd) return;
       if (gd.score === 11 || gd.score === 12) return;
       var td = gd.todayDisplay;
@@ -1522,129 +1488,6 @@ function renderTermMy() {
     return;
   }
 
-  // Team-event entries (Zurich-style) carry tierPicks + team-pair pick strings.
-  // Always render these as tier blocks — scoring individual golfer strings
-  // against GOLFER_SCORES is wrong (picks are pairs) and was surfacing the
-  // score=11 "missed cut" sentinel as "+11" per pick. When team-event-aware
-  // scoring lands, pre-live render will switch to a scored view.
-  var anyTeamEvent = teams.some(function(t) { return t.isTeamEvent || (t.tierPicks && Object.keys(t.tierPicks).some(function(k) { return t.tierPicks[k].length; })); });
-  if (anyTeamEvent) {
-    // Strip leading flag emoji to get a plain name we can look up in GOLFER_SCORES.
-    var _nameFromPart = function(s) {
-      return String(s || '').replace(/^[\s\u{1F1E6}-\u{1F1FF}\u{1F3F4}\u{E0020}-\u{E007F}]+/u, '').trim();
-    };
-    var _scoreForPair = function(pair) {
-      var parts = String(pair).split(/\s*\/\s*/);
-      for (var i = 0; i < parts.length; i++) {
-        var nm = NAME_ALIASES[_nameFromPart(parts[i])] || _nameFromPart(parts[i]);
-        var gd = GOLFER_SCORES[nm];
-        if (gd) return gd;
-      }
-      return null;
-    };
-    // Pool rank map so the header can surface each entry's current standing
-    // alongside the team name (same pool rank F2 shows).
-    var _rankedAll = (typeof getRanked === 'function') ? getRanked() : [];
-    var _poolRankMap = {};
-    _rankedAll.forEach(function(e, i) { _poolRankMap[e.team + '|' + (e.email || '')] = i + 1; });
-    var _poolSize = _rankedAll.length;
-    body.innerHTML = teams.map(function(t, idx) {
-      var entrant = t.entrant ? '<span class="my-entry-by">' + termEsc(t.entrant) + ' · </span>' : '';
-      var tb = t.tieBreaker ? '<span class="my-tb">TB: <strong>' + termEsc(t.tieBreaker) + '</strong></span>' : '';
-      var tierLabels = { tier1: 'T1 Favorites', tier2: 'T2 Contenders', tier3: 'T3 Midfield', tier4: 'T4 Longshots' };
-
-      // Gather all 8 team-pair scores across the entry, compute best-4 total.
-      var allPairScores = [];
-      ['tier1', 'tier2', 'tier3', 'tier4'].forEach(function(k) {
-        var picks = (t.tierPicks && t.tierPicks[k]) || [];
-        picks.forEach(function(p) {
-          var gd = _scoreForPair(p);
-          allPairScores.push({ pair: p, tier: k, gd: gd, score: gd ? gd.score : null });
-        });
-      });
-      var playedPairs = allPairScores.filter(function(x) {
-        if (!x.gd) return false;
-        if (x.score === 11 || x.score === 12) return false;
-        // Haven't teed off yet when thru is still a tee-time string
-        var thruStr = String(x.gd.thru || '');
-        if (/\d+:\d+\s*(AM|PM)?/i.test(thruStr)) return false;
-        return true;
-      });
-      var best4 = playedPairs.slice().sort(function(a, b) { return (a.score || 0) - (b.score || 0); }).slice(0, 4);
-      var teamTotal = best4.reduce(function(s, x) { return s + (x.score || 0); }, 0);
-      var teamToday = 0, hasToday = false;
-      best4.forEach(function(x) {
-        var td = x.gd && x.gd.todayDisplay;
-        if (td && td !== '—') { hasToday = true; teamToday += (td === 'E' ? 0 : parseInt(String(td).replace('+', '')) || 0); }
-      });
-      var hasAnyScore = playedPairs.length > 0;
-      var top4Pairs = new Set(best4.map(function(x) { return x.pair; }));
-
-      var tiersHtml = '';
-      ['tier1', 'tier2', 'tier3', 'tier4'].forEach(function(k) {
-        var picks = (t.tierPicks && t.tierPicks[k]) || [];
-        if (!picks.length) return;
-        tiersHtml += '<div class="my-tier-group">'
-          + '<div class="my-tier-lbl">' + tierLabels[k] + '</div>'
-          + picks.map(function(p) {
-              var gd = _scoreForPair(p);
-              var sc, scCls, thru = '';
-              var thruIsTee = gd && gd.thru && /\d+:\d+\s*(AM|PM)?/i.test(String(gd.thru));
-              if (!gd) { sc = '—'; scCls = 'eve'; }
-              else if (gd.score === 11) { sc = 'MC'; scCls = 'mc'; thru = gd.thru || ''; }
-              else if (gd.score === 12) { sc = 'WD'; scCls = 'mc'; }
-              else if (thruIsTee && gd.score === 0) { sc = '—'; scCls = 'eve'; thru = gd.thru || ''; }
-              else { sc = fmtScore(gd.score); scCls = scoreCls(gd.score); thru = gd.thru || ''; }
-              var starred = top4Pairs.has(p) && hasAnyScore;
-              return '<div class="my-tier-pick' + (starred ? ' my-tier-star' : '') + '">'
-                + '<div class="my-tier-pair">'
-                +   '<div class="my-tier-name">' + (starred ? '★ ' : '') + termEsc(p) + '</div>'
-                + '</div>'
-                + '<div class="my-tier-right">'
-                +   '<span class="my-tier-score ' + scCls + '">' + sc + '</span>'
-                +   (thru ? '<span class="my-tier-thru">' + termEsc(String(thru)) + '</span>' : '')
-                + '</div>'
-                + '</div>';
-            }).join('')
-          + '</div>';
-      });
-
-      var statsHtml;
-      if (hasAnyScore) {
-        statsHtml = '<span class="my-entry-stats">'
-          + entrant
-          + '<span>TDY <strong class="' + (hasToday ? scoreCls(teamToday) : 'eve') + '">' + (hasToday ? fmtScore(teamToday) : '—') + '</strong></span>'
-          + tb
-          + '</span>';
-      } else {
-        statsHtml = '<span class="my-entry-stats">' + entrant + '<span class="my-pre-tag">PRE-TOURNAMENT</span>' + tb + '</span>';
-      }
-
-      var poolRank = _poolRankMap[t.team + '|' + (t.email || '')];
-      var posHtml = '';
-      if (hasAnyScore && poolRank) {
-        posHtml = '<span class="my-entry-pos">'
-          + '<span class="mep-rank">#' + poolRank + (_poolSize ? '/' + _poolSize : '') + '</span>'
-          + '<span class="mep-tot ' + scoreCls(teamTotal) + '">' + fmtScore(teamTotal) + '</span>'
-          + '</span>';
-      } else if (poolRank) {
-        posHtml = '<span class="my-entry-pos"><span class="mep-rank">#' + poolRank + (_poolSize ? '/' + _poolSize : '') + '</span></span>';
-      }
-
-      return '<div class="my-entry-block">'
-        + '<div class="my-entry-header">'
-        +   '<span class="my-entry-name">' + termEsc(t.team) + '</span>'
-        +   posHtml
-        + '</div>'
-        + statsHtml
-        + tiersHtml
-        + '</div>';
-    }).join('');
-    var meta2 = document.getElementById('my-meta');
-    if (meta2) meta2.textContent = teams.length + ' ' + (teams.length === 1 ? 'entry' : 'entries');
-    return;
-  }
-
   var ranked = getRanked();
   var rankMap = {};
   ranked.forEach(function(e, i) { rankMap[e.team + '|' + e.email] = i + 1; });
@@ -1698,32 +1541,19 @@ function renderTermMy() {
 function renderTermDataGolf() {
   var body = document.getElementById('term-dg-body');
   if (!body) return;
-  // Prefer team rows when the current DG payload is a team event.
-  var teamRows = (typeof DG_TEAM_PREDS !== 'undefined' && DG_TEAM_PREDS) ? DG_TEAM_PREDS : [];
   var dg = (typeof DG_LIVE_PREDS !== 'undefined') ? DG_LIVE_PREDS : {};
   var names = Object.keys(dg);
-  if (!names.length && !teamRows.length) {
+  if (!names.length) {
     body.innerHTML = '<tr><td colspan="6" class="empty">Loading DataGolf odds…</td></tr>';
     var metaE = document.getElementById('dg-meta');
     if (metaE) metaE.textContent = '—';
     return;
   }
 
-  var rows;
-  if (teamRows.length) {
-    rows = teamRows.map(function(t) {
-      return {
-        name: t.display || t.team_name,
-        win: t.win || 0, top_5: t.top_5 || 0, top_10: t.top_10 || 0,
-        top_20: t.top_20 || 0, make_cut: t.make_cut || 0
-      };
-    });
-  } else {
-    rows = names.map(function(n) {
-      var d = dg[n];
-      return { name: n, win: d.win || 0, top_5: d.top_5 || 0, top_10: d.top_10 || 0, top_20: d.top_20 || 0, make_cut: d.make_cut || 0 };
-    });
-  }
+  var rows = names.map(function(n) {
+    var d = dg[n];
+    return { name: n, win: d.win || 0, top_5: d.top_5 || 0, top_10: d.top_10 || 0, top_20: d.top_20 || 0, make_cut: d.make_cut || 0 };
+  });
 
   var dgSort = _sortState['panel-datagolf'];
   var dgAccessors = {
@@ -1760,9 +1590,7 @@ function renderTermDataGolf() {
 
   body.innerHTML = rows.slice(0, 80).map(function(r) {
     var flag = (FLAGS && FLAGS[r.name]) || '';
-    // Team-event rows already encode flags inline in the name ("🏴 A / 🏴 B"),
-    // so skip the prefix when no FLAGS lookup matches to avoid a leading space.
-    var nameCell = flag ? (flag + ' ' + termEsc(r.name)) : termEsc(r.name);
+    var nameCell = flag + ' ' + termEsc(r.name);
     return '<tr>'
       + '<td class="tpt-name">' + nameCell + '</td>'
       + pctCell(r.make_cut)

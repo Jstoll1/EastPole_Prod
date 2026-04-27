@@ -52,9 +52,7 @@ function resolvePlayerName(name) { return NAME_ALIASES[name] || name; }
 function getCountryCode(name) { return FLAG_TO_CODE[FLAGS[name]] || ''; }
 
 function getHolesRemaining(playerName) {
-  // Pair strings like "🏴 A / 🏴 B" (team events) need pickGolferData to
-  // resolve to the shared team record; solo names fall through to GOLFER_SCORES.
-  var gd = (typeof pickGolferData === 'function') ? pickGolferData(playerName) : GOLFER_SCORES[playerName];
+  var gd = GOLFER_SCORES[playerName];
   if (!gd) return 0;
   if (gd.thru === 'MC' || gd.thru === 'WD' || gd.score === 11 || gd.score === 12) return 0;
   // roundCount = total linescores with any value (includes in-progress)
@@ -73,51 +71,11 @@ function getHolesRemaining(playerName) {
   return Math.max(0, (4 - roundCount) * 18);
 }
 
-// Strip any non-letter prefix (flag emoji, regional-indicator codepoints,
-// whitespace, ZWJ, etc.) from a raw pick segment and normalize to the
-// canonical GOLFER_SCORES key. Using [^\p{L}]+ is more robust than an
-// emoji-property allow-list, which historically missed regional-indicator
-// flag sequences under some JS engines.
-function _cleanPickName(raw) {
-  if (typeof raw !== 'string') return '';
-  var stripped = raw.replace(/^[^\p{L}]+/u, '').trim();
-  return (typeof resolvePlayerName === 'function') ? resolvePlayerName(stripped) : stripped;
-}
-
-var _scorePickWarned = {};
-
-// Resolve a pick (solo name OR team-pair string like "🏴 A / 🏴 B") to its
-// GOLFER_SCORES record. For pair picks both teammates share the same team
-// record, so returning either teammate's entry gives the team's thru /
-// todayDisplay / round data — needed anywhere we render per-pick live info,
-// not just the score.
 function pickGolferData(pick) {
-  if (typeof pick === 'string' && pick.indexOf(' / ') !== -1) {
-    var names = pick.split(/\s*\/\s*/).map(_cleanPickName).filter(Boolean);
-    for (var i = 0; i < names.length; i++) {
-      if (GOLFER_SCORES[names[i]]) return GOLFER_SCORES[names[i]];
-    }
-    return null;
-  }
   return GOLFER_SCORES[pick] || null;
 }
 
-// Score one pick. Team-event pair strings ("🏴 Matt F / 🏴 Alex F") share a
-// single team score in GOLFER_SCORES (same record written for both teammates)
-// — resolve either teammate instead of feeding the whole pair string to gs(),
-// which would miss and fall through to the MC=11 penalty (collapsing every
-// entry in a Zurich-style team pool to +44).
 function scorePick(pick) {
-  var gd = pickGolferData(pick);
-  if (gd) return gd.score;
-  if (typeof pick === 'string' && pick.indexOf(' / ') !== -1) {
-    var names = pick.split(/\s*\/\s*/).map(_cleanPickName).filter(Boolean);
-    if (!_scorePickWarned[pick]) {
-      _scorePickWarned[pick] = 1;
-      console.warn('⚠️ scorePick: team pair unresolved', { pick: pick, cleaned: names });
-    }
-    return gs(names[0] || pick);
-  }
   return gs(pick);
 }
 

@@ -383,9 +383,6 @@ var TOURNEY_FINAL = false; // true when all 4 rounds complete, 0 holes left
 
 // Live probability predictions (keyed by canonical player name)
 var DG_LIVE_PREDS = {};
-// Team-event predictions (one row per team) — populated from pre-tournament's
-// team_name rows so F5 can render team rows in events like the Zurich Classic.
-var DG_TEAM_PREDS = [];
 var DG_META = { event_name: '', last_updated: '', source: '', fetched_at: 0 };
 var DG_API_KEY = '3a65d1e85639edeb0476c68b9215';
 
