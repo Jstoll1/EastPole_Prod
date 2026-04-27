@@ -83,11 +83,23 @@ function parsePoolTSV(text) {
     }
     var picks = [];
     var tierPicks = { tier1: [], tier2: [], tier3: [], tier4: [] };
+    // Split a sheet selection into individual golfer names. Historic team-pair
+    // selections were stored as "🏴 A / 🏴 B" — split on " / " and strip the
+    // leading flag from each side so each pick keys cleanly into GOLFER_SCORES.
+    var stripFlag = function(s) {
+      var clean = String(s || '').replace(/^[^\p{L}]+/u, '').trim();
+      return (typeof resolvePlayerName === 'function') ? resolvePlayerName(clean) : clean;
+    };
+    var explodeSelection = function(sel) {
+      return String(sel).split(/\s*\/\s*/).map(stripFlag).filter(Boolean);
+    };
     ['tier1', 'tier2', 'tier3', 'tier4'].forEach(function(k) {
       var i = idx[k];
       if (i < 0 || !cells[i]) return;
       // Google stores multi-checkbox as ", "-joined string within the cell.
-      var golfers = cells[i].split(/,\s*(?=[^\s])/).map(function(s) { return s.trim(); }).filter(Boolean);
+      var selections = cells[i].split(/,\s*(?=[^\s])/).map(function(s) { return s.trim(); }).filter(Boolean);
+      var golfers = [];
+      selections.forEach(function(s) { explodeSelection(s).forEach(function(g) { golfers.push(g); }); });
       tierPicks[k] = golfers;
       golfers.forEach(function(g) { picks.push(g); });
     });
