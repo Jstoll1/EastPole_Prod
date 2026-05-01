@@ -1,0 +1,12 @@
+name = "eastpole-chat"
+main = "src/index.js"
+compatibility_date = "2026-04-01"
+
+# CPU time limit for the worker (ms). Streaming Anthropic responses can run
+# for ~10s, so we bump from the default 50ms to 30s.
+[limits]
+cpu_ms = 30000
+
+# Production environment — deploy with: wrangler deploy
+[env.production]
+name = "eastpole-chat"
