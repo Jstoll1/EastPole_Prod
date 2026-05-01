@@ -1334,10 +1334,12 @@ function recordDGSnapshot(eventName, preds) {
       make_cut: p.make_cut || 0
     };
   });
-  // Skip writing if the latest poll is identical to this one (worker returns
-  // cached payloads when the source hasn't refreshed yet).
+  // Skip writing only if a snapshot landed within the last 30s (dedup
+  // double-fires from rapid renderAll cycles). DataGolf often returns the same
+  // payload across polls during quiet windows — we still record those, since a
+  // flat line on the chart is meaningful "no movement" signal.
   var last = h.polls[h.polls.length - 1];
-  if (last && last.players && _samePollPayload(last.players, compact)) return;
+  if (last && (Date.now() - last.t) < 30000) return;
   h.polls.push({ t: Date.now(), players: compact });
   if (h.polls.length > _DG_HIST_MAX_POLLS) h.polls = h.polls.slice(-_DG_HIST_MAX_POLLS);
   _saveDGHistory(h);
@@ -1345,17 +1347,6 @@ function recordDGSnapshot(eventName, preds) {
   if (document.getElementById('term-trends-body')) {
     try { renderTermTrends(); } catch(e) {}
   }
-}
-
-function _samePollPayload(a, b) {
-  var ka = Object.keys(a), kb = Object.keys(b);
-  if (ka.length !== kb.length) return false;
-  for (var i = 0; i < ka.length; i++) {
-    var n = ka[i];
-    if (!b[n]) return false;
-    if (a[n].win !== b[n].win || a[n].top_5 !== b[n].top_5) return false;
-  }
-  return true;
 }
 
 function setTrendsMetric(m) {
