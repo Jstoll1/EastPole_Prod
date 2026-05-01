@@ -347,8 +347,7 @@ var _termLastUpdate = 0;
 // Panel-keyed sort state; each render function applies the current col/dir.
 var _sortState = {
   'panel-leaderboard': { col: 'score', dir: 'asc' },
-  'panel-standings':   { col: 'rank',  dir: 'asc' },
-  'panel-datagolf':    { col: 'win',   dir: 'desc' }
+  'panel-standings':   { col: 'rank',  dir: 'asc' }
 };
 var _colWidths = {};
 try { _colWidths = JSON.parse(localStorage.getItem('term_col_widths') || '{}'); } catch(e) {}
@@ -1536,114 +1535,151 @@ function renderTermMy() {
   if (meta) meta.textContent = teams.length + ' ' + (teams.length === 1 ? 'entry' : 'entries');
 }
 
-// ── Render DataGolf Odds ──────────────────────────────
+// ── Render F5 · COURSE INTEL ───────────────────────────
+//
+// Self-contained course intelligence panel: 18-hole difficulty strip,
+// hardest/easiest call-outs, per-round field scoring averages, and a
+// projected cut line during R2 / between R2-R3. Pulls everything from
+// COURSE_HOLES (par + yardage from ESPN's leaderboard endpoint) and
+// GOLFER_SCORES (round-to-par totals already in memory).
 
-function renderTermDataGolf() {
-  var body = document.getElementById('term-dg-body');
+function renderTermCourse() {
+  var body = document.getElementById('term-course-body');
   if (!body) return;
-  var dg = (typeof DG_LIVE_PREDS !== 'undefined') ? DG_LIVE_PREDS : {};
-  var names = Object.keys(dg);
-  if (!names.length) {
-    body.innerHTML = '<tr><td colspan="7" class="empty">Loading DataGolf odds…</td></tr>';
-    var metaE = document.getElementById('dg-meta');
-    if (metaE) metaE.textContent = '—';
+  var meta = document.getElementById('course-meta');
+
+  var holes = (typeof COURSE_HOLES !== 'undefined' && COURSE_HOLES) ? COURSE_HOLES : null;
+  var courseName = (typeof TOURNEY_COURSE !== 'undefined' && TOURNEY_COURSE) || '';
+  var coursePar = (typeof COURSE_PAR !== 'undefined' && COURSE_PAR) || 72;
+
+  if (!holes || !holes.length) {
+    body.innerHTML = '<div class="empty">Loading course details…</div>';
+    if (meta) meta.textContent = courseName || '—';
     return;
   }
-  // Build a name → last 24 win-prob samples lookup so we can render a Unicode
-  // sparkline next to each player's odds. Empty until DG history accumulates.
-  var sparkSeries = (function() {
-    var hist = _loadDGHistory();
-    if (!hist || !hist.polls || hist.polls.length < 2) return {};
-    var recent = hist.polls.slice(-24);
-    var out = {};
-    recent.forEach(function(poll) {
-      Object.keys(poll.players).forEach(function(name) {
-        if (!out[name]) out[name] = [];
-        out[name].push(poll.players[name].win || 0);
-      });
+
+  // Without per-hole field averages from ESPN/DG, rank holes via a
+  // par-relative yardage proxy: a 510-yd par 4 plays harder than a
+  // 360-yd par 4. Reasonably predictive of which holes the field
+  // bleeds strokes on, and works pre-tournament from static data.
+  function difficultyScore(h) {
+    var p = h.par || 4;
+    var y = h.yardage || 0;
+    // Empirical "stretched" baselines per par. Diff > 0 = harder than typical.
+    var baseline = { 3: 175, 4: 425, 5: 555 }[p] || 400;
+    return (y - baseline) / baseline;
+  }
+  var withDiff = holes.map(function(h) { return Object.assign({}, h, { diff: difficultyScore(h) }); });
+  var maxAbs = Math.max.apply(null, withDiff.map(function(h) { return Math.abs(h.diff); })) || 0.1;
+
+  function holeColor(d) {
+    // -ve (easier) → green; +ve (harder) → red. Scaled to the strongest hole.
+    var t = Math.max(-1, Math.min(1, d / maxAbs));
+    if (t > 0) {
+      var alpha = (0.18 + 0.42 * t).toFixed(2);
+      return 'rgba(255,107,107,' + alpha + ')';
+    } else if (t < 0) {
+      var alphaG = (0.18 + 0.42 * (-t)).toFixed(2);
+      return 'rgba(82,183,136,' + alphaG + ')';
+    }
+    return 'rgba(212,168,67,0.10)';
+  }
+
+  function holeCell(h) {
+    var bg = holeColor(h.diff);
+    var parCls = h.par === 3 ? 'p3' : h.par === 5 ? 'p5' : 'p4';
+    return '<div class="ci-hole ci-' + parCls + '" style="background:' + bg + '" title="Hole ' + h.number + ' · Par ' + h.par + ' · ' + (h.yardage || '?') + ' yds">'
+      + '<div class="ci-h-num">' + h.number + '</div>'
+      + '<div class="ci-h-par">P' + h.par + '</div>'
+      + '<div class="ci-h-yds">' + (h.yardage || '—') + '</div>'
+      + '</div>';
+  }
+
+  // 18-hole strip split into front 9 / back 9 rows for readability.
+  var front = withDiff.slice(0, 9).map(holeCell).join('');
+  var back  = withDiff.slice(9, 18).map(holeCell).join('');
+  var totalYds = holes.reduce(function(s, h) { return s + (h.yardage || 0); }, 0);
+
+  // Hardest / easiest 3 (by the same proxy)
+  var ranked = withDiff.slice().sort(function(a, b) { return b.diff - a.diff; });
+  var hardest = ranked.slice(0, 3);
+  var easiest = ranked.slice(-3).reverse();
+  function holeLabel(h) {
+    return '<span class="ci-hl">'
+      + '<span class="ci-hl-num">#' + h.number + '</span>'
+      + '<span class="ci-hl-par">Par ' + h.par + '</span>'
+      + '<span class="ci-hl-yds">' + (h.yardage || '—') + 'y</span>'
+      + '</span>';
+  }
+
+  // Round-by-round field averages (vs par). Counts only golfers with a
+  // real score for that round; skips MC/WD penalties.
+  var gs = (typeof GOLFER_SCORES !== 'undefined' && GOLFER_SCORES) || {};
+  var roundAvgs = [null, null, null, null];
+  [1, 2, 3, 4].forEach(function(r) {
+    var key = 'r' + r;
+    var sum = 0, n = 0;
+    Object.values(gs).forEach(function(g) {
+      var v = g && g[key];
+      if (v != null && v > 50) { sum += (v - coursePar); n++; }
     });
-    return out;
-  })();
-  function sparkOf(name) {
-    var series = sparkSeries[name];
-    if (!series || series.length < 2) return '';
-    var blocks = '▁▂▃▄▅▆▇█';
-    var max = Math.max.apply(null, series);
-    if (max <= 0) return '';
-    return series.map(function(v) {
-      var idx = Math.round((v / max) * (blocks.length - 1));
-      return blocks.charAt(Math.max(0, Math.min(blocks.length - 1, idx)));
-    }).join('');
-  }
-
-  var rows = names.map(function(n) {
-    var d = dg[n];
-    return { name: n, win: d.win || 0, top_5: d.top_5 || 0, top_10: d.top_10 || 0, top_20: d.top_20 || 0, make_cut: d.make_cut || 0 };
+    if (n) roundAvgs[r - 1] = { avg: sum / n, n: n };
   });
-
-  var dgSort = _sortState['panel-datagolf'];
-  var dgAccessors = {
-    name:     function(r) { return r.name; },
-    make_cut: function(r) { return r.make_cut; },
-    top_20:   function(r) { return r.top_20; },
-    top_10:   function(r) { return r.top_10; },
-    top_5:    function(r) { return r.top_5; },
-    win:      function(r) { return r.win; }
-  };
-  rows = sortRowsBy(rows, dgSort.col, dgSort.dir, dgAccessors);
-  updateSortIndicators('panel-datagolf');
-
-  function fmtPct(v) {
-    var pct = v * 100;
-    if (pct <= 0) return '—';
-    if (pct < 1) return '<1';
-    // Integer for whole values, one decimal otherwise; no % sign (column label implies it)
-    return pct >= 99.95 || pct === Math.round(pct) ? String(Math.round(pct)) : pct.toFixed(1);
-  }
-  function pctCls(v) {
-    if (v >= 0.5) return 'dg-hi';
-    if (v >= 0.15) return 'dg-mid';
-    if (v > 0) return 'dg-lo';
-    return 'dg-zero';
-  }
-  function pctCell(v) {
-    var pct = Math.max(0, Math.min(1, v || 0)) * 100;
-    var bar = pct > 0
-      ? 'background:linear-gradient(to right, rgba(212,168,67,0.28) ' + pct.toFixed(1) + '%, transparent ' + pct.toFixed(1) + '%);'
-      : '';
-    return '<td class="tpt-dg ' + pctCls(v) + '" style="' + bar + '">' + fmtPct(v) + '</td>';
-  }
-
-  body.innerHTML = rows.slice(0, 80).map(function(r) {
-    var flag = (FLAGS && FLAGS[r.name]) || '';
-    var nameCell = flag + ' ' + termEsc(r.name);
-    var spark = sparkOf(r.name);
-    return '<tr>'
-      + '<td class="tpt-name">' + nameCell + '</td>'
-      + pctCell(r.make_cut)
-      + pctCell(r.top_20)
-      + pctCell(r.top_10)
-      + pctCell(r.top_5)
-      + pctCell(r.win)
-      + '<td class="tpt-trend">' + (spark || '—') + '</td>'
-      + '</tr>';
+  var roundsHtml = roundAvgs.map(function(r, i) {
+    if (!r) return '<div class="ci-rnd ci-rnd-empty"><span class="ci-rnd-lbl">R' + (i + 1) + '</span><span class="ci-rnd-val">—</span></div>';
+    var s = r.avg;
+    var disp = s > 0 ? '+' + s.toFixed(2) : s < 0 ? s.toFixed(2) : 'E';
+    var cls = s < -0.05 ? 'pos' : s > 0.05 ? 'neg' : 'eve';
+    return '<div class="ci-rnd"><span class="ci-rnd-lbl">R' + (i + 1) + '</span>'
+      + '<span class="ci-rnd-val ' + cls + '">' + disp + '</span>'
+      + '<span class="ci-rnd-n">' + r.n + 'p</span></div>';
   }).join('');
 
-  var meta = document.getElementById('dg-meta');
+  // Projected cut line — meaningful only after R1 has scores. Top 65 + ties.
+  var cutHtml = '';
+  var hasR2 = roundAvgs[1] != null;
+  var anyR1 = roundAvgs[0] != null;
+  if (anyR1) {
+    var actives = Object.values(gs).filter(function(g) { return g.score !== 11 && g.score !== 12 && g.r1 != null; });
+    if (actives.length >= 65) {
+      var sorted = actives.slice().sort(function(a, b) { return a.score - b.score; });
+      var cutScore = sorted[64].score;
+      // Extend through ties at the cut score
+      var made = sorted.filter(function(g) { return g.score <= cutScore; }).length;
+      var cutDisp = cutScore > 0 ? '+' + cutScore : cutScore < 0 ? String(cutScore) : 'E';
+      cutHtml = '<div class="ci-cut">'
+        + '<span class="ci-cut-lbl">' + (hasR2 ? 'CUT' : 'PROJ CUT') + '</span>'
+        + '<span class="ci-cut-val">' + cutDisp + '</span>'
+        + '<span class="ci-cut-n">' + made + ' players</span>'
+        + '</div>';
+    }
+  }
+
+  body.innerHTML = ''
+    + '<div class="ci-summary">'
+    +   '<span class="ci-name">' + termEsc(courseName || 'Course') + '</span>'
+    +   '<span class="ci-stat"><span class="ci-stat-lbl">PAR</span> ' + coursePar + '</span>'
+    +   (totalYds ? '<span class="ci-stat"><span class="ci-stat-lbl">YDS</span> ' + totalYds.toLocaleString() + '</span>' : '')
+    + '</div>'
+    + '<div class="ci-strip-wrap">'
+    +   '<div class="ci-strip-row"><span class="ci-strip-lbl">OUT</span><div class="ci-strip">' + front + '</div></div>'
+    +   '<div class="ci-strip-row"><span class="ci-strip-lbl">IN</span><div class="ci-strip">' + back + '</div></div>'
+    + '</div>'
+    + '<div class="ci-callouts">'
+    +   '<div class="ci-callout ci-hard"><div class="ci-co-hdr">HARDEST</div><div class="ci-co-list">' + hardest.map(holeLabel).join('') + '</div></div>'
+    +   '<div class="ci-callout ci-easy"><div class="ci-co-hdr">EASIEST</div><div class="ci-co-list">' + easiest.map(holeLabel).join('') + '</div></div>'
+    + '</div>'
+    + '<div class="ci-rounds">' + roundsHtml + cutHtml + '</div>';
+
   if (meta) {
-    var parts = [rows.length + ' players'];
-    var dgEvent = (typeof DG_META !== 'undefined' && DG_META.event_name) || '';
-    var curEvent = (typeof TOURNEY_NAME !== 'undefined' && TOURNEY_NAME) || '';
-    var norm = function(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); };
-    var stale = dgEvent && curEvent && norm(dgEvent) !== norm(curEvent);
-    if (dgEvent) parts.push((stale ? '⚠ ' : '') + dgEvent);
-    if (DG_META && DG_META.source) parts.push(DG_META.source);
-    if (DG_META && DG_META.last_updated) parts.push(DG_META.last_updated);
+    var parts = [];
+    if (totalYds) parts.push(totalYds.toLocaleString() + ' yds');
+    parts.push('par ' + coursePar);
+    var p3 = holes.filter(function(h){return h.par===3;}).length;
+    var p5 = holes.filter(function(h){return h.par===5;}).length;
+    var p4 = holes.length - p3 - p5;
+    parts.push(p3 + '×3 / ' + p4 + '×4 / ' + p5 + '×5');
     meta.textContent = parts.join(' · ');
-    meta.title = stale
-      ? 'DataGolf is still showing ' + dgEvent + ' — odds for ' + curEvent + ' not yet published'
-      : '';
-    meta.style.color = stale ? 'var(--warn, #e0a030)' : '';
   }
 }
 
@@ -1791,7 +1827,7 @@ function renderTerminal() {
   try { renderTermStandings(); } catch(e) { console.error('STD error', e); }
   try { renderTermTrends(); } catch(e) { console.error('TRENDS error', e); }
   try { renderTermMy(); } catch(e) { console.error('MY error', e); }
-  try { renderTermDataGolf(); } catch(e) { console.error('DG error', e); }
+  try { renderTermCourse(); } catch(e) { console.error('COURSE error', e); }
   try { renderTermTicker(); } catch(e) { console.error('TICKER error', e); }
   try { renderTermWeatherBar(); } catch(e) { console.error('WX error', e); }
   updateStatusBar();
@@ -1844,8 +1880,12 @@ async function initTerminal() {
   try {
     termDiag('Calling fetchESPN...');
     await fetchESPN();
-    // Await DG so the F5 odds panel populates on first paint instead of waiting for the next auto-refresh
-    await fetchDGLivePreds(true);
+    // Await DG so F3 trends populate immediately instead of after the first auto-refresh.
+    // Course holes power F5 — fire alongside DG so both panels light up on first paint.
+    await Promise.all([
+      fetchDGLivePreds(true),
+      typeof fetchCourseHoles === 'function' ? fetchCourseHoles() : Promise.resolve()
+    ]);
     var count = Object.keys(GOLFER_SCORES || {}).length;
     termDiag('fetchESPN done. Golfers: ' + count + ', Tourney: ' + (typeof TOURNEY_NAME !== 'undefined' ? TOURNEY_NAME : 'UNDEF'));
     // Dump first 3 players' raw data

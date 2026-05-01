@@ -182,7 +182,7 @@ html, body {
 #panel-standings   { grid-column: 2; grid-row: 1; }
 #panel-trends      { grid-column: 3; grid-row: 1; }
 #panel-my          { grid-column: 2; grid-row: 2; }
-#panel-datagolf    { grid-column: 3; grid-row: 2; }
+#panel-course      { grid-column: 3; grid-row: 2; }
 
 .term-panel {
   background: var(--term-panel);
@@ -373,19 +373,97 @@ html, body {
 .tpt-score { width: 60px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; padding: 0 4px; }
 .tpt-today { width: 56px; text-align: center; font-variant-numeric: tabular-nums; padding: 0 4px; }
 .tpt-thru { width: 64px; text-align: center; color: var(--term-text-dim); font-size: 10px; font-variant-numeric: tabular-nums; padding: 0 4px; }
-.tpt-dg { width: 46px; text-align: right; font-weight: 700; }
-.tpt-dg.dg-hi { color: var(--term-amber); }
-.tpt-dg.dg-mid { color: var(--term-text); }
-.tpt-dg.dg-lo { color: var(--term-text-muted); }
-.tpt-dg.dg-zero { color: var(--term-text-dim); font-weight: 500; }
-.tpt-trend {
-  width: 110px;
-  text-align: right;
-  letter-spacing: 0.5px;
-  color: var(--term-amber, #d4a843);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
+
+/* ── F5 · COURSE INTEL ──────────────────────────────────── */
+.tp-body-course { padding: 10px 12px 12px; overflow: auto; }
+#term-course-body { display: flex; flex-direction: column; gap: 12px; }
+.ci-summary {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  font-size: 11px;
+  color: var(--term-text);
+  border-bottom: 1px solid rgba(212,168,67,0.15);
+  padding-bottom: 8px;
 }
+.ci-name { color: var(--term-amber); font-weight: 800; letter-spacing: 0.4px; font-size: 12px; }
+.ci-stat { color: var(--term-text); font-variant-numeric: tabular-nums; }
+.ci-stat-lbl { color: var(--term-text-dim); font-size: 9px; letter-spacing: 0.5px; margin-right: 4px; }
+
+.ci-strip-wrap { display: flex; flex-direction: column; gap: 4px; }
+.ci-strip-row { display: grid; grid-template-columns: 30px 1fr; align-items: center; gap: 6px; }
+.ci-strip-lbl { color: var(--term-text-dim); font-size: 9px; letter-spacing: 0.5px; font-weight: 700; }
+.ci-strip { display: grid; grid-template-columns: repeat(9, 1fr); gap: 3px; }
+.ci-hole {
+  border-radius: 3px;
+  padding: 4px 2px 3px;
+  text-align: center;
+  font-family: inherit;
+  font-size: 9px;
+  border: 1px solid rgba(212,168,67,0.10);
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  line-height: 1.1;
+  min-height: 44px;
+  justify-content: space-between;
+}
+.ci-h-num { font-weight: 800; color: var(--term-text); font-size: 10px; }
+.ci-h-par { color: var(--term-text-dim); font-size: 8.5px; }
+.ci-h-yds { color: var(--term-text-muted); font-size: 8.5px; font-variant-numeric: tabular-nums; }
+.ci-hole.ci-p3 .ci-h-par { color: #52b788; }
+.ci-hole.ci-p5 .ci-h-par { color: #5fb3d4; }
+
+.ci-callouts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ci-callout {
+  background: rgba(0,0,0,0.18);
+  border: 1px solid rgba(212,168,67,0.12);
+  border-radius: 3px;
+  padding: 6px 8px;
+}
+.ci-co-hdr {
+  font-size: 9px;
+  letter-spacing: 0.6px;
+  color: var(--term-text-dim);
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.ci-callout.ci-hard .ci-co-hdr { color: #ff6b6b; }
+.ci-callout.ci-easy .ci-co-hdr { color: #52b788; }
+.ci-co-list { display: flex; flex-direction: column; gap: 2px; }
+.ci-hl { display: grid; grid-template-columns: 28px 50px 1fr; gap: 6px; font-size: 10.5px; align-items: baseline; }
+.ci-hl-num { color: var(--term-amber); font-weight: 800; font-variant-numeric: tabular-nums; }
+.ci-hl-par { color: var(--term-text-dim); font-size: 9.5px; }
+.ci-hl-yds { color: var(--term-text); font-variant-numeric: tabular-nums; text-align: right; }
+
+.ci-rounds {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  border-top: 1px solid rgba(212,168,67,0.15);
+  padding-top: 8px;
+}
+.ci-rnd, .ci-cut {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  background: rgba(0,0,0,0.20);
+  border: 1px solid rgba(212,168,67,0.12);
+  border-radius: 3px;
+  padding: 4px 8px;
+  font-size: 10.5px;
+}
+.ci-rnd-empty { opacity: 0.5; }
+.ci-rnd-lbl, .ci-cut-lbl { color: var(--term-text-dim); font-size: 9px; letter-spacing: 0.5px; font-weight: 700; }
+.ci-rnd-val { font-weight: 800; font-variant-numeric: tabular-nums; }
+.ci-rnd-val.pos { color: #52b788; }
+.ci-rnd-val.neg { color: #ff6b6b; }
+.ci-rnd-val.eve { color: var(--term-text); }
+.ci-rnd-n, .ci-cut-n { color: var(--term-text-dim); font-size: 9px; }
+.ci-cut { background: rgba(212,168,67,0.10); border-color: rgba(212,168,67,0.30); margin-left: auto; }
+.ci-cut-lbl { color: var(--term-amber); }
+.ci-cut-val { color: var(--term-amber); font-weight: 800; font-variant-numeric: tabular-nums; }
 
 /* ── F1 Leaderboard Movers ──────────────────────────────────
    Round-over-round arrow next to POS, flame/ice badge for top-3 movers,
