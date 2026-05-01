@@ -359,6 +359,8 @@ html, body {
 }
 .tp-table tr.is-mine td {
   background: rgba(212,168,67,0.08);
+}
+.tp-table tr.is-mine td:first-child {
   border-left: 2px solid var(--term-amber);
 }
 .tp-table tr.is-money td {
