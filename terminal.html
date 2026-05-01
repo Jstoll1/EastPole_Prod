@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./css/terminal.css?v=47">
+<link rel="stylesheet" href="./css/terminal.css?v=48">
 <script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
 <body>
@@ -107,14 +107,14 @@
 </div>
 </section>
 
-<!-- Panel 3: Activity Feed -->
-<section class="term-panel" id="panel-activity">
+<!-- Panel 3: DG Trends Chart -->
+<section class="term-panel" id="panel-trends">
 <header class="tp-header">
-<span class="tp-title">F3 · PICK HEAT</span>
-<span class="tp-meta" id="act-meta">—</span>
+<span class="tp-title">F3 · TRENDS</span>
+<span class="tp-meta" id="trends-meta">—</span>
 </header>
-<div class="tp-body tp-body-feed">
-<div id="term-act-body"></div>
+<div class="tp-body tp-body-trends">
+<div id="term-trends-body"></div>
 </div>
 </section>
 
@@ -144,6 +144,7 @@
 <th class="tpt-dg" data-col="top_10">T10</th>
 <th class="tpt-dg" data-col="top_5">T5</th>
 <th class="tpt-dg" data-col="win">WIN</th>
+<th class="tpt-trend">TREND</th>
 </tr></thead>
 <tbody id="term-dg-body"></tbody>
 </table>
@@ -160,13 +161,13 @@
 <!-- Data layer (shared) -->
 <script defer src="./js/state.js?v=647"></script>
 <script defer src="./js/utils.js?v=642"></script>
-<script defer src="./js/api.js?v=659"></script>
+<script defer src="./js/api.js?v=660"></script>
 <script defer src="./js/ui-scorecard.js?v=640"></script>
 
 <!-- Terminal-only module -->
 <script defer src="./js/entry-form.js?v=5"></script>
 <script defer src="./js/entry-loader.js?v=13"></script>
-<script defer src="./js/terminal.js?v=68"></script>
+<script defer src="./js/terminal.js?v=69"></script>
 
 </body>
 </html>

@@ -513,6 +513,12 @@ async function fetchDGLivePreds(force) {
     DG_LIVE_PREDS = fresh;
     _dgLastFetch = Date.now();
 
+    // Persist a snapshot for the F3 trends chart (terminal-only, no-op when
+    // the recorder isn't loaded).
+    if (typeof recordDGSnapshot === 'function') {
+      try { recordDGSnapshot(DG_META.event_name, fresh); } catch(e) { console.warn('DG snapshot record failed', e); }
+    }
+
     // Cross-match: any GOLFER_SCORES row without a flag — try a fuzzy name
     // lookup against DataGolf's country data before giving up.
     var crossFilled = 0;

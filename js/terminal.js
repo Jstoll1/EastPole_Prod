@@ -237,7 +237,7 @@ function openPickTeams(pickName) {
   } else {
     _expandedPickName = pickName;
   }
-  renderTermActivity();
+  renderTermTrends();
 }
 
 // Delegated click handler — data-pick-name is set as a textContent-safe
@@ -1295,14 +1295,219 @@ function renderTermStandings() {
   }
 }
 
-// ── Render Movers (flame/ice) ──────────────────────────
+// ── DG Trends Persistence + F3 chart ──────────────────────
 
-function renderTermActivity() {
-  var body = document.getElementById('term-act-body');
+var _DG_HIST_KEY = 'eastpole_dg_history_v1';
+var _DG_HIST_MAX_POLLS = 500;
+var _trendsMetric = 'win'; // 'win' | 'top_5' | 'top_10' | 'top_20'
+var _trendsHidden = {}; // name → true if user toggled the line off
+
+function _loadDGHistory() {
+  try {
+    var raw = localStorage.getItem(_DG_HIST_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+
+function _saveDGHistory(h) {
+  try { localStorage.setItem(_DG_HIST_KEY, JSON.stringify(h)); } catch(e) {}
+}
+
+// Called from api.js after every successful DG fetch. Snapshot the current
+// per-player probabilities under the active event; rotate storage when the
+// event_name changes so we never mix odds across tournaments.
+function recordDGSnapshot(eventName, preds) {
+  if (!preds || !Object.keys(preds).length) return;
+  var h = _loadDGHistory();
+  if (!h || h.event !== (eventName || '')) {
+    h = { event: eventName || '', polls: [] };
+  }
+  // Compact the per-poll payload so 500 polls fit comfortably in localStorage.
+  var compact = {};
+  Object.keys(preds).forEach(function(name) {
+    var p = preds[name];
+    compact[name] = {
+      win: p.win || 0,
+      top_5: p.top_5 || 0,
+      top_10: p.top_10 || 0,
+      top_20: p.top_20 || 0,
+      make_cut: p.make_cut || 0
+    };
+  });
+  // Skip writing if the latest poll is identical to this one (worker returns
+  // cached payloads when the source hasn't refreshed yet).
+  var last = h.polls[h.polls.length - 1];
+  if (last && last.players && _samePollPayload(last.players, compact)) return;
+  h.polls.push({ t: Date.now(), players: compact });
+  if (h.polls.length > _DG_HIST_MAX_POLLS) h.polls = h.polls.slice(-_DG_HIST_MAX_POLLS);
+  _saveDGHistory(h);
+  // Re-render F3 if the panel exists (terminal view only)
+  if (document.getElementById('term-trends-body')) {
+    try { renderTermTrends(); } catch(e) {}
+  }
+}
+
+function _samePollPayload(a, b) {
+  var ka = Object.keys(a), kb = Object.keys(b);
+  if (ka.length !== kb.length) return false;
+  for (var i = 0; i < ka.length; i++) {
+    var n = ka[i];
+    if (!b[n]) return false;
+    if (a[n].win !== b[n].win || a[n].top_5 !== b[n].top_5) return false;
+  }
+  return true;
+}
+
+function setTrendsMetric(m) {
+  _trendsMetric = m;
+  renderTermTrends();
+}
+
+function toggleTrendLine(name) {
+  if (_trendsHidden[name]) delete _trendsHidden[name];
+  else _trendsHidden[name] = true;
+  renderTermTrends();
+}
+
+// Color palette for up to 5 plotted lines — distinct hues that read on dark bg.
+var _TREND_COLORS = ['#d4a843', '#ff6b6b', '#52b788', '#5fb3d4', '#c97cb4'];
+
+function renderTermTrends() {
+  var body = document.getElementById('term-trends-body');
   if (!body) return;
+  var meta = document.getElementById('trends-meta');
+  var hist = _loadDGHistory();
+  var minPolls = 5;
+  // Empty state: not enough history yet → show the pick heat panel.
+  if (!hist || !hist.polls || hist.polls.length < minPolls) {
+    _renderPickHeatPanel(body);
+    if (meta) {
+      var got = (hist && hist.polls) ? hist.polls.length : 0;
+      meta.textContent = 'PICK HEAT · ' + got + '/' + minPolls + ' DG polls';
+    }
+    return;
+  }
 
-  // Pool Pick Heatmap — counts how many entries picked each team / golfer.
-  // Works pre-tournament (the movers branch below needs round data).
+  var polls = hist.polls;
+  var latest = polls[polls.length - 1].players || {};
+  // Top 5 by current win prob (or the active metric)
+  var key = _trendsMetric;
+  var ranked = Object.keys(latest)
+    .map(function(n) { return { name: n, v: latest[n][key] || 0 }; })
+    .filter(function(r) { return r.v > 0; })
+    .sort(function(a, b) { return b.v - a.v; });
+  var top5 = ranked.slice(0, 5).map(function(r) { return r.name; });
+
+  // Compute Y range — auto-scale up from max value
+  var maxVal = 0;
+  top5.forEach(function(n) {
+    polls.forEach(function(p) {
+      var v = p.players[n] && p.players[n][key];
+      if (v > maxVal) maxVal = v;
+    });
+  });
+  // Pad max by 10% for headroom; floor at 0.10 so a flat 5%-ish line still has scale
+  var yMax = Math.min(1, Math.max(0.1, maxVal * 1.1));
+  var t0 = polls[0].t, tN = polls[polls.length - 1].t;
+  var tSpan = Math.max(1, tN - t0);
+
+  // Chart geometry
+  var W = 720, H = 280;
+  var padL = 36, padR = 12, padT = 12, padB = 28;
+  var plotW = W - padL - padR, plotH = H - padT - padB;
+
+  function xOf(t) { return padL + (t - t0) / tSpan * plotW; }
+  function yOf(v) { return padT + plotH - (v / yMax) * plotH; }
+
+  // Y-axis grid + labels (4 evenly spaced ticks)
+  var ticks = [];
+  var nT = 4;
+  for (var i = 0; i <= nT; i++) {
+    var v = (yMax * i) / nT;
+    ticks.push({ v: v, y: yOf(v), label: (v * 100).toFixed(0) + '%' });
+  }
+
+  var grid = ticks.map(function(t) {
+    return '<line class="trend-grid" x1="' + padL + '" y1="' + t.y.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + t.y.toFixed(1) + '"/>'
+      + '<text class="trend-axis" x="' + (padL - 4) + '" y="' + (t.y + 3.5).toFixed(1) + '" text-anchor="end">' + t.label + '</text>';
+  }).join('');
+
+  // X-axis: mark day boundaries (midnight in local time)
+  var dayMarks = [];
+  var d = new Date(t0); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + 1);
+  while (d.getTime() < tN) {
+    if (d.getTime() > t0) {
+      dayMarks.push({
+        x: xOf(d.getTime()),
+        label: d.toLocaleDateString([], { weekday: 'short' }).toUpperCase()
+      });
+    }
+    d.setDate(d.getDate() + 1);
+  }
+  var xAxis = dayMarks.map(function(m) {
+    return '<line class="trend-grid" x1="' + m.x.toFixed(1) + '" y1="' + padT + '" x2="' + m.x.toFixed(1) + '" y2="' + (padT + plotH) + '"/>'
+      + '<text class="trend-axis" x="' + m.x.toFixed(1) + '" y="' + (H - padB + 16) + '" text-anchor="middle">' + m.label + '</text>';
+  }).join('');
+
+  // Lines
+  var lines = top5.map(function(name, idx) {
+    if (_trendsHidden[name]) return '';
+    var color = _TREND_COLORS[idx % _TREND_COLORS.length];
+    var pts = polls.map(function(p) {
+      var v = p.players[name] && p.players[name][key];
+      if (v == null) return null;
+      return xOf(p.t).toFixed(1) + ',' + yOf(v).toFixed(1);
+    }).filter(Boolean).join(' ');
+    if (!pts) return '';
+    return '<polyline class="trend-line" stroke="' + color + '" points="' + pts + '"/>';
+  }).join('');
+
+  // Legend (chip per line, click to toggle)
+  var legend = top5.map(function(name, idx) {
+    var color = _TREND_COLORS[idx % _TREND_COLORS.length];
+    var hidden = !!_trendsHidden[name];
+    var v = latest[name] && latest[name][key];
+    var pct = (v != null) ? (v * 100).toFixed(1) + '%' : '—';
+    return '<button class="trend-legend-chip' + (hidden ? ' is-hidden' : '') + '" '
+      + 'onclick="toggleTrendLine(\'' + name.replace(/'/g, "\\'") + '\')" '
+      + 'style="--trend-color:' + color + '">'
+      + '<span class="trend-legend-dot"></span>'
+      + '<span class="trend-legend-name">' + termEsc(name) + '</span>'
+      + '<span class="trend-legend-val">' + pct + '</span>'
+      + '</button>';
+  }).join('');
+
+  // Metric toggle
+  var metrics = [
+    { k: 'win', l: 'WIN' },
+    { k: 'top_5', l: 'TOP 5' },
+    { k: 'top_10', l: 'TOP 10' },
+    { k: 'top_20', l: 'TOP 20' }
+  ];
+  var seg = '<div class="trend-metric-seg">' + metrics.map(function(m) {
+    return '<button class="trend-metric-btn' + (_trendsMetric === m.k ? ' is-active' : '') + '" '
+      + 'onclick="setTrendsMetric(\'' + m.k + '\')">' + m.l + '</button>';
+  }).join('') + '</div>';
+
+  body.innerHTML = '<div class="trend-controls">' + seg + '</div>'
+    + '<div class="trend-chart-wrap">'
+    +   '<svg class="trend-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">'
+    +     '<g class="trend-grid-g">' + grid + xAxis + '</g>'
+    +     '<g class="trend-lines">' + lines + '</g>'
+    +   '</svg>'
+    + '</div>'
+    + '<div class="trend-legend">' + legend + '</div>';
+
+  if (meta) {
+    var hours = Math.round(tSpan / 3600000 * 10) / 10;
+    meta.textContent = polls.length + ' polls · ' + hours + 'h · ' + metrics.find(function(m){return m.k===_trendsMetric;}).l;
+  }
+}
+
+// Pick heat — preserved as the F3 empty state until DG history accumulates.
+function _renderPickHeatPanel(body) {
+  // Pool Pick Heatmap — counts how many entries picked each golfer.
+  // Works pre-tournament; serves as the F3 empty state before DG polls collect.
   var entries = (typeof ENTRIES !== 'undefined' && ENTRIES) ? ENTRIES : [];
   if (entries.length) {
     var counts = {};
@@ -1357,89 +1562,10 @@ function renderTermActivity() {
         }
         return html;
       }).join('');
-      var metaP = document.getElementById('act-meta');
-      if (metaP) metaP.textContent = pickRows.length + ' picks · ' + totalEntries + ' entries';
       return;
     }
   }
-
-  // Fall-through: movers view for live play with no entries loaded
-  var isPreT = (typeof TOURNAMENT_STARTED !== 'undefined' && !TOURNAMENT_STARTED);
-  var currentRound = (typeof ESPN_ROUND !== 'undefined' && ESPN_ROUND) ? Math.min(ESPN_ROUND, 4) : 0;
-
-  var allPlayers = Object.keys(GOLFER_SCORES || {}).map(function(n) {
-    var g = GOLFER_SCORES[n];
-    return { name: n, score: g.score, pos: g.pos, thru: g.thru, todayDisplay: g.todayDisplay };
-  });
-
-  // Prior positions inferred from (current score − today) across the full field,
-  // ranked with tie handling. Mirrors ui-leaderboard.js:178-196.
-  var priorPosMap = {};
-  if (!isPreT && currentRound >= 2) {
-    var fullPriorScores = allPlayers
-      .filter(function(p) { return p.score !== 11 && p.score !== 12; })
-      .map(function(p) {
-        var td = p.todayDisplay;
-        var todayVal = 0, hasToday = false;
-        if (td && td !== '—') { hasToday = true; todayVal = td === 'E' ? 0 : (parseInt(String(td).replace('+', '')) || 0); }
-        return { name: p.name, prior: hasToday ? p.score - todayVal : p.score };
-      })
-      .sort(function(a, b) { return a.prior - b.prior; });
-    var fpRk = 1;
-    fullPriorScores.forEach(function(ps, idx) {
-      if (idx > 0 && ps.prior !== fullPriorScores[idx - 1].prior) fpRk = idx + 1;
-      priorPosMap[ps.name] = fpRk;
-    });
-  }
-
-  // Build arrow map: delta = priorPos − currentPos (positive = climbed).
-  // Skip MC/WD and players who haven't teed off (thru='—' or 'HH:MM').
-  var arrowPlayers = new Map();
-  if (!isPreT && currentRound >= 2) {
-    allPlayers.forEach(function(p) {
-      if (p.score === 11 || p.score === 12) return;
-      if (p.thru === '—' || (p.thru && String(p.thru).indexOf(':') !== -1)) return;
-      var cP = parsePos(p.pos); if (!cP) return;
-      var sP = priorPosMap[p.name];
-      if (sP && sP !== cP) arrowPlayers.set(p.name, sP - cP);
-    });
-  }
-
-  var topMoverNames = (!isPreT && typeof getTopMovers === 'function') ? getTopMovers(arrowPlayers) : new Map();
-
-  var movers = [];
-  arrowPlayers.forEach(function(delta, name) {
-    var g = GOLFER_SCORES[name];
-    movers.push({ name: name, delta: delta, pos: g.pos, thru: g.thru, isTop: topMoverNames.has(name) });
-  });
-  // Top-of-list highlights: top movers first, then remaining sorted by |delta|
-  movers.sort(function(a, b) {
-    if (a.isTop !== b.isTop) return a.isTop ? -1 : 1;
-    return Math.abs(b.delta) - Math.abs(a.delta);
-  });
-
-  if (!movers.length) {
-    body.innerHTML = '<div class="empty">' + (isPreT ? 'Pre-tournament' : currentRound < 2 ? 'Round 1 — no prior positions yet' : 'No movement') + '</div>';
-    var m0 = document.getElementById('act-meta');
-    if (m0) m0.textContent = '—';
-    return;
-  }
-
-  body.innerHTML = movers.slice(0, 40).map(function(m) {
-    var flag = FLAGS && FLAGS[m.name] || '';
-    var hot = m.delta > 0;
-    var badge = hot ? '🔥' : '🧊'; // 🔥 / 🧊
-    var cls = (hot ? 'act-birdie' : 'act-bogey') + (m.isTop ? ' act-top-mover' : '');
-    var deltaStr = hot ? '▲' + m.delta : '▼' + Math.abs(m.delta);
-    return '<div class="act-row ' + cls + '">'
-      + '<div class="act-time">' + badge + '</div>'
-      + '<div class="act-text">' + flag + ' ' + termEsc(m.name) + ' (' + termEsc(m.pos) + ')</div>'
-      + '<div class="act-score">' + deltaStr + '</div>'
-      + '</div>';
-  }).join('');
-
-  var meta = document.getElementById('act-meta');
-  if (meta) meta.textContent = movers.length + ' movers';
+  body.innerHTML = '<div class="empty">No entries yet — heatmap appears as picks come in</div>';
 }
 
 // ── Render My Entries ──────────────────────────────────
@@ -1544,10 +1670,36 @@ function renderTermDataGolf() {
   var dg = (typeof DG_LIVE_PREDS !== 'undefined') ? DG_LIVE_PREDS : {};
   var names = Object.keys(dg);
   if (!names.length) {
-    body.innerHTML = '<tr><td colspan="6" class="empty">Loading DataGolf odds…</td></tr>';
+    body.innerHTML = '<tr><td colspan="7" class="empty">Loading DataGolf odds…</td></tr>';
     var metaE = document.getElementById('dg-meta');
     if (metaE) metaE.textContent = '—';
     return;
+  }
+  // Build a name → last 24 win-prob samples lookup so we can render a Unicode
+  // sparkline next to each player's odds. Empty until DG history accumulates.
+  var sparkSeries = (function() {
+    var hist = _loadDGHistory();
+    if (!hist || !hist.polls || hist.polls.length < 2) return {};
+    var recent = hist.polls.slice(-24);
+    var out = {};
+    recent.forEach(function(poll) {
+      Object.keys(poll.players).forEach(function(name) {
+        if (!out[name]) out[name] = [];
+        out[name].push(poll.players[name].win || 0);
+      });
+    });
+    return out;
+  })();
+  function sparkOf(name) {
+    var series = sparkSeries[name];
+    if (!series || series.length < 2) return '';
+    var blocks = '▁▂▃▄▅▆▇█';
+    var max = Math.max.apply(null, series);
+    if (max <= 0) return '';
+    return series.map(function(v) {
+      var idx = Math.round((v / max) * (blocks.length - 1));
+      return blocks.charAt(Math.max(0, Math.min(blocks.length - 1, idx)));
+    }).join('');
   }
 
   var rows = names.map(function(n) {
@@ -1591,6 +1743,7 @@ function renderTermDataGolf() {
   body.innerHTML = rows.slice(0, 80).map(function(r) {
     var flag = (FLAGS && FLAGS[r.name]) || '';
     var nameCell = flag + ' ' + termEsc(r.name);
+    var spark = sparkOf(r.name);
     return '<tr>'
       + '<td class="tpt-name">' + nameCell + '</td>'
       + pctCell(r.make_cut)
@@ -1598,6 +1751,7 @@ function renderTermDataGolf() {
       + pctCell(r.top_10)
       + pctCell(r.top_5)
       + pctCell(r.win)
+      + '<td class="tpt-trend">' + (spark || '—') + '</td>'
       + '</tr>';
   }).join('');
 
@@ -1761,7 +1915,7 @@ function renderTermTicker() {
 function renderTerminal() {
   try { renderTermLeaderboard(); } catch(e) { console.error('LB error', e); }
   try { renderTermStandings(); } catch(e) { console.error('STD error', e); }
-  try { renderTermActivity(); } catch(e) { console.error('ACT error', e); }
+  try { renderTermTrends(); } catch(e) { console.error('TRENDS error', e); }
   try { renderTermMy(); } catch(e) { console.error('MY error', e); }
   try { renderTermDataGolf(); } catch(e) { console.error('DG error', e); }
   try { renderTermTicker(); } catch(e) { console.error('TICKER error', e); }
