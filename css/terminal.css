@@ -449,41 +449,6 @@ html, body {
 .eve, .score-eve, .tp-table td.eve { color: var(--term-text); }
 .mc { color: var(--term-text-muted); font-size: 10px; }
 
-/* ── Activity Feed ──────────────────────────────────────── */
-.tp-body-feed {
-  padding: 0;
-}
-.act-row {
-  padding: 5px 10px;
-  border-bottom: 1px solid rgba(31,58,42,0.3);
-  font-size: 11px;
-  display: grid;
-  grid-template-columns: 48px 1fr auto;
-  gap: 8px;
-  align-items: center;
-}
-.act-time {
-  color: var(--term-text-muted);
-  font-size: 10px;
-  font-variant-numeric: tabular-nums;
-}
-.act-text {
-  color: var(--term-text);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.act-score {
-  font-weight: 700;
-  font-size: 11px;
-}
-.act-birdie .act-score { color: var(--term-green); }
-.act-eagle .act-score { color: var(--term-amber-bright); font-weight: 800; }
-.act-bogey .act-score { color: var(--term-red); }
-.act-double .act-score { color: #ff4040; font-weight: 800; }
-.act-top-mover { background: rgba(212,168,67,0.08); border-left: 2px solid var(--term-amber); }
-.act-top-mover .act-text { font-weight: 700; }
-
 /* ── My Entries ─────────────────────────────────────────── */
 .my-entry-block {
   padding: 8px 10px;
@@ -1503,59 +1468,11 @@ html, body {
 .ed-pick-sc.eve { color: var(--term-text-dim); }
 .ed-pick-sc.mc { color: var(--term-text-muted); }
 
-/* ── F3 Pool Pick Heatmap ─────────────────────────────────── */
-.ph-row {
-  display: grid;
-  grid-template-columns: 22px 1fr 40px 28px 34px;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  font-size: 10.5px;
-  border-bottom: 1px solid var(--term-border);
-  position: relative;
-}
-.ph-rank {
-  color: var(--term-text-muted);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  font-size: 9px;
-  text-align: right;
-}
-.ph-name {
-  color: var(--term-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.ph-bar {
-  height: 8px;
-  background: var(--term-border);
-  position: relative;
-  overflow: hidden;
-}
-.ph-bar-fill {
-  height: 100%;
-  background: var(--term-amber);
-  transition: width 0.25s ease;
-}
-.ph-count {
-  color: var(--term-text);
-  font-weight: 800;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  font-size: 11px;
-}
-.ph-share {
-  color: var(--term-text-muted);
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  font-size: 9px;
-}
-/* ── F3 · TRENDS chart ─────────────────────────────────── */
+/* ── F3 · TRENDS — bar + sparkline + delta hybrid ───────── */
 .tp-body-trends { padding: 8px 10px 10px; overflow: auto; }
 #term-trends-body { display: flex; flex-direction: column; gap: 8px; min-height: 100%; }
 .trend-controls { display: flex; gap: 6px; align-items: center; }
-.trend-metric-seg { display: inline-flex; gap: 0; border: 1px solid var(--term-border, rgba(212,168,67,0.25)); border-radius: 3px; overflow: hidden; }
+.trend-metric-seg { display: inline-flex; gap: 0; border: 1px solid rgba(212,168,67,0.25); border-radius: 3px; overflow: hidden; }
 .trend-metric-btn {
   background: transparent;
   color: var(--term-text-dim);
@@ -1565,71 +1482,46 @@ html, body {
   font-size: 10px;
   letter-spacing: 0.4px;
   cursor: pointer;
-  border-right: 1px solid var(--term-border, rgba(212,168,67,0.20));
+  border-right: 1px solid rgba(212,168,67,0.20);
 }
 .trend-metric-btn:last-child { border-right: 0; }
 .trend-metric-btn:hover { color: var(--term-text); background: rgba(212,168,67,0.08); }
 .trend-metric-btn.is-active { color: #0b1d14; background: var(--term-amber); font-weight: 700; }
-.trend-chart-wrap { background: rgba(0,0,0,0.18); border: 1px solid rgba(212,168,67,0.18); border-radius: 4px; padding: 4px; }
-.trend-svg { width: 100%; height: auto; display: block; }
-.trend-grid { stroke: rgba(212,168,67,0.10); stroke-width: 1; }
-.trend-axis { fill: var(--term-text-dim, #8a7a4a); font-family: inherit; font-size: 9px; letter-spacing: 0.3px; }
-.trend-line { fill: none; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
-.trend-legend { display: flex; flex-wrap: wrap; gap: 4px 6px; }
-.trend-legend-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(0,0,0,0.25);
-  border: 1px solid rgba(212,168,67,0.20);
-  border-radius: 12px;
-  padding: 3px 8px 3px 6px;
-  color: var(--term-text);
-  font-family: inherit;
-  font-size: 10px;
-  cursor: pointer;
-}
-.trend-legend-chip:hover { background: rgba(212,168,67,0.10); }
-.trend-legend-chip.is-hidden { opacity: 0.35; }
-.trend-legend-chip.is-hidden .trend-legend-dot { background: transparent; outline: 1px solid var(--trend-color); }
-.trend-legend-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--trend-color); flex-shrink: 0; }
-.trend-legend-name { font-weight: 600; }
-.trend-legend-val { color: var(--term-text-dim); font-variant-numeric: tabular-nums; }
 
-.ph-row.ph-hot  { background: rgba(212,168,67,0.10); }
-.ph-row.ph-hot  .ph-bar-fill { background: var(--term-amber-bright, var(--term-amber)); }
-.ph-row.ph-warm .ph-bar-fill { background: var(--term-amber); }
-.ph-row.ph-cool .ph-bar-fill { background: rgba(212,168,67,0.55); }
-.ph-row.ph-cold .ph-bar-fill { background: rgba(212,168,67,0.25); }
-.ph-row.ph-cold .ph-name { color: var(--term-text-dim); }
-.ph-row.ph-clickable { cursor: pointer; }
-.ph-row.ph-clickable:hover { background: rgba(212,168,67,0.18); }
-.ph-row.is-expanded { background: rgba(212,168,67,0.22); }
-.ph-row.is-expanded .ph-name { color: var(--term-amber); font-weight: 700; }
-.ph-teams {
-  padding: 6px 10px 10px 36px;
-  background: rgba(212,168,67,0.06);
-  border-bottom: 1px solid var(--term-border);
-}
-.ph-teams-hdr {
-  font-size: 9px;
-  font-weight: 800;
-  color: var(--term-amber);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-.ph-team-row {
-  display: flex;
-  align-items: baseline;
+.trend-rows { display: flex; flex-direction: column; gap: 2px; }
+.trend-row {
+  display: grid;
+  grid-template-columns: 24px minmax(120px, 1.4fr) minmax(80px, 2fr) 52px 90px 56px;
+  align-items: center;
   gap: 8px;
-  padding: 2px 0;
-  font-size: 10.5px;
-  border-bottom: 1px dotted rgba(31,58,42,0.5);
+  padding: 4px 6px;
+  border-radius: 3px;
+  font-family: inherit;
+  font-size: 11px;
+  border-bottom: 1px solid rgba(212,168,67,0.06);
 }
-.ph-team-row:last-child { border-bottom: none; }
-.ph-team-name { color: var(--term-text); font-weight: 600; }
-.ph-team-by { color: var(--term-text-dim); font-size: 9.5px; }
+.trend-row:hover { background: rgba(212,168,67,0.06); }
+.trend-rank { color: var(--term-text-dim); font-variant-numeric: tabular-nums; text-align: right; }
+.trend-name { color: var(--term-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.trend-bar {
+  position: relative;
+  height: 12px;
+  background: rgba(212,168,67,0.06);
+  border: 1px solid rgba(212,168,67,0.12);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.trend-bar-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(to right, rgba(212,168,67,0.45), var(--term-amber));
+}
+.trend-pct { color: var(--term-amber); font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.trend-spark { color: var(--term-amber); letter-spacing: 0.5px; text-align: center; font-variant-numeric: tabular-nums; }
+.trend-delta { font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; padding: 1px 6px; border-radius: 8px; font-size: 10px; }
+.trend-delta.up   { color: #52b788; background: rgba(82,183,136,0.10); }
+.trend-delta.dn   { color: #ff6b6b; background: rgba(255,107,107,0.10); }
+.trend-delta.zero { color: var(--term-text-dim); background: transparent; }
 
 /* ── Terminal Login Modal ───────────────────────────────── */
 .tlogin-head {

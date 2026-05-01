@@ -227,28 +227,6 @@ function openEntryDetails(rowKey) {
   renderTermStandings();
 }
 
-// ─── Pick Heat Details (inline accordion in F3 Pick Heat) ────────
-var _expandedPickName = null;
-
-function openPickTeams(pickName) {
-  if (!pickName) return;
-  if (_expandedPickName === pickName) {
-    _expandedPickName = null;
-  } else {
-    _expandedPickName = pickName;
-  }
-  renderTermTrends();
-}
-
-// Delegated click handler — data-pick-name is set as a textContent-safe
-// attribute via setAttribute in the render pass.
-document.addEventListener('click', function(ev) {
-  var row = ev.target && ev.target.closest && ev.target.closest('.ph-row.ph-clickable');
-  if (!row) return;
-  var name = row.getAttribute('data-pick-name');
-  if (name) openPickTeams(name);
-});
-
 function _buildEntryDetailRow(entry, colspan) {
   var meta = [];
   if (entry.entrant)    meta.push('<span class="ed-entrant">' + termEsc(entry.entrant) + '</span>');
@@ -1300,7 +1278,6 @@ function renderTermStandings() {
 var _DG_HIST_KEY = 'eastpole_dg_history_v1';
 var _DG_HIST_MAX_POLLS = 500;
 var _trendsMetric = 'win'; // 'win' | 'top_5' | 'top_10' | 'top_20'
-var _trendsHidden = {}; // name → true if user toggled the line off
 
 function _loadDGHistory() {
   try {
@@ -1354,126 +1331,101 @@ function setTrendsMetric(m) {
   renderTermTrends();
 }
 
-function toggleTrendLine(name) {
-  if (_trendsHidden[name]) delete _trendsHidden[name];
-  else _trendsHidden[name] = true;
-  renderTermTrends();
+// Build a Unicode block-char sparkline from a numeric series. Returns ''
+// for series with fewer than 2 points or zero variation.
+function _sparkline(series) {
+  if (!series || series.length < 2) return '';
+  var blocks = '▁▂▃▄▅▆▇█';
+  var max = Math.max.apply(null, series);
+  if (max <= 0) return '';
+  return series.map(function(v) {
+    var idx = Math.round((v / max) * (blocks.length - 1));
+    return blocks.charAt(Math.max(0, Math.min(blocks.length - 1, idx)));
+  }).join('');
 }
-
-// Color palette for up to 5 plotted lines — distinct hues that read on dark bg.
-var _TREND_COLORS = ['#d4a843', '#ff6b6b', '#52b788', '#5fb3d4', '#c97cb4'];
 
 function renderTermTrends() {
   var body = document.getElementById('term-trends-body');
   if (!body) return;
   var meta = document.getElementById('trends-meta');
+  var key = _trendsMetric;
+
+  var dgLive = (typeof DG_LIVE_PREDS !== 'undefined') ? DG_LIVE_PREDS : {};
   var hist = _loadDGHistory();
-  var minPolls = 5;
-  // Empty state: not enough history yet → show the pick heat panel.
-  if (!hist || !hist.polls || hist.polls.length < minPolls) {
-    _renderPickHeatPanel(body);
-    if (meta) {
-      var got = (hist && hist.polls) ? hist.polls.length : 0;
-      meta.textContent = 'PICK HEAT · ' + got + '/' + minPolls + ' DG polls';
-    }
+  var polls = (hist && hist.polls) ? hist.polls : [];
+  var latest = polls.length ? polls[polls.length - 1].players : dgLive;
+
+  // Empty state: no DG data at all yet
+  if (!latest || !Object.keys(latest).length) {
+    body.innerHTML = '<div class="empty">Waiting for DataGolf…</div>';
+    if (meta) meta.textContent = '—';
     return;
   }
 
-  var polls = hist.polls;
-  var latest = polls[polls.length - 1].players || {};
-  // Top 5 by current win prob (or the active metric)
-  var key = _trendsMetric;
+  // Rank top 20 by the active metric
   var ranked = Object.keys(latest)
-    .map(function(n) { return { name: n, v: latest[n][key] || 0 }; })
+    .map(function(n) { return { name: n, v: (latest[n] && latest[n][key]) || 0 }; })
     .filter(function(r) { return r.v > 0; })
-    .sort(function(a, b) { return b.v - a.v; });
-  var top5 = ranked.slice(0, 5).map(function(r) { return r.name; });
+    .sort(function(a, b) { return b.v - a.v; })
+    .slice(0, 20);
 
-  // Compute Y range — auto-scale up from max value
-  var maxVal = 0;
-  top5.forEach(function(n) {
-    polls.forEach(function(p) {
-      var v = p.players[n] && p.players[n][key];
-      if (v > maxVal) maxVal = v;
+  // Bar scale: longest bar = top player's value (so the leader fills the row,
+  // and everyone else is proportionally narrower).
+  var maxVal = ranked[0] ? ranked[0].v : 1;
+
+  // Per-player series across the last ~30 polls (sparkline source) plus the
+  // first poll value (delta source). Each lookup is O(polls); cap is 500.
+  var seriesOf = {};
+  var firstOf = {};
+  polls.forEach(function(p) {
+    Object.keys(p.players).forEach(function(name) {
+      var v = p.players[name] && p.players[name][key];
+      if (v == null) return;
+      if (firstOf[name] === undefined) firstOf[name] = v;
+      if (!seriesOf[name]) seriesOf[name] = [];
+      seriesOf[name].push(v);
     });
   });
-  // Pad max by 10% for headroom; floor at 0.10 so a flat 5%-ish line still has scale
-  var yMax = Math.min(1, Math.max(0.1, maxVal * 1.1));
-  var t0 = polls[0].t, tN = polls[polls.length - 1].t;
-  var tSpan = Math.max(1, tN - t0);
 
-  // Chart geometry
-  var W = 720, H = 280;
-  var padL = 36, padR = 12, padT = 12, padB = 28;
-  var plotW = W - padL - padR, plotH = H - padT - padB;
-
-  function xOf(t) { return padL + (t - t0) / tSpan * plotW; }
-  function yOf(v) { return padT + plotH - (v / yMax) * plotH; }
-
-  // Y-axis grid + labels (4 evenly spaced ticks)
-  var ticks = [];
-  var nT = 4;
-  for (var i = 0; i <= nT; i++) {
-    var v = (yMax * i) / nT;
-    ticks.push({ v: v, y: yOf(v), label: (v * 100).toFixed(0) + '%' });
+  function fmtPct(v) {
+    var pct = v * 100;
+    if (pct <= 0) return '—';
+    if (pct < 1) return '<1%';
+    return (pct >= 99.95 || pct === Math.round(pct) ? String(Math.round(pct)) : pct.toFixed(1)) + '%';
   }
 
-  var grid = ticks.map(function(t) {
-    return '<line class="trend-grid" x1="' + padL + '" y1="' + t.y.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + t.y.toFixed(1) + '"/>'
-      + '<text class="trend-axis" x="' + (padL - 4) + '" y="' + (t.y + 3.5).toFixed(1) + '" text-anchor="end">' + t.label + '</text>';
-  }).join('');
-
-  // X-axis: mark day boundaries (midnight in local time)
-  var dayMarks = [];
-  var d = new Date(t0); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + 1);
-  while (d.getTime() < tN) {
-    if (d.getTime() > t0) {
-      dayMarks.push({
-        x: xOf(d.getTime()),
-        label: d.toLocaleDateString([], { weekday: 'short' }).toUpperCase()
-      });
-    }
-    d.setDate(d.getDate() + 1);
+  function deltaChip(name, current) {
+    var first = firstOf[name];
+    if (first === undefined || first === current) return '<span class="trend-delta zero">·</span>';
+    var d = (current - first) * 100;
+    if (Math.abs(d) < 0.05) return '<span class="trend-delta zero">·</span>';
+    var cls = d > 0 ? 'up' : 'dn';
+    var arrow = d > 0 ? '▲' : '▼';
+    var num = Math.abs(d) >= 10 ? Math.abs(d).toFixed(0) : Math.abs(d).toFixed(1);
+    return '<span class="trend-delta ' + cls + '">' + arrow + num + '</span>';
   }
-  var xAxis = dayMarks.map(function(m) {
-    return '<line class="trend-grid" x1="' + m.x.toFixed(1) + '" y1="' + padT + '" x2="' + m.x.toFixed(1) + '" y2="' + (padT + plotH) + '"/>'
-      + '<text class="trend-axis" x="' + m.x.toFixed(1) + '" y="' + (H - padB + 16) + '" text-anchor="middle">' + m.label + '</text>';
+
+  var rows = ranked.map(function(r, i) {
+    var name = r.name;
+    var pctOfMax = (r.v / maxVal) * 100;
+    var flag = (typeof FLAGS !== 'undefined' && FLAGS[name]) || '';
+    var series = (seriesOf[name] || []).slice(-30);
+    var spark = _sparkline(series);
+    return '<div class="trend-row">'
+      + '<span class="trend-rank">' + (i + 1) + '</span>'
+      + '<span class="trend-name">' + flag + ' ' + termEsc(name) + '</span>'
+      + '<span class="trend-bar"><span class="trend-bar-fill" style="width:' + pctOfMax.toFixed(1) + '%"></span></span>'
+      + '<span class="trend-pct">' + fmtPct(r.v) + '</span>'
+      + '<span class="trend-spark">' + spark + '</span>'
+      + deltaChip(name, r.v)
+      + '</div>';
   }).join('');
 
-  // Lines
-  var lines = top5.map(function(name, idx) {
-    if (_trendsHidden[name]) return '';
-    var color = _TREND_COLORS[idx % _TREND_COLORS.length];
-    var pts = polls.map(function(p) {
-      var v = p.players[name] && p.players[name][key];
-      if (v == null) return null;
-      return xOf(p.t).toFixed(1) + ',' + yOf(v).toFixed(1);
-    }).filter(Boolean).join(' ');
-    if (!pts) return '';
-    return '<polyline class="trend-line" stroke="' + color + '" points="' + pts + '"/>';
-  }).join('');
-
-  // Legend (chip per line, click to toggle)
-  var legend = top5.map(function(name, idx) {
-    var color = _TREND_COLORS[idx % _TREND_COLORS.length];
-    var hidden = !!_trendsHidden[name];
-    var v = latest[name] && latest[name][key];
-    var pct = (v != null) ? (v * 100).toFixed(1) + '%' : '—';
-    return '<button class="trend-legend-chip' + (hidden ? ' is-hidden' : '') + '" '
-      + 'onclick="toggleTrendLine(\'' + name.replace(/'/g, "\\'") + '\')" '
-      + 'style="--trend-color:' + color + '">'
-      + '<span class="trend-legend-dot"></span>'
-      + '<span class="trend-legend-name">' + termEsc(name) + '</span>'
-      + '<span class="trend-legend-val">' + pct + '</span>'
-      + '</button>';
-  }).join('');
-
-  // Metric toggle
   var metrics = [
     { k: 'win', l: 'WIN' },
-    { k: 'top_5', l: 'TOP 5' },
-    { k: 'top_10', l: 'TOP 10' },
-    { k: 'top_20', l: 'TOP 20' }
+    { k: 'top_5', l: 'T5' },
+    { k: 'top_10', l: 'T10' },
+    { k: 'top_20', l: 'T20' }
   ];
   var seg = '<div class="trend-metric-seg">' + metrics.map(function(m) {
     return '<button class="trend-metric-btn' + (_trendsMetric === m.k ? ' is-active' : '') + '" '
@@ -1481,82 +1433,13 @@ function renderTermTrends() {
   }).join('') + '</div>';
 
   body.innerHTML = '<div class="trend-controls">' + seg + '</div>'
-    + '<div class="trend-chart-wrap">'
-    +   '<svg class="trend-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">'
-    +     '<g class="trend-grid-g">' + grid + xAxis + '</g>'
-    +     '<g class="trend-lines">' + lines + '</g>'
-    +   '</svg>'
-    + '</div>'
-    + '<div class="trend-legend">' + legend + '</div>';
+    + '<div class="trend-rows">' + rows + '</div>';
 
   if (meta) {
-    var hours = Math.round(tSpan / 3600000 * 10) / 10;
-    meta.textContent = polls.length + ' polls · ' + hours + 'h · ' + metrics.find(function(m){return m.k===_trendsMetric;}).l;
+    var label = metrics.find(function(m) { return m.k === _trendsMetric; }).l;
+    var pollPart = polls.length ? polls.length + ' polls' : 'live';
+    meta.textContent = label + ' · ' + ranked.length + ' players · ' + pollPart;
   }
-}
-
-// Pick heat — preserved as the F3 empty state until DG history accumulates.
-function _renderPickHeatPanel(body) {
-  // Pool Pick Heatmap — counts how many entries picked each golfer.
-  // Works pre-tournament; serves as the F3 empty state before DG polls collect.
-  var entries = (typeof ENTRIES !== 'undefined' && ENTRIES) ? ENTRIES : [];
-  if (entries.length) {
-    var counts = {};
-    entries.forEach(function(e) {
-      (e.picks || []).forEach(function(p) {
-        counts[p] = (counts[p] || 0) + 1;
-      });
-    });
-    var pickRows = Object.keys(counts).map(function(name) {
-      return { name: name, count: counts[name] };
-    }).sort(function(a, b) { return b.count - a.count || a.name.localeCompare(b.name); });
-    if (pickRows.length) {
-      var maxCount = pickRows[0].count;
-      var totalEntries = entries.length;
-      // Index entries that chose each pick so we can expand a list of teams
-      // when the user clicks a row.
-      var pickToEntries = {};
-      entries.forEach(function(e) {
-        (e.picks || []).forEach(function(p) {
-          if (!pickToEntries[p]) pickToEntries[p] = [];
-          pickToEntries[p].push(e);
-        });
-      });
-      body.innerHTML = pickRows.slice(0, 80).map(function(r, i) {
-        var pct = maxCount > 0 ? (r.count / maxCount) * 100 : 0;
-        var share = totalEntries > 0 ? Math.round((r.count / totalEntries) * 100) : 0;
-        var heat = r.count >= maxCount * 0.75 ? 'ph-hot' :
-                   r.count >= maxCount * 0.4  ? 'ph-warm' :
-                   r.count >= maxCount * 0.15 ? 'ph-cool' : 'ph-cold';
-        var isExpanded = _expandedPickName === r.name;
-        var html = '<div class="ph-row ' + heat + ' ph-clickable' + (isExpanded ? ' is-expanded' : '') + '" data-pick-name="' + termEsc(r.name) + '">'
-          + '<div class="ph-rank">' + (i + 1) + '</div>'
-          + '<div class="ph-name">' + (isExpanded ? '▾ ' : '▸ ') + termEsc(r.name) + '</div>'
-          + '<div class="ph-bar"><div class="ph-bar-fill" style="width:' + pct.toFixed(1) + '%"></div></div>'
-          + '<div class="ph-count">' + r.count + '</div>'
-          + '<div class="ph-share">' + share + '%</div>'
-          + '</div>';
-        if (isExpanded) {
-          var picking = (pickToEntries[r.name] || []).slice().sort(function(a, b) {
-            return (a.team || '').localeCompare(b.team || '');
-          });
-          html += '<div class="ph-teams">'
-            + '<div class="ph-teams-hdr">' + picking.length + ' ' + (picking.length === 1 ? 'entry' : 'entries') + ' picked this</div>'
-            + picking.map(function(e) {
-                var entrant = e.entrant ? '<span class="ph-team-by">' + termEsc(e.entrant) + '</span>' : '';
-                return '<div class="ph-team-row">'
-                  + '<span class="ph-team-name">' + termEsc(e.team) + '</span>'
-                  + entrant
-                  + '</div>';
-              }).join('')
-            + '</div>';
-        }
-        return html;
-      }).join('');
-      return;
-    }
-  }
-  body.innerHTML = '<div class="empty">No entries yet — heatmap appears as picks come in</div>';
 }
 
 // ── Render My Entries ──────────────────────────────────
