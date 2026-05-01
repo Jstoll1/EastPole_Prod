@@ -465,6 +465,64 @@ html, body {
 .ci-cut-lbl { color: var(--term-amber); }
 .ci-cut-val { color: var(--term-amber); font-weight: 800; font-variant-numeric: tabular-nums; }
 
+/* Live scoring events feed (bottom of F5) */
+.ci-activity {
+  border-top: 1px solid rgba(212,168,67,0.15);
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ci-act-hdr {
+  font-size: 9px;
+  letter-spacing: 0.6px;
+  color: var(--term-text-dim);
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.ci-act-row {
+  display: grid;
+  grid-template-columns: 22px 1fr 36px;
+  align-items: baseline;
+  gap: 8px;
+  padding: 3px 6px;
+  font-size: 10.5px;
+  border-radius: 2px;
+  border-left: 2px solid transparent;
+}
+.ci-act-row:hover { background: rgba(212,168,67,0.06); }
+.ci-act-icon { text-align: center; }
+.ci-act-text {
+  color: var(--term-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+.ci-act-time {
+  color: var(--term-text-dim);
+  font-size: 9px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.ci-act-row.ci-act-birdie { border-left-color: #52b788; }
+.ci-act-row.ci-act-birdie .ci-act-text { color: #6cc999; }
+.ci-act-row.ci-act-eagle  { border-left-color: var(--term-amber); background: rgba(212,168,67,0.08); }
+.ci-act-row.ci-act-eagle .ci-act-text { color: var(--term-amber); font-weight: 700; }
+.ci-act-row.ci-act-bogey  { border-left-color: rgba(251,191,36,0.7); }
+.ci-act-row.ci-act-bogey .ci-act-text { color: #fbbf24; }
+.ci-act-row.ci-act-double { border-left-color: #ff6b6b; }
+.ci-act-row.ci-act-double .ci-act-text { color: #ff8888; font-weight: 700; }
+.ci-act-row.ci-act-worse  { border-left-color: #ff4040; }
+.ci-act-row.ci-act-worse .ci-act-text { color: #ff6b6b; font-weight: 700; }
+.ci-act-row.ci-act-par    { border-left-color: rgba(212,168,67,0.20); }
+.ci-act-empty {
+  color: var(--term-text-dim);
+  font-size: 10px;
+  font-style: italic;
+  padding: 6px 6px;
+}
+
 /* ── F1 Leaderboard Movers ──────────────────────────────────
    Round-over-round arrow next to POS, flame/ice badge for top-3 movers,
    and a red "just moved up" pulse on the row when the last poll brought

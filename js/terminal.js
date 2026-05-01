@@ -1655,6 +1655,45 @@ function renderTermCourse() {
     }
   }
 
+  // Live scoring events feed — pulls the global ACTIVITY_LOG that
+  // detectGolfActivity() builds up from per-poll score deltas. The same
+  // data the mobile activity drawer renders, just styled for the terminal.
+  var activityHtml = '';
+  var log = (typeof ACTIVITY_LOG !== 'undefined' && ACTIVITY_LOG) ? ACTIVITY_LOG : [];
+  // Strip the inline HTML the mobile feed embeds (strong tags, score chips)
+  // — terminal.css doesn't carry the .act-score / .act-meta styles, so leaving
+  // raw HTML in would render unstyled. Plain text reads cleaner here anyway.
+  function _stripActText(html) {
+    return String(html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  function _agoStr(ts) {
+    var s = Math.max(0, Math.floor((Date.now() - ts) / 1000));
+    if (s < 60) return s + 's';
+    var m = Math.floor(s / 60);
+    if (m < 60) return m + 'm';
+    var h = Math.floor(m / 60);
+    return h + 'h';
+  }
+  if (log.length) {
+    var rows = log.slice(0, 12).map(function(a) {
+      var typeCls = a.type ? ' ci-act-' + a.type : '';
+      return '<div class="ci-act-row' + typeCls + '">'
+        + '<span class="ci-act-icon">' + (a.icon || '·') + '</span>'
+        + '<span class="ci-act-text">' + termEsc(_stripActText(a.text)) + '</span>'
+        + '<span class="ci-act-time">' + _agoStr(a.time) + '</span>'
+        + '</div>';
+    }).join('');
+    activityHtml = '<div class="ci-activity">'
+      + '<div class="ci-act-hdr">LIVE EVENTS</div>'
+      + rows
+      + '</div>';
+  } else {
+    activityHtml = '<div class="ci-activity">'
+      + '<div class="ci-act-hdr">LIVE EVENTS</div>'
+      + '<div class="ci-act-empty">No events yet — birdies and bogeys will land here once players are on course</div>'
+      + '</div>';
+  }
+
   body.innerHTML = ''
     + '<div class="ci-summary">'
     +   '<span class="ci-name">' + termEsc(courseName || 'Course') + '</span>'
@@ -1669,7 +1708,8 @@ function renderTermCourse() {
     +   '<div class="ci-callout ci-hard"><div class="ci-co-hdr">HARDEST</div><div class="ci-co-list">' + hardest.map(holeLabel).join('') + '</div></div>'
     +   '<div class="ci-callout ci-easy"><div class="ci-co-hdr">EASIEST</div><div class="ci-co-list">' + easiest.map(holeLabel).join('') + '</div></div>'
     + '</div>'
-    + '<div class="ci-rounds">' + roundsHtml + cutHtml + '</div>';
+    + '<div class="ci-rounds">' + roundsHtml + cutHtml + '</div>'
+    + activityHtml;
 
   if (meta) {
     var parts = [];
