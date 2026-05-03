@@ -385,6 +385,20 @@ async function detectGolfActivity(freshScores) {
     var todayStr = d.todayDisplay && d.todayDisplay !== '—' ? d.todayDisplay : '';
     var todayTag = todayStr ? ' <span class="act-meta">(' + todayStr + ' today)</span>' : '';
 
+    // Position + leaderboard trend after this event. PREV_POSITIONS was
+    // captured from the *previous* poll's GOLFER_SCORES, before this fetch
+    // was applied — so the delta reflects movement caused by this event.
+    var posStr = d.pos && d.pos !== '—' ? d.pos : '';
+    var prevP = PREV_POSITIONS[name];
+    var currP = parsePos(d.pos);
+    var delta = (prevP && currP) ? (prevP - currP) : 0;
+    var trendTag = delta > 0
+      ? ' <span class="act-pos-up">▲' + delta + '</span>'
+      : delta < 0
+        ? ' <span class="act-pos-dn">▼' + Math.abs(delta) + '</span>'
+        : '';
+    var posTag = posStr ? ' <span class="act-pos">' + posStr + trendTag + '</span>' : '';
+
     // Get actual hole data from scorecard
     var rounds = SCORECARD_CACHE[name];
     var activeRound = null;
@@ -413,7 +427,7 @@ async function detectGolfActivity(freshScores) {
         // No scorecard data — use neutral message instead of guessing from score delta
         icon = '⛳'; label = 'completes'; type = 'par';
       }
-      addActivity(icon, '<strong>' + flag + ' ' + name + '</strong> ' + label + ' Hole ' + holeNum + ' <span class="act-meta">P' + holePar + '</span>: <span class="act-score ' + scCls + '">' + fmt(d.score) + '</span>' + todayTag, name, type);
+      addActivity(icon, '<strong>' + flag + ' ' + name + '</strong> ' + label + ' Hole ' + holeNum + ' <span class="act-meta">P' + holePar + '</span>: <span class="act-score ' + scCls + '">' + fmt(d.score) + '</span>' + todayTag + posTag, name, type);
     } else {
       // Multi-hole: report each hole if we have scorecard data
       var reported = false;
@@ -429,14 +443,14 @@ async function detectGolfActivity(freshScores) {
             else if (vs === 1) { icon = '🟡'; label = 'bogeys'; type = 'bogey'; }
             else if (vs === 2) { icon = '🔴'; label = 'double bogeys'; type = 'double'; }
             else { icon = '⛔'; label = '+' + vs + ' on'; type = 'worse'; }
-            addActivity(icon, '<strong>' + flag + ' ' + name + '</strong> ' + label + ' Hole ' + h + ' <span class="act-meta">P' + hd.par + '</span>: <span class="act-score ' + scCls + '">' + fmt(d.score) + '</span>' + todayTag, name, type);
+            addActivity(icon, '<strong>' + flag + ' ' + name + '</strong> ' + label + ' Hole ' + h + ' <span class="act-meta">P' + hd.par + '</span>: <span class="act-score ' + scCls + '">' + fmt(d.score) + '</span>' + todayTag + posTag, name, type);
             reported = true;
           }
         }
       }
       if (!reported) {
         // No scorecard data — show neutral progress update instead of guessing from score delta
-        addActivity('⛳', '<strong>' + flag + ' ' + name + '</strong> now at: <span class="act-score ' + scCls + '">' + fmt(d.score) + '</span>' + todayTag + ' <span class="act-meta">thru ' + thruNow + '</span>', name, 'par');
+        addActivity('⛳', '<strong>' + flag + ' ' + name + '</strong> now at: <span class="act-score ' + scCls + '">' + fmt(d.score) + '</span>' + todayTag + ' <span class="act-meta">thru ' + thruNow + '</span>' + posTag, name, 'par');
       }
     }
   });

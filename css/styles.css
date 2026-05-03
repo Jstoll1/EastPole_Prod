@@ -4470,6 +4470,22 @@ to  {
 .act-score.neg { color:#ff6b6b; }
 .act-score.pos { color:#52b788; }
 .act-score.eve { color:var(--text2); }
+.act-pos {
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  margin-left:6px;
+  padding:1px 6px;
+  border-radius:8px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.08);
+  font-size:10px;
+  font-weight:700;
+  font-variant-numeric:tabular-nums;
+  color:var(--text);
+}
+.act-pos-up { color:#52b788; font-weight:800; }
+.act-pos-dn { color:#ff6b6b; font-weight:800; }
 .act-time {
   font-size:9px;
   color:var(--text3);
