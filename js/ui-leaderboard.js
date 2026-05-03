@@ -274,7 +274,7 @@ function renderLeaderboard() {
     } else {
       thruDisp = p.thru + (p.startHole === 10 && p.thru !== 'MC' && !roundDone && parseInt(p.thru) > 0 ? '*' : '');
     }
-    var todayDisp = preT ? '—' : (isTeeTime ? '—' : (p.todayDisplay || '—'));
+    var todayDisp = preT ? '—' : (p.todayDisplay || '—');
     var todayVal = todayDisp === 'E' || todayDisp === '—' ? 0 : parseInt(todayDisp.replace('+','')) || 0;
     var todayCls = todayDisp === '—' ? '' : (todayVal < 0 ? 'neg' : todayVal > 0 ? 'pos' : 'eve');
     var prevP = PREV_POSITIONS[p.name];
