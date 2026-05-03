@@ -216,9 +216,24 @@ async function fetchESPN() {
       var startHole = c.status?.startHole || 1;
       var rval = function(idx) { var v = lines[idx]?.value; return (v && v > 50) ? v : null; };
       var tot = lines.reduce(function(s, l) { return (l.value && l.value > 50 ? s + l.value : s); }, 0) || null;
-      var activeRndIdx = lines.findIndex(function(l, i) { return l.value != null && !(l.value > 50 && lines[i + 1]?.value != null); });
-      var todayRound = activelyPlaying ? lines[activeRndIdx >= 0 ? activeRndIdx : 0] : (scheduled ? null : lines[activeRndIdx >= 0 ? activeRndIdx : 0]);
-      var todayDisplay = (mc || wd) ? '—' : (todayRound?.displayValue || (todayRound?.value > 50 ? (function() { var tp = todayRound.value - COURSE_PAR; return tp === 0 ? 'E' : (tp > 0 ? '+' + tp : String(tp)); })() : '—'));
+      // "Today" = the current round's to-par. ESPN linescores carry stroke
+      // totals (>50) for completed rounds and a to-par value for the round
+      // currently in progress. Find that in-progress entry directly instead
+      // of trying to derive it from a generic "active round index" — that
+      // older heuristic picked up a completed round between R1 and R2, which
+      // surfaced a raw stroke count ("73") in the TODAY column or, worse,
+      // got summed into the F2/F4 team-today aggregations.
+      var inProgressLine = lines.find(function(l) {
+        return l != null && l.value != null && Math.abs(l.value) < 50;
+      });
+      var fmtTodayVal = function(v) {
+        var tp = v;
+        return tp === 0 ? 'E' : (tp > 0 ? '+' + tp : String(tp));
+      };
+      var todayDisplay = (mc || wd) ? '—'
+        : (inProgressLine
+            ? (inProgressLine.displayValue || fmtTodayVal(inProgressLine.value))
+            : '—');
       var onCourse = activelyPlaying;
       var name = resolvePlayerName(ath.displayName);
       if (ath.id) freshAthleteIds[name] = ath.id;
