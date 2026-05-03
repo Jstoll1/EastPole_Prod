@@ -1,0 +1,26 @@
+{
+  "id": "2026-cadillac-championship",
+  "name": "Cadillac Championship",
+  "course": "Trump National Doral",
+  "courseTimezone": "America/New_York",
+  "dates": {
+    "start": "2026-05-01",
+    "end": "2026-05-04"
+  },
+  "espn": {
+    "tournamentNameMatch": "Cadillac Championship"
+  },
+  "pool": {
+    "buyIn": 20,
+    "fifthEntryBuyIn": 10,
+    "maxEntriesPerPerson": 5,
+    "picksPerTeam": 10,
+    "bestN": 4,
+    "payoutPctOfNet": { "first": 0.70, "second": 0.30 }
+  },
+  "sheet": {
+    "publishedTsvUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQjBiF7GjL0OV--o5cqjWnIDtx2ON0TfZpTwX_zNNpESl8w731mzdKGTsU4gGPbpGT0F5fERvaednpL/pub?output=tsv"
+  },
+  "previousWinner": "",
+  "amateurs": []
+}

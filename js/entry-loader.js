@@ -120,9 +120,14 @@ function parsePoolTSV(text) {
 async function loadPoolEntries(force) {
   // Throttle — don't refetch more than once every 2 minutes unless forced.
   if (!force && Date.now() - _lastPoolFetch < 120000) return;
+  // Wait for events/current.json so POOL_SHEET_URL reflects this week's
+  // sheet before the first fetch. No-op once resolved.
+  if (typeof window.eventConfigReady !== 'undefined') {
+    try { await window.eventConfigReady; } catch (e) {}
+  }
   window.POOL_FETCH_STATE = 'loading';
   try {
-    var res = await fetch(POOL_SHEET_URL, { cache: 'no-store' });
+    var res = await fetch(window.POOL_SHEET_URL || POOL_SHEET_URL, { cache: 'no-store' });
     if (!res.ok) {
       console.warn('⚠️ Pool sheet fetch HTTP ' + res.status);
       window.POOL_FETCH_STATE = 'error';

@@ -87,6 +87,14 @@ function _extractTourneyMeta(ev) {
 }
 
 async function fetchESPN() {
+  // Wait for events/current.json to load before the first ESPN fetch so the
+  // pinned tournament name + date are in place. No-op on subsequent calls
+  // (the promise resolves once and stays resolved). Falls through immediately
+  // if event-config.js wasn't loaded for some reason — defaults from state.js
+  // still apply.
+  if (typeof window.eventConfigReady !== 'undefined') {
+    try { await window.eventConfigReady; } catch (e) {}
+  }
   try {
     // First fetch: discover the tournament from the scoreboard endpoint.
     // If POOL_CONFIG pins us to a specific tournament date (e.g. Masters week),
