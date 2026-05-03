@@ -254,8 +254,12 @@ function renderLeaderboard() {
     var cc = getCountryCode(p.name);
     var preT = p.thru === '—';
     var teeStr = '';
-    if (p.teeTime && p.teeTime.includes('T')) { try { teeStr = new Date(p.teeTime).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}); } catch(e){} }
-    else if (p.teeTime) { teeStr = p.teeTime; }
+    if (p.teeTime && p.teeTime.includes('T')) {
+      teeStr = (typeof fmtTeeTime === 'function') ? fmtTeeTime(p.teeTime, TOURNEY_COURSE) : '';
+      if (!teeStr) {
+        try { teeStr = new Date(p.teeTime).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}); } catch(e){}
+      }
+    } else if (p.teeTime) { teeStr = p.teeTime; }
     var isTeeTime = p.thru && p.thru.includes(':');
     var lastRoundScore = (function(){ var rs = [p.r1,p.r2,p.r3,p.r4]; for(var i=rs.length-1;i>=0;i--){ if(rs[i]&&rs[i]>50) return rs[i]; } return null; })();
     var roundDone = p.thru === 'F' || p.thru === '18';

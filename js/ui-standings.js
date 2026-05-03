@@ -419,7 +419,12 @@ function renderStandings() {
         else if (gd.thru && gd.thru !== '—') gThru = gd.thru;
       }
       var teeStr = '';
-      if (gd && gd.teeTime && gd.teeTime.includes('T')) { try { teeStr = new Date(gd.teeTime).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}); } catch(ex){} }
+      if (gd && gd.teeTime && gd.teeTime.includes('T')) {
+        teeStr = (typeof fmtTeeTime === 'function') ? fmtTeeTime(gd.teeTime, TOURNEY_COURSE) : '';
+        if (!teeStr) {
+          try { teeStr = new Date(gd.teeTime).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}); } catch(ex){}
+        }
+      }
       var thruDisp = '';
       if (gd) {
         if (gd.thru === 'WD' || gd.score === 12) thruDisp = 'WD';

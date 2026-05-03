@@ -364,14 +364,25 @@ function getEventTZ(courseName) {
   return null;
 }
 
-// Format an ISO tee-time string in the event's local timezone, e.g. "8:00 AM CT"
+// Format an ISO tee-time string in the event's local timezone, e.g. "8:00 AM".
+// Falls back to America/New_York when the course isn't in COURSE_TZ — most
+// PGA events are East Coast and we'd rather be a few hours off than silently
+// use the user's browser timezone, which can land 1-3 hours off depending
+// where they're sitting. Logs a one-time warn per course so we know to add
+// the mapping.
+var _fmtTeeTimeWarned = {};
 function fmtTeeTime(iso, courseName) {
   if (!iso || iso.indexOf('T') === -1) return '';
   try {
     var tz = getEventTZ(courseName);
-    var opts = { hour: 'numeric', minute: '2-digit' };
-    if (tz) opts.timeZone = tz;
-    return new Date(iso).toLocaleTimeString('en-US', opts);
+    if (!tz) {
+      tz = 'America/New_York';
+      if (courseName && !_fmtTeeTimeWarned[courseName]) {
+        _fmtTeeTimeWarned[courseName] = 1;
+        console.warn('🕐 No COURSE_TZ entry for "' + courseName + '" — defaulting to America/New_York. Add a row to COURSE_TZ in state.js.');
+      }
+    }
+    return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: tz });
   } catch (e) {
     try { return new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); }
     catch (e2) { return ''; }
