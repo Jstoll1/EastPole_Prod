@@ -112,6 +112,32 @@ function getRanked() {
   return ENTRIES.map(calcEntry).sort(compareEntries);
 }
 
+// Sum the per-pick "today" values across an entry's top-4 (counting
+// scoring) picks. Returns null if no pick contributed a today value
+// (everyone MC, WD, or pre-tee), else the integer total.
+//
+// Shared by mobile (ui-standings.js — entry rows, my-entries hero,
+// today-sort comparator) and terminal (terminal.js — F2 standings,
+// F4 my-entries). Same input shape: an entry from getRanked() with
+// .top4. Same definition of "today doesn't count": MC, WD, or
+// todayDisplay === '—'.
+function entryTodayTotal(entry) {
+  if (!entry || !entry.top4) return null;
+  var sum = 0, count = 0;
+  for (var i = 0; i < entry.top4.length; i++) {
+    var gd = (typeof pickGolferData === 'function')
+      ? pickGolferData(entry.top4[i].name)
+      : (typeof GOLFER_SCORES !== 'undefined' ? GOLFER_SCORES[entry.top4[i].name] : null);
+    if (!gd) continue;
+    if (gd.score === 11 || gd.score === 12) continue;
+    var td = gd.todayDisplay;
+    if (!td || td === '—') continue;
+    sum += td === 'E' ? 0 : (parseInt(String(td).replace('+', ''), 10) || 0);
+    count++;
+  }
+  return count > 0 ? sum : null;
+}
+
 // Pool payouts — locked to sponsor-confirmed totals for 2026 Masters.
 // Total pot: $2,390 (127 entries + 15 fifth-entry discounts)
 // 1st: $1,645 · 2nd: $705 · 3rd: $40

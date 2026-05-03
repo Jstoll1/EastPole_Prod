@@ -1219,20 +1219,12 @@ function renderTermStandings() {
   var rows = ranked.map(function(e, i) {
     var rank = i + 1;
     var teamHolesLeft = e.top4.reduce(function(s, g) { return s + getHolesRemaining(g.name); }, 0);
-    var teamToday = 0, hasToday = false;
-    e.top4.forEach(function(g) {
-      var gd = GOLFER_SCORES[g.name];
-      if (!gd) return;
-      if (gd.score === 11 || gd.score === 12) return;
-      var td = gd.todayDisplay;
-      if (td && td !== '—') { hasToday = true; teamToday += (td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0); }
-    });
     return {
       entry: e, rank: rank,
       isMine: e.email === myKey,
       isMoney: rank <= 3,
       total: e.total,
-      today: hasToday ? teamToday : null,
+      today: entryTodayTotal(e),
       holes: teamHolesLeft
     };
   });
@@ -1496,13 +1488,8 @@ function renderTermMy() {
     if (!entry) return '';
     var rank = rankMap[entry.team + '|' + entry.email];
     var total = entry.total;
-    var teamToday = 0, hasToday = false;
-    entry.top4.forEach(function(g) {
-      var gd = GOLFER_SCORES[g.name];
-      if (!gd || gd.score === 11 || gd.score === 12) return;
-      var td = gd.todayDisplay;
-      if (td && td !== '—') { hasToday = true; teamToday += (td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0); }
-    });
+    var teamToday = entryTodayTotal(entry);
+    var hasToday = teamToday !== null;
 
     var picks = entry.scores.slice(0, 10).map(function(g, i) {
       var isTop = i < 4;
@@ -1525,7 +1512,7 @@ function renderTermMy() {
       + '</span>'
       + '</div>'
       + '<div class="my-entry-stats">'
-      + '<span><span class="lbl">TDY:</span><span class="' + scoreCls(teamToday) + '">' + (hasToday ? fmtScore(teamToday) : '—') + '</span></span>'
+      + '<span><span class="lbl">TDY:</span><span class="' + (hasToday ? scoreCls(teamToday) : 'eve') + '">' + (hasToday ? fmtScore(teamToday) : '—') + '</span></span>'
       + '</div>'
       + '<div class="my-entry-picks">' + picks + '</div>'
       + '</div>';

@@ -90,9 +90,8 @@ function renderStandings() {
     ranked.sort(function(a, b) {
       var dir = standingsSortDir;
       if (standingsSort === 'today') {
-        var todayA = 0, todayB = 0;
-        a.top4.forEach(function(g) { var gd = pickGolferData(g.name); if (gd && (gd.score === 11 || gd.score === 12)) return; var td = gd ? gd.todayDisplay : null; if (td && td !== '—') todayA += td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0; });
-        b.top4.forEach(function(g) { var gd = pickGolferData(g.name); if (gd && (gd.score === 11 || gd.score === 12)) return; var td = gd ? gd.todayDisplay : null; if (td && td !== '—') todayB += td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0; });
+        var todayA = entryTodayTotal(a) || 0;
+        var todayB = entryTodayTotal(b) || 0;
         return (todayA - todayB) * dir || a.total - b.total;
       }
       if (standingsSort === 'entry') {
@@ -275,10 +274,9 @@ function renderStandings() {
           var mv = priorRk - myRank;
           moveHtml = mv > 0 ? '<div class="pos-move up">▲' + mv + '</div>' : '<div class="pos-move dn">▼' + Math.abs(mv) + '</div>';
         }
-        var myTeamToday = 0, myTodayCount = 0;
-        myEntry.top4.forEach(function(g) { var gd = pickGolferData(g.name); if (gd && (gd.score === 11 || gd.score === 12)) return; var td = gd ? gd.todayDisplay : null; if (td && td !== '—') { myTeamToday += td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0; myTodayCount++; } });
-        var myTodayDisp = myTodayCount > 0 ? (myTeamToday > 0 ? '+' + myTeamToday : myTeamToday === 0 ? 'E' : '' + myTeamToday) : '—';
-        var myTodayCls = myTeamToday < 0 ? 'neg' : myTeamToday > 0 ? 'pos' : 'eve';
+        var myTeamToday = entryTodayTotal(myEntry);
+        var myTodayDisp = myTeamToday !== null ? (myTeamToday > 0 ? '+' + myTeamToday : myTeamToday === 0 ? 'E' : '' + myTeamToday) : '—';
+        var myTodayCls = myTeamToday === null ? 'eve' : myTeamToday < 0 ? 'neg' : myTeamToday > 0 ? 'pos' : 'eve';
         var teamJumpArg = escHtml(JSON.stringify(myEntry.team));
         myRows += '<div class="my-hero-row" onclick="jumpToEntry(' + teamJumpArg + ')">'
             + '<div class="my-hero-rank">' + myRank + moveHtml + '</div>'
@@ -376,10 +374,9 @@ function renderStandings() {
       var mv = priorRk - rank;
       moveHtml = mv > 0 ? '<div class="pos-move up">▲' + mv + '</div>' : '<div class="pos-move dn">▼' + Math.abs(mv) + '</div>';
     }
-    var teamToday = 0, teamTodayCount = 0;
-    e.top4.forEach(function(g) { var gd = pickGolferData(g.name); if (gd && (gd.score === 11 || gd.score === 12)) return; var td = gd ? gd.todayDisplay : null; if (td && td !== '—') { teamToday += (td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0); teamTodayCount++; } });
-    var todayDisp = teamTodayCount > 0 ? (teamToday > 0 ? '+' + teamToday : teamToday === 0 ? 'E' : '' + teamToday) : '—';
-    var todayCls = teamToday < 0 ? 'neg' : teamToday > 0 ? 'pos' : 'eve';
+    var teamToday = entryTodayTotal(e);
+    var todayDisp = teamToday !== null ? (teamToday > 0 ? '+' + teamToday : teamToday === 0 ? 'E' : '' + teamToday) : '—';
+    var todayCls = teamToday === null ? 'eve' : teamToday < 0 ? 'neg' : teamToday > 0 ? 'pos' : 'eve';
     var holesTag = ROUND_START_ROUND >= 4 ? (teamHolesLeft > 0 ? '<span class="s-holes">' + teamHolesLeft + '</span>' : '') : '';
     var inMoney = TOURNEY_FINAL && rank <= 3;
     var moneyIcon = inMoney ? (rank === 1 ? '🏆' : '💰') : '';
