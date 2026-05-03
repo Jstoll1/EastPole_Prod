@@ -231,8 +231,13 @@ async function fetchESPN() {
       };
       var inProgressLine = lines.find(function(l) {
         if (!l) return false;
+        // Reject completed rounds: ESPN sets displayValue to the round's
+        // to-par ("-8") even on completed rounds, so the only reliable
+        // signal that a round is *in progress* is value being absent OR
+        // a small to-par numeric. Completed rounds always have value > 50
+        // (the stroke total).
         if (l.value != null && Math.abs(l.value) < 50) return true;
-        if (looksLikeToPar(l.displayValue)) return true;
+        if (l.value == null && looksLikeToPar(l.displayValue)) return true;
         return false;
       });
       var todayDisplay;
