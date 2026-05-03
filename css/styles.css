@@ -4644,6 +4644,43 @@ to  {
   border: 1px solid var(--border);
   border-radius: 12px;
 }
+.help-tool-link {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  row-gap: 2px;
+  padding: 10px 4px;
+  text-decoration: none;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+.help-tool-link:last-child { border-bottom: 0; }
+.help-tool-name {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.3px;
+}
+.help-tool-sub {
+  grid-column: 1;
+  grid-row: 2;
+  font-size: 11px;
+  color: var(--text2);
+  line-height: 1.4;
+}
+.help-tool-arrow {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  font-size: 18px;
+  color: var(--gold);
+  opacity: 0.6;
+}
+.help-tool-link:active { background: rgba(212,168,67,0.06); }
+
 .help-section-title {
   font-size: 11px;
   font-weight: 800;
