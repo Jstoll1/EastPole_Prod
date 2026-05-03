@@ -70,8 +70,6 @@ function renderLeaderboard() {
   var players = Object.entries(GOLFER_SCORES).map(function(entry) { var name = entry[0], d = entry[1]; return Object.assign({ name: name }, d); });
   var parseTodayVal = function(p) {
     if (p.score === 11 || p.score === 12) return 999;
-    if (p.thru === '—') return 999;
-    if (p.thru && p.thru.includes(':')) return 999;
     var td = p.todayDisplay || '—';
     if (td === '—') return 998;
     if (td === 'E') return 0;
