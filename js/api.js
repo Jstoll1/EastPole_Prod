@@ -217,23 +217,38 @@ async function fetchESPN() {
       var rval = function(idx) { var v = lines[idx]?.value; return (v && v > 50) ? v : null; };
       var tot = lines.reduce(function(s, l) { return (l.value && l.value > 50 ? s + l.value : s); }, 0) || null;
       // "Today" = the current round's to-par. ESPN linescores carry stroke
-      // totals (>50) for completed rounds and a to-par value for the round
-      // currently in progress. Find that in-progress entry directly instead
-      // of trying to derive it from a generic "active round index" — that
-      // older heuristic picked up a completed round between R1 and R2, which
-      // surfaced a raw stroke count ("73") in the TODAY column or, worse,
-      // got summed into the F2/F4 team-today aggregations.
-      var inProgressLine = lines.find(function(l) {
-        return l != null && l.value != null && Math.abs(l.value) < 50;
-      });
+      // totals (>50) for completed rounds and a to-par for the in-progress
+      // round. The shape of the in-progress entry varies — sometimes the
+      // numeric value is the to-par (-1), sometimes value is null and the
+      // to-par lives in displayValue ("-1"), sometimes value is a stroke
+      // total so far (35) with displayValue carrying the to-par. Probe all
+      // three shapes; falling back to "—" when none match.
       var fmtTodayVal = function(v) {
-        var tp = v;
-        return tp === 0 ? 'E' : (tp > 0 ? '+' + tp : String(tp));
+        return v === 0 ? 'E' : (v > 0 ? '+' + v : String(v));
       };
-      var todayDisplay = (mc || wd) ? '—'
-        : (inProgressLine
-            ? (inProgressLine.displayValue || fmtTodayVal(inProgressLine.value))
-            : '—');
+      var looksLikeToPar = function(s) {
+        return typeof s === 'string' && /^[+\-]?\d+$|^E$/.test(s.trim());
+      };
+      var inProgressLine = lines.find(function(l) {
+        if (!l) return false;
+        if (l.value != null && Math.abs(l.value) < 50) return true;
+        if (looksLikeToPar(l.displayValue)) return true;
+        return false;
+      });
+      var todayDisplay;
+      if (mc || wd) {
+        todayDisplay = '—';
+      } else if (inProgressLine) {
+        if (looksLikeToPar(inProgressLine.displayValue)) {
+          todayDisplay = inProgressLine.displayValue.trim();
+        } else if (inProgressLine.value != null && Math.abs(inProgressLine.value) < 50) {
+          todayDisplay = fmtTodayVal(inProgressLine.value);
+        } else {
+          todayDisplay = '—';
+        }
+      } else {
+        todayDisplay = '—';
+      }
       var onCourse = activelyPlaying;
       var name = resolvePlayerName(ath.displayName);
       if (ath.id) freshAthleteIds[name] = ath.id;
@@ -285,6 +300,11 @@ async function fetchESPN() {
       var lines = c.linescores || [];
       var lastComp = lines.filter(function(l) { return l.value && l.value > 50; }).pop();
       console.log('🔍 ESPN', name, '| state:', st, '| thru:', c.status?.thru, '| disp:', c.status?.displayValue, '| teeTime:', c.status?.teeTime, '| scheduled:', sched, '| lastCompRound:', lastComp?.value, '| lines:', lines.map(function(l){return l.value}).join(','));
+      // Detailed linescore dump for the today-scoring debug — full shape so we
+      // can see what ESPN is putting in value vs displayValue per round.
+      console.log('   linescores raw:', JSON.stringify(lines.map(function(l) {
+        return { value: l?.value, displayValue: l?.displayValue, period: l?.period };
+      })));
     });
 
     // Detect score changes for animations
