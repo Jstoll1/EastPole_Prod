@@ -188,7 +188,9 @@ function renderDebugPanel() {
         + '<div style="display:flex;gap:10px;width:100%;font-size:10px;color:var(--text3)">'
         + '<span>R1:' + (g.r1 || '—') + '</span><span>R2:' + (g.r2 || '—') + '</span><span>R3:' + (g.r3 || '—') + '</span><span>R4:' + (g.r4 || '—') + '</span>'
         + '<span>Tot:' + (g.tot || '—') + '</span>'
+        + '<span>TDY:<b style="color:#fff">' + (g.todayDisplay || '—') + '</b></span>'
         + '</div>'
+        + (g._rawLines ? '<div style="width:100%;font-size:9px;color:var(--text3);font-family:ui-monospace,monospace;word-break:break-all">ESPN lines: ' + escHtml(JSON.stringify(g._rawLines)) + '</div>' : '')
         + '</div>';
     }).join('');
     if (!q) html += '<div class="debug-empty">Showing first 20 of ' + names.length + ' players. Type to search.</div>';
