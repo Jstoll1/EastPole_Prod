@@ -145,6 +145,15 @@ document.addEventListener('DOMContentLoaded', function() {
   var vp = document.querySelector('meta[name="viewport"]');
   if (vp) { vp.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover'); }
 
+  // Tag body when running as a home-screen webapp so layout can collapse
+  // padding meant to clear Safari's URL bar. iOS Safari's
+  // display-mode: standalone media query only matches on 16.4+, so we
+  // also check navigator.standalone (the iOS-classic flag) to cover
+  // older devices.
+  var isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+    || window.navigator.standalone === true;
+  if (isStandalone) document.body.classList.add('is-standalone');
+
   initTheme();
   initDebugPanel();
 

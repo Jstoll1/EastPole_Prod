@@ -330,6 +330,11 @@ html, body  {
     padding-bottom: 24px;
   }
 }
+/* Fallback for iOS < 16.4 where the display-mode media query doesn't
+   match — app.js sets is-standalone on <body> via navigator.standalone. */
+body.is-standalone .view {
+  padding-bottom: 24px;
+}
 
 .view.active  {
   display: block;
