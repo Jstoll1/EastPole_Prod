@@ -320,6 +320,15 @@ html, body  {
   height: 100%;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  /* Browser mode needs ~100px so the last row clears the bottom URL bar
+     plus the +ENTRY floating button. PWA / home-screen mode removes
+     the URL bar so a smaller pad just clears the FAB. */
+  padding-bottom: 100px;
+}
+@media (display-mode: standalone) {
+  .view {
+    padding-bottom: 24px;
+  }
 }
 
 .view.active  {
