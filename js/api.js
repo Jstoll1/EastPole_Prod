@@ -229,17 +229,25 @@ async function fetchESPN() {
       var looksLikeToPar = function(s) {
         return typeof s === 'string' && /^[+\-]?\d+$|^E$/.test(s.trim());
       };
+      // In-progress: value is a small to-par numeric, or value is absent
+      // and only displayValue carries the to-par string. Completed rounds
+      // always have value > 50 (stroke total) — reject those even though
+      // ESPN also populates displayValue with the round's to-par.
       var inProgressLine = lines.find(function(l) {
         if (!l) return false;
-        // Reject completed rounds: ESPN sets displayValue to the round's
-        // to-par ("-8") even on completed rounds, so the only reliable
-        // signal that a round is *in progress* is value being absent OR
-        // a small to-par numeric. Completed rounds always have value > 50
-        // (the stroke total).
         if (l.value != null && Math.abs(l.value) < 50) return true;
         if (l.value == null && looksLikeToPar(l.displayValue)) return true;
         return false;
       });
+      // Fallback: most recent completed round's to-par. We want TODAY to
+      // show either (a) the active round's score when playing, or (b) the
+      // last completed round's score in between/after rounds — never blank
+      // unless the tournament hasn't started.
+      var latestCompletedLine = null;
+      for (var li = lines.length - 1; li >= 0; li--) {
+        var ll = lines[li];
+        if (ll && ll.value != null && ll.value > 50) { latestCompletedLine = ll; break; }
+      }
       var todayDisplay;
       if (mc || wd) {
         todayDisplay = '—';
@@ -251,6 +259,11 @@ async function fetchESPN() {
         } else {
           todayDisplay = '—';
         }
+      } else if (latestCompletedLine && looksLikeToPar(latestCompletedLine.displayValue)) {
+        todayDisplay = latestCompletedLine.displayValue.trim();
+      } else if (latestCompletedLine && latestCompletedLine.value > 50 && typeof COURSE_PAR === 'number') {
+        // Last-resort: derive to-par from stroke count if displayValue is missing.
+        todayDisplay = fmtTodayVal(latestCompletedLine.value - COURSE_PAR);
       } else {
         todayDisplay = '—';
       }
