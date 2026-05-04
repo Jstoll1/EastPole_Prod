@@ -56,6 +56,11 @@
     // when set.
     if (cfg.displayName) window.EVENT_DISPLAY_NAME = cfg.displayName;
 
+    // Optional event logo URL (relative or absolute). When set, api.js
+    // renders this image in the header / splash in place of the built-in
+    // trophy SVG.
+    if (cfg.logo) window.EVENT_LOGO_URL = cfg.logo;
+
     // Defending champion (rendered in F1 leaderboard "Def. Champion" badge).
     if (typeof cfg.previousWinner === 'string') {
       window.PREV_WINNER = cfg.previousWinner;

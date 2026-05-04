@@ -56,9 +56,9 @@ function _extractTourneyMeta(ev) {
   var hdrLogo = document.getElementById('hdr-tourney-logo');
   var splashLogo = document.getElementById('splash-tourney-logo');
   var hdrCenter = document.querySelector('.hdr-logo-center');
-  var TROPHY_SVG = '<svg viewBox="0 0 32 32" fill="none" stroke="#d4a843" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">'
+  var TROPHY_SVG = '<svg viewBox="0 0 32 32" fill="none" stroke="#c5a572" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">'
     // finial dot
-    + '<circle cx="16" cy="3.2" r="1.1" fill="#d4a843" stroke="none"/>'
+    + '<circle cx="16" cy="3.2" r="1.1" fill="#c5a572" stroke="none"/>'
     + '<line x1="16" y1="4.4" x2="16" y2="6"/>'
     // domed lid
     + '<path d="M12.2 7 Q12.2 5 16 5 Q19.8 5 19.8 7"/>'
@@ -71,42 +71,30 @@ function _extractTourneyMeta(ev) {
     // pedestal
     + '<path d="M14 20.5 L14 23.5 L18 23.5 L18 20.5"/>'
     // base
-    + '<rect x="11" y="23.5" width="10" height="2" fill="#d4a843" stroke="none"/>'
+    + '<rect x="11" y="23.5" width="10" height="2" fill="#c5a572" stroke="none"/>'
     + '</svg>';
   var TROPHY_DATA_URI = 'data:image/svg+xml;utf8,' + encodeURIComponent(TROPHY_SVG);
+  // Prefer an explicit event logo URL (set via events/current.json) over
+  // the built-in trophy SVG. Mostly used to drop in the official
+  // tournament mark for major-week branding.
+  var iconSrc = (typeof window.EVENT_LOGO_URL === 'string' && window.EVENT_LOGO_URL) ? window.EVENT_LOGO_URL : TROPHY_DATA_URI;
+  var iconHtml = (iconSrc === TROPHY_DATA_URI)
+    ? TROPHY_SVG.replace('<svg ', '<svg class="hdr-tourney-icon" ')
+    : '<img class="hdr-tourney-icon hdr-tourney-icon-img" src="' + iconSrc + '" alt="">';
   if (splashLogo) {
-    splashLogo.src = TROPHY_DATA_URI;
-    splashLogo.alt = 'Trophy';
+    splashLogo.src = iconSrc;
+    splashLogo.alt = 'Tournament';
     splashLogo.style.display = '';
   }
   if (hdrCenter) {
     if (hdrLogo) hdrLogo.style.display = 'none';
-    if (!document.getElementById('hdr-tourney-text')) {
-      var wrap = document.createElement('div');
-      wrap.id = 'hdr-tourney-text';
-      wrap.className = 'hdr-tourney-name';
-      wrap.innerHTML = TROPHY_SVG.replace('<svg ', '<svg class="hdr-tourney-icon" ')
-        + '<span class="hdr-tourney-label">'
-        +   '<span class="hdr-tourney-line1"></span>'
-        +   '<span class="hdr-tourney-line2"></span>'
-        + '</span>';
-      hdrCenter.appendChild(wrap);
-    }
-    // Stack the tournament name on two lines, splitting at the LAST space.
-    // "PGA Championship" → "PGA" / "Championship". "Masters" stays one line.
-    var l1 = document.querySelector('.hdr-tourney-line1');
-    var l2 = document.querySelector('.hdr-tourney-line2');
-    var name = (typeof window.EVENT_DISPLAY_NAME === 'string' && window.EVENT_DISPLAY_NAME) || TOURNEY_NAME || '';
-    var lastSpace = name.lastIndexOf(' ');
-    if (l1 && l2) {
-      if (lastSpace > 0) {
-        l1.textContent = name.slice(0, lastSpace);
-        l2.textContent = name.slice(lastSpace + 1);
-      } else {
-        l1.textContent = name;
-        l2.textContent = '';
-      }
-    }
+    var existingText = document.getElementById('hdr-tourney-text');
+    if (existingText) existingText.remove();
+    var wrap = document.createElement('div');
+    wrap.id = 'hdr-tourney-text';
+    wrap.className = 'hdr-tourney-name hdr-tourney-name-logo-only';
+    wrap.innerHTML = iconHtml;
+    hdrCenter.appendChild(wrap);
   }
   // Update splash text
   var subEl = document.querySelector('.brand-subtext');

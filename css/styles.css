@@ -5,13 +5,14 @@
   --green: #2d6a4f;
   --green-light: #40916c;
   --green-bright: #52b788;
-  /* Brighter broadcast-gold — closer to the PGA Championship signage gold
-     in the Bandon Dunes inspo than our previous amber. Accent components
-     (header border, title text, position pills, FAB, etc.) all key off
-     these vars so the brightness lift ripples consistently. */
-  --gold: #e5b94e;
-  --gold-dim: rgba(229,185,78,0.5);
-  --gold-bg: rgba(229,185,78,0.08);
+  /* PGA of America brand gold — deeper, more antique/champagne than the
+     Bandon Dunes broadcast gold. Reads as official rather than vivid.
+     All accent components key off these vars so the tone shifts in
+     lockstep across the header border, title text, position pills,
+     activity FAB, etc. */
+  --gold: #c5a572;
+  --gold-dim: rgba(197,165,114,0.5);
+  --gold-bg: rgba(197,165,114,0.08);
   --red: #d9534f;
   --bg: #02132b;
   --card: #0a1f3a;
@@ -123,6 +124,22 @@ html, body  {
   height: 32px;
   flex-shrink: 0;
   filter: drop-shadow(0 1px 3px rgba(0,0,0,0.4));
+}
+/* When the tournament icon is an external <img> (e.g. official PGA logo
+   from events/current.json), preserve aspect ratio and let the same
+   bounding box hold it. Round/square logos look right; wide marks get
+   contained without stretching. */
+.hdr-tourney-icon-img {
+  object-fit: contain;
+  background: transparent;
+}
+/* Logo-only header (no PGA / CHAMPIONSHIP label) — give the icon room
+   to breathe by letting it fill the header height. Bigger drop-shadow
+   for visual weight against the navy. */
+.hdr-tourney-name-logo-only .hdr-tourney-icon {
+  width: 42px;
+  height: 42px;
+  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.55));
 }
 /* Header tournament label — classic broadcast-leaderboard treatment.
    Playfair Display (already loaded for the splash) gives the same regal

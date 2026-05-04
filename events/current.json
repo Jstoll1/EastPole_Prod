@@ -4,7 +4,7 @@
   "displayName": "PGA Championship",
   "course": "Trump National Doral",
   "courseTimezone": "America/New_York",
-  "logo": "./assets/pga-championship-logo.png",
+  "logo": "https://images.seeklogo.com/logo-png/21/1/the-pga-of-america-logo-png_seeklogo-218481.png",
   "dates": {
     "start": "2026-05-01",
     "end": "2026-05-04"
