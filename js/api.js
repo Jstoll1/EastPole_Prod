@@ -56,15 +56,47 @@ function _extractTourneyMeta(ev) {
   var hdrLogo = document.getElementById('hdr-tourney-logo');
   var splashLogo = document.getElementById('splash-tourney-logo');
   var hdrCenter = document.querySelector('.hdr-logo-center');
-  // Inline PGA-badge SVG. Transparent background (no white halo) so it
-  // sits cleanly on the navy header. Outer gold ring + navy fill + a
-  // faint inner ring for depth + "PGA" wordmark in gold serif. Replace
-  // by setting events/current.json `logo` to a transparent-background
-  // image URL.
-  var TROPHY_SVG = '<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">'
-    + '<circle cx="30" cy="30" r="28" fill="#003C71" stroke="#c5a572" stroke-width="2"/>'
-    + '<circle cx="30" cy="30" r="23" fill="none" stroke="#c5a572" stroke-width="0.7" stroke-opacity="0.55"/>'
-    + '<text x="30" y="37" text-anchor="middle" font-family="Georgia, serif" font-size="18" font-weight="900" fill="#c5a572" letter-spacing="1.5">PGA</text>'
+  // Inline Wanamaker-trophy + PGA Championship lockup. Single-color
+  // gold strokes on a transparent background — sits cleanly on the
+  // navy header without a halo. Vertical layout: trophy ~60% of the
+  // viewBox, "PGA" wordmark in serif below, "CHAMPIONSHIP" small caps
+  // beneath that. Replace by setting events/current.json `logo` to a
+  // transparent-background image URL.
+  //
+  // Trophy anatomy (top → bottom): finial dot, domed lid, cup neck,
+  // wider cup body, ornate scroll handles, pedestal stem, stepped base.
+  var GOLD = '#c5a572';
+  // ViewBox tuned to a 100×120 frame so "CHAMPIONSHIP" (12 chars) fits
+  // horizontally without crowding the trophy. Trophy occupies y 5-65;
+  // wordmark sits below.
+  var TROPHY_SVG = '<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">'
+    + '<g stroke="' + GOLD + '" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">'
+    //   finial
+    + '<circle cx="50" cy="8" r="1.8" fill="' + GOLD + '" stroke="none"/>'
+    + '<line x1="50" y1="10.5" x2="50" y2="15"/>'
+    //   domed lid
+    + '<path d="M38 16 Q38 10 50 10 Q62 10 62 16"/>'
+    + '<line x1="38" y1="16" x2="62" y2="16"/>'
+    //   cup neck (narrower than body)
+    + '<path d="M40 16 L40 21 L60 21 L60 16"/>'
+    //   cup body
+    + '<path d="M35 21 L35 47 Q35 56 50 56 Q65 56 65 47 L65 21 Z"/>'
+    //   left scroll handle
+    + '<path d="M35 26 Q23 26 21 33 Q19 40 26 43 Q33 44 35 41"/>'
+    //   right scroll handle
+    + '<path d="M65 26 Q77 26 79 33 Q81 40 74 43 Q67 44 65 41"/>'
+    //   pedestal stem
+    + '<path d="M44 56 L44 63 L56 63 L56 56"/>'
+    //   stepped base
+    + '<rect x="36" y="63" width="28" height="3.5" fill="' + GOLD + '" stroke="none"/>'
+    + '<rect x="39" y="66.5" width="22" height="2.5"/>'
+    + '</g>'
+    //   divider rule
+    + '<line x1="28" y1="78" x2="72" y2="78" stroke="' + GOLD + '" stroke-width="0.6" stroke-opacity="0.55"/>'
+    //   "PGA" — serif, big
+    + '<text x="50" y="98" text-anchor="middle" font-family="Georgia, \'Playfair Display\', serif" font-size="20" font-weight="900" fill="' + GOLD + '" letter-spacing="3">PGA</text>'
+    //   "CHAMPIONSHIP" — small, sans, kerned to fill the width
+    + '<text x="50" y="113" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="800" fill="' + GOLD + '" letter-spacing="2.4">CHAMPIONSHIP</text>'
     + '</svg>';
   var TROPHY_DATA_URI = 'data:image/svg+xml;utf8,' + encodeURIComponent(TROPHY_SVG);
   // Prefer an explicit event logo URL (set via events/current.json) over

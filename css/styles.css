@@ -23,7 +23,7 @@
   --border: #1c3a5e;
   --safe-top: env(safe-area-inset-top, 47px);
   --safe-bot: env(safe-area-inset-bottom, 34px);
-  --header-h: 50px;
+  --header-h: 68px;
   --nav-h: 56px;
 }
 
@@ -133,12 +133,12 @@ html, body  {
   object-fit: contain;
   background: transparent;
 }
-/* Logo-only header (no PGA / CHAMPIONSHIP label) — give the icon room
-   to breathe by letting it fill the header height. Bigger drop-shadow
-   for visual weight against the navy. */
+/* Trophy + PGA Championship lockup — taller (100×120 viewBox) so the
+   "CHAMPIONSHIP" wordmark stays legible. Width:height = 100:120 = 0.83.
+   The header grows to accommodate (see --header-h below). */
 .hdr-tourney-name-logo-only .hdr-tourney-icon {
-  width: 42px;
-  height: 42px;
+  width: 50px;
+  height: 60px;
   filter: drop-shadow(0 2px 5px rgba(0,0,0,0.55));
 }
 /* Header tournament label — classic broadcast-leaderboard treatment.
