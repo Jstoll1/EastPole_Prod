@@ -22,6 +22,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./css/styles.css?v=7e920c2d">
 <link rel="stylesheet" href="./css/theme.css?v=edc61fa8">
+<link rel="stylesheet" href="./css/chat.css?v=1">
 <script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
 <body data-active-view="leaderboard">
@@ -388,6 +389,19 @@
 </svg> Help </button>
 </nav>
 <button id="activity-fab" onclick="toggleActivityDrawer()">⚡</button>
+<button id="chat-fab" onclick="chatOpen()" aria-label="Ask the caddie">💬</button>
+<div id="chat-overlay" onclick="chatClose()"></div>
+<div id="chat-panel" role="dialog" aria-label="Golf chat">
+<div class="chat-header">
+<div class="chat-title">⛳ Caddie</div>
+<button class="chat-close" onclick="chatClose()" aria-label="Close">✕</button>
+</div>
+<div id="chat-messages"></div>
+<div class="chat-input-row">
+<textarea id="chat-input" rows="1" placeholder="Ask about the pool…" onkeydown="chatKey(event)"></textarea>
+<button id="chat-send" onclick="chatSend()">Send</button>
+</div>
+</div>
 <div id="activity-overlay" onclick="toggleActivityDrawer()"></div>
 <div id="activity-drawer">
 <div class="act-handle" ontouchstart="actDragStart(event)"></div>
@@ -446,6 +460,7 @@
 <script defer src="./js/ui-activity.js?v=04eb5194"></script>
 <script defer src="./js/ui-ticker.js?v=404633d4"></script>
 <script defer src="./js/ui-debug.js?v=db1af59a"></script>
+<script defer src="./js/ui-chat.js?v=1"></script>
 <script defer src="./js/app.js?v=89b663f0"></script>
 </body>
 </html>
