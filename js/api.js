@@ -57,7 +57,7 @@ function _extractTourneyMeta(ev) {
   var splashLogo = document.getElementById('splash-tourney-logo');
   var hdrCenter = document.querySelector('.hdr-logo-center');
   var EP_MARK_SVG = '<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">'
-    + '<rect width="32" height="32" rx="6" fill="#0d2c54"/>'
+    + '<rect width="32" height="32" rx="6" fill="#003C71"/>'
     + '<text x="16" y="24" text-anchor="middle" font-family="Georgia, serif" font-size="26" font-weight="bold" font-style="italic" fill="#d4a843">E</text>'
     + '</svg>';
   var EP_MARK_DATA_URI = 'data:image/svg+xml;utf8,' + encodeURIComponent(EP_MARK_SVG);

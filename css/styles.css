@@ -1,5 +1,5 @@
 :root  {
-  /* Brand surface = PGA Championship navy (was Augusta green).
+  /* Brand surface = PGA Championship navy (Pantone 281 family).
      --green-* vars retained — they're semantic ("under par = green"),
      used by .pos / .neg score classes regardless of brand surface. */
   --green: #2d6a4f;
@@ -9,13 +9,13 @@
   --gold-dim: rgba(212,168,67,0.5);
   --gold-bg: rgba(212,168,67,0.08);
   --red: #d9534f;
-  --bg: #06121f;
-  --card: #0c1a2c;
-  --card2: #11203a;
+  --bg: #02132b;
+  --card: #0a1f3a;
+  --card2: #0f2c50;
   --text: #eaf0f8;
-  --text2: #7c93b5;
-  --text3: #445a78;
-  --border: #1a2c45;
+  --text2: #8aa3c4;
+  --text3: #506c8e;
+  --border: #1c3a5e;
   --safe-top: env(safe-area-inset-top, 47px);
   --safe-bot: env(safe-area-inset-bottom, 34px);
   --header-h: 50px;
@@ -49,7 +49,7 @@ html, body  {
   left: 0;
   right: 0;
   z-index: 200;
-  background: linear-gradient(180deg, #1a3a6b 0%, #0d2c54 100%);
+  background: linear-gradient(180deg, #1a4d80 0%, #003C71 100%);
   padding-top: var(--safe-top);
   border-bottom: 2px solid var(--gold);
 }
@@ -391,7 +391,7 @@ body.is-standalone .view {
   left: 0;
   right: 0;
   z-index: 200;
-  background: linear-gradient(180deg, #0d2c54 0%, #091f3d 100%);
+  background: linear-gradient(180deg, #003C71 0%, #001D3B 100%);
   border-top: 1px solid rgba(212,168,67,0.3);
   padding-bottom: var(--safe-bot);
   height: calc(var(--nav-h) + var(--safe-bot));
@@ -519,7 +519,7 @@ body.is-standalone .view {
   border-radius: 10px;
   background: var(--card2);
 }
-.ef-tier-count.ef-good { color: #091f3d; background: var(--gold); }
+.ef-tier-count.ef-good { color: #001D3B; background: var(--gold); }
 .ef-tier-count.ef-over { color: #fff; background: #c64545; }
 .ef-tier-desc {
   font-size: 11px;
@@ -562,7 +562,7 @@ body.is-standalone .view {
   width: 100%;
   padding: 14px;
   background: var(--gold);
-  color: #091f3d;
+  color: #001D3B;
   border: none;
   border-radius: 10px;
   font-size: 14px;
@@ -594,7 +594,7 @@ body.is-standalone .view {
   line-height: 62px;
   font-size: 36px;
   font-weight: 900;
-  color: #091f3d;
+  color: #001D3B;
   background: var(--gold);
   border-radius: 50%;
   margin: 0 auto 16px;
@@ -758,7 +758,7 @@ body.is-standalone .view {
   font-size: 9px;
   font-weight: 800;
   letter-spacing: 0.8px;
-  color: #091f3d;
+  color: #001D3B;
   background: var(--gold);
   padding: 1px 5px;
   border-radius: 3px;
@@ -846,12 +846,12 @@ body.is-standalone .view {
   height: 100%;
   background-image:
     radial-gradient(circle, #f5c518 2px, transparent 2px),
-    radial-gradient(circle, #0d2c54 1.5px, transparent 1.5px),
+    radial-gradient(circle, #003C71 1.5px, transparent 1.5px),
     radial-gradient(circle, #fff 1.2px, transparent 1.2px),
     radial-gradient(circle, #d4a843 1.8px, transparent 1.8px),
     radial-gradient(circle, #f5c518 1px, transparent 1px),
     radial-gradient(circle, #fff 1.5px, transparent 1.5px),
-    radial-gradient(circle, #0d2c54 1px, transparent 1px);
+    radial-gradient(circle, #003C71 1px, transparent 1px);
   background-size: 55px 70px, 70px 90px, 90px 55px, 40px 80px, 80px 60px, 65px 45px, 50px 75px;
   background-position: 0 0, 30px 20px, 15px 45px, 50px 10px, 10px 60px, 65px 35px, 25px 50px;
   animation: confettiFall 3.5s linear infinite;
@@ -926,9 +926,9 @@ body.is-standalone .view {
   height: 24px;
   margin: -12px 0 0 -12px;
   box-shadow:
-    0 -10px 0 -3px #0d2c54,
+    0 -10px 0 -3px #003C71,
     10px 0 0 -3px #f5c518,
-    0 10px 0 -3px #0d2c54,
+    0 10px 0 -3px #003C71,
     -10px 0 0 -3px #f5c518;
   animation: burstPop 2.8s ease-out infinite;
   animation-delay: 0.1s;
@@ -1956,7 +1956,7 @@ body.is-standalone .view {
 .ticker-label {
   flex-shrink: 0;
   background: var(--gold);
-  color: #091f3d;
+  color: #001D3B;
   font-size: 9px;
   font-weight: 800;
   letter-spacing: 1.5px;
@@ -2401,8 +2401,8 @@ body.is-standalone .view {
 
 .team-card  {
   margin: 14px 14px 0;
-  background: linear-gradient(145deg, #0f1a30, #0c1730);
-  border: 1px solid #1e2c4a;
+  background: linear-gradient(145deg, #0a2548, #051c38);
+  border: 1px solid #1c3a5e;
   border-radius: 16px;
   padding: 18px;
 }
@@ -2448,7 +2448,7 @@ body.is-standalone .view {
   margin: 10px 12px 0;
   overflow: hidden;
   border-radius: 12px;
-  border: 1px solid #1c2c44;
+  border: 1px solid #1c3a5e;
 }
 
 .pick-row  {
@@ -2927,7 +2927,7 @@ to  {
   top: calc(var(--safe-top) + var(--header-h) + 6px);
   z-index: 400;
   min-width: 180px;
-  background: #0e1c34;
+  background: #0a2548;
   border: 1px solid var(--gold);
   border-radius: 12px;
   overflow: hidden;
@@ -3272,7 +3272,7 @@ to  {
 
 .pill-e  {
   background: #5BE6C8;
-  color: #091f3d;
+  color: #001D3B;
 }
 
 .my-hero-dot {
