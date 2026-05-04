@@ -56,22 +56,15 @@ function _extractTourneyMeta(ev) {
   var hdrLogo = document.getElementById('hdr-tourney-logo');
   var splashLogo = document.getElementById('splash-tourney-logo');
   var hdrCenter = document.querySelector('.hdr-logo-center');
-  var TROPHY_SVG = '<svg viewBox="0 0 32 32" fill="none" stroke="#c5a572" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">'
-    // finial dot
-    + '<circle cx="16" cy="3.2" r="1.1" fill="#c5a572" stroke="none"/>'
-    + '<line x1="16" y1="4.4" x2="16" y2="6"/>'
-    // domed lid
-    + '<path d="M12.2 7 Q12.2 5 16 5 Q19.8 5 19.8 7"/>'
-    // cup body
-    + '<path d="M11 8 L11 17 Q11 20.5 16 20.5 Q21 20.5 21 17 L21 8 Z"/>'
-    // left handle
-    + '<path d="M11 10 Q7 10 7 13 Q7 15.6 11 15"/>'
-    // right handle
-    + '<path d="M21 10 Q25 10 25 13 Q25 15.6 21 15"/>'
-    // pedestal
-    + '<path d="M14 20.5 L14 23.5 L18 23.5 L18 20.5"/>'
-    // base
-    + '<rect x="11" y="23.5" width="10" height="2" fill="#c5a572" stroke="none"/>'
+  // Inline PGA-badge SVG. Transparent background (no white halo) so it
+  // sits cleanly on the navy header. Outer gold ring + navy fill + a
+  // faint inner ring for depth + "PGA" wordmark in gold serif. Replace
+  // by setting events/current.json `logo` to a transparent-background
+  // image URL.
+  var TROPHY_SVG = '<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">'
+    + '<circle cx="30" cy="30" r="28" fill="#003C71" stroke="#c5a572" stroke-width="2"/>'
+    + '<circle cx="30" cy="30" r="23" fill="none" stroke="#c5a572" stroke-width="0.7" stroke-opacity="0.55"/>'
+    + '<text x="30" y="37" text-anchor="middle" font-family="Georgia, serif" font-size="18" font-weight="900" fill="#c5a572" letter-spacing="1.5">PGA</text>'
     + '</svg>';
   var TROPHY_DATA_URI = 'data:image/svg+xml;utf8,' + encodeURIComponent(TROPHY_SVG);
   // Prefer an explicit event logo URL (set via events/current.json) over
