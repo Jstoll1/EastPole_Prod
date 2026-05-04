@@ -54,7 +54,7 @@ html, body  {
   left: 0;
   right: 0;
   z-index: 200;
-  background: linear-gradient(180deg, #1a4d80 0%, #003C71 100%);
+  background: linear-gradient(180deg, #0a2c5b 0%, #001d3b 100%);
   padding-top: var(--safe-top);
   border-bottom: 2px solid var(--gold);
 }
@@ -430,7 +430,7 @@ body.is-standalone .view {
   left: 0;
   right: 0;
   z-index: 200;
-  background: linear-gradient(180deg, #003C71 0%, #001D3B 100%);
+  background: linear-gradient(180deg, #001d3b 0%, #000d22 100%);
   border-top: 1px solid rgba(212,168,67,0.3);
   padding-bottom: var(--safe-bot);
   height: calc(var(--nav-h) + var(--safe-bot));
