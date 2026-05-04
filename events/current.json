@@ -3,6 +3,7 @@
   "name": "Cadillac Championship",
   "course": "Trump National Doral",
   "courseTimezone": "America/New_York",
+  "logo": "./assets/pga-championship-logo.png",
   "dates": {
     "start": "2026-05-01",
     "end": "2026-05-04"

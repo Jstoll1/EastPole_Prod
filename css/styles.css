@@ -1,4 +1,7 @@
 :root  {
+  /* Brand surface = PGA Championship navy (was Augusta green).
+     --green-* vars retained — they're semantic ("under par = green"),
+     used by .pos / .neg score classes regardless of brand surface. */
   --green: #2d6a4f;
   --green-light: #40916c;
   --green-bright: #52b788;
@@ -6,13 +9,13 @@
   --gold-dim: rgba(212,168,67,0.5);
   --gold-bg: rgba(212,168,67,0.08);
   --red: #d9534f;
-  --bg: #06120c;
-  --card: #0c1e14;
-  --card2: #112a1b;
-  --text: #eaf2ec;
-  --text2: #6b9e78;
-  --text3: #3a6148;
-  --border: #1a3326;
+  --bg: #06121f;
+  --card: #0c1a2c;
+  --card2: #11203a;
+  --text: #eaf0f8;
+  --text2: #7c93b5;
+  --text3: #445a78;
+  --border: #1a2c45;
   --safe-top: env(safe-area-inset-top, 47px);
   --safe-bot: env(safe-area-inset-bottom, 34px);
   --header-h: 50px;
@@ -516,7 +519,7 @@ body.is-standalone .view {
   border-radius: 10px;
   background: var(--card2);
 }
-.ef-tier-count.ef-good { color: #0b1d14; background: var(--gold); }
+.ef-tier-count.ef-good { color: #091f3d; background: var(--gold); }
 .ef-tier-count.ef-over { color: #fff; background: #c64545; }
 .ef-tier-desc {
   font-size: 11px;
@@ -559,7 +562,7 @@ body.is-standalone .view {
   width: 100%;
   padding: 14px;
   background: var(--gold);
-  color: #0b1d14;
+  color: #091f3d;
   border: none;
   border-radius: 10px;
   font-size: 14px;
@@ -591,7 +594,7 @@ body.is-standalone .view {
   line-height: 62px;
   font-size: 36px;
   font-weight: 900;
-  color: #0b1d14;
+  color: #091f3d;
   background: var(--gold);
   border-radius: 50%;
   margin: 0 auto 16px;
@@ -755,7 +758,7 @@ body.is-standalone .view {
   font-size: 9px;
   font-weight: 800;
   letter-spacing: 0.8px;
-  color: #0b1d14;
+  color: #091f3d;
   background: var(--gold);
   padding: 1px 5px;
   border-radius: 3px;
@@ -843,12 +846,12 @@ body.is-standalone .view {
   height: 100%;
   background-image:
     radial-gradient(circle, #f5c518 2px, transparent 2px),
-    radial-gradient(circle, #006747 1.5px, transparent 1.5px),
+    radial-gradient(circle, #0d2c54 1.5px, transparent 1.5px),
     radial-gradient(circle, #fff 1.2px, transparent 1.2px),
     radial-gradient(circle, #d4a843 1.8px, transparent 1.8px),
     radial-gradient(circle, #f5c518 1px, transparent 1px),
     radial-gradient(circle, #fff 1.5px, transparent 1.5px),
-    radial-gradient(circle, #006747 1px, transparent 1px);
+    radial-gradient(circle, #0d2c54 1px, transparent 1px);
   background-size: 55px 70px, 70px 90px, 90px 55px, 40px 80px, 80px 60px, 65px 45px, 50px 75px;
   background-position: 0 0, 30px 20px, 15px 45px, 50px 10px, 10px 60px, 65px 35px, 25px 50px;
   animation: confettiFall 3.5s linear infinite;
@@ -923,9 +926,9 @@ body.is-standalone .view {
   height: 24px;
   margin: -12px 0 0 -12px;
   box-shadow:
-    0 -10px 0 -3px #006747,
+    0 -10px 0 -3px #0d2c54,
     10px 0 0 -3px #f5c518,
-    0 10px 0 -3px #006747,
+    0 10px 0 -3px #0d2c54,
     -10px 0 0 -3px #f5c518;
   animation: burstPop 2.8s ease-out infinite;
   animation-delay: 0.1s;
@@ -1953,7 +1956,7 @@ body.is-standalone .view {
 .ticker-label {
   flex-shrink: 0;
   background: var(--gold);
-  color: #0a1a0e;
+  color: #091f3d;
   font-size: 9px;
   font-weight: 800;
   letter-spacing: 1.5px;
@@ -2398,8 +2401,8 @@ body.is-standalone .view {
 
 .team-card  {
   margin: 14px 14px 0;
-  background: linear-gradient(145deg, #0f2016, #0c1a10);
-  border: 1px solid #1e3d28;
+  background: linear-gradient(145deg, #0f1a30, #0c1730);
+  border: 1px solid #1e2c4a;
   border-radius: 16px;
   padding: 18px;
 }
@@ -2445,7 +2448,7 @@ body.is-standalone .view {
   margin: 10px 12px 0;
   overflow: hidden;
   border-radius: 12px;
-  border: 1px solid #1c3824;
+  border: 1px solid #1c2c44;
 }
 
 .pick-row  {
@@ -2924,7 +2927,7 @@ to  {
   top: calc(var(--safe-top) + var(--header-h) + 6px);
   z-index: 400;
   min-width: 180px;
-  background: #0e2318;
+  background: #0e1c34;
   border: 1px solid var(--gold);
   border-radius: 12px;
   overflow: hidden;
@@ -3269,7 +3272,7 @@ to  {
 
 .pill-e  {
   background: #5BE6C8;
-  color: #053025;
+  color: #091f3d;
 }
 
 .my-hero-dot {
