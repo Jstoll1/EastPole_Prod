@@ -121,15 +121,29 @@ html, body  {
   filter: drop-shadow(0 1px 3px rgba(0,0,0,0.4));
 }
 .hdr-tourney-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   font-family: system-ui, -apple-system, sans-serif;
-  font-size: 13px;
   font-weight: 700;
   color: #fff;
   text-transform: uppercase;
   letter-spacing: 2.5px;
-  line-height: 1.15;
+  line-height: 1;
   text-shadow: 0 1px 3px rgba(0,0,0,0.4);
 }
+.hdr-tourney-line1 {
+  font-size: 13px;
+  letter-spacing: 3px;
+}
+.hdr-tourney-line2 {
+  font-size: 11px;
+  letter-spacing: 2px;
+  margin-top: 2px;
+  opacity: 0.85;
+}
+.hdr-tourney-line2:empty { display: none; }
 
 /* Schedule Floating Menu */
 .schedule-backdrop {

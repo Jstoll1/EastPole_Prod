@@ -50,20 +50,33 @@ function _extractTourneyMeta(ev) {
     var endStr = end ? end.toLocaleDateString('en-US', opts) : '';
     TOURNEY_DATES = end ? startStr + ' – ' + endStr : startStr;
   }
-  // Always render the East Pole brand mark — ignore ESPN's tournament logo so
-  // we're not swapping in course-specific imagery (e.g. the RBC Heritage
-  // Harbour Town lighthouse) week to week.
+  // Header logo: Wanamaker-style golf trophy + the event name stacked on
+  // two lines (PGA / Championship). We deliberately ignore ESPN's tournament
+  // logo URL because it varies week to week (course logos, sponsor marks).
   var hdrLogo = document.getElementById('hdr-tourney-logo');
   var splashLogo = document.getElementById('splash-tourney-logo');
   var hdrCenter = document.querySelector('.hdr-logo-center');
-  var EP_MARK_SVG = '<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">'
-    + '<rect width="32" height="32" rx="6" fill="#003C71"/>'
-    + '<text x="16" y="24" text-anchor="middle" font-family="Georgia, serif" font-size="26" font-weight="bold" font-style="italic" fill="#d4a843">E</text>'
+  var TROPHY_SVG = '<svg viewBox="0 0 32 32" fill="none" stroke="#d4a843" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">'
+    // finial dot
+    + '<circle cx="16" cy="3.2" r="1.1" fill="#d4a843" stroke="none"/>'
+    + '<line x1="16" y1="4.4" x2="16" y2="6"/>'
+    // domed lid
+    + '<path d="M12.2 7 Q12.2 5 16 5 Q19.8 5 19.8 7"/>'
+    // cup body
+    + '<path d="M11 8 L11 17 Q11 20.5 16 20.5 Q21 20.5 21 17 L21 8 Z"/>'
+    // left handle
+    + '<path d="M11 10 Q7 10 7 13 Q7 15.6 11 15"/>'
+    // right handle
+    + '<path d="M21 10 Q25 10 25 13 Q25 15.6 21 15"/>'
+    // pedestal
+    + '<path d="M14 20.5 L14 23.5 L18 23.5 L18 20.5"/>'
+    // base
+    + '<rect x="11" y="23.5" width="10" height="2" fill="#d4a843" stroke="none"/>'
     + '</svg>';
-  var EP_MARK_DATA_URI = 'data:image/svg+xml;utf8,' + encodeURIComponent(EP_MARK_SVG);
+  var TROPHY_DATA_URI = 'data:image/svg+xml;utf8,' + encodeURIComponent(TROPHY_SVG);
   if (splashLogo) {
-    splashLogo.src = EP_MARK_DATA_URI;
-    splashLogo.alt = 'East Pole';
+    splashLogo.src = TROPHY_DATA_URI;
+    splashLogo.alt = 'Trophy';
     splashLogo.style.display = '';
   }
   if (hdrCenter) {
@@ -72,12 +85,28 @@ function _extractTourneyMeta(ev) {
       var wrap = document.createElement('div');
       wrap.id = 'hdr-tourney-text';
       wrap.className = 'hdr-tourney-name';
-      wrap.innerHTML = EP_MARK_SVG.replace('<svg ', '<svg class="hdr-tourney-icon" ')
-        + '<span class="hdr-tourney-label"></span>';
+      wrap.innerHTML = TROPHY_SVG.replace('<svg ', '<svg class="hdr-tourney-icon" ')
+        + '<span class="hdr-tourney-label">'
+        +   '<span class="hdr-tourney-line1"></span>'
+        +   '<span class="hdr-tourney-line2"></span>'
+        + '</span>';
       hdrCenter.appendChild(wrap);
     }
-    var lblEl = document.querySelector('.hdr-tourney-label');
-    if (lblEl) lblEl.textContent = TOURNEY_NAME || '';
+    // Stack the tournament name on two lines, splitting at the LAST space.
+    // "PGA Championship" → "PGA" / "Championship". "Masters" stays one line.
+    var l1 = document.querySelector('.hdr-tourney-line1');
+    var l2 = document.querySelector('.hdr-tourney-line2');
+    var name = (typeof window.EVENT_DISPLAY_NAME === 'string' && window.EVENT_DISPLAY_NAME) || TOURNEY_NAME || '';
+    var lastSpace = name.lastIndexOf(' ');
+    if (l1 && l2) {
+      if (lastSpace > 0) {
+        l1.textContent = name.slice(0, lastSpace);
+        l2.textContent = name.slice(lastSpace + 1);
+      } else {
+        l1.textContent = name;
+        l2.textContent = '';
+      }
+    }
   }
   // Update splash text
   var subEl = document.querySelector('.brand-subtext');

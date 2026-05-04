@@ -50,6 +50,12 @@
       window.POOL_SHEET_URL = cfg.sheet.publishedTsvUrl;
     }
 
+    // Optional display-name override. Lets us preview a future event's
+    // branding (e.g. "PGA Championship") in the header before ESPN starts
+    // reporting that tournament. api.js prefers this over TOURNEY_NAME
+    // when set.
+    if (cfg.displayName) window.EVENT_DISPLAY_NAME = cfg.displayName;
+
     // Defending champion (rendered in F1 leaderboard "Def. Champion" badge).
     if (typeof cfg.previousWinner === 'string') {
       window.PREV_WINNER = cfg.previousWinner;

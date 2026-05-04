@@ -1,6 +1,7 @@
 {
   "id": "2026-cadillac-championship",
   "name": "Cadillac Championship",
+  "displayName": "PGA Championship",
   "course": "Trump National Doral",
   "courseTimezone": "America/New_York",
   "logo": "./assets/pga-championship-logo.png",
