@@ -23,7 +23,7 @@
   --border: #1c3a5e;
   --safe-top: env(safe-area-inset-top, 47px);
   --safe-bot: env(safe-area-inset-bottom, 34px);
-  --header-h: 68px;
+  --header-h: 50px;
   --nav-h: 56px;
 }
 

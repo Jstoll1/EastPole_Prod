@@ -56,60 +56,17 @@ function _extractTourneyMeta(ev) {
   var hdrLogo = document.getElementById('hdr-tourney-logo');
   var splashLogo = document.getElementById('splash-tourney-logo');
   var hdrCenter = document.querySelector('.hdr-logo-center');
-  // Inline Wanamaker-trophy + PGA Championship lockup. Single-color
-  // gold strokes on a transparent background — sits cleanly on the
-  // navy header without a halo. Vertical layout: trophy ~60% of the
-  // viewBox, "PGA" wordmark in serif below, "CHAMPIONSHIP" small caps
-  // beneath that. Replace by setting events/current.json `logo` to a
-  // transparent-background image URL.
-  //
-  // Trophy anatomy (top → bottom): finial dot, domed lid, cup neck,
-  // wider cup body, ornate scroll handles, pedestal stem, stepped base.
-  var GOLD = '#c5a572';
-  // ViewBox tuned to a 100×120 frame so "CHAMPIONSHIP" (12 chars) fits
-  // horizontally without crowding the trophy. Trophy occupies y 5-65;
-  // wordmark sits below.
-  var TROPHY_SVG = '<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">'
-    + '<g stroke="' + GOLD + '" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">'
-    //   finial
-    + '<circle cx="50" cy="8" r="1.8" fill="' + GOLD + '" stroke="none"/>'
-    + '<line x1="50" y1="10.5" x2="50" y2="15"/>'
-    //   domed lid
-    + '<path d="M38 16 Q38 10 50 10 Q62 10 62 16"/>'
-    + '<line x1="38" y1="16" x2="62" y2="16"/>'
-    //   cup neck (narrower than body)
-    + '<path d="M40 16 L40 21 L60 21 L60 16"/>'
-    //   cup body
-    + '<path d="M35 21 L35 47 Q35 56 50 56 Q65 56 65 47 L65 21 Z"/>'
-    //   left scroll handle
-    + '<path d="M35 26 Q23 26 21 33 Q19 40 26 43 Q33 44 35 41"/>'
-    //   right scroll handle
-    + '<path d="M65 26 Q77 26 79 33 Q81 40 74 43 Q67 44 65 41"/>'
-    //   pedestal stem
-    + '<path d="M44 56 L44 63 L56 63 L56 56"/>'
-    //   stepped base
-    + '<rect x="36" y="63" width="28" height="3.5" fill="' + GOLD + '" stroke="none"/>'
-    + '<rect x="39" y="66.5" width="22" height="2.5"/>'
-    + '</g>'
-    //   divider rule
-    + '<line x1="28" y1="78" x2="72" y2="78" stroke="' + GOLD + '" stroke-width="0.6" stroke-opacity="0.55"/>'
-    //   "PGA" — serif, big
-    + '<text x="50" y="98" text-anchor="middle" font-family="Georgia, \'Playfair Display\', serif" font-size="20" font-weight="900" fill="' + GOLD + '" letter-spacing="3">PGA</text>'
-    //   "CHAMPIONSHIP" — small, sans, kerned to fill the width
-    + '<text x="50" y="113" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="800" fill="' + GOLD + '" letter-spacing="2.4">CHAMPIONSHIP</text>'
-    + '</svg>';
-  var TROPHY_DATA_URI = 'data:image/svg+xml;utf8,' + encodeURIComponent(TROPHY_SVG);
-  // Prefer an explicit event logo URL (set via events/current.json) over
-  // the built-in trophy SVG. Mostly used to drop in the official
-  // tournament mark for major-week branding.
-  var iconSrc = (typeof window.EVENT_LOGO_URL === 'string' && window.EVENT_LOGO_URL) ? window.EVENT_LOGO_URL : TROPHY_DATA_URI;
-  var iconHtml = (iconSrc === TROPHY_DATA_URI)
-    ? TROPHY_SVG.replace('<svg ', '<svg class="hdr-tourney-icon" ')
-    : '<img class="hdr-tourney-icon hdr-tourney-icon-img" src="' + iconSrc + '" alt="">';
+  // Header: stacked "PGA / CHAMPIONSHIP" wordmark — no trophy graphic,
+  // no enclosing badge. Pure typography per user direction. The
+  // EVENT_LOGO_URL plumbing stays in place — if a transparent logo
+  // image is dropped in via events/current.json, it renders to the
+  // left of the wordmark; otherwise the text stands alone centered.
+  var iconHtml = '';
+  if (typeof window.EVENT_LOGO_URL === 'string' && window.EVENT_LOGO_URL) {
+    iconHtml = '<img class="hdr-tourney-icon hdr-tourney-icon-img" src="' + window.EVENT_LOGO_URL + '" alt="">';
+  }
   if (splashLogo) {
-    splashLogo.src = iconSrc;
-    splashLogo.alt = 'Tournament';
-    splashLogo.style.display = '';
+    splashLogo.style.display = 'none';
   }
   if (hdrCenter) {
     if (hdrLogo) hdrLogo.style.display = 'none';
@@ -117,9 +74,28 @@ function _extractTourneyMeta(ev) {
     if (existingText) existingText.remove();
     var wrap = document.createElement('div');
     wrap.id = 'hdr-tourney-text';
-    wrap.className = 'hdr-tourney-name hdr-tourney-name-logo-only';
-    wrap.innerHTML = iconHtml;
+    wrap.className = 'hdr-tourney-name';
+    wrap.innerHTML = iconHtml
+      + '<span class="hdr-tourney-label">'
+      +   '<span class="hdr-tourney-line1"></span>'
+      +   '<span class="hdr-tourney-line2"></span>'
+      + '</span>';
     hdrCenter.appendChild(wrap);
+    // Stack the tournament name on two lines, splitting at the LAST space.
+    // "PGA Championship" → "PGA" / "Championship". "Masters" stays one line.
+    var l1 = document.querySelector('.hdr-tourney-line1');
+    var l2 = document.querySelector('.hdr-tourney-line2');
+    var name = (typeof window.EVENT_DISPLAY_NAME === 'string' && window.EVENT_DISPLAY_NAME) || TOURNEY_NAME || '';
+    var lastSpace = name.lastIndexOf(' ');
+    if (l1 && l2) {
+      if (lastSpace > 0) {
+        l1.textContent = name.slice(0, lastSpace);
+        l2.textContent = name.slice(lastSpace + 1);
+      } else {
+        l1.textContent = name;
+        l2.textContent = '';
+      }
+    }
   }
   // Update splash text
   var subEl = document.querySelector('.brand-subtext');
