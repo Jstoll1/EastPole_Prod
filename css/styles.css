@@ -5,9 +5,13 @@
   --green: #2d6a4f;
   --green-light: #40916c;
   --green-bright: #52b788;
-  --gold: #d4a843;
-  --gold-dim: rgba(212,168,67,0.5);
-  --gold-bg: rgba(212,168,67,0.08);
+  /* Brighter broadcast-gold — closer to the PGA Championship signage gold
+     in the Bandon Dunes inspo than our previous amber. Accent components
+     (header border, title text, position pills, FAB, etc.) all key off
+     these vars so the brightness lift ripples consistently. */
+  --gold: #e5b94e;
+  --gold-dim: rgba(229,185,78,0.5);
+  --gold-bg: rgba(229,185,78,0.08);
   --red: #d9534f;
   --bg: #02132b;
   --card: #0a1f3a;
@@ -120,28 +124,32 @@ html, body  {
   flex-shrink: 0;
   filter: drop-shadow(0 1px 3px rgba(0,0,0,0.4));
 }
+/* Header tournament label — classic broadcast-leaderboard treatment.
+   Playfair Display (already loaded for the splash) gives the same regal
+   serif feel as the "THIRD ROUND" headline on PGA Championship signage,
+   instead of the previous flat sans-serif. */
 .hdr-tourney-label {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-family: system-ui, -apple-system, sans-serif;
-  font-weight: 700;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 900;
   color: #fff;
   text-transform: uppercase;
-  letter-spacing: 2.5px;
-  line-height: 1;
+  line-height: 0.95;
   text-shadow: 0 1px 3px rgba(0,0,0,0.4);
 }
 .hdr-tourney-line1 {
-  font-size: 13px;
-  letter-spacing: 3px;
+  font-size: 18px;
+  letter-spacing: 2.5px;
 }
 .hdr-tourney-line2 {
   font-size: 11px;
   letter-spacing: 2px;
-  margin-top: 2px;
-  opacity: 0.85;
+  margin-top: 3px;
+  opacity: 0.95;
+  font-weight: 900;
 }
 .hdr-tourney-line2:empty { display: none; }
 
@@ -2034,10 +2042,15 @@ body.is-standalone .view {
   background:var(--gold); margin-left:3px; vertical-align:middle;
 }
 
+/* Round headline ("FIRST ROUND" / "FINAL ROUND") — broadcast-style
+   serif treatment matching the PGA Championship signage typography
+   (see Bandon Dunes "THIRD ROUND" reference). Player rows below stay
+   in their existing sans-serif. */
 .tv-title  {
-  font-size: 12px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 14px;
   font-weight: 900;
-  letter-spacing: 3px;
+  letter-spacing: 2.5px;
   text-transform: uppercase;
   color: var(--gold);
 }
