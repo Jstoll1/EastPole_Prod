@@ -39,6 +39,16 @@ function chatBuildContext() {
         return { rank: i + 1, team: e.team, entrant: e.entrant, total: e.total, picks: e.picks };
       });
     }
+    if (typeof DG_LIVE_PREDS !== 'undefined' && DG_LIVE_PREDS) {
+      var preds = Object.keys(DG_LIVE_PREDS).map(function(name) {
+        var p = DG_LIVE_PREDS[name];
+        return { name: name, win: p.win, top5: p.top5, top10: p.top10, top20: p.top20, makeCut: p.make_cut };
+      }).filter(function(p) { return p.win != null; })
+        .sort(function(a, b) { return (b.win || 0) - (a.win || 0); })
+        .slice(0, 25);
+      ctx.dataGolfPredictions = preds;
+      if (typeof DG_META !== 'undefined') ctx.dataGolfMeta = DG_META;
+    }
     if (typeof GOLFER_SCORES !== 'undefined') {
       var arr = Object.keys(GOLFER_SCORES).map(function(name) {
         var g = GOLFER_SCORES[name];
@@ -90,8 +100,10 @@ async function chatSend() {
   var inp = document.getElementById('chat-input');
   var text = inp.value.trim();
   if (!text) return;
+  if (text.length > 500) text = text.slice(0, 500);
   inp.value = '';
   chatHistory.push({ role: 'user', content: text });
+  if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
   var assistantMsg = { role: 'assistant', content: '', streaming: true };
   chatHistory.push(assistantMsg);
   chatStreaming = true;
