@@ -24,10 +24,15 @@ function chatBuildContext() {
   try {
     if (typeof TOURNEY_NAME !== 'undefined') {
       ctx.tournament = {
-        name: TOURNEY_NAME, course: TOURNEY_COURSE, dates: TOURNEY_DATES,
+        name: TOURNEY_NAME,
+        displayName: window.EVENT_DISPLAY_NAME || null,
+        alsoKnownAs: window.EVENT_DISPLAY_NAME && window.EVENT_DISPLAY_NAME !== TOURNEY_NAME
+          ? [window.EVENT_DISPLAY_NAME] : [],
+        course: TOURNEY_COURSE, dates: TOURNEY_DATES,
         round: typeof ESPN_ROUND !== 'undefined' ? ESPN_ROUND : null,
         started: typeof TOURNAMENT_STARTED !== 'undefined' ? TOURNAMENT_STARTED : null,
         final: typeof TOURNEY_FINAL !== 'undefined' ? TOURNEY_FINAL : null,
+        winningScore: typeof WINNING_SCORE !== 'undefined' ? WINNING_SCORE : null,
         coursePar: typeof COURSE_PAR !== 'undefined' ? COURSE_PAR : null,
       };
     }
