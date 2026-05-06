@@ -223,7 +223,17 @@ async function fetchESPN() {
       var lines = c.linescores || [];
       var computedPar = lines.reduce(function(s, l) { return (l.value && l.value > 50) ? s + (l.value - COURSE_PAR) : s; }, 0);
       var score = wd ? 12 : mc ? 11 : (scoreToPar ? scoreToPar.value : computedPar);
+      // Tee time can sit in a few different fields between rounds — ESPN's
+      // c.status.teeTime is the canonical spot, but the linescore for the
+      // upcoming round sometimes carries it (linescores[ESPN_ROUND]?.teeTime
+      // or .startTime) and the status.position label can fall back to a
+      // human "8:00 AM" string. Try them in order so a posted pairing isn't
+      // missed because ESPN parked it on a sibling field.
       var teeTime = c.status?.teeTime || '';
+      if (!teeTime) {
+        var nextLine = lines[ESPN_ROUND] || lines[(ESPN_ROUND || 1)]; // ESPN_ROUND is current; next round = same idx (0-based linescores)
+        teeTime = nextLine?.teeTime || nextLine?.startTime || '';
+      }
       var thruRaw = c.status?.thru;
       // Format in the event's local timezone (e.g. CT for TPC Louisiana) so
       // tee times match what ESPN.com / pgatour.com display. Only treat
@@ -236,6 +246,19 @@ async function fetchESPN() {
         try { teeIsFuture = new Date(teeTime).getTime() > Date.now(); } catch(e) {}
       }
       var nextTeeStr = teeIsFuture ? fmtTeeTime(teeTime, TOURNEY_COURSE) : '';
+      // Last-resort: ESPN sometimes drops a "8:00 AM" string into the
+      // status displayValue or position label between rounds when the
+      // structured teeTime field is still empty. If we can spot a clock-
+      // looking string there, treat that as the tee time directly.
+      if (!nextTeeStr) {
+        var dvRaw = c.status?.displayValue || '';
+        var posRaw = c.status?.position?.displayName || '';
+        var clockRe = /\b\d{1,2}:\d{2}\s*(AM|PM)\b/i;
+        var dvHit = dvRaw.match(clockRe);
+        var posHit = posRaw.match(clockRe);
+        if (dvHit) nextTeeStr = dvHit[0];
+        else if (posHit) nextTeeStr = posHit[0];
+      }
       var inProgress = state === 'STATUS_IN_PROGRESS';
       var activelyPlaying = inProgress && thruRaw != null && thruRaw > 0 && thruRaw < 18;
       var thru;

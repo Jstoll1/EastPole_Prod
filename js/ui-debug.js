@@ -127,6 +127,18 @@ function renderDebugPanel() {
     var uptime = Math.floor(performance.now() / 1000);
     var uptimeStr = uptime > 3600 ? Math.floor(uptime / 3600) + 'h ' + Math.floor((uptime % 3600) / 60) + 'm' : Math.floor(uptime / 60) + 'm ' + (uptime % 60) + 's';
 
+    // Tee-time visibility: count what ESPN gave us (raw teeTime) vs what
+    // our renderer is showing (thru looks like a clock string). Lets you
+    // tell at a glance whether "no tee times" is an ESPN feed gap or an
+    // app-side parsing/rendering issue.
+    var ttRaw = 0, ttRendered = 0;
+    var clockRe = /\d{1,2}:\d{2}/;
+    Object.values(GOLFER_SCORES).forEach(function(g) {
+      if (g.teeTime && typeof g.teeTime === 'string' && g.teeTime.indexOf('T') !== -1) ttRaw++;
+      if (g.thru && typeof g.thru === 'string' && clockRe.test(g.thru)) ttRendered++;
+    });
+    var ttCls = ttRaw === 0 && ttRendered === 0 ? 'warn' : (ttRaw > 0 && ttRendered === 0 ? 'bad' : 'good');
+
     body.innerHTML = '<div class="debug-stat-grid">'
       + '<div class="debug-stat' + (errs.length ? ' clickable' : '') + '" onclick="debugJumpTab(\'errors\')"><div class="debug-stat-label">Total Errors</div><div class="debug-stat-value ' + (errs.length === 0 ? 'good' : errs.length < 5 ? 'warn' : 'bad') + '">' + errs.length + '</div></div>'
       + '<div class="debug-stat' + (apiErrs ? ' clickable' : '') + '" onclick="debugJumpTab(\'errors\')"><div class="debug-stat-label">API Errors</div><div class="debug-stat-value ' + (apiErrs === 0 ? 'good' : 'bad') + '">' + apiErrs + '</div></div>'
@@ -135,6 +147,8 @@ function renderDebugPanel() {
       + '<div class="debug-stat' + (avgLatency >= 500 ? ' clickable' : '') + '" onclick="debugJumpTab(\'network\')"><div class="debug-stat-label">Avg Latency</div><div class="debug-stat-value ' + (avgLatency < 500 ? 'good' : avgLatency < 2000 ? 'warn' : 'bad') + '">' + avgLatency + 'ms</div></div>'
       + '<div class="debug-stat' + (failedReqs ? ' clickable' : '') + '" onclick="debugJumpTab(\'network\')"><div class="debug-stat-label">Failed Requests</div><div class="debug-stat-value ' + (failedReqs === 0 ? 'good' : 'bad') + '">' + failedReqs + '</div></div>'
       + '<div class="debug-stat"><div class="debug-stat-label">Golfers Loaded</div><div class="debug-stat-value">' + Object.keys(GOLFER_SCORES).length + '</div></div>'
+      + '<div class="debug-stat"><div class="debug-stat-label">Tee Times (ESPN raw)</div><div class="debug-stat-value ' + ttCls + '">' + ttRaw + '</div></div>'
+      + '<div class="debug-stat"><div class="debug-stat-label">Tee Times (rendered)</div><div class="debug-stat-value ' + ttCls + '">' + ttRendered + '</div></div>'
       + '<div class="debug-stat"><div class="debug-stat-label">Session Uptime</div><div class="debug-stat-value">' + uptimeStr + '</div></div>'
       + '</div>';
 
