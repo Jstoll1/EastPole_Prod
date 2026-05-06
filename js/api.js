@@ -226,17 +226,27 @@ async function fetchESPN() {
       var teeTime = c.status?.teeTime || '';
       var thruRaw = c.status?.thru;
       // Format in the event's local timezone (e.g. CT for TPC Louisiana) so
-      // tee times match what ESPN.com / pgatour.com display.
-      var nextTeeStr = (teeTime && teeTime.includes('T')) ? fmtTeeTime(teeTime, TOURNEY_COURSE) : '';
+      // tee times match what ESPN.com / pgatour.com display. Only treat
+      // `nextTeeStr` as actually "next" when the tee time is in the future —
+      // ESPN keeps the prior round's (now-past) tee time on the competitor
+      // record after a round wraps, so without the guard a freshly-finished
+      // player would immediately flip back to their already-played tee time.
+      var teeIsFuture = false;
+      if (teeTime && teeTime.includes('T')) {
+        try { teeIsFuture = new Date(teeTime).getTime() > Date.now(); } catch(e) {}
+      }
+      var nextTeeStr = teeIsFuture ? fmtTeeTime(teeTime, TOURNEY_COURSE) : '';
       var inProgress = state === 'STATUS_IN_PROGRESS';
       var activelyPlaying = inProgress && thruRaw != null && thruRaw > 0 && thruRaw < 18;
       var thru;
       if (wd) { thru = 'WD'; }
       else if (mc) { thru = 'MC'; }
       else if (activelyPlaying) { thru = String(thruRaw); }
+      // Between rounds: a future tee time wins over the prior round's "F",
+      // so the THRU column flips to "8:30 AM CT" the moment ESPN posts the
+      // next pairings instead of staying stuck on the finished-round label.
+      else if (nextTeeStr) { thru = nextTeeStr; }
       else if (thruRaw >= 18) { thru = c.status?.displayValue || 'F'; }
-      else if (scheduled && nextTeeStr) { thru = nextTeeStr; }
-      else if (nextTeeStr && !thruRaw) { thru = nextTeeStr; }
       else if (scheduled) { thru = c.status?.displayValue || 'F'; }
       else { thru = thruRaw > 0 ? String(thruRaw) : (c.status?.displayValue || 'F'); }
       var startHole = c.status?.startHole || 1;
