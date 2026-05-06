@@ -1,16 +1,12 @@
 {
-  "id": "2026-cadillac-championship",
-  "name": "Cadillac Championship",
-  "displayName": "PGA Championship",
-  "course": "Trump National Doral",
+  "id": "dynamic",
+  "name": "PGA Tour",
+  "course": "",
   "courseTimezone": "America/New_York",
   "logo": "",
   "dates": {
-    "start": "2026-05-01",
-    "end": "2026-05-04"
-  },
-  "espn": {
-    "tournamentNameMatch": "Cadillac Championship"
+    "start": "",
+    "end": ""
   },
   "pool": {
     "buyIn": 20,

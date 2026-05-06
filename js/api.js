@@ -114,48 +114,23 @@ async function fetchESPN() {
     try { await window.eventConfigReady; } catch (e) {}
   }
   try {
-    // First fetch: discover the tournament from the scoreboard endpoint.
-    // If POOL_CONFIG pins us to a specific tournament date (e.g. Masters week),
-    // pass ?dates=YYYYMMDD so we resolve to THAT event instead of "this week",
-    // and reject any event whose name doesn't match the pool's configured
-    // tournament — otherwise, once the pool's event ends, ESPN would hand back
-    // next week's competitors and every Masters pick would collapse to a
-    // missing-player WD/MC penalty score.
-    var pinDate = (typeof POOL_CONFIG !== 'undefined' && POOL_CONFIG.tournamentDate) ? POOL_CONFIG.tournamentDate : '';
-    var pinName = (typeof POOL_CONFIG !== 'undefined' && POOL_CONFIG.tournamentNameMatch) ? POOL_CONFIG.tournamentNameMatch : '';
-    var fetchUrl;
-    if (EVENT_ID) {
-      fetchUrl = 'https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?event=' + EVENT_ID;
-    } else if (pinDate) {
-      fetchUrl = ESPN_LEADERBOARD_URL + '?dates=' + pinDate;
-    } else {
-      fetchUrl = ESPN_LEADERBOARD_URL;
-    }
-    var res = await fetch(fetchUrl, { cache: 'no-store' });
+    // Always discover the current PGA Tour event from the scoreboard endpoint
+    // — no name/date pin. The leaderboard rolls forward week to week with
+    // whatever ESPN says is "current". Pool entries are not touched by this
+    // (they keep referencing whatever golfers they were submitted with);
+    // when the tournament rotates and old picks aren't in the new field,
+    // their scores fall through the missing-pick penalty path elsewhere.
+    var res = await fetch(ESPN_LEADERBOARD_URL, { cache: 'no-store' });
     if (!res.ok) { ErrorTracker.api('ESPN leaderboard fetch failed', { status: res.status, statusText: res.statusText }); throw new Error(); }
     var data = await res.json();
     var events = (data.events && data.events.length) ? data.events : [];
-    var ev;
-    if (pinName) {
-      // Scan the entire events array for the pool's target — ESPN sometimes
-      // returns multiple events on a given date (e.g. PGA + Korn Ferry).
-      ev = events.find(function(e) { return (e && e.name || '').toLowerCase().indexOf(pinName.toLowerCase()) !== -1; });
-    }
-    if (!ev) ev = events[0];
+    var ev = events[0];
     var comps = ev?.competitions?.[0]?.competitors || [];
     var discoveredId = ev?.id || null;
 
-    // Refuse to adopt an event that doesn't match the pool's target tournament.
-    // Prevents post-event data drift (e.g. serving Zurich Classic scores to a
-    // Masters pool once the Masters has concluded). Also short-circuits when
-    // ESPN returned nothing at all for the pinned date.
-    if (pinName && (!ev || (ev.name || '').toLowerCase().indexOf(pinName.toLowerCase()) === -1)) {
-      console.warn('🔒 ESPN response did not include pool target "' + pinName + '" (got: ' + events.map(function(e){return e && e.name;}).join(' / ') + ') — skipping scores update');
-      // Tell the user the pool is on standby for a future event rather than
-      // leaving the header stuck on the bootstrap "Loading…" forever. Without
-      // this the only signal of "we're waiting for ESPN to publish the field"
-      // is the empty leaderboard, which looks broken.
-      setApiStatus('scheduled', 'Pre-Tournament');
+    if (!ev) {
+      console.warn('🏌️ ESPN scoreboard returned no events — nothing to display');
+      setApiStatus('scheduled', 'No event scheduled');
       lastFetchTime = Date.now();
       renderAll();
       return;
@@ -163,9 +138,12 @@ async function fetchESPN() {
 
     _extractTourneyMeta(ev);
 
-    // If we just discovered the event ID from scoreboard, re-fetch from
-    // leaderboard endpoint which has full competitor/tee-time data.
-    if (!EVENT_ID && discoveredId) {
+    // Re-fetch from the leaderboard endpoint — it carries fuller competitor /
+    // tee-time data than the scoreboard summary. Always do this on every
+    // refresh (not just first fetch) so EVENT_ID tracks ESPN's current event
+    // when it rotates week to week. The prior "only if !EVENT_ID" guard would
+    // pin us to last week's tournament forever.
+    if (discoveredId) {
       EVENT_ID = discoveredId;
       var lbRes = await fetch('https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?event=' + EVENT_ID, { cache: 'no-store' });
       if (lbRes.ok) {
@@ -175,7 +153,6 @@ async function fetchESPN() {
         _extractTourneyMeta(ev);
       }
     }
-    EVENT_ID = discoveredId || EVENT_ID || null;
     if (!comps.length) {
       console.log('⚠️ ESPN API returned event but no competitors — field not published yet');
       setApiStatus('scheduled', 'Pre-Tournament');
