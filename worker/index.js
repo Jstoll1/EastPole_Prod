@@ -111,8 +111,13 @@ export default {
     }
 
     const trimmed = messages.slice(-20);
+    const now = new Date();
+    const todayStr = now.toUTCString();
+    const currentYear = now.getUTCFullYear();
+    const lastYear = currentYear - 1;
+    const dateBlock = `TODAY'S DATE: ${todayStr}. The current year is ${currentYear}. When the user says "last year," they mean ${lastYear}. When they say "this tournament last year," answer with the ${lastYear} edition. Use your training knowledge for past tournaments and majors — you are expected to know recent winners (${lastYear} and earlier). Only hedge if the question is about a result from the last few weeks that may post-date your training.`;
     const contextBlock = context
-      ? `\n\nLIVE POOL CONTEXT (JSON snapshot, fetched ${new Date().toISOString()}):\n${JSON.stringify(context).slice(0, 120000)}`
+      ? `\n\nLIVE POOL CONTEXT (JSON snapshot, fetched ${now.toISOString()}):\n${JSON.stringify(context).slice(0, 120000)}`
       : '';
 
     const upstream = await fetch('https://api.anthropic.com/v1/messages', {
@@ -129,6 +134,7 @@ export default {
         stream: true,
         system: [
           { type: 'text', text: SYSTEM_PROMPT },
+          { type: 'text', text: dateBlock },
           { type: 'text', text: contextBlock, cache_control: { type: 'ephemeral' } },
         ],
         messages: trimmed,
