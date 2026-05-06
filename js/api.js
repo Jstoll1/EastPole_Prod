@@ -151,6 +151,11 @@ async function fetchESPN() {
     // ESPN returned nothing at all for the pinned date.
     if (pinName && (!ev || (ev.name || '').toLowerCase().indexOf(pinName.toLowerCase()) === -1)) {
       console.warn('🔒 ESPN response did not include pool target "' + pinName + '" (got: ' + events.map(function(e){return e && e.name;}).join(' / ') + ') — skipping scores update');
+      // Tell the user the pool is on standby for a future event rather than
+      // leaving the header stuck on the bootstrap "Loading…" forever. Without
+      // this the only signal of "we're waiting for ESPN to publish the field"
+      // is the empty leaderboard, which looks broken.
+      setApiStatus('scheduled', 'Pre-Tournament');
       lastFetchTime = Date.now();
       renderAll();
       return;
