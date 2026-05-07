@@ -2563,6 +2563,13 @@ body.is-standalone .view {
   left: 0;
   right: 0;
   bottom: 0;
+  /* Stretch through the bottom safe area on iOS PWAs (apple-mobile-
+     web-app-capable). With viewport-fit=cover, fixed elements with
+     bottom:0 align to the layout viewport, which excludes the home-
+     indicator zone — so without this override the body bg (#02132b)
+     leaks through under the splash photo. dvh wins where supported. */
+  height: 100vh;
+  height: 100dvh;
   z-index: 999;
   background-color: #06120c;
   display: flex;
