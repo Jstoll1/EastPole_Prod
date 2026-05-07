@@ -2562,14 +2562,14 @@ body.is-standalone .view {
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  /* Stretch through the bottom safe area on iOS PWAs (apple-mobile-
-     web-app-capable). With viewport-fit=cover, fixed elements with
-     bottom:0 align to the layout viewport, which excludes the home-
-     indicator zone — so without this override the body bg (#02132b)
-     leaks through under the splash photo. dvh wins where supported. */
-  height: 100vh;
-  height: 100dvh;
+  /* Pull the splash's bottom edge THROUGH the home-indicator safe area
+     on iOS PWAs. Setting top:0 + bottom:0 over-constrains the box on
+     iOS PWA — the layout viewport excludes the bottom safe area, so
+     bottom:0 lands ~34px above the actual screen bottom and the body
+     bg (#02132b) leaks through. Negative bottom = explicit extension
+     into that gesture area. The 0 fallback covers desktop browsers
+     where env() resolves to 0. */
+  bottom: calc(-1 * env(safe-area-inset-bottom, 0px));
   z-index: 999;
   background-color: #06120c;
   display: flex;
