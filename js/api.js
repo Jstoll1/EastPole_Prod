@@ -478,7 +478,7 @@ async function fetchESPN() {
       });
       console.log('⚠️ Seeded', Object.keys(GOLFER_SCORES).length, 'golfers from FLAGS (offline fallback)');
     }
-    setApiStatus('cached', 'Offline · tap to retry');
+    setApiStatus('cached', 'Offline — tap to retry');
     renderAll();
   }
 }
@@ -675,7 +675,9 @@ function startAgeTimer() {
   setInterval(function() {
     if (!lastFetchTime) return;
     var s = Math.floor((Date.now() - lastFetchTime) / 1000);
-    var age = s >= 45 ? (s < 60 ? ' · ' + s + 's ago' : ' · ' + Math.floor(s / 60) + 'm ago') : '';
+    // Use a thin-space separator (no middle-dot) so the header pill doesn't
+    // visually read as a second indicator next to the .live-dot circle.
+    var age = s >= 45 ? (s < 60 ? ' ' + s + 's ago' : ' ' + Math.floor(s / 60) + 'm ago') : '';
     var el = document.getElementById('hdr-status');
     if (el) el.textContent = _lastStatusText + age;
   }, 5000);
