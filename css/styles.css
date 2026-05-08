@@ -445,6 +445,22 @@ body.is-standalone .view {
   display: flex;
 }
 
+/* Extend the nav's bottom color through the home-indicator safe-area
+   zone on iOS PWAs. Without this the nav box ends at the layout
+   viewport bottom and body bg (#02132b) leaks below the gradient.
+   Pseudo-element rather than negative `bottom` so the nav buttons
+   themselves don't shift downward into the gesture area. */
+#nav::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-bottom, 0px);
+  background: #000d22;
+  pointer-events: none;
+}
+
 .nav-btn  {
   flex: 1;
   display: flex;
