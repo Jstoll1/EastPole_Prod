@@ -338,7 +338,7 @@ function setRoundLive(isLive) {
   var pill = document.getElementById('live-status-pill');
   if (pill) {
     if (isLive) {
-      pill.textContent = '● Live';
+      pill.textContent = 'Live';
       pill.classList.add('active');
     } else {
       pill.textContent = TOURNAMENT_STARTED ? 'Between Rounds' : 'Pre-Tournament';
