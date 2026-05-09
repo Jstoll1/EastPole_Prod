@@ -320,12 +320,22 @@ function renderLeaderboard() {
   });
   var lbList = document.getElementById('leaderboard-list');
   if (!players.length) {
-    lbList.innerHTML = '<div style="padding:48px 24px;text-align:center;color:var(--text3)">'
-      + '<div style="font-size:42px;margin-bottom:14px">⛳</div>'
-      + '<div style="font-size:15px;font-weight:800;color:var(--text);letter-spacing:0.5px;margin-bottom:8px">' + (TOURNEY_NAME || 'PGA Tournament') + '</div>'
-      + '<div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:18px">' + (TOURNEY_DATES ? TOURNEY_DATES + (TOURNEY_COURSE ? ' · ' + TOURNEY_COURSE : '') : 'Loading tournament info…') + '</div>'
-      + '<div style="font-size:11px;line-height:1.6;color:var(--text3);max-width:280px;margin:0 auto">Field and tee times publish from ESPN this week. Pool entries open now — leaderboard goes live Thursday tee-off.</div>'
-      + '</div>';
+    if (lbSearch) {
+      // Search filtered every row out — explicit "no match" state instead of
+      // the pre-tournament placeholder, which makes the search look broken.
+      lbList.innerHTML = '<div style="padding:48px 24px;text-align:center;color:var(--text3)">'
+        + '<div style="font-size:32px;margin-bottom:12px">🔍</div>'
+        + '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">No matches for "' + (lbSearch || '').replace(/[<>"&]/g, '') + '"</div>'
+        + '<div style="font-size:11px;color:var(--text3)">Try a different name, or clear the search.</div>'
+        + '</div>';
+    } else {
+      lbList.innerHTML = '<div style="padding:48px 24px;text-align:center;color:var(--text3)">'
+        + '<div style="font-size:42px;margin-bottom:14px">⛳</div>'
+        + '<div style="font-size:15px;font-weight:800;color:var(--text);letter-spacing:0.5px;margin-bottom:8px">' + (TOURNEY_NAME || 'PGA Tournament') + '</div>'
+        + '<div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:18px">' + (TOURNEY_DATES ? TOURNEY_DATES + (TOURNEY_COURSE ? ' · ' + TOURNEY_COURSE : '') : 'Loading tournament info…') + '</div>'
+        + '<div style="font-size:11px;line-height:1.6;color:var(--text3);max-width:280px;margin:0 auto">Field and tee times publish from ESPN this week. Pool entries open now — leaderboard goes live Thursday tee-off.</div>'
+        + '</div>';
+    }
   } else {
     lbList.innerHTML = colHdr + rows;
   }
