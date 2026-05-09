@@ -347,6 +347,15 @@ function renderStandings() {
   }
 
   var html = '';
+  // Empty-after-filter state: a search that matches nothing should say so
+  // explicitly rather than render a blank list (reads as "search broken").
+  if (!displayRanked.length && stSearch) {
+    html += '<div style="padding:32px 24px;text-align:center;color:var(--text3)">'
+      + '<div style="font-size:28px;margin-bottom:10px">🔍</div>'
+      + '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">No entries match "' + (stSearch || '').replace(/[<>"&]/g, '') + '"</div>'
+      + '<div style="font-size:11px;color:var(--text3)">Try a team name, entrant name, or email.</div>'
+      + '</div>';
+  }
   if (_friendFilterActive) {
     html += '<div class="friend-filter-banner" onclick="_clearFriendFilter()">'
       + '<span>👥 BroChiefs only · ' + displayRanked.length + ' ' + (displayRanked.length === 1 ? 'entry' : 'entries') + '</span>'
