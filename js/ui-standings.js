@@ -155,7 +155,7 @@ function renderStandings() {
       + '<div class="ws-trophy">🏆</div>'
       + '<div class="ws-label">EAST POLE ' + (TOURNEY_SHORT || TOURNEY_NAME || 'POOL').toUpperCase() + ' CHAMPION</div>'
       + '<div class="ws-team">' + escHtml(w.team) + '</div>'
-      + '<div class="ws-by">' + escHtml(w.name) + '</div>'
+      + '<div class="ws-by">' + escHtml(w.entrant) + '</div>'
       + '<div class="ws-total"><span class="' + wScoreCls + '">' + wScoreDisp + '</span></div>'
       + '<div class="ws-golfers">' + wGolfers + '</div>'
       + wTbHtml
@@ -310,7 +310,9 @@ function renderStandings() {
     var filtered = [];
     var filteredRanks = [];
     ranked.forEach(function(e, i) {
-      if (e.team.toLowerCase().indexOf(stSearch) !== -1 || e.name.toLowerCase().indexOf(stSearch) !== -1 || e.email.toLowerCase().indexOf(stSearch) !== -1) {
+      var entrant = (e.entrant || '').toLowerCase();
+      var email = (e.email || '').toLowerCase();
+      if (e.team.toLowerCase().indexOf(stSearch) !== -1 || entrant.indexOf(stSearch) !== -1 || email.indexOf(stSearch) !== -1) {
         filtered.push(e);
         filteredRanks.push(ranks[i]);
       }
@@ -324,7 +326,7 @@ function renderStandings() {
     var friendFiltered = [];
     var friendRanks = [];
     displayRanked.forEach(function(e, i) {
-      var nm = (e.name || '').trim().toLowerCase();
+      var nm = (e.entrant || '').trim().toLowerCase();
       if (_FRIEND_NAMES_LC.indexOf(nm) !== -1) {
         friendFiltered.push(e);
         friendRanks.push(displayRanks[i]);
@@ -391,7 +393,7 @@ function renderStandings() {
     var moneyIcon = inMoney ? (rank === 1 ? '🏆' : '💰') : '';
     html += '<div class="tv-row st-row' + isMyTeam + cmpCls + cmpSelCls + (inMoney ? ' in-money' : '') + '" onclick="' + rowClick + '" style="cursor:pointer">'
         + '<div class="tv-pos">' + (moneyIcon || rank) + moveHtml + '</div>'
-        + '<div class="tv-player"><span class="st-expand-arrow">▾</span><span class="tv-name' + (isMyTeam ? ' is-my-pick' : '') + '">' + escHtml(e.team) + '</span>' + cmpBadge + ' <span class="tv-country">' + escHtml(e.name) + '</span>' + holesTag + '</div>'
+        + '<div class="tv-player"><span class="st-expand-arrow">▾</span><span class="tv-name' + (isMyTeam ? ' is-my-pick' : '') + '">' + escHtml(e.team) + '</span>' + cmpBadge + ' <span class="tv-country">' + escHtml(e.entrant) + '</span>' + holesTag + '</div>'
         + '<div class="tv-thru"></div>'
         + '<div class="tv-today ' + todayCls + '">' + todayDisp + '</div>'
         + '<div class="tv-score ' + scc + '">' + scf + '</div>'
@@ -471,7 +473,7 @@ function renderStandings() {
       var payLbl = payoutLabels[rank - 1];
       payoutBadge = '<span class="payout-badge' + (rank === 1 ? ' gold' : '') + '">💰 ' + payLbl + ' — $' + payAmt.toLocaleString() + '</span>';
     }
-    html += '<div class="picks-panel-footer"><span>' + escHtml(e.name) + tbFooter2 + footerHoles + '</span>' + payoutBadge + '<button class="h2h-quick-btn" onclick="event.stopPropagation();openH2HPicker(' + entryIdx + ')">⚔️ H2H</button></div> </div>';
+    html += '<div class="picks-panel-footer"><span>' + escHtml(e.entrant) + tbFooter2 + footerHoles + '</span>' + payoutBadge + '<button class="h2h-quick-btn" onclick="event.stopPropagation();openH2HPicker(' + entryIdx + ')">⚔️ H2H</button></div> </div>';
   });
 
   detectEntryActivity();
