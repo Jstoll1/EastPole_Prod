@@ -1028,7 +1028,9 @@ body.is-standalone .view {
   color: var(--gold);
   text-transform: uppercase;
   margin-bottom: 4px;
-  white-space: nowrap;
+  line-height: 1.25;
+  overflow-wrap: break-word;
+  padding: 0 8px;
 }
 .ws-team {
   font-size: 22px;
