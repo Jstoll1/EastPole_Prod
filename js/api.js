@@ -89,10 +89,10 @@ function _extractTourneyMeta(ev) {
     var lastSpace = name.lastIndexOf(' ');
     if (l1 && l2) {
       if (lastSpace > 0) {
-        l1.textContent = name.slice(0, lastSpace);
+        l1.textContent = '🏆' + name.slice(0, lastSpace);
         l2.textContent = name.slice(lastSpace + 1);
       } else {
-        l1.textContent = name;
+        l1.textContent = '🏆' + name;
         l2.textContent = '';
       }
     }
