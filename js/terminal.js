@@ -1434,8 +1434,16 @@ function renderTermTrends() {
       + 'onclick="setTrendsMetric(\'' + m.k + '\')">' + m.l + '</button>';
   }).join('') + '</div>';
 
+  var hdr = '<div class="trend-row trend-hdr">'
+    + '<span class="trend-rank">#</span>'
+    + '<span class="trend-name">PLAYER</span>'
+    + '<span class="trend-bar-lbl">vs LEADER</span>'
+    + '<span class="trend-pct">%</span>'
+    + '<span class="trend-spark">30 POLLS</span>'
+    + '<span class="trend-delta-lbl">Δ OPEN</span>'
+    + '</div>';
   body.innerHTML = '<div class="trend-controls">' + seg + '</div>'
-    + '<div class="trend-rows">' + rows + '</div>';
+    + '<div class="trend-rows">' + hdr + rows + '</div>';
 
   if (meta) {
     var label = metrics.find(function(m) { return m.k === _trendsMetric; }).l;
@@ -1483,7 +1491,14 @@ function renderTermMy() {
   var teams = (typeof currentUserTeams !== 'undefined') ? currentUserTeams : [];
   if (!teams.length) {
     var isFinal = (typeof TOURNEY_FINAL !== 'undefined' && TOURNEY_FINAL);
-    var empty = '<div class="empty">Tap LOG IN above to choose your username and link your entries</div>';
+    var empty = '<div class="my-empty-state">'
+      + '<div class="my-empty-title">No entries linked yet</div>'
+      + '<div class="my-empty-sub">Find your username to surface your picks here.</div>'
+      + '<button class="my-empty-btn" onclick="openTermLogin()">'
+      +   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.65" y2="16.65"/></svg>'
+      +   '<span>Find your entries</span>'
+      + '</button>'
+      + '</div>';
     body.innerHTML = isFinal ? renderCourseStatsBlock() : empty;
     var mm = document.getElementById('my-meta');
     if (mm) mm.textContent = isFinal ? 'course' : '—';
