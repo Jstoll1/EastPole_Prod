@@ -503,10 +503,16 @@ function lastName(n) {
 
 var _pendingLbRender = false;
 var _lbSearch = '';
+var _stdSearch = '';
 
 function onLbSearch(v) {
   _lbSearch = v || '';
   renderTermLeaderboard();
+}
+
+function onStdSearch(v) {
+  _stdSearch = v || '';
+  renderTermStandings();
 }
 
 function renderTermFinalBanner() {
@@ -1230,6 +1236,20 @@ function renderTermStandings() {
   };
   rows = sortRowsBy(rows, stSort.col, stSort.dir, stAccessors);
   updateSortIndicators('panel-standings');
+
+  if (_stdSearch) {
+    var q = _stdSearch.toLowerCase();
+    rows = rows.filter(function(r) {
+      var e = r.entry;
+      return (e.team || '').toLowerCase().indexOf(q) !== -1
+          || (e.entrant || '').toLowerCase().indexOf(q) !== -1
+          || (e.email || '').toLowerCase().indexOf(q) !== -1;
+    });
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="5" class="tpt-fill" style="text-align:center;padding:24px;color:var(--term-text2,#7a8b9a)">No entries match "' + termEsc(_stdSearch) + '"</td></tr>';
+      return;
+    }
+  }
 
   body.innerHTML = rows.slice(0, 60).map(function(r) {
     var todayDisp = r.today == null ? '—' : fmtScore(r.today);
