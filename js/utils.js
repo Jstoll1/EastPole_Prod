@@ -138,11 +138,60 @@ function entryTodayTotal(entry) {
   return count > 0 ? sum : null;
 }
 
-// Pool payouts — locked to sponsor-confirmed totals for 2026 Masters.
-// Total pot: $2,390 (127 entries + 15 fifth-entry discounts)
-// 1st: $1,645 · 2nd: $705 · 3rd: $40
-function computePoolPayouts() {
-  return { pot: 2390, p1: 1645, p2: 705, p3: 40, entries: ENTRIES.length };
+// Pool payouts — computed dynamically from ENTRIES.
+//
+// Buy-ins: $20 per entry, fifth entry from the same person is $10.
+// Cap at POOL_CONFIG.maxEntriesPerPerson (5) defensively.
+//
+// Payout rules:
+//   3rd place — entry fees reimbursed (depends on who finishes 3rd)
+//   2nd place — 30% of (pot − 3rd reimbursement)
+//   1st place — 70% of (pot − 3rd reimbursement)
+//
+// `ranked` (optional): pass getRanked() output to use the actual 3rd-place
+// finisher's per-entry count. Pre-tournament we don't know who'll finish
+// third, so the function falls back to the minimum single-entry
+// reimbursement ($20).
+function computePoolPayouts(ranked) {
+  var cfg = (typeof POOL_CONFIG !== 'undefined') ? POOL_CONFIG : {};
+  var buyIn = cfg.buyIn || 20;
+  var fifth = cfg.fifthEntryBuyIn || 10;
+  var cap   = cfg.maxEntriesPerPerson || 5;
+  var firstPct  = (cfg.payoutPctOfNet && cfg.payoutPctOfNet.first)  != null ? cfg.payoutPctOfNet.first  : 0.70;
+  var secondPct = (cfg.payoutPctOfNet && cfg.payoutPctOfNet.second) != null ? cfg.payoutPctOfNet.second : 0.30;
+
+  // Group by entrant identity so multi-entry people get the fifth-entry rate.
+  // Prefer email (stable across sheet rows); fall back to entrant, then team.
+  var keyFor = function(e) {
+    return ((e.email || e.entrant || e.team || '') + '').toLowerCase().trim();
+  };
+  var perPerson = {};
+  ENTRIES.forEach(function(e) {
+    var k = keyFor(e);
+    if (!k) return;
+    perPerson[k] = (perPerson[k] || 0) + 1;
+  });
+  var costForCount = function(n) {
+    n = Math.min(n, cap);
+    return Math.min(n, 4) * buyIn + Math.max(0, n - 4) * fifth;
+  };
+
+  var pot = 0;
+  Object.keys(perPerson).forEach(function(k) { pot += costForCount(perPerson[k]); });
+
+  // 3rd-place reimbursement: their actual buy-in total. Pre-results, assume
+  // one entry's worth so the 1st/2nd projections aren't wildly inflated.
+  var p3 = buyIn;
+  if (ranked && ranked.length >= 3) {
+    var third = ranked[2];
+    var n = perPerson[keyFor(third)] || 1;
+    p3 = costForCount(n);
+  }
+
+  var net = Math.max(0, pot - p3);
+  var p1 = Math.floor(net * firstPct);
+  var p2 = Math.floor(net * secondPct);
+  return { pot: pot, p1: p1, p2: p2, p3: p3, entries: ENTRIES.length };
 }
 
 function computeOwnership() {
