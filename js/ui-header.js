@@ -236,7 +236,11 @@ function updateHeaderDisplay() {
   var caret = document.getElementById('hdr-dd-caret');
   if (currentUserEmail && currentUserTeams.length) {
     var activeTeam = activeTeamIdx >= 0 ? currentUserTeams[activeTeamIdx] : null;
-    nameEl.textContent = activeTeam ? activeTeam.team : 'My Entry';
+    if (activeTeam) {
+      nameEl.textContent = activeTeam.team;
+    } else {
+      nameEl.textContent = 'All ' + currentUserTeams.length + ' entries';
+    }
     if (caret) caret.style.display = currentUserTeams.length > 1 ? 'inline' : 'none';
     teamDisplay.style.display = 'block';
     joinBtn.style.display = 'none';
