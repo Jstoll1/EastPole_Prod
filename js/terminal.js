@@ -879,7 +879,8 @@ var COURSE_COORDS = {
   'Sedgefield Country Club':          { lat: 36.062, lon: -79.848 },
   'Liberty National Golf Club':       { lat: 40.687, lon: -74.058 },
   'Vidanta Vallarta':                 { lat: 20.715, lon: -105.316 },
-  'The Renaissance Club':             { lat: 56.043, lon: -2.804 }
+  'The Renaissance Club':             { lat: 56.043, lon: -2.804 },
+  'Aronimink Golf Club':              { lat: 39.976, lon: -75.395 }
 };
 
 // Fallback event-name → course map for when ESPN doesn't include venue
@@ -888,7 +889,7 @@ var EVENT_TO_COURSE = {
   'zurich classic':          'TPC Louisiana',
   'rbc heritage':            'Harbour Town Golf Links',
   'masters':                 'Augusta National Golf Club',
-  'pga championship':        'Quail Hollow Club',
+  'pga championship':        'Aronimink Golf Club',
   'charles schwab':          'Colonial Country Club',
   'memorial':                'Muirfield Village Golf Club',
   'travelers':               'TPC River Highlands',
