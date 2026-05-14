@@ -42,6 +42,11 @@ function _extractTourneyMeta(ev) {
   }
   var venue = comp && comp.venue;
   TOURNEY_COURSE = venue ? (venue.fullName || venue.shortName || '') : TOURNEY_COURSE || '';
+  if (venue && venue.address) {
+    TOURNEY_CITY = venue.address.summary
+      || [venue.address.city, venue.address.state || venue.address.country].filter(Boolean).join(', ')
+      || TOURNEY_CITY || '';
+  }
   if (ev.date) {
     var start = new Date(ev.date);
     var end = ev.endDate ? new Date(ev.endDate) : null;
