@@ -1411,14 +1411,11 @@ function renderTermTrends() {
     var name = r.name;
     var pctOfMax = (r.v / maxVal) * 100;
     var flag = (typeof FLAGS !== 'undefined' && FLAGS[name]) || '';
-    var series = (seriesOf[name] || []).slice(-30);
-    var spark = _sparkline(series);
     return '<div class="trend-row">'
       + '<span class="trend-rank">' + (i + 1) + '</span>'
       + '<span class="trend-name">' + flag + ' ' + termEsc(name) + '</span>'
       + '<span class="trend-bar"><span class="trend-bar-fill" style="width:' + pctOfMax.toFixed(1) + '%"></span></span>'
       + '<span class="trend-pct">' + fmtPct(r.v) + '</span>'
-      + '<span class="trend-spark">' + spark + '</span>'
       + deltaChip(name, r.v)
       + '</div>';
   }).join('');
@@ -1439,7 +1436,6 @@ function renderTermTrends() {
     + '<span class="trend-name">PLAYER</span>'
     + '<span class="trend-bar-lbl">vs LEADER</span>'
     + '<span class="trend-pct">%</span>'
-    + '<span class="trend-spark">30 POLLS</span>'
     + '<span class="trend-delta-lbl">Δ OPEN</span>'
     + '</div>';
   body.innerHTML = '<div class="trend-controls">' + seg + '</div>'
