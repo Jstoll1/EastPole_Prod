@@ -1563,6 +1563,7 @@ function renderTermCourse() {
 
   var holes = (typeof COURSE_HOLES !== 'undefined' && COURSE_HOLES) ? COURSE_HOLES : null;
   var courseName = (typeof TOURNEY_COURSE !== 'undefined' && TOURNEY_COURSE) || '';
+  var tourneyName = (typeof TOURNEY_NAME !== 'undefined' && TOURNEY_NAME) || '';
   var coursePar = (typeof COURSE_PAR !== 'undefined' && COURSE_PAR) || 72;
 
   if (!holes || !holes.length) {
@@ -1710,6 +1711,7 @@ function renderTermCourse() {
   body.innerHTML = ''
     + '<div class="ci-summary">'
     +   '<span class="ci-name">' + termEsc(courseName || 'Course') + '</span>'
+    +   (tourneyName ? '<span class="ci-tourney">' + termEsc(tourneyName) + '</span>' : '')
     +   '<span class="ci-stat"><span class="ci-stat-lbl">PAR</span> ' + coursePar + '</span>'
     +   (totalYds ? '<span class="ci-stat"><span class="ci-stat-lbl">YDS</span> ' + totalYds.toLocaleString() + '</span>' : '')
     + '</div>'
