@@ -1506,8 +1506,23 @@ function renderTermMy() {
       var isTop = i < 4;
       var flag = FLAGS && FLAGS[g.name] || '';
       var gd = GOLFER_SCORES[g.name];
-      var sc = gd && (gd.score === 11 || gd.score === 12) ? (gd.score === 12 ? 'WD' : 'MC') : fmtScore(g.score);
-      var scCl = gd && (gd.score === 11 || gd.score === 12) ? 'mc' : scoreCls(g.score);
+      var isMc = gd && (gd.score === 11 || gd.score === 12);
+      // Pre-tee for the current round: thru is '—' (no round started) or a
+      // colon time string (next round's tee time). Show the tee time instead
+      // of the score — it carries no info until they swing.
+      var isPreTee = gd && !isMc && (gd.thru === '—' || (gd.thru && gd.thru.indexOf(':') !== -1));
+      var sc, scCl;
+      if (isMc) {
+        sc = gd.score === 12 ? 'WD' : 'MC';
+        scCl = 'mc';
+      } else if (isPreTee) {
+        var tee = fmtTeeTime(gd.teeTime, typeof TOURNEY_COURSE !== 'undefined' ? TOURNEY_COURSE : '');
+        sc = tee || (gd.thru && gd.thru !== '—' ? gd.thru : '—');
+        scCl = 'tee';
+      } else {
+        sc = fmtScore(g.score);
+        scCl = scoreCls(g.score);
+      }
       return '<div class="pick ' + (isTop ? 'top' : '') + '">'
         + '<span class="p-name">' + (isTop ? '★ ' : '  ') + flag + ' ' + termEsc(lastName(g.name)) + '</span>'
         + '<span class="p-score ' + scCl + '">' + sc + '</span>'
