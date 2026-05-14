@@ -1209,6 +1209,30 @@ function renderTermStandings() {
   var ranked = getRanked();
   var myKey = (typeof currentUserEmail !== 'undefined') ? currentUserEmail : '';
 
+  // Payout strip — same computePoolPayouts() the mobile cards use. We pass
+  // ranked only once the tournament is final so 3rd-place reimbursement
+  // doesn't whip around based on whoever sorts to position 3 pre-results.
+  var poEl = document.getElementById('term-std-payouts');
+  if (poEl) {
+    var maxCompleted = 0;
+    if (typeof TOURNAMENT_STARTED !== 'undefined' && TOURNAMENT_STARTED) {
+      Object.values(GOLFER_SCORES).forEach(function(gd) {
+        var cnt = [gd.r1, gd.r2, gd.r3, gd.r4].filter(function(r) { return r != null && r > 50; }).length;
+        if (cnt > maxCompleted) maxCompleted = cnt;
+      });
+    }
+    var totalHL = ranked.reduce(function(s, e) { return s + e.picks.reduce(function(s2, p) { return s2 + getHolesRemaining(p); }, 0); }, 0);
+    var poDone = maxCompleted >= 4 && totalHL === 0;
+    var po = (typeof computePoolPayouts === 'function') ? computePoolPayouts(poDone ? ranked : null) : null;
+    if (po) {
+      poEl.innerHTML = ''
+        + '<span class="po-chip po-1st"><span class="po-lbl">1st</span><span class="po-amt">$' + po.p1.toLocaleString() + '</span></span>'
+        + '<span class="po-chip po-2nd"><span class="po-lbl">2nd</span><span class="po-amt">$' + po.p2.toLocaleString() + '</span></span>'
+        + '<span class="po-chip po-3rd"><span class="po-lbl">3rd</span><span class="po-amt">$' + po.p3.toLocaleString() + '</span></span>'
+        + '<span class="po-pot">Pot $' + po.pot.toLocaleString() + '</span>';
+    }
+  }
+
   // Precompute row data (rank / isMoney stay tied to original pool ranking)
   var rows = ranked.map(function(e, i) {
     var rank = i + 1;
