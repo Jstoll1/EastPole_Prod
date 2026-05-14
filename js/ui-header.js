@@ -511,10 +511,10 @@ function buildObList(filter) {
       name = ent;
     } else if (e.email) {
       key = '__eml__' + e.email.toLowerCase();
-      name = e.name || e.email;
+      name = e.team;
     } else {
       key = '__team__' + e.team;
-      name = e.name || e.team;
+      name = e.team;
     }
     if (!people[key]) people[key] = { name: name, email: key, teams: [], entrant: ent };
     people[key].teams.push(e.team);

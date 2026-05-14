@@ -147,6 +147,11 @@ async function loadPoolEntries(force) {
       ENTRIES.length = 0;
       entries.forEach(function(e) { ENTRIES.push(e); });
     }
+    // ENTRIES was empty when initApp() seeded OWNERSHIP_DATA — recompute now
+    // that the sheet has landed, so scorecards show real "X% of entries".
+    if (typeof computeOwnership === 'function') {
+      window.OWNERSHIP_DATA = computeOwnership();
+    }
     window.POOL_FETCH_STATE = 'ok';
     console.log('✅ Loaded', entries.length, 'pool entries from sheet');
     // Rebind the logged-in user's team associations now that ENTRIES is populated.
