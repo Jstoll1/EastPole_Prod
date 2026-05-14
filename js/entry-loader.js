@@ -154,6 +154,12 @@ async function loadPoolEntries(force) {
     }
     window.POOL_FETCH_STATE = 'ok';
     console.log('✅ Loaded', entries.length, 'pool entries from sheet');
+    // initApp() called loadUser() before ENTRIES was populated, so the
+    // saved identity didn't match anything and the user looked signed out.
+    // Retry now that entries are here — restores the session across reloads.
+    if (typeof currentUserEmail !== 'undefined' && !currentUserEmail && typeof loadUser === 'function') {
+      loadUser();
+    }
     // Rebind the logged-in user's team associations now that ENTRIES is populated.
     if (typeof currentUserEmail !== 'undefined' && currentUserEmail && typeof _matchUserKey === 'function') {
       window.currentUserTeams = ENTRIES.filter(function(e) { return _matchUserKey(e, currentUserEmail); });
