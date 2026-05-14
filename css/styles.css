@@ -41,6 +41,8 @@ button, a, input, select, .nav-btn, .seg-btn {
 html, body  {
   height: 100%;
   width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
   background: var(--bg);
   font-family: -apple-system, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
   color: var(--text);
