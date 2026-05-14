@@ -66,7 +66,7 @@ function buildTermLoginMenu() {
       label = e.entrant;
     } else if (e.email) {
       key = '__eml__' + e.email.toLowerCase();
-      label = e.email;
+      label = e.team;
     } else {
       key = '__team__' + e.team;
       label = e.team;
@@ -97,7 +97,7 @@ function buildTermLoginMenu() {
     h += '<div class="tlogin-empty">No entries loaded yet. Submit an entry via + ADD ENTRY above, then come back.</div>';
     return h;
   }
-  h += '<div class="tlogin-search"><input type="text" id="tlogin-filter" placeholder="search username, team, email…" oninput="filterTermLogin(this.value)"></div>';
+  h += '<div class="tlogin-search"><input type="text" id="tlogin-filter" placeholder="search username or team…" oninput="filterTermLogin(this.value)"></div>';
   h += '<div class="tlogin-list">';
   users.forEach(function(u) {
     var active = currentEmail && String(currentEmail).toLowerCase() === u.key.toLowerCase();
@@ -105,7 +105,6 @@ function buildTermLoginMenu() {
     var emailStr = u.emails.join(' · ');
     h += '<div class="tlogin-row' + (active ? ' tlogin-active' : '') + '"'
       +   ' data-label="' + termEsc(u.label) + '"'
-      +   ' data-email="' + termEsc(emailStr) + '"'
       +   ' data-teams="' + termEsc(u.teams.join(' ')) + '"'
       +   ' data-entrant="' + termEsc(u.entrant) + '"'
       +   ' onclick="selectTermUser(\'' + escKey + '\')">'
@@ -115,7 +114,6 @@ function buildTermLoginMenu() {
       +   '</div>'
       +   '<div class="tlogin-teams">'
       +     (u.teams.length === 1 ? '1 entry · ' + termEsc(u.teams[0]) : u.teams.length + ' entries · ' + u.teams.map(termEsc).join(' · '))
-      +     (emailStr ? '<div class="tlogin-emails">' + termEsc(emailStr) + '</div>' : '')
       +   '</div>'
       + '</div>';
   });
@@ -131,10 +129,9 @@ function filterTermLogin(q) {
   var shown = 0;
   rows.forEach(function(r) {
     var label = (r.getAttribute('data-label') || '').toLowerCase();
-    var e = (r.getAttribute('data-email') || '').toLowerCase();
     var t = (r.getAttribute('data-teams') || '').toLowerCase();
     var ent = (r.getAttribute('data-entrant') || '').toLowerCase();
-    var match = !q || label.indexOf(q) !== -1 || e.indexOf(q) !== -1 || t.indexOf(q) !== -1 || ent.indexOf(q) !== -1;
+    var match = !q || label.indexOf(q) !== -1 || t.indexOf(q) !== -1 || ent.indexOf(q) !== -1;
     r.style.display = match ? '' : 'none';
     if (match) shown++;
   });
@@ -208,7 +205,6 @@ function openEntryDetails(rowKey) {
 function _buildEntryDetailRow(entry, colspan) {
   var meta = [];
   if (entry.entrant)    meta.push('<span class="ed-entrant">' + termEsc(entry.entrant) + '</span>');
-  if (entry.email)      meta.push('<span class="ed-email">' + termEsc(entry.email) + '</span>');
   if (entry.tieBreaker) meta.push('<span class="ed-tb">TB: <strong>' + termEsc(entry.tieBreaker) + '</strong></span>');
 
   var body = '';
@@ -1242,8 +1238,7 @@ function renderTermStandings() {
     rows = rows.filter(function(r) {
       var e = r.entry;
       return (e.team || '').toLowerCase().indexOf(q) !== -1
-          || (e.entrant || '').toLowerCase().indexOf(q) !== -1
-          || (e.email || '').toLowerCase().indexOf(q) !== -1;
+          || (e.entrant || '').toLowerCase().indexOf(q) !== -1;
     });
     if (!rows.length) {
       body.innerHTML = '<tr><td colspan="5" class="tpt-fill" style="text-align:center;padding:24px;color:var(--term-text2,#7a8b9a)">No entries match "' + termEsc(_stdSearch) + '"</td></tr>';

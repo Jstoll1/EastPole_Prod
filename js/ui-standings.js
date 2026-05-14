@@ -315,8 +315,7 @@ function renderStandings() {
     var filteredRanks = [];
     ranked.forEach(function(e, i) {
       var entrant = (e.entrant || '').toLowerCase();
-      var email = (e.email || '').toLowerCase();
-      if (e.team.toLowerCase().indexOf(stSearch) !== -1 || entrant.indexOf(stSearch) !== -1 || email.indexOf(stSearch) !== -1) {
+      if (e.team.toLowerCase().indexOf(stSearch) !== -1 || entrant.indexOf(stSearch) !== -1) {
         filtered.push(e);
         filteredRanks.push(ranks[i]);
       }
@@ -359,7 +358,7 @@ function renderStandings() {
     html += '<div style="padding:32px 24px;text-align:center;color:var(--text3)">'
       + '<div style="font-size:28px;margin-bottom:10px">🔍</div>'
       + '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">No entries match "' + (stSearch || '').replace(/[<>"&]/g, '') + '"</div>'
-      + '<div style="font-size:11px;color:var(--text3)">Try a team name, entrant name, or email.</div>'
+      + '<div style="font-size:11px;color:var(--text3)">Try a team name or entrant name.</div>'
       + '</div>';
   }
   if (_friendFilterActive) {
