@@ -1673,7 +1673,7 @@ html, body {
 .trend-rows { display: flex; flex-direction: column; gap: 2px; }
 .trend-row {
   display: grid;
-  grid-template-columns: 24px minmax(120px, 1.4fr) minmax(80px, 2fr) 52px 90px 56px;
+  grid-template-columns: 24px minmax(120px, 1.4fr) minmax(80px, 2fr) 52px 64px;
   align-items: center;
   gap: 8px;
   padding: 4px 6px;
