@@ -510,7 +510,7 @@ function buildH2HLiveList(query) {
   ranked.forEach(function(e, i) {
     if (i > 0 && ranked[i].total !== ranked[i-1].total) rk = i + 1;
     if (myEmails.has(e.email)) return;
-    if (q && e.team.toLowerCase().indexOf(q) === -1 && e.name.toLowerCase().indexOf(q) === -1) return;
+    if (q && e.team.toLowerCase().indexOf(q) === -1 && (e.entrant || '').toLowerCase().indexOf(q) === -1) return;
     var entryIdx = ENTRIES.findIndex(function(x) { return x.team === e.team && x.email === e.email; });
     html += '<div class="h2h-picker-row" onclick="selectH2HLiveOpponent(' + entryIdx + ')" style="cursor:pointer">'
       + '<span class="h2h-picker-rank">' + rk + '</span>'

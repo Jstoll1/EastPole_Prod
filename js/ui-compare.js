@@ -84,7 +84,7 @@ function buildH2HOpponentList(myIdx, query) {
     if (i > 0 && ranked[i].total !== ranked[i-1].total) rk = i + 1;
     var idx = ENTRIES.findIndex(function(x) { return x.team === e.team && x.email === e.email; });
     if (idx === myIdx) return;
-    if (q && e.team.toLowerCase().indexOf(q) === -1 && e.name.toLowerCase().indexOf(q) === -1) return;
+    if (q && e.team.toLowerCase().indexOf(q) === -1 && (e.entrant || '').toLowerCase().indexOf(q) === -1) return;
     html += '<div class="h2h-picker-row" onclick="selectH2H(' + myIdx + ',' + idx + ')">'
       + '<span class="h2h-picker-rank">' + rk + '</span>'
       + '<span class="h2h-picker-team">' + escHtml(e.team) + '</span>'
@@ -158,7 +158,7 @@ function buildH2HPickerList(targetIdx, query) {
     if (i > 0 && ranked[i].total !== ranked[i-1].total) rk = i + 1;
     var idx = ENTRIES.findIndex(function(x) { return x.team === e.team && x.email === e.email; });
     if (idx === targetIdx) return;
-    if (q && e.team.toLowerCase().indexOf(q) === -1 && e.name.toLowerCase().indexOf(q) === -1) return;
+    if (q && e.team.toLowerCase().indexOf(q) === -1 && (e.entrant || '').toLowerCase().indexOf(q) === -1) return;
     html += '<div class="h2h-picker-row" onclick="selectH2H(' + idx + ',' + targetIdx + ')">'
       + '<span class="h2h-picker-rank">' + rk + '</span>'
       + '<span class="h2h-picker-team">' + escHtml(e.team) + '</span>'
