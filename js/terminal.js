@@ -31,28 +31,6 @@ function toggleTermDebug() {
   _termDebugMode = !_termDebugMode;
   _renderDebugPanel();
 }
-function openAddEntryTerm() {
-  var el = document.getElementById('term-addentry-overlay');
-  var bd = document.getElementById('term-addentry-backdrop');
-  var container = document.getElementById('term-entry-form-container');
-  if (!el || !container) return;
-  // Render the native form (entry-form.js provides buildEntryFormHTML)
-  if (typeof buildEntryFormHTML === 'function') {
-    container.innerHTML = buildEntryFormHTML();
-    container.id = 'entry-form-container'; // so submitEntryForm's showEntrySuccess finds the container
-    container.setAttribute('data-term', '1');
-  }
-  el.style.display = 'flex';
-  if (bd) bd.style.display = 'block';
-}
-function closeAddEntryTerm() {
-  var el = document.getElementById('term-addentry-overlay');
-  var bd = document.getElementById('term-addentry-backdrop');
-  if (el) el.style.display = 'none';
-  if (bd) bd.style.display = 'none';
-}
-// entry-form.js calls closeAddEntry() from its success screen; alias to the terminal close on this surface
-if (typeof window !== 'undefined') window.closeAddEntry = closeAddEntryTerm;
 
 // ─── Terminal Login ─────────────────────────────────────────
 function openTermLogin() {

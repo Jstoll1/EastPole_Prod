@@ -36,8 +36,6 @@
 <span class="tsb-sep">|</span>
 <span id="tsb-time">--:--:--</span>
 <span class="tsb-sep">|</span>
-<button onclick="openAddEntryTerm()" class="tsb-btn">+ ADD ENTRY</button>
-<span class="tsb-sep">|</span>
 <button id="term-login-btn" onclick="openTermLogin()" class="tsb-btn">LOG IN</button>
 <span class="tsb-sep">|</span>
 <button onclick="handleRefreshClick()" class="tsb-btn">REFRESH</button>
@@ -46,15 +44,6 @@
 
 <div id="term-login-backdrop" onclick="closeTermLogin()" style="display:none;position:fixed;inset:0;z-index:9996;background:rgba(0,0,0,0.65);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)"></div>
 <div id="term-login-modal" style="display:none;position:fixed;top:44px;right:12px;width:340px;max-height:70vh;z-index:9997;background:var(--term-panel,#0a1812);border:1px solid var(--term-amber,#d4a843);box-shadow:0 12px 40px rgba(0,0,0,0.7);overflow-y:auto;-webkit-overflow-scrolling:touch;font-family:inherit"></div>
-
-<div id="term-addentry-backdrop" onclick="closeAddEntryTerm()" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.75);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)"></div>
-<div id="term-addentry-overlay" style="display:none;position:fixed;inset:24px;z-index:9999;background:var(--term-bg,#0a0e12);border:1px solid var(--term-amber,#d4a843);box-shadow:0 16px 48px rgba(0,0,0,0.8);flex-direction:column">
-<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--term-border,#2a3440);background:var(--term-bg,#0a0e12)">
-<span style="font-family:var(--term-font,monospace);font-weight:700;color:var(--term-amber,#d4a843);letter-spacing:1px">+ ADD ENTRY</span>
-<button onclick="closeAddEntryTerm()" class="tsb-btn">CLOSE ✕</button>
-</div>
-<div id="term-entry-form-container" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 24px 40px"></div>
-</div>
 
 <div id="term-wx-bar" style="display:flex!important;visibility:visible!important"><span class="wxb-tag">LIVE</span> <span class="wxb-course">loading forecast…</span></div>
 
@@ -156,9 +145,8 @@
 <script defer src="./js/ui-activity.js?v=7cfb49b3"></script>
 
 <!-- Terminal-only module -->
-<script defer src="./js/entry-form.js?v=9789c9f7"></script>
 <script defer src="./js/entry-loader.js?v=ab27c105"></script>
-<script defer src="./js/terminal.js?v=11236a15"></script>
+<script defer src="./js/terminal.js?v=8e9b5d61"></script>
 
 </body>
 </html>
