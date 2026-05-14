@@ -122,7 +122,11 @@ function renderStandings() {
     winnerBoxEl.id = 'winner-splash';
     cardsEl.parentNode.insertBefore(winnerBoxEl, cardsEl);
   }
-  var poolPayouts = computePoolPayouts(ranked);
+  // Only use the actual 3rd-place finisher to size the reimbursement once
+  // the tournament is final — otherwise the standings are noise and any
+  // 5-entry person who happens to sort to position 3 inflates the
+  // pre-results 3rd-place card (and shrinks 1st/2nd).
+  var poolPayouts = computePoolPayouts(tourneyDone ? ranked : null);
   var payoutAmounts = [poolPayouts.p1, poolPayouts.p2, poolPayouts.p3];
   var payoutLabels = ['1st', '2nd', '3rd'];
   if (tourneyDone && ranked[0]) {
