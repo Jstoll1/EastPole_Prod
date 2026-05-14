@@ -281,6 +281,31 @@ html, body {
 .cs-tp      { font-size: 10px; font-weight: 700; }
 .cs-foot    { font-size: 9px; color: var(--term-text-dim); margin-top: 8px; letter-spacing: 0.3px; }
 
+/* F2 standings payout strip */
+.std-payouts {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #081410;
+  border-bottom: 1px solid var(--term-border);
+  flex-shrink: 0;
+  font-size: 10px;
+}
+.std-payouts:empty { display: none; }
+.po-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 2px;
+  border: 1px solid var(--term-border-hi);
+}
+.po-chip.po-1st { border-color: var(--term-amber); background: rgba(212,168,67,0.10); }
+.po-lbl { color: var(--term-text-dim); font-weight: 700; font-size: 9px; letter-spacing: 0.8px; text-transform: uppercase; }
+.po-amt { color: var(--term-amber); font-weight: 800; font-variant-numeric: tabular-nums; }
+.po-pot { margin-left: auto; color: var(--term-text-dim); font-size: 9px; letter-spacing: 0.8px; text-transform: uppercase; }
+
 .tp-body {
   flex: 1;
   overflow-y: auto;
