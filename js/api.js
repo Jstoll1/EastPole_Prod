@@ -41,7 +41,11 @@ function _extractTourneyMeta(ev) {
     TOURNEY_LOGO = ev.season.logos[0].href || '';
   }
   var venue = comp && comp.venue;
-  TOURNEY_COURSE = venue ? (venue.fullName || venue.shortName || '') : TOURNEY_COURSE || '';
+  var espnCourse = venue ? (venue.fullName || venue.shortName || '') : '';
+  // Don't clobber a value seeded by events/current.json or a previous fetch
+  // when ESPN hasn't yet published the venue.
+  if (espnCourse) TOURNEY_COURSE = espnCourse;
+  else if (!TOURNEY_COURSE) TOURNEY_COURSE = '';
   if (venue && venue.address) {
     TOURNEY_CITY = venue.address.summary
       || [venue.address.city, venue.address.state || venue.address.country].filter(Boolean).join(', ')

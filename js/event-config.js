@@ -76,5 +76,12 @@
     if (cfg.course && cfg.courseTimezone && typeof COURSE_TZ !== 'undefined') {
       COURSE_TZ[cfg.course] = cfg.courseTimezone;
     }
+
+    // Seed TOURNEY_COURSE so the F5 panel + header chip have a name to show
+    // before ESPN's venue feed warms up. api.js preserves this if ESPN's
+    // venue is missing/blank on subsequent polls.
+    if (cfg.course && typeof TOURNEY_COURSE !== 'undefined') {
+      window.TOURNEY_COURSE = cfg.course;
+    }
   }
 })();
