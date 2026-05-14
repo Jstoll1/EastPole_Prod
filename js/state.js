@@ -316,6 +316,7 @@ var TOURNEY_NAME = '';
 var TOURNEY_SHORT = '';
 var TOURNEY_DATES = '';
 var TOURNEY_COURSE = '';
+var TOURNEY_CITY = '';
 var TOURNEY_LOGO = '';
 
 // Course → IANA timezone, used to render tee times in event-local time

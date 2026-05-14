@@ -983,11 +983,18 @@ async function fetchNextEvent() {
       var comp = e.competitions && e.competitions[0];
       var venue = comp && comp.venue;
       var courseName = venue ? (venue.fullName || venue.shortName || '') : '';
+      var cityName = '';
+      if (venue && venue.address) {
+        cityName = venue.address.summary
+          || [venue.address.city, venue.address.state || venue.address.country].filter(Boolean).join(', ')
+          || '';
+      }
       _nextEvent = {
         name: e.name || e.shortName || '',
         date: e.date ? new Date(e.date) : null,
         endDate: e.endDate ? new Date(e.endDate) : null,
-        course: courseName
+        course: courseName,
+        city: cityName
       };
       var coords = findCourseCoords(courseName);
       if (typeof termDiag === 'function') termDiag('Next: ' + _nextEvent.name + ' @ ' + courseName + (coords ? ' (coords found)' : ' (no coords)'), !coords);
@@ -1056,7 +1063,7 @@ function renderTermWeatherBar() {
   document.body.classList.remove('wx-hidden');
 
   var isFinal = (typeof TOURNEY_FINAL !== 'undefined' && TOURNEY_FINAL);
-  var evName, evCourse, evDate, endDate, forecast, tag;
+  var evName, evCourse, evCity, evDate, endDate, forecast, tag;
   if (isFinal) {
     tag = 'NEXT';
     if (!_nextEvent && !_nextEventFetched) fetchNextEvent();
@@ -1065,12 +1072,14 @@ function renderTermWeatherBar() {
       return;
     }
     evName = _nextEvent.name; evCourse = _nextEvent.course;
+    evCity = _nextEvent.city || '';
     evDate = _nextEvent.date; endDate = _nextEvent.endDate;
     forecast = _nextEventForecast;
   } else {
     tag = 'LIVE';
     evName = (typeof TOURNEY_NAME !== 'undefined' ? TOURNEY_NAME : '') || '';
     evCourse = (typeof TOURNEY_COURSE !== 'undefined' ? TOURNEY_COURSE : '') || '';
+    evCity = (typeof TOURNEY_CITY !== 'undefined' ? TOURNEY_CITY : '') || '';
     forecast = _currentEventForecast;
     if (typeof termDiag === 'function') termDiag('WX: LIVE ' + (evName || '?') + ' @ ' + (evCourse || '?') + ' · fc=' + (forecast ? 'ok' : 'pending'));
     if (!evName && !evCourse) {
@@ -1137,6 +1146,10 @@ function renderTermWeatherBar() {
     }
   } else if (!f) {
     parts.push('<span class="wxb-sep">·</span> <span class="wxb-course">forecast loading…</span>');
+  }
+
+  if (evCity) {
+    parts.push('<span class="wxb-sep">·</span> <span class="wxb-loc">📍 ' + termEsc(evCity) + '</span>');
   }
 
   if (isFinal && evDate) {
