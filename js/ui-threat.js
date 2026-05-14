@@ -3,8 +3,8 @@
 // so the player knows who to cheer against.
 
 var _threatNetMode = true; // default: exclude golfers already on user's team
-var _threatSortCol = 'tot'; // default sort column
-var _threatSortDir = 'asc'; // default sort direction
+var _threatSortCol = 'count'; // default: rank by how many ahead teams hold the golfer
+var _threatSortDir = 'desc'; // most-held first
 var _threatPickerOpen = false; // entry picker toggle (closed by default)
 
 function toggleThreatPicker() {
@@ -116,8 +116,7 @@ function _threatRowHtml(t, aheadCount, maxCount) {
   var threatPct = aheadCount > 0 ? Math.round(t.count / aheadCount * 100) : 0;
   var top5Pct = dg ? _threatFmtPct(dg.top_5) : '—';
   var rowCls = 'threat-row';
-  if (isOut) rowCls += ' threat-out';
-  else if (isDone) rowCls += ' threat-done';
+  if (isDone) rowCls += ' threat-done';
   var escName = t.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
   return '<div class="' + rowCls + '" onclick="openThreatDrill(\'' + escName + '\')">'
     + '<div class="threat-flag">' + flag + '</div>'
@@ -165,23 +164,34 @@ function renderThreatBoard() {
   var aheadEntries = ranked.slice(0, myIdx);
   var aheadCount = aheadEntries.length;
 
-  // Count golfer appearances in top4 of ahead entries
+  // Count golfer appearances across ALL 10 picks of each ahead entry — a
+  // bench pick today can swap into the scoring top-4 tomorrow, and "who
+  // could hurt me" includes both kinds. Top-4 only would hide rising bench
+  // threats like a slow-starting Scheffler still posted on 80% of teams.
   var counts = {};
   aheadEntries.forEach(function(e) {
-    e.top4.forEach(function(g) {
-      if (!counts[g.name]) counts[g.name] = 0;
-      counts[g.name]++;
+    var seen = {};
+    e.picks.forEach(function(name) {
+      if (seen[name]) return; // dedupe within an entry
+      seen[name] = 1;
+      counts[name] = (counts[name] || 0) + 1;
     });
   });
 
-  // My top4 for net-threat filter
-  var myTop4Names = myRankedEntry.top4.map(function(g) { return g.name; });
+  // My picks for net-threat filter — exclude what's already on my team.
+  var myPickNames = (myRankedEntry.picks || []).slice();
 
   var threats = Object.keys(counts).map(function(name) {
     return { name: name, count: counts[name] };
   });
+  // Drop MC/WD — they're not "on the board" anymore, can't move the needle.
+  threats = threats.filter(function(t) {
+    var gd = GOLFER_SCORES[t.name];
+    if (!gd) return true;
+    return gd.score !== 11 && gd.score !== 12;
+  });
   if (_threatNetMode) {
-    threats = threats.filter(function(t) { return myTop4Names.indexOf(t.name) < 0; });
+    threats = threats.filter(function(t) { return myPickNames.indexOf(t.name) < 0; });
   }
   var sortMul = (_threatSortDir === 'asc') ? 1 : -1;
   threats.sort(function(a, b) {
