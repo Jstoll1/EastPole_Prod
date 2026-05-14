@@ -122,7 +122,7 @@ function renderStandings() {
     winnerBoxEl.id = 'winner-splash';
     cardsEl.parentNode.insertBefore(winnerBoxEl, cardsEl);
   }
-  var poolPayouts = computePoolPayouts();
+  var poolPayouts = computePoolPayouts(ranked);
   var payoutAmounts = [poolPayouts.p1, poolPayouts.p2, poolPayouts.p3];
   var payoutLabels = ['1st', '2nd', '3rd'];
   if (tourneyDone && ranked[0]) {
