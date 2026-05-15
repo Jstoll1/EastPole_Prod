@@ -534,6 +534,21 @@ function buildObList(filter) {
     })
     .sort(function(a, b) { return a.name.localeCompare(b.name); });
   var el = document.getElementById('ob-list');
+  // ENTRIES is loaded async — if the user taps past the splash before the
+  // pool sheet has landed, fall back to a loading hint instead of the
+  // empty 'No results'. loadPoolEntries() re-calls buildObList() once
+  // entries arrive so this swaps in the real list automatically.
+  if (!ENTRIES.length) {
+    var poolState = (typeof window !== 'undefined' && window.POOL_FETCH_STATE) || 'idle';
+    if (poolState === 'loading' || poolState === 'idle') {
+      el.innerHTML = '<div class="empty-state">Loading entries…</div>';
+    } else if (poolState === 'error') {
+      el.innerHTML = '<div class="empty-state">Couldn\'t load entries. Pull down to retry.</div>';
+    } else {
+      el.innerHTML = '<div class="empty-state">No entries yet.</div>';
+    }
+    return;
+  }
   if (!list.length) { el.innerHTML = '<div class="empty-state">No results</div>'; return; }
   el.innerHTML = list.map(function(p) {
     var isSelected = p.email === obSelectedEmail;
