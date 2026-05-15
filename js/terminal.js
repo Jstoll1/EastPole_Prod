@@ -1279,7 +1279,7 @@ function renderTermStandings() {
     var cls = [r.isMine ? 'is-mine' : '', r.isMoney ? 'is-money' : '', 'std-clickable', isExpanded ? 'is-expanded' : ''].filter(Boolean).join(' ');
     var html = '<tr class="' + cls + '" onclick="openEntryDetails(\'' + rowKey + '\')">'
       + '<td class="tpt-pos">' + r.rank + '</td>'
-      + '<td class="tpt-name">' + (isExpanded ? '▾ ' : '▸ ') + termEsc(r.entry.team) + '</td>'
+      + '<td class="tpt-name">' + (isExpanded ? '▾ ' : '▸ ') + termEsc(r.entry.team) + (r.entry.entrant ? ' <span class="std-entrant">' + termEsc(r.entry.entrant) + '</span>' : '') + '</td>'
       + '<td class="tpt-score ' + scoreCls(r.total) + '">' + fmtScore(r.total) + '</td>'
       + '<td class="tpt-today ' + todayCl + '">' + termEsc(todayDisp) + '</td>'
       + '<td class="tpt-thru">' + (r.holes > 0 ? r.holes : 'F') + '</td>'
