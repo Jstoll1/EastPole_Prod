@@ -458,7 +458,19 @@ function updateStatusBar() {
 
   var isFinal = (typeof TOURNEY_FINAL !== 'undefined' && TOURNEY_FINAL);
   if (name) name.textContent = (typeof TOURNEY_NAME !== 'undefined' && TOURNEY_NAME) ? TOURNEY_NAME.toUpperCase() : '—';
-  if (round) round.textContent = isFinal ? 'FIN' : ('R' + (typeof ESPN_ROUND !== 'undefined' ? ESPN_ROUND || '—' : '—'));
+  // ESPN's ev.status.period is sometimes 0/missing even during a live round,
+  // so fall back to the max linescore count across active golfers. Counts
+  // are 1-based and include the in-progress round, which is what we want
+  // for the 'currently R{N}' display.
+  var roundNum = (typeof ESPN_ROUND !== 'undefined' && ESPN_ROUND) ? ESPN_ROUND : 0;
+  if (!roundNum && typeof GOLFER_SCORES !== 'undefined') {
+    Object.values(GOLFER_SCORES).forEach(function(gd) {
+      if (!gd || gd.score === 11 || gd.score === 12) return;
+      var rc = gd.roundCount || 0;
+      if (rc > roundNum) roundNum = rc;
+    });
+  }
+  if (round) round.textContent = isFinal ? 'FIN' : ('R' + (roundNum > 0 ? roundNum : '—'));
   if (status) {
     var s = 'LIVE';
     if (isFinal) { s = 'FINAL'; status.className = 'final'; }
