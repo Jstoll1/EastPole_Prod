@@ -2143,6 +2143,8 @@ body.is-standalone .view {
 .tv-h-sort:active { opacity: 0.6; }
 .tv-h-active { color: var(--gold) !important; }
 .sort-arrow { font-size: 4px; vertical-align: super; margin-left: 0; }
+.st-sort-arrow { font-size: 8px; color: var(--gold); margin-left: 1px; }
+.st-sort-arrow:empty { display: none; }
 
 .tv-row  {
   display: flex;

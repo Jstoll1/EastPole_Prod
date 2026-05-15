@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./css/styles.css?v=2f4ed81b">
+<link rel="stylesheet" href="./css/styles.css?v=ae2d147e">
 <link rel="stylesheet" href="./css/theme.css?v=edc61fa8">
 <script data-goatcounter="https://calcutta.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -156,10 +156,10 @@
 </div>
 <div class="st-sticky-hdr">
 <div class="tv-col-hdr" style="margin-top:0">
-<div class="tv-h-pos tv-h-sort" onclick="toggleStandingsSort('total')">#</div>
-<div class="tv-h-player tv-h-sort" onclick="toggleStandingsSort('entry')">ENTRY</div>
-<div class="tv-h-today tv-h-sort" onclick="toggleStandingsSort('today')">TODAY</div>
-<div class="tv-h-score tv-h-sort" onclick="toggleStandingsSort('total')">TOTAL</div>
+<div class="tv-h-pos tv-h-sort" data-st-sort="total" onclick="toggleStandingsSort('total')"># <span class="st-sort-arrow" data-st-arrow="total"></span></div>
+<div class="tv-h-player tv-h-sort" data-st-sort="entry" onclick="toggleStandingsSort('entry')">ENTRY <span class="st-sort-arrow" data-st-arrow="entry"></span></div>
+<div class="tv-h-today tv-h-sort" data-st-sort="today" onclick="toggleStandingsSort('today')">TODAY <span class="st-sort-arrow" data-st-arrow="today"></span></div>
+<div class="tv-h-score tv-h-sort" data-st-sort="total" onclick="toggleStandingsSort('total')">TOTAL <span class="st-sort-arrow" data-st-arrow="total"></span></div>
 </div>
 </div>
 <div id="standings-list">
@@ -417,7 +417,7 @@
 <script defer src="./js/api.js?v=83d9a17e"></script>
 <script defer src="./js/ui-header.js?v=2a04e91d"></script>
 <script defer src="./js/entry-loader.js?v=8c5b7d61"></script>
-<script defer src="./js/ui-standings.js?v=05e2d9b4"></script>
+<script defer src="./js/ui-standings.js?v=c2914037"></script>
 <script defer src="./js/ui-leaderboard.js?v=4c61b8d3"></script>
 <script defer src="./js/ui-threat.js?v=8e2a1f50"></script>
 <script defer src="./js/ui-scorecard.js?v=cf0da20d"></script>
