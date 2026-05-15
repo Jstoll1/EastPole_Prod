@@ -90,9 +90,16 @@ function renderStandings() {
     ranked.sort(function(a, b) {
       var dir = standingsSortDir;
       if (standingsSort === 'today') {
-        var todayA = entryTodayTotal(a) || 0;
-        var todayB = entryTodayTotal(b) || 0;
-        return (todayA - todayB) * dir || a.total - b.total;
+        var todayA = entryTodayTotal(a);
+        var todayB = entryTodayTotal(b);
+        // Push null-today entries to the bottom regardless of direction.
+        if (todayA == null && todayB == null) return (a.total - b.total) * dir;
+        if (todayA == null) return 1;
+        if (todayB == null) return -1;
+        if (todayA !== todayB) return (todayA - todayB) * dir;
+        // Tiebreaker on total, also respecting direction so flipping desc
+        // actually reverses the whole list, not just the non-tied bits.
+        return (a.total - b.total) * dir;
       }
       if (standingsSort === 'entry') {
         return a.team.localeCompare(b.team) * dir;
@@ -102,6 +109,15 @@ function renderStandings() {
   } else if (standingsSortDir === -1) {
     ranked.reverse();
   }
+  // Surface the active sort via small arrows on the column headers so a
+  // click on TODAY (which often produces a near-identical row order in
+  // early rounds) still reads as 'something happened'.
+  try {
+    document.querySelectorAll('.st-sort-arrow').forEach(function(el) {
+      var col = el.getAttribute('data-st-arrow');
+      el.textContent = (col === standingsSort) ? (standingsSortDir === 1 ? '▲' : '▼') : '';
+    });
+  } catch (_e) {}
   var ranks = ranked.map(function(e) { return rankMap[e.team + '|' + e.email]; });
 
   // Payout cards
