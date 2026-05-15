@@ -57,15 +57,21 @@ function getHolesRemaining(playerName) {
   if (gd.thru === 'MC' || gd.thru === 'WD' || gd.score === 11 || gd.score === 12) return 0;
   // roundCount = total linescores with any value (includes in-progress)
   var roundCount = gd.roundCount || [gd.r1, gd.r2, gd.r3, gd.r4].filter(function(r) { return r != null; }).length;
-  var thruNum = parseInt(gd.thru);
-  var roundDone = gd.thru === 'F' || gd.thru === '18';
+  var thruStr = String(gd.thru || '');
+  var roundDone = thruStr === 'F' || thruStr === '18';
   if (roundDone) {
     // Finished current round: roundCount includes it
     return Math.max(0, (4 - roundCount) * 18);
   }
-  if (!isNaN(thruNum) && thruNum > 0) {
-    // Mid-round: roundCount includes in-progress round
-    return Math.max(0, (4 - roundCount) * 18 + (18 - thruNum));
+  // Tee-time strings ('8:30 AM CT', '10:50') would parseInt to the hour and
+  // falsely enter the mid-round branch — inflating holes-left by (18 − hour).
+  // Skip integer parsing when the value carries a clock separator.
+  if (thruStr.indexOf(':') === -1) {
+    var thruNum = parseInt(thruStr, 10);
+    if (!isNaN(thruNum) && thruNum > 0 && thruNum < 18) {
+      // Mid-round: roundCount includes in-progress round
+      return Math.max(0, (4 - roundCount) * 18 + (18 - thruNum));
+    }
   }
   // Hasn't started (tee time or '—'): roundCount = completed rounds only
   return Math.max(0, (4 - roundCount) * 18);
