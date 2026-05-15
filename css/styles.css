@@ -4826,18 +4826,18 @@ to  {
 
 /* ── Threat Board ────────────────────────────────────────── */
 .threat-hdr-card {
-  margin: 8px 10px 12px;
-  padding: 12px 14px;
+  margin: 6px 10px 8px;
+  padding: 8px 12px 10px;
   background: linear-gradient(135deg, rgba(255,107,107,0.08) 0%, rgba(13,31,42,0.6) 100%);
   border: 1px solid rgba(255,107,107,0.25);
   border-radius: 12px;
 }
 .threat-tagline {
   font-style: italic;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text2);
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   letter-spacing: 0.3px;
   white-space: nowrap;
 }
@@ -4877,18 +4877,18 @@ to  {
 }
 .threat-hdr-stats {
   display: flex;
-  gap: 8px;
-  padding: 6px 0 4px;
+  gap: 6px;
+  padding: 4px 0 0;
 }
 .threat-stat {
   flex: 1;
   text-align: center;
-  padding: 6px 4px;
+  padding: 4px 4px 5px;
   background: rgba(0,0,0,0.3);
   border-radius: 8px;
 }
 .threat-stat-v {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 900;
   color: var(--text);
   line-height: 1;
@@ -4901,20 +4901,20 @@ to  {
   letter-spacing: 0.5px;
   text-transform: uppercase;
   color: rgba(255,255,255,0.4);
-  margin-top: 3px;
+  margin-top: 2px;
 }
 .threat-toggle-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 8px;
-  padding-top: 8px;
+  margin-top: 6px;
+  padding-top: 6px;
   border-top: 1px solid rgba(255,255,255,0.06);
 }
 .threat-toggle-btn {
   font-size: 10px;
   font-weight: 700;
-  padding: 4px 10px;
+  padding: 3px 9px;
   border-radius: 6px;
   border: 1px solid var(--border);
   background: transparent;
@@ -4970,7 +4970,7 @@ to  {
   align-items: center;
   gap: 10px;
   justify-content: space-between;
-  margin: 2px 0 6px;
+  margin: 0 0 2px;
 }
 .threat-hdr-current .threat-hdr-team-solo {
   flex: 1;
@@ -4984,7 +4984,7 @@ to  {
   text-transform: uppercase;
   letter-spacing: 0.6px;
   color: var(--gold);
-  padding: 6px 12px;
+  padding: 4px 10px;
   border: 1px solid rgba(212,168,67,0.4);
   background: rgba(212,168,67,0.06);
   border-radius: 14px;
@@ -5055,13 +5055,13 @@ to  {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
   color: var(--gold);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin: 2px 0 6px;
+  margin: 0;
 }
 .threat-hdr-team-solo .threat-entry-dot {
   flex: 0 0 10px;
