@@ -180,9 +180,10 @@
 </div>
 <div id="lb-legend" style="display:none"></div>
 <div class="lb-count-tag" id="lb-count" style="padding:0;margin:0;display:none"></div>
-<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 14px 4px">
+<div style="display:flex;align-items:center;padding:6px 14px 4px;gap:8px">
 <span class="lb-round-label" id="lb-round-title" style="margin:0">First Round</span>
-<div style="position:relative;width:110px">
+<span id="lb-threat-tagline" style="display:none;margin-left:auto;color:var(--gold);font-size:11px;font-style:italic;letter-spacing:0.3px;white-space:nowrap">Who to root against</span>
+<div id="lb-search-wrap" style="position:relative;width:110px;margin-left:auto">
 <input type="text" id="lb-search" placeholder="Search…" oninput="filterLeaderboardSearch()" autocorrect="off" autocapitalize="off" style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:4px 24px 4px 8px;font-size:10px;color:var(--text);font-family:inherit;outline:none;letter-spacing:0.2px">
 <span id="lb-search-clear" onclick="document.getElementById('lb-search').value='';filterLeaderboardSearch();document.getElementById('lb-search').focus()" style="display:none;position:absolute;right:4px;top:50%;transform:translateY(-50%);width:16px;height:16px;line-height:16px;text-align:center;font-size:11px;color:rgba(255,255,255,0.4);cursor:pointer;border-radius:50%;background:rgba(255,255,255,0.1)">✕</span>
 </div>
@@ -413,12 +414,12 @@
 <script defer src="./js/state.js?v=8b1cd76e"></script>
 <script defer src="./js/event-config.js?v=9b2d5e80"></script>
 <script defer src="./js/utils.js?v=63b914a7"></script>
-<script defer src="./js/api.js?v=ee712b03"></script>
+<script defer src="./js/api.js?v=83d9a17e"></script>
 <script defer src="./js/ui-header.js?v=2a04e91d"></script>
 <script defer src="./js/entry-loader.js?v=8c5b7d61"></script>
 <script defer src="./js/ui-standings.js?v=05e2d9b4"></script>
-<script defer src="./js/ui-leaderboard.js?v=2ae8d826"></script>
-<script defer src="./js/ui-threat.js?v=a91d4e07"></script>
+<script defer src="./js/ui-leaderboard.js?v=4c61b8d3"></script>
+<script defer src="./js/ui-threat.js?v=8e2a1f50"></script>
 <script defer src="./js/ui-scorecard.js?v=cf0da20d"></script>
 <script defer src="./js/ui-compare.js?v=c4a18f02"></script>
 

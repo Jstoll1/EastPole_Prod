@@ -60,8 +60,14 @@ function renderLeaderboard() {
   if (_openScorecardIdx !== null) { _pendingLbRender = true; return; }
   _pendingLbRender = false;
   // Restore search visibility for non-threat modes (threat mode hides it)
+  // and ensure the threat tagline isn't lingering.
   var _lbSearchEl = document.getElementById('lb-search');
-  if (_lbSearchEl && _lbSearchEl.parentNode) _lbSearchEl.parentNode.style.visibility = '';
+  if (_lbSearchEl && _lbSearchEl.parentNode) {
+    _lbSearchEl.parentNode.style.visibility = '';
+    _lbSearchEl.parentNode.style.display = '';
+  }
+  var _tagline = document.getElementById('lb-threat-tagline');
+  if (_tagline) _tagline.style.display = 'none';
   // Branch: Threat Board mode takes over the #leaderboard-list container
   if (lbFilter === 'threat') { renderThreatBoard(); return; }
   var poolNames = new Set(ENTRIES.flatMap(function(e) { return e.picks; }));
