@@ -123,6 +123,7 @@ var FLAGS = {
   'Jeremy Paul':'🇩🇪','Alex Fitzpatrick':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','A.J. Ewart':'🇨🇦',
   'Matthieu Pavon':'🇫🇷','Martin Couvra':'🇫🇷','Adrien Dumont De Chassart':'🇧🇪',
   'Dan Brown':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','John Parry':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Kris Ventura':'🇳🇴',
+  'Travis Smyth':'🇦🇺',
   'Takumi Kanaya':'🇯🇵','Jacob Skov Olesen':'🇩🇰','Camilo Villegas':'🇨🇴',
   'Marcelo Rozo':'🇨🇴','Henrik Norlander':'🇸🇪','Zecheng Dou':'🇨🇳',
   'Stephan Jaeger':'🇩🇪','David Skinns':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Keita Nakajima':'🇯🇵',
@@ -134,6 +135,7 @@ var FLAGS = {
 
 var TIERS = [];
 var NAME_ALIASES = {
+  'Daniel Brown':'Dan Brown',
   'Ludvig Åberg':'Ludvig Aberg',
   'Ángel Cabrera':'Angel Cabrera',
   'Sergio García':'Sergio Garcia',
