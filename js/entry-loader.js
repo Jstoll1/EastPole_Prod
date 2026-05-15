@@ -166,6 +166,12 @@ async function loadPoolEntries(force) {
     }
     if (typeof updateTermLoginButton === 'function') updateTermLoginButton();
     renderPoolRoster();
+    // If the onboarding overlay is open (user dismissed splash before
+    // entries finished loading), refresh its list now.
+    var obEl = document.getElementById('onboarding');
+    if (obEl && obEl.classList.contains('visible') && typeof buildObList === 'function') {
+      buildObList(document.getElementById('ob-search') ? document.getElementById('ob-search').value : '');
+    }
     if (typeof renderAll === 'function') renderAll();
   } catch(e) {
     window.POOL_FETCH_STATE = 'error';
