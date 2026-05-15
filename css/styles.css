@@ -4832,6 +4832,15 @@ to  {
   border: 1px solid rgba(255,107,107,0.25);
   border-radius: 12px;
 }
+.threat-tagline {
+  font-style: italic;
+  font-size: 12px;
+  color: var(--text2);
+  text-align: center;
+  margin-bottom: 8px;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
 .threat-hdr-row {
   display: flex;
   align-items: center;
