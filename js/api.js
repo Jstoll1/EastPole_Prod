@@ -263,6 +263,14 @@ async function fetchESPN() {
       else if (thruRaw >= 18) { thru = c.status?.displayValue || 'F'; }
       else if (scheduled) { thru = c.status?.displayValue || 'F'; }
       else { thru = thruRaw > 0 ? String(thruRaw) : (c.status?.displayValue || 'F'); }
+      // ESPN sometimes parks the raw ISO timestamp in displayValue for
+      // scheduled rows ('2026-05-15T10:50:00Z'). Catch that here so the
+      // renderer's loose isTeeTime check (any colon) doesn't surface the
+      // raw ISO.
+      if (typeof thru === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(thru)) {
+        var _fmt = fmtTeeTime(thru, TOURNEY_COURSE);
+        if (_fmt) thru = _fmt;
+      }
       var startHole = c.status?.startHole || 1;
       var rval = function(idx) { var v = lines[idx]?.value; return (v && v > 50) ? v : null; };
       var tot = lines.reduce(function(s, l) { return (l.value && l.value > 50 ? s + l.value : s); }, 0) || null;

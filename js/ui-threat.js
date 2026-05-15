@@ -136,11 +136,15 @@ function renderThreatBoard() {
   var el = document.getElementById('leaderboard-list');
   if (!el) return;
 
-  // Hide the lb-search bar — it doesn't apply in threat mode
+  // Hide the lb-search bar — it doesn't apply in threat mode.
+  // Use display:none (not visibility:hidden) so the gold "Who to root
+  // against" tagline can take the right-aligned slot.
   var searchWrap = document.getElementById('lb-search');
   if (searchWrap && searchWrap.parentNode) {
-    searchWrap.parentNode.style.visibility = 'hidden';
+    searchWrap.parentNode.style.display = 'none';
   }
+  var tagline = document.getElementById('lb-threat-tagline');
+  if (tagline) tagline.style.display = 'inline';
 
   if (!ENTRIES || !ENTRIES.length) {
     el.innerHTML = '<div class="threat-empty">No entries loaded yet.</div>';
@@ -221,7 +225,6 @@ function renderThreatBoard() {
 
   // --- Header card ---
   html += '<div class="threat-hdr-card">';
-  html += '<div class="threat-tagline">Who to root against</div>';
   // Current entry readout + Change button (collapses to compact row)
   var myPillIdx = -1;
   currentUserTeams.forEach(function(t, idx) {
