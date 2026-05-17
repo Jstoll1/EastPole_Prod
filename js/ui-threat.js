@@ -275,6 +275,22 @@ function renderThreatBoard() {
   html += '<div class="threat-stat"><div class="threat-stat-v ' + cashCls + '">' + cashV + '</div><div class="threat-stat-l">Strokes from $</div></div>';
   html += '<div class="threat-stat"><div class="threat-stat-v ' + cls(myRankedEntry.total) + '">' + fmtTeam(myRankedEntry.total) + '</div><div class="threat-stat-l">Your total</div></div>';
   html += '</div>';
+  // Your contributing four — compact strip so the user can see which
+  // golfers are currently posting their score without leaving threat mode.
+  html += '<div class="threat-hdr-top4">';
+  myRankedEntry.top4.forEach(function(g) {
+    var flag = FLAGS[g.name] || '';
+    var lastName = g.name.split(' ').slice(-1)[0];
+    var isMc = g.score === 11 || g.score === 12;
+    var scDisp = isMc ? (g.score === 12 ? 'WD' : 'MC') : fmt(g.score);
+    var scCl = isMc ? 'mc' : cls(g.score);
+    html += '<span class="t4-chip">'
+      + '<span class="t4-flag">' + flag + '</span>'
+      + '<span class="t4-name">' + escHtml(lastName) + '</span>'
+      + '<span class="t4-score ' + scCl + '">' + scDisp + '</span>'
+      + '</span>';
+  });
+  html += '</div>';
   // Net/All toggle
   html += '<div class="threat-toggle-row">';
   html += '<button class="threat-toggle-btn ' + (_threatNetMode ? 'active' : '') + '" onclick="toggleThreatNet()">Net threats only</button>';
