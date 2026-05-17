@@ -376,21 +376,7 @@ function renderH2HInline() {
       + '<span class="hp-holes">' + r.holes + '</span>';
   }
 
-  // Shared picks
-  var sharedList = Array.from(sharedSet).map(function(name) {
-    var g = cA.scores.find(function(x) { return x.name === name; });
-    return g ? pickFields(g) : null;
-  }).filter(Boolean).sort(function(a, b) { return a.score - b.score; });
-  if (sharedList.length > 0) {
-    html += '<div class="h2h-section">';
-    html += '<div class="h2h-section-hdr">Shared picks (' + sharedList.length + ')</div>';
-    sharedList.forEach(function(r) {
-      html += '<div class="h2h-shared-row">' + pickRowHtml(r) + '</div>';
-    });
-    html += '</div>';
-  }
-
-  // Unique picks — paired side-by-side
+  // Unique picks first — these are where the entries actually differ.
   var uniqueA = cA.scores.filter(function(g) { return !sharedSet.has(g.name); });
   var uniqueB = cB.scores.filter(function(g) { return !sharedSet.has(g.name); });
   if (uniqueA.length > 0 || uniqueB.length > 0) {
@@ -418,6 +404,20 @@ function renderH2HInline() {
       }
       html += '</div>';
     }
+    html += '</div>';
+  }
+
+  // Shared picks below — same golfer + score for both, baseline reference.
+  var sharedList = Array.from(sharedSet).map(function(name) {
+    var g = cA.scores.find(function(x) { return x.name === name; });
+    return g ? pickFields(g) : null;
+  }).filter(Boolean).sort(function(a, b) { return a.score - b.score; });
+  if (sharedList.length > 0) {
+    html += '<div class="h2h-section">';
+    html += '<div class="h2h-section-hdr">Shared picks (' + sharedList.length + ')</div>';
+    sharedList.forEach(function(r) {
+      html += '<div class="h2h-shared-row">' + pickRowHtml(r) + '</div>';
+    });
     html += '</div>';
   }
 
