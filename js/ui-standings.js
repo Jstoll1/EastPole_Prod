@@ -410,7 +410,15 @@ function renderStandings() {
     var holesTag = ROUND_START_ROUND >= 4 ? (teamHolesLeft > 0 ? '<span class="s-holes">' + teamHolesLeft + '</span>' : '') : '';
     var inMoney = TOURNEY_FINAL && rank <= 3;
     var moneyIcon = inMoney ? (rank === 1 ? '🏆' : '💰') : '';
-    html += '<div class="tv-row st-row' + isMyTeam + cmpCls + cmpSelCls + (inMoney ? ' in-money' : '') + '" onclick="' + rowClick + '" style="cursor:pointer">'
+    // Flash on rank change since last render. PREV_RANKS holds the prior
+    // values; it's overwritten at the end of this function so the
+    // comparison still sees the previous render's rank here.
+    var prevRk = PREV_RANKS[entryKey];
+    var flashCls = '';
+    if (prevRk && prevRk !== rank) {
+      flashCls = prevRk > rank ? ' rank-flash-up' : ' rank-flash-down';
+    }
+    html += '<div class="tv-row st-row' + isMyTeam + cmpCls + cmpSelCls + (inMoney ? ' in-money' : '') + flashCls + '" onclick="' + rowClick + '" style="cursor:pointer">'
         + '<div class="tv-pos">' + (moneyIcon || rank) + moveHtml + '</div>'
         + '<div class="tv-player"><span class="st-expand-arrow">▾</span><span class="tv-name' + (isMyTeam ? ' is-my-pick' : '') + '">' + escHtml(e.team) + '</span>' + cmpBadge + ' <span class="tv-country">' + escHtml(e.entrant) + '</span>' + holesTag + '</div>'
         + '<div class="tv-today ' + todayCls + '">' + todayDisp + '</div>'
