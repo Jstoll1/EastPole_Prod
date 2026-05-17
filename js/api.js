@@ -419,14 +419,16 @@ async function fetchESPN() {
     lastFetchTime = Date.now();
 
     // Detect tournament final + winning score for tiebreaker resolution
+    // Gate on ESPN's authoritative STATUS_FINAL — mid-R4 a golfer 12-13 holes in
+    // can have a running stroke count > 50 stored in r4, which previously tripped
+    // the "all rounds complete" heuristic and flipped the app to FINAL during play.
     var _actives = Object.values(freshScores).filter(function(g) { return g.score !== 11 && g.score !== 12; });
     var _maxR = 0;
     _actives.forEach(function(g) { var cnt = [g.r1,g.r2,g.r3,g.r4].filter(function(r){return r!=null && r>50;}).length; if(cnt>_maxR) _maxR=cnt; });
     var _allFinished = _actives.length > 0 && _actives.every(function(g) {
-      // Authoritative signal: R4 score exists for every active golfer (ESPN thru text varies: F, Final, FT, F*, etc.)
       return g.r4 != null && g.r4 > 50;
     });
-    TOURNEY_FINAL = _maxR >= 4 && _allFinished;
+    TOURNEY_FINAL = evStatus === 'STATUS_FINAL' && _maxR >= 4 && _allFinished;
     if (TOURNEY_FINAL) {
       var lowestScore = Infinity;
       _actives.forEach(function(g) { if (g.score < lowestScore) lowestScore = g.score; });
