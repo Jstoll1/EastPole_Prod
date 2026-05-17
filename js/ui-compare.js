@@ -383,11 +383,6 @@ function renderH2HInline() {
     html += '<div class="h2h-section">';
     html += '<div class="h2h-section-hdr">Unique picks</div>';
     html += '<div class="h2h-unique-hdr"><div class="left">' + escHtml(cA.team) + '</div><div class="right">' + escHtml(cB.team) + '</div></div>';
-    var sideCols = '<span class="hp-collbl"></span><span class="hp-collbl"></span><span class="hp-collbl">TOT</span><span class="hp-collbl">TDY</span><span class="hp-collbl">HLS</span>';
-    html += '<div class="h2h-unique-row h2h-unique-collabels">'
-      + '<div class="h2h-unique-cell left collabels">' + sideCols + '</div>'
-      + '<div class="h2h-unique-cell right collabels">' + sideCols + '</div>'
-      + '</div>';
     var rows = Math.max(uniqueA.length, uniqueB.length);
     var topA = new Set(cA.top4.map(function(g) { return g.name; }));
     var topB = new Set(cB.top4.map(function(g) { return g.name; }));
