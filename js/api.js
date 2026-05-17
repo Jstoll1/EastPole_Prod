@@ -510,7 +510,21 @@ function setApiStatus(state, text) {
   if (ticker) ticker.textContent = _tickerMode === 'entries' ? 'POOL' : 'PGA';
 }
 
-function refreshData() { setApiStatus('', 'Refreshing…'); fetchESPN(); }
+function refreshData() {
+  setApiStatus('', 'Refreshing…');
+  // Visual ack on the header pill — without this the fetch can finish in
+  // <300ms and the user sees no change so the tap feels dead.
+  var pill = document.querySelector('.hdr-pill');
+  if (pill) {
+    pill.classList.add('is-refreshing');
+    setTimeout(function() { pill.classList.remove('is-refreshing'); }, 700);
+  }
+  // Force-refresh DG predictions + pool sheet alongside ESPN so a tap of
+  // the LIVE pill genuinely pulls all three feeds, not just scores.
+  if (typeof fetchDGLivePreds === 'function') fetchDGLivePreds(true);
+  if (typeof loadPoolEntries === 'function') loadPoolEntries(true);
+  fetchESPN();
+}
 
 // ─── DataGolf live in-play predictions ───
 var _dgLastFetch = 0;
