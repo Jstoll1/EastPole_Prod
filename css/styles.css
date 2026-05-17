@@ -5029,6 +5029,30 @@ to  {
   color: rgba(255,255,255,0.4);
   margin-top: 2px;
 }
+.threat-hdr-top4 {
+  display: flex;
+  gap: 4px;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+.t4-chip {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  background: rgba(0,0,0,0.25);
+  border-radius: 6px;
+  font-size: 11px;
+  min-width: 0;
+}
+.t4-flag { font-size: 12px; flex: 0 0 auto; }
+.t4-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; color: var(--text); }
+.t4-score { font-weight: 800; font-variant-numeric: tabular-nums; flex: 0 0 auto; }
+.t4-score.neg { color: #ff7070; }
+.t4-score.pos { color: var(--gold); }
+.t4-score.eve { color: var(--text2); }
+.t4-score.mc  { color: var(--red); }
 .threat-toggle-row {
   display: flex;
   align-items: center;
