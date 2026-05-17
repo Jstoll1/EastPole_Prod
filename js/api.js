@@ -680,7 +680,7 @@ async function fetchDGLivePreds(force) {
 var _autoRefresh = null;
 
 function _onVisibilityChange() {
-  if (!document.hidden && lastFetchTime && (Date.now() - lastFetchTime > 30000)) {
+  if (!document.hidden && lastFetchTime && (Date.now() - lastFetchTime > 15000)) {
     fetchESPN();
   }
 }
@@ -690,7 +690,7 @@ function startAutoRefresh() {
   _autoRefresh = setInterval(function() {
     if (document.hidden) return;
     fetchESPN();
-  }, 60000);
+  }, 30000);
 
   // Refresh immediately when user returns to tab
   document.addEventListener('visibilitychange', _onVisibilityChange);
