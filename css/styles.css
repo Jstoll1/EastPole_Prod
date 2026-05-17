@@ -3949,6 +3949,15 @@ to  {
 }
 .h2h-unique-cell.is-top { background: rgba(212,168,67,0.08); border: 1px solid rgba(212,168,67,0.25); }
 .h2h-unique-cell.empty { background: transparent; }
+.h2h-unique-collabels .h2h-unique-cell { background: transparent; padding: 0 6px 2px; }
+.hp-collbl {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text3);
+  text-align: right;
+}
 .hp-flag { font-size: 13px; }
 .hp-name { font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
 .hp-tot { font-weight: 800; font-variant-numeric: tabular-nums; text-align: right; }
