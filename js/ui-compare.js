@@ -282,205 +282,146 @@ function renderH2HInline() {
   var prob = calcWinProbability(entryA, entryB);
   var pctLeft = prob.pctA;
   var pctRight = prob.pctB;
-
-  // Pool rank map + leader + shared picks + best/worst (carrier/drag) for each side
-  var rankedPool = getRanked();
-  var rankMap = {}; var rk = 1;
-  rankedPool.forEach(function(e, i) {
-    if (i > 0 && rankedPool[i].total !== rankedPool[i-1].total) rk = i + 1;
-    rankMap[e.team + '|' + e.email] = rk;
-  });
-  var rankA = rankMap[entryA.team + '|' + entryA.email] || 0;
-  var rankB = rankMap[entryB.team + '|' + entryB.email] || 0;
-  var totalEntries = ENTRIES.length;
-
   var leftLeads = cA.total < cB.total;
   var rightLeads = cB.total < cA.total;
 
-  var picksA = new Set(entryA.picks);
-  var sharedSet = new Set(entryB.picks.filter(function(p) { return picksA.has(p); }));
-
-  function computeBestWorst(top4) {
-    var best = null, worst = null;
+  function teamToday(top4) {
+    var sum = 0, count = 0;
     top4.forEach(function(g) {
-      if (g.score >= 11) return; // skip MC/WD
-      if (best === null || g.score < best.score) best = g;
-      if (worst === null || g.score > worst.score) worst = g;
+      var gd = GOLFER_SCORES[g.name];
+      if (!gd || gd.score === 11 || gd.score === 12) return;
+      var td = gd.todayDisplay;
+      if (!td || td === '—') return;
+      sum += td === 'E' ? 0 : (parseInt(td.replace('+', ''), 10) || 0);
+      count++;
     });
-    return {
-      bestName: best ? best.name : null,
-      // Only flag a "drag" if that golfer is actually above par
-      worstName: (worst && worst.score > 0) ? worst.name : null
-    };
+    return count > 0 ? sum : null;
   }
-  var bwA = computeBestWorst(cA.top4);
-  var bwB = computeBestWorst(cB.top4);
+  function teamHoles(top4) {
+    return top4.reduce(function(s, g) { return s + getHolesRemaining(g.name); }, 0);
+  }
+  var todayA = teamToday(cA.top4);
+  var todayB = teamToday(cB.top4);
+  var holesA = teamHoles(cA.top4);
+  var holesB = teamHoles(cB.top4);
+  var gap = Math.abs(cA.total - cB.total);
+  var gapText = cA.total === cB.total ? 'TIED' : gap + ' stroke' + (gap > 1 ? 's' : '');
+  var fmtT = function(v) { return v == null ? '—' : v > 0 ? '+' + v : v === 0 ? 'E' : '' + v; };
+  var todayClsFor = function(v) { return v == null ? 'eve' : v < 0 ? 'neg' : v > 0 ? 'pos' : 'eve'; };
 
-  var crownA = leftLeads ? '<span class="h2h-crown">👑</span> ' : '';
-  var crownB = rightLeads ? ' <span class="h2h-crown">👑</span>' : '';
+  var picksASet = new Set(entryA.picks);
+  var sharedSet = new Set(entryB.picks.filter(function(p) { return picksASet.has(p); }));
 
   var html = '<div class="h2h-panel-wrap">';
   html += '<div class="h2h-close-bar"><button class="h2h-close-btn" onclick="exitCompareMode()">✕ Exit Compare</button></div>';
+
+  // --- HERO WIN BAR ---
   html += '<div class="h2h-prob-wrap">';
   html += '<div class="h2h-prob-labels">';
-  html += '<div class="h2h-prob-name left' + (leftLeads ? ' leader' : '') + '">' + crownA + escHtml(cA.team) + '</div>';
-  html += '<div class="h2h-prob-name right' + (rightLeads ? ' leader' : '') + '">' + escHtml(cB.team) + crownB + '</div>';
-  html += '</div>';
-  html += '<div class="h2h-prob-meta-row">';
-  html += '<div class="h2h-prob-meta left">' + (rankA ? ordinal(rankA) + ' of ' + totalEntries : '') + (entryA.name ? ' · ' + escHtml(entryA.name) : '') + '</div>';
-  html += '<div class="h2h-prob-meta right">' + (rankB ? ordinal(rankB) + ' of ' + totalEntries : '') + (entryB.name ? ' · ' + escHtml(entryB.name) : '') + '</div>';
+  html += '<div class="h2h-prob-name left' + (leftLeads ? ' leader' : '') + '">' + (leftLeads ? '<span class="h2h-crown">👑</span> ' : '') + escHtml(cA.team) + '</div>';
+  html += '<div class="h2h-prob-name right' + (rightLeads ? ' leader' : '') + '">' + escHtml(cB.team) + (rightLeads ? ' <span class="h2h-crown">👑</span>' : '') + '</div>';
   html += '</div>';
   html += '<div class="h2h-prob-pcts">';
   html += '<div class="h2h-prob-pct left' + (pctLeft < pctRight ? ' losing' : '') + '">' + pctLeft + '%</div>';
+  html += '<div class="h2h-prob-gap">' + gapText + '</div>';
   html += '<div class="h2h-prob-pct right' + (pctRight < pctLeft ? ' losing' : '') + '">' + pctRight + '%</div>';
   html += '</div>';
   html += '<div class="h2h-bar-track">';
   html += '<div class="h2h-bar-half left"><div class="h2h-bar-fill" style="width:' + pctLeft + '%"></div></div>';
   html += '<div class="h2h-bar-half right"><div class="h2h-bar-fill" style="width:' + pctRight + '%"></div></div>';
-  if (pctLeft > 12) html += '<span class="h2h-bar-label left">WIN</span>';
-  if (pctRight > 12) html += '<span class="h2h-bar-label right">WIN</span>';
+  html += '</div>';
   html += '</div>';
 
-  function teamRoundScore(top4) {
-    var sum = 0, count = 0;
-    top4.forEach(function(g) {
-      var gd = GOLFER_SCORES[g.name];
-      var td = gd ? gd.todayDisplay : null;
-      if (!td || td === '—') return;
-      sum += td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0; count++;
+  // --- STAT BLOCKS ---
+  html += '<div class="h2h-stats">';
+  ['A', 'B'].forEach(function(side) {
+    var c = side === 'A' ? cA : cB;
+    var today = side === 'A' ? todayA : todayB;
+    var holes = side === 'A' ? holesA : holesB;
+    var leads = side === 'A' ? leftLeads : rightLeads;
+    html += '<div class="h2h-stat-block' + (side === 'B' ? ' right' : '') + (leads ? ' leader' : '') + '">';
+    html += '<div class="h2h-stat-tot ' + cls(c.total) + '">' + fmtTeam(c.total) + '</div>';
+    html += '<div class="h2h-stat-row"><span class="lbl">Today</span><span class="val ' + todayClsFor(today) + '">' + fmtT(today) + '</span></div>';
+    html += '<div class="h2h-stat-row"><span class="lbl">Holes left</span><span class="val">' + holes + '</span></div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // --- PICKS: shared first, then unique side-by-side ---
+  function pickFields(g) {
+    var gd = GOLFER_SCORES[g.name];
+    var flag = FLAGS[g.name] || '';
+    var isMc = g.score === 11 || g.score === 12;
+    var todayRaw = gd ? gd.todayDisplay : null;
+    var todayScore = (!todayRaw || todayRaw === '—') ? null : (todayRaw === 'E' ? 0 : parseInt(todayRaw.replace('+', ''), 10) || 0);
+    var todayDisp = todayScore == null ? '' : (todayScore > 0 ? '+' + todayScore : todayScore === 0 ? 'E' : '' + todayScore);
+    var todayCl = todayScore == null ? '' : todayScore < 0 ? 'pos' : todayScore > 0 ? 'neg' : '';
+    var holes = getHolesRemaining(g.name);
+    var holesDisp = isMc ? '—' : holes > 0 ? holes + 'h' : 'F';
+    return {
+      flag: flag,
+      lastName: g.name.split(' ').slice(-1)[0],
+      tot: isMc ? (g.score === 12 ? 'WD' : 'MC') : fmt(g.score),
+      totCl: isMc ? 'mc' : cls(g.score),
+      today: todayDisp, todayCl: todayCl,
+      holes: holesDisp,
+      score: g.score
+    };
+  }
+  function pickRowHtml(r) {
+    return '<span class="hp-flag">' + r.flag + '</span>'
+      + '<span class="hp-name">' + escHtml(r.lastName) + '</span>'
+      + '<span class="hp-tot ' + r.totCl + '">' + r.tot + '</span>'
+      + '<span class="hp-today ' + r.todayCl + '">' + r.today + '</span>'
+      + '<span class="hp-holes">' + r.holes + '</span>';
+  }
+
+  // Shared picks
+  var sharedList = Array.from(sharedSet).map(function(name) {
+    var g = cA.scores.find(function(x) { return x.name === name; });
+    return g ? pickFields(g) : null;
+  }).filter(Boolean).sort(function(a, b) { return a.score - b.score; });
+  if (sharedList.length > 0) {
+    html += '<div class="h2h-section">';
+    html += '<div class="h2h-section-hdr">Shared picks (' + sharedList.length + ')</div>';
+    sharedList.forEach(function(r) {
+      html += '<div class="h2h-shared-row">' + pickRowHtml(r) + '</div>';
     });
-    return { sum: sum, count: count };
-  }
-  var rdA = teamRoundScore(cA.top4);
-  var rdB = teamRoundScore(cB.top4);
-  var fmtRd = function(v) { return v > 0 ? '+' + v : v === 0 ? 'E' : '' + v; };
-  var holesA = cA.top4.reduce(function(s, g) { return s + getHolesRemaining(g.name); }, 0);
-  var holesB = cB.top4.reduce(function(s, g) { return s + getHolesRemaining(g.name); }, 0);
-  var showHoles = ROUND_START_ROUND >= 4;
-
-  html += '<div class="h2h-score-summary">';
-  html += '<div style="text-align:left"><div class="h2h-score-lbl-top">TOT</div><div class="h2h-score-big ' + cls(cA.total) + (leftLeads ? ' leader' : '') + '">' + fmtTeam(cA.total) + '</div><div class="h2h-score-lbl">' + (showHoles ? 'Total · ' + holesA + 'h left' : 'Total') + '</div>';
-  if (rdA.count > 0) html += '<div style="font-size:11px;font-weight:700;margin-top:3px;color:' + (rdA.sum < 0 ? '#52b788' : rdA.sum > 0 ? '#ff7070' : 'var(--text2)') + '">Today: ' + fmtRd(rdA.sum) + '</div>';
-  html += '</div>';
-  if (cA.total === cB.total) {
-    html += '<div class="h2h-tied-badge">TIED</div>';
-  } else {
-    var gap = Math.abs(cA.total - cB.total);
-    html += '<div style="text-align:center;color:var(--text3);font-size:10px;font-weight:700">' + gap + ' stroke' + (gap > 1 ? 's' : '') + '</div>';
-  }
-  html += '<div style="text-align:right"><div class="h2h-score-lbl-top">TOT</div><div class="h2h-score-big ' + cls(cB.total) + (rightLeads ? ' leader' : '') + '">' + fmtTeam(cB.total) + '</div><div class="h2h-score-lbl">' + (showHoles ? 'Total · ' + holesB + 'h left' : 'Total') + '</div>';
-  if (rdB.count > 0) html += '<div style="font-size:11px;font-weight:700;margin-top:3px;color:' + (rdB.sum < 0 ? '#52b788' : rdB.sum > 0 ? '#ff7070' : 'var(--text2)') + '">Today: ' + fmtRd(rdB.sum) + '</div>';
-  html += '</div>';
-  html += '</div>';
-
-  function todayRelPar(top4) {
-    var sum = 0, count = 0;
-    top4.forEach(function(g) {
-      var gd = GOLFER_SCORES[g.name];
-      if (!gd) return;
-      var td = gd ? gd.todayDisplay : null;
-      if (!td || td === '—') return;
-      var today = td === 'E' ? 0 : parseInt(td.replace('+', '')) || 0;
-      sum += today; count++;
-    });
-    return { sum: sum, count: count };
-  }
-  var momA = todayRelPar(cA.top4);
-  var momB = todayRelPar(cB.top4);
-  var totalHolesLeft = cA.top4.reduce(function(s, g) { return s + getHolesRemaining(g.name); }, 0) + cB.top4.reduce(function(s, g) { return s + getHolesRemaining(g.name); }, 0);
-  if (totalHolesLeft > 0 && (momA.count > 0 || momB.count > 0)) {
-    var fmtPar = function(v) { return v > 0 ? '+' + v : v === 0 ? 'E' : '' + v; };
-    var momDiff = momA.sum - momB.sum;
-    var momHtml = '';
-    if (momDiff < 0) {
-      momHtml = '<span style="color:#52b788">▲ ' + escHtml(cA.team) + '</span> gaining today <span style="color:var(--text2)">(' + fmtPar(momA.sum) + ' vs ' + fmtPar(momB.sum) + ')</span>';
-    } else if (momDiff > 0) {
-      momHtml = '<span style="color:#52b788">▲ ' + escHtml(cB.team) + '</span> gaining today <span style="color:var(--text2)">(' + fmtPar(momB.sum) + ' vs ' + fmtPar(momA.sum) + ')</span>';
-    } else {
-      momHtml = 'Even today <span style="color:var(--text2)">(' + fmtPar(momA.sum) + ' each)</span>';
-    }
-    html += '<div class="h2h-momentum">' + momHtml + '</div>';
+    html += '</div>';
   }
 
-  // Round-by-round ledger: how the top-4's gap formed per round
-  function computeRoundScores(top4) {
-    var rounds = [0, 0, 0, 0];
-    var counts = [0, 0, 0, 0];
-    top4.forEach(function(g) {
-      var gd = GOLFER_SCORES[g.name];
-      if (!gd) return;
-      [gd.r1, gd.r2, gd.r3, gd.r4].forEach(function(r, i) {
-        if (r != null && r > 50) {
-          rounds[i] += r - COURSE_PAR;
-          counts[i]++;
-        }
-      });
-    });
-    return { rounds: rounds, counts: counts };
-  }
-  var ledA = computeRoundScores(cA.top4);
-  var ledB = computeRoundScores(cB.top4);
-  var ledgerRounds = [0,1,2,3].filter(function(i) { return ledA.counts[i] > 0 || ledB.counts[i] > 0; });
-  if (ledgerRounds.length > 0) {
-    html += '<div class="h2h-round-ledger">';
-    html += '<div class="h2h-round-hdr">Round by Round (Top 4)</div>';
-    ledgerRounds.forEach(function(i) {
-      var hasA = ledA.counts[i] > 0;
-      var hasB = ledB.counts[i] > 0;
-      var valA = hasA ? fmtTeam(ledA.rounds[i]) + (ledA.counts[i] < 4 ? '*' : '') : '—';
-      var valB = hasB ? fmtTeam(ledB.rounds[i]) + (ledB.counts[i] < 4 ? '*' : '') : '—';
-      var clsA = hasA ? cls(ledA.rounds[i]) : '';
-      var clsB = hasB ? cls(ledB.rounds[i]) : '';
-      var winCls = '';
-      if (hasA && hasB) {
-        if (ledA.rounds[i] < ledB.rounds[i]) winCls = ' a-wins';
-        else if (ledB.rounds[i] < ledA.rounds[i]) winCls = ' b-wins';
+  // Unique picks — paired side-by-side
+  var uniqueA = cA.scores.filter(function(g) { return !sharedSet.has(g.name); });
+  var uniqueB = cB.scores.filter(function(g) { return !sharedSet.has(g.name); });
+  if (uniqueA.length > 0 || uniqueB.length > 0) {
+    html += '<div class="h2h-section">';
+    html += '<div class="h2h-section-hdr">Unique picks</div>';
+    html += '<div class="h2h-unique-hdr"><div class="left">' + escHtml(cA.team) + '</div><div class="right">' + escHtml(cB.team) + '</div></div>';
+    var rows = Math.max(uniqueA.length, uniqueB.length);
+    var topA = new Set(cA.top4.map(function(g) { return g.name; }));
+    var topB = new Set(cB.top4.map(function(g) { return g.name; }));
+    for (var i = 0; i < rows; i++) {
+      var gA = uniqueA[i];
+      var gB = uniqueB[i];
+      html += '<div class="h2h-unique-row">';
+      if (gA) {
+        var rA = pickFields(gA);
+        html += '<div class="h2h-unique-cell left' + (topA.has(gA.name) ? ' is-top' : '') + '">' + pickRowHtml(rA) + '</div>';
+      } else {
+        html += '<div class="h2h-unique-cell left empty"></div>';
       }
-      html += '<div class="h2h-round-row' + winCls + '">'
-        + '<div class="h2h-round-val left ' + clsA + '">' + valA + '</div>'
-        + '<div class="h2h-round-lbl">R' + (i+1) + '</div>'
-        + '<div class="h2h-round-val right ' + clsB + '">' + valB + '</div>'
-        + '</div>';
-    });
-    // Footnote if any partial rounds
-    var hasPartial = ledgerRounds.some(function(i) { return (ledA.counts[i] > 0 && ledA.counts[i] < 4) || (ledB.counts[i] > 0 && ledB.counts[i] < 4); });
-    if (hasPartial) {
-      html += '<div class="h2h-round-foot">* partial — not all 4 scorers through the round</div>';
+      if (gB) {
+        var rB = pickFields(gB);
+        html += '<div class="h2h-unique-cell right' + (topB.has(gB.name) ? ' is-top' : '') + '">' + pickRowHtml(rB) + '</div>';
+      } else {
+        html += '<div class="h2h-unique-cell right empty"></div>';
+      }
+      html += '</div>';
     }
     html += '</div>';
   }
+
   html += '</div>';
-
-  html += '<div class="h2h-matchups">';
-  html += '<div class="h2h-vs-label" style="text-align:center">Head to Head</div>';
-
-  // Shared picks summary
-  if (sharedSet.size > 0) {
-    var sharedNames = Array.from(sharedSet).map(function(n) {
-      return (FLAGS[n] || '') + ' ' + escHtml(n.split(' ').slice(-1)[0]);
-    }).join(' · ');
-    html += '<div class="h2h-shared-banner">⛓ ' + sharedSet.size + ' shared pick' + (sharedSet.size > 1 ? 's' : '') + ' · <span>' + sharedNames + '</span></div>';
-  }
-
-  html += '<div class="h2h-vs-hdr">';
-  html += '<div class="h2h-vs-team left">' + escHtml(cA.team) + '</div>';
-  html += '<div class="h2h-vs-team right">' + escHtml(cB.team) + '</div>';
-  html += '</div>';
-  var maxLen = Math.max(cA.scores.length, cB.scores.length);
-  var ctxA = { sharedSet: sharedSet, bestName: bwA.bestName, worstName: bwA.worstName };
-  var ctxB = { sharedSet: sharedSet, bestName: bwB.bestName, worstName: bwB.worstName };
-  for (var r = 0; r < maxLen; r++) {
-    var isTop = r < 4;
-    var gA = cA.scores[r];
-    var gB = cB.scores[r];
-    html += '<div class="h2h-vs-row ' + (isTop ? 'is-top' : 'is-bench') + '">';
-    html += buildH2HCell(gA, 'left', isTop, ctxA);
-    html += buildH2HRowDiff(gA, gB);
-    html += buildH2HCell(gB, 'right', isTop, ctxB);
-    html += '</div>';
-  }
-  html += '</div></div>';
-
   container.innerHTML = html;
 }
 
