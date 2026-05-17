@@ -1749,6 +1749,16 @@ body.is-standalone .view {
 .tv-row.st-row.panel-open .tv-pos { color: var(--gold); }
 .tv-row.st-row.in-money { background: rgba(245,197,24,0.06); }
 .tv-row.st-row.in-money .tv-pos { font-size: 14px; }
+@keyframes rankFlashUp {
+  0%   { background: rgba(82,183,136,0.35); box-shadow: inset 3px 0 0 0 #52b788; }
+  100% { background: transparent; box-shadow: inset 3px 0 0 0 transparent; }
+}
+@keyframes rankFlashDown {
+  0%   { background: rgba(255,107,107,0.30); box-shadow: inset 3px 0 0 0 #ff6b6b; }
+  100% { background: transparent; box-shadow: inset 3px 0 0 0 transparent; }
+}
+.tv-row.st-row.rank-flash-up   { animation: rankFlashUp 2.2s ease-out; }
+.tv-row.st-row.rank-flash-down { animation: rankFlashDown 2.2s ease-out; }
 .picks-panel.open  {
   display: block;
   background: rgba(13,31,18,0.5);
