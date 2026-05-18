@@ -377,6 +377,21 @@ function renderStandings() {
       + '<div style="font-size:11px;color:var(--text3)">Try a team name or entrant name.</div>'
       + '</div>';
   }
+  // Visible diagnostic when the entire entry list is empty — distinguishes
+  // "still fetching", "fetched but returned 0", and "fetch error" so the
+  // user (and we) don't have to dig into the console to figure it out.
+  if (!displayRanked.length && !stSearch && (!ENTRIES || !ENTRIES.length)) {
+    var fs = window.POOL_FETCH_STATE || 'idle';
+    var msg = '';
+    if (fs === 'loading' || fs === 'idle') msg = 'Loading entries…';
+    else if (fs === 'error') msg = 'Pool sheet failed to load — tap LIVE to retry.';
+    else if (fs === 'ok') msg = 'Pool sheet returned 0 entries. Check that the published TSV is up to date.';
+    else msg = 'No entries loaded (state: ' + fs + ').';
+    html += '<div style="padding:32px 24px;text-align:center;color:var(--text3)">'
+      + '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">' + msg + '</div>'
+      + '<div style="font-size:11px;color:var(--text3)">Pull-to-refresh or tap LIVE.</div>'
+      + '</div>';
+  }
   if (_friendFilterActive) {
     html += '<div class="friend-filter-banner" onclick="_clearFriendFilter()">'
       + '<span>👥 BroChiefs only · ' + displayRanked.length + ' ' + (displayRanked.length === 1 ? 'entry' : 'entries') + '</span>'
