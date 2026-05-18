@@ -382,13 +382,18 @@ function renderStandings() {
   // user (and we) don't have to dig into the console to figure it out.
   if (!displayRanked.length && !stSearch && (!ENTRIES || !ENTRIES.length)) {
     var fs = window.POOL_FETCH_STATE || 'idle';
+    var lastErr = window.POOL_FETCH_LAST_ERROR || '';
     var msg = '';
     if (fs === 'loading' || fs === 'idle') msg = 'Loading entries…';
-    else if (fs === 'error') msg = 'Pool sheet failed to load — tap LIVE to retry.';
-    else if (fs === 'ok') msg = 'Pool sheet returned 0 entries. Check that the published TSV is up to date.';
+    else if (fs === 'error-http') msg = 'Sheet fetch HTTP error.';
+    else if (fs === 'error-network') msg = 'Network/CORS error fetching sheet.';
+    else if (fs === 'error-parse') msg = 'Sheet loaded but parsed 0 rows (header mismatch?).';
+    else if (fs === 'error') msg = 'Pool sheet failed to load.';
+    else if (fs === 'ok') msg = 'Pool sheet returned 0 entries.';
     else msg = 'No entries loaded (state: ' + fs + ').';
     html += '<div style="padding:32px 24px;text-align:center;color:var(--text3)">'
       + '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">' + msg + '</div>'
+      + (lastErr ? '<div style="font-size:10px;color:var(--text3);margin-bottom:6px;font-family:monospace">' + (lastErr).replace(/[<>&]/g, '') + '</div>' : '')
       + '<div style="font-size:11px;color:var(--text3)">Pull-to-refresh or tap LIVE.</div>'
       + '</div>';
   }

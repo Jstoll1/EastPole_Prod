@@ -130,7 +130,8 @@ async function loadPoolEntries(force) {
     var res = await fetch(window.POOL_SHEET_URL || POOL_SHEET_URL, { cache: 'no-store' });
     if (!res.ok) {
       console.warn('⚠️ Pool sheet fetch HTTP ' + res.status);
-      window.POOL_FETCH_STATE = 'error';
+      window.POOL_FETCH_LAST_ERROR = 'HTTP ' + res.status;
+      window.POOL_FETCH_STATE = 'error-http';
       return;
     }
     var text = await res.text();
@@ -138,7 +139,8 @@ async function loadPoolEntries(force) {
     _lastPoolFetch = Date.now();
     if (!entries.length) {
       console.warn('⚠️ Pool sheet returned 0 entries (check headers)');
-      window.POOL_FETCH_STATE = 'error';
+      window.POOL_FETCH_LAST_ERROR = 'parsed 0 rows (bytes=' + text.length + ')';
+      window.POOL_FETCH_STATE = 'error-parse';
       return;
     }
     // Replace the global ENTRIES array in place so everything already
@@ -174,7 +176,8 @@ async function loadPoolEntries(force) {
     }
     if (typeof renderAll === 'function') renderAll();
   } catch(e) {
-    window.POOL_FETCH_STATE = 'error';
+    window.POOL_FETCH_LAST_ERROR = (e && e.message) ? e.message : String(e);
+    window.POOL_FETCH_STATE = 'error-network';
     console.warn('⚠️ Pool entries fetch failed:', e.message);
   }
 }
