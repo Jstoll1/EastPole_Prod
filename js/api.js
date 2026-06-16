@@ -108,9 +108,11 @@ function _extractTourneyMeta(ev) {
   }
   // Update splash text
   var subEl = document.querySelector('.brand-subtext');
-  if (subEl && TOURNEY_NAME) subEl.textContent = TOURNEY_NAME;
+  var splashName = (typeof window.EVENT_DISPLAY_NAME === 'string' && window.EVENT_DISPLAY_NAME) || TOURNEY_NAME || '';
+  if (subEl && splashName) subEl.textContent = splashName;
   var chipEl = document.querySelector('.splash-event-chip');
-  if (chipEl && TOURNEY_DATES) chipEl.textContent = TOURNEY_DATES + (TOURNEY_COURSE ? ' · ' + TOURNEY_COURSE : '');
+  var splashDates = (typeof window.EVENT_DATES_OVERRIDE === 'string' && window.EVENT_DATES_OVERRIDE) || TOURNEY_DATES || '';
+  if (chipEl && splashDates) chipEl.textContent = splashDates + (TOURNEY_COURSE ? ' · ' + TOURNEY_COURSE : '');
 }
 
 async function fetchESPN() {

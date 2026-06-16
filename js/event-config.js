@@ -83,5 +83,18 @@
     if (cfg.course && typeof TOURNEY_COURSE !== 'undefined') {
       window.TOURNEY_COURSE = cfg.course;
     }
+
+    // Date override for the splash chip — pinned dates from the JSON win
+    // over ESPN's "current event" dates, which would otherwise show the
+    // in-between PGA Tour stop (e.g. RBC Canadian Open) until ESPN's
+    // scoreboard flips to the upcoming major on Wednesday.
+    if (cfg.dates && cfg.dates.start) {
+      var s = new Date(cfg.dates.start + 'T12:00:00Z');
+      var e = cfg.dates.end ? new Date(cfg.dates.end + 'T12:00:00Z') : null;
+      var opts = { month: 'short', day: 'numeric', timeZone: 'UTC' };
+      var sStr = s.toLocaleDateString('en-US', opts);
+      var eStr = e ? e.toLocaleDateString('en-US', opts) : '';
+      window.EVENT_DATES_OVERRIDE = e ? (sStr + ' – ' + eStr) : sStr;
+    }
   }
 })();
