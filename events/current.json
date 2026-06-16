@@ -1,12 +1,13 @@
 {
-  "id": "dynamic",
-  "name": "PGA Tour",
-  "course": "Aronimink Golf Club",
+  "id": "us-open-2026",
+  "name": "U.S. Open",
+  "displayName": "U.S. Open",
+  "course": "Shinnecock Hills Golf Club",
   "courseTimezone": "America/New_York",
   "logo": "",
   "dates": {
-    "start": "",
-    "end": ""
+    "start": "2026-06-18",
+    "end": "2026-06-21"
   },
   "pool": {
     "buyIn": 20,
@@ -17,8 +18,8 @@
     "payoutPctOfNet": { "first": 0.70, "second": 0.30 }
   },
   "sheet": {
-    "publishedTsvUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSpe7yx700otc9PkLrS3e2IFefmMBZTPXRTkajxBviO_QreCC0-GvYVqJsNrvW4sUwafpFqfmRI_Mdo/pub?output=tsv"
+    "publishedTsvUrl": ""
   },
-  "previousWinner": "",
+  "previousWinner": "J.J. Spaun",
   "amateurs": []
 }

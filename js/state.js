@@ -170,17 +170,9 @@ var FLAG_TO_CODE = {'🇺🇸':'USA','🇦🇺':'AUS','🇰🇷':'KOR','🇨🇦
 // ESPN serves country codes (3-letter) on c.athlete.flag.alt — convert to emoji
 var CODE_TO_FLAG = {'USA':'🇺🇸','US':'🇺🇸','AUS':'🇦🇺','KOR':'🇰🇷','CAN':'🇨🇦','RSA':'🇿🇦','ZAF':'🇿🇦','DEN':'🇩🇰','DNK':'🇩🇰','SWE':'🇸🇪','FRA':'🇫🇷','JPN':'🇯🇵','JAP':'🇯🇵','IRL':'🇮🇪','BEL':'🇧🇪','ARG':'🇦🇷','TPE':'🇹🇼','TWN':'🇹🇼','VEN':'🇻🇪','PHI':'🇵🇭','PHL':'🇵🇭','PUR':'🇵🇷','PRI':'🇵🇷','GER':'🇩🇪','DEU':'🇩🇪','NZL':'🇳🇿','COL':'🇨🇴','CHN':'🇨🇳','NOR':'🇳🇴','ENG':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','SCO':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','WAL':'🏴󠁧󠁢󠁷󠁬󠁳󠁿','GBR':'🇬🇧','FIN':'🇫🇮','AUT':'🇦🇹','ITA':'🇮🇹','ESP':'🇪🇸','SUI':'🇨🇭','CHE':'🇨🇭','NED':'🇳🇱','NLD':'🇳🇱','ISL':'🇮🇸','NIR':'🇬🇧','MEX':'🇲🇽','MXN':'🇲🇽','THA':'🇹🇭','THL':'🇹🇭','FIJ':'🇫🇯','FJI':'🇫🇯','IND':'🇮🇳','BRA':'🇧🇷','BRZ':'🇧🇷','PAR':'🇵🇾','PRY':'🇵🇾','URU':'🇺🇾','URY':'🇺🇾','CHI':'🇨🇱','CHL':'🇨🇱','PER':'🇵🇪','ECU':'🇪🇨','PAN':'🇵🇦','CRC':'🇨🇷','CRI':'🇨🇷','DOM':'🇩🇴','JAM':'🇯🇲','BAH':'🇧🇸','BHS':'🇧🇸','TRI':'🇹🇹','TTO':'🇹🇹','BAR':'🇧🇧','BRB':'🇧🇧','BER':'🇧🇲','BMU':'🇧🇲','GUA':'🇬🇹','GTM':'🇬🇹','HON':'🇭🇳','HND':'🇭🇳','CUB':'🇨🇺','POR':'🇵🇹','PRT':'🇵🇹','POL':'🇵🇱','CZE':'🇨🇿','CZK':'🇨🇿','SVK':'🇸🇰','HUN':'🇭🇺','ROU':'🇷🇴','BUL':'🇧🇬','BGR':'🇧🇬','CRO':'🇭🇷','HRV':'🇭🇷','SRB':'🇷🇸','SLO':'🇸🇮','SVN':'🇸🇮','GRE':'🇬🇷','GRC':'🇬🇷','TUR':'🇹🇷','ISR':'🇮🇱','LBN':'🇱🇧','SGP':'🇸🇬','MAS':'🇲🇾','MYS':'🇲🇾','IDN':'🇮🇩','INA':'🇮🇩','VIE':'🇻🇳','VNM':'🇻🇳','PAK':'🇵🇰','SRI':'🇱🇰','LKA':'🇱🇰','NEP':'🇳🇵','BAN':'🇧🇩','BGD':'🇧🇩','HKG':'🇭🇰','HK':'🇭🇰','MAC':'🇲🇴','PHI':'🇵🇭','NGR':'🇳🇬','NGA':'🇳🇬','GHA':'🇬🇭','KEN':'🇰🇪','UGA':'🇺🇬','TAN':'🇹🇿','TZA':'🇹🇿','ETH':'🇪🇹','SEN':'🇸🇳','CIV':'🇨🇮','CMR':'🇨🇲','EGY':'🇪🇬','MAR':'🇲🇦','TUN':'🇹🇳','ALG':'🇩🇿','DZA':'🇩🇿','ZIM':'🇿🇼','ZWE':'🇿🇼','NAM':'🇳🇦','BOT':'🇧🇼','BWA':'🇧🇼','MOZ':'🇲🇿','MAD':'🇲🇬','MDG':'🇲🇬','LUX':'🇱🇺','MON':'🇲🇨','MCO':'🇲🇨','LIE':'🇱🇮'};
 
-var PREV_WINNER = 'Rory McIlroy';
+var PREV_WINNER = 'J.J. Spaun';
 
-// 2026 Masters amateurs — displayed with (a) suffix
-var AMATEURS = new Set([
-  'Ethan Fang',
-  'Jackson Herrington',
-  'Brandon Holtz',
-  'Mason Howell',
-  'Fifa Laopakdee',
-  'Mateo Pulcini'
-]);
+var AMATEURS = new Set([]);
 
 // PRE_ODDS: [winner, top5, top10] — 2026 Masters opening odds
 var PRE_ODDS = {
@@ -331,6 +323,7 @@ var COURSE_TZ = {
   'Muirfield Village Golf Club':  'America/New_York',
   'TPC River Highlands':          'America/New_York',
   'Pebble Beach Golf Links':      'America/Los_Angeles',
+  'Shinnecock Hills Golf Club':   'America/New_York',
   'Augusta National Golf Club':   'America/New_York',
   'Bay Hill Club & Lodge':        'America/New_York',
   'TPC Sawgrass':                 'America/New_York',
