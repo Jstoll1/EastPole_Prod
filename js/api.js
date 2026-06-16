@@ -91,13 +91,15 @@ function _extractTourneyMeta(ev) {
       + '</span>';
     hdrCenter.appendChild(wrap);
     // Stack the tournament name on two lines, splitting at the LAST space.
-    // "PGA Championship" → "PGA" / "Championship". "Masters" stays one line.
+    // "PGA Championship" → "PGA" / "Championship". Short names ("Masters",
+    // "U.S. Open") stay on a single line — otherwise "U.S." / "Open" reads
+    // as a broken split rather than an elegant stack.
     var l1 = document.querySelector('.hdr-tourney-line1');
     var l2 = document.querySelector('.hdr-tourney-line2');
     var name = (typeof window.EVENT_DISPLAY_NAME === 'string' && window.EVENT_DISPLAY_NAME) || TOURNEY_NAME || '';
     var lastSpace = name.lastIndexOf(' ');
     if (l1 && l2) {
-      if (lastSpace > 0) {
+      if (lastSpace > 0 && name.length > 12) {
         l1.textContent = '🏆' + name.slice(0, lastSpace);
         l2.textContent = name.slice(lastSpace + 1);
       } else {
