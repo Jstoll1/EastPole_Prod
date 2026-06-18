@@ -875,6 +875,7 @@ var COURSE_COORDS = {
   'Muirfield Village Golf Club':      { lat: 40.153, lon: -83.151 },
   'TPC River Highlands':              { lat: 41.712, lon: -72.691 },
   'Pebble Beach Golf Links':          { lat: 36.569, lon: -121.949 },
+  'Shinnecock Hills Golf Club':       { lat: 40.893, lon: -72.458 },
   'Augusta National Golf Club':       { lat: 33.503, lon: -82.021 },
   'Bay Hill Club & Lodge':            { lat: 28.451, lon: -81.512 },
   'TPC Sawgrass':                     { lat: 30.199, lon: -81.395 },
