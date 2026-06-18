@@ -18,7 +18,7 @@
     "payoutPctOfNet": { "first": 0.70, "second": 0.30 }
   },
   "sheet": {
-    "publishedTsvUrl": ""
+    "publishedTsvUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNKh8Lxdmn_haArQ3ug8Yb3IPUTkaRJAU9IVpYGdYaJfwaXWdOUQ6-x3s7HrsAJ2VlgTCRFWYhEPlD/pub?output=tsv"
   },
   "previousWinner": "J.J. Spaun",
   "amateurs": []
