@@ -457,7 +457,10 @@ function updateStatusBar() {
   var updated = document.getElementById('tsb-updated');
 
   var isFinal = (typeof TOURNEY_FINAL !== 'undefined' && TOURNEY_FINAL);
-  if (name) name.textContent = (typeof TOURNEY_NAME !== 'undefined' && TOURNEY_NAME) ? TOURNEY_NAME.toUpperCase() : '—';
+  if (name) {
+    var tName = (typeof window.EVENT_DISPLAY_NAME === 'string' && window.EVENT_DISPLAY_NAME) || TOURNEY_NAME || '';
+    name.textContent = tName ? tName.toUpperCase() : '—';
+  }
   // ESPN's ev.status.period is sometimes 0/missing even during a live round,
   // so fall back to the max linescore count across active golfers. Counts
   // are 1-based and include the in-progress round, which is what we want
@@ -1092,7 +1095,7 @@ function renderTermWeatherBar() {
     forecast = _nextEventForecast;
   } else {
     tag = 'LIVE';
-    evName = (typeof TOURNEY_NAME !== 'undefined' ? TOURNEY_NAME : '') || '';
+    evName = (typeof window.EVENT_DISPLAY_NAME === 'string' && window.EVENT_DISPLAY_NAME) || (typeof TOURNEY_NAME !== 'undefined' ? TOURNEY_NAME : '') || '';
     evCourse = (typeof TOURNEY_COURSE !== 'undefined' ? TOURNEY_COURSE : '') || '';
     evCity = (typeof TOURNEY_CITY !== 'undefined' ? TOURNEY_CITY : '') || '';
     forecast = _currentEventForecast;
@@ -1606,7 +1609,7 @@ function renderTermCourse() {
 
   var holes = (typeof COURSE_HOLES !== 'undefined' && COURSE_HOLES) ? COURSE_HOLES : null;
   var courseName = (typeof TOURNEY_COURSE !== 'undefined' && TOURNEY_COURSE) || '';
-  var tourneyName = (typeof TOURNEY_NAME !== 'undefined' && TOURNEY_NAME) || '';
+  var tourneyName = (typeof window.EVENT_DISPLAY_NAME === 'string' && window.EVENT_DISPLAY_NAME) || (typeof TOURNEY_NAME !== 'undefined' && TOURNEY_NAME) || '';
   var coursePar = (typeof COURSE_PAR !== 'undefined' && COURSE_PAR) || 72;
 
   if (!holes || !holes.length) {
