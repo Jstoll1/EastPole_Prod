@@ -119,6 +119,10 @@ function _extractTourneyMeta(ev) {
   var chipEl = document.querySelector('.splash-event-chip');
   var splashDates = (typeof window.EVENT_DATES_OVERRIDE === 'string' && window.EVENT_DATES_OVERRIDE) || TOURNEY_DATES || '';
   if (chipEl && splashDates) chipEl.textContent = splashDates + (TOURNEY_COURSE ? ' · ' + TOURNEY_COURSE : '');
+  // Mobile-only weather chip on the round row. No-op on terminal (the
+  // chip element only exists in index.html). Cache inside the function
+  // keeps this cheap on the 30s refresh cycle.
+  if (typeof renderMobileWeather === 'function') renderMobileWeather();
 }
 
 async function fetchESPN() {
@@ -849,3 +853,72 @@ window.fetch = async function() {
     throw e;
   }
 };
+
+// ─── Mobile weather chip (compact forecast next to the round label) ──────
+// Self-contained so terminal.js's existing weather code keeps working
+// unchanged. Same Open-Meteo endpoint, narrower payload (today only).
+var _MOBILE_WX_COORDS = {
+  'Shinnecock Hills Golf Club':   { lat: 40.893, lon: -72.458 },
+  'Aronimink Golf Club':          { lat: 40.011, lon: -75.355 },
+  'Augusta National Golf Club':   { lat: 33.503, lon: -82.021 },
+  'Quail Hollow Club':            { lat: 35.154, lon: -80.821 },
+  'Pebble Beach Golf Links':      { lat: 36.569, lon: -121.949 },
+  'TPC Sawgrass':                 { lat: 30.199, lon: -81.395 },
+  'Torrey Pines Golf Course':     { lat: 32.895, lon: -117.250 }
+};
+function _mobileWxLookupCoords(courseName) {
+  if (!courseName) return null;
+  if (_MOBILE_WX_COORDS[courseName]) return _MOBILE_WX_COORDS[courseName];
+  var lower = courseName.toLowerCase();
+  for (var k in _MOBILE_WX_COORDS) {
+    var kl = k.toLowerCase();
+    if (lower.indexOf(kl) !== -1 || kl.indexOf(lower) !== -1) return _MOBILE_WX_COORDS[k];
+  }
+  return null;
+}
+function _mobileWxIcon(code) {
+  if (code == null) return '☁️';
+  if (code === 0) return '☀️';
+  if (code <= 3) return '🌤️';
+  if (code === 45 || code === 48) return '🌫️';
+  if (code >= 51 && code <= 67) return '🌧️';
+  if (code >= 71 && code <= 77) return '🌨️';
+  if (code >= 80 && code <= 82) return '🌦️';
+  if (code >= 95) return '⛈️';
+  return '☁️';
+}
+var _mobileWxCache = { course: '', daily: null, fetchedAt: 0 };
+async function _fetchMobileWeather(courseName) {
+  var coords = _mobileWxLookupCoords(courseName);
+  if (!coords) return null;
+  var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + coords.lat
+    + '&longitude=' + coords.lon
+    + '&daily=temperature_2m_max,wind_speed_10m_max,weather_code'
+    + '&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=1';
+  try {
+    var res = await fetch(url);
+    if (!res.ok) return null;
+    var data = await res.json();
+    return data.daily || null;
+  } catch (e) { return null; }
+}
+async function renderMobileWeather() {
+  var el = document.getElementById('lb-weather-chip');
+  if (!el) return; // terminal page doesn't have the chip
+  var course = (typeof TOURNEY_COURSE === 'string' && TOURNEY_COURSE) || '';
+  if (!course) return;
+  // Cache for 10 minutes per course — Open-Meteo is free but no reason to hammer it.
+  var stale = Date.now() - _mobileWxCache.fetchedAt > 10 * 60 * 1000;
+  if (_mobileWxCache.course !== course || stale || !_mobileWxCache.daily) {
+    var daily = await _fetchMobileWeather(course);
+    if (!daily) return;
+    _mobileWxCache = { course: course, daily: daily, fetchedAt: Date.now() };
+  }
+  var d = _mobileWxCache.daily;
+  var temp = d.temperature_2m_max && d.temperature_2m_max[0] != null ? Math.round(d.temperature_2m_max[0]) : null;
+  var wind = d.wind_speed_10m_max && d.wind_speed_10m_max[0] != null ? Math.round(d.wind_speed_10m_max[0]) : null;
+  var code = d.weather_code && d.weather_code[0] != null ? d.weather_code[0] : null;
+  if (temp == null) return;
+  el.textContent = _mobileWxIcon(code) + ' ' + temp + '°' + (wind != null ? ' · ' + wind + 'mph' : '');
+  el.style.display = 'inline';
+}
