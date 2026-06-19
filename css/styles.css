@@ -6031,3 +6031,85 @@ to  {
 
 /* ── Sponsor chip (subtle, only on board + standings) ── */
 
+/* ── Weather modal — opened by tapping the round-row weather chip ── */
+.wxm-overlay {
+  position: fixed; inset: 0; z-index: 9998;
+  background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+  -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+  animation: wxmFadeIn 0.18s ease-out;
+}
+@keyframes wxmFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.wxm-card {
+  width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto;
+  background: var(--card, #0d1a26); border: 1px solid var(--border, rgba(255,255,255,0.1));
+  border-radius: 14px; padding: 14px;
+  color: var(--text, #e6e6e6); font-family: inherit;
+  box-shadow: 0 16px 50px rgba(0,0,0,0.6);
+}
+.wxm-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin-bottom: 12px;
+}
+.wxm-title {
+  font-size: 13px; font-weight: 700; letter-spacing: 0.3px;
+  color: var(--text, #e6e6e6);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.wxm-close {
+  flex: 0 0 auto;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text2, #a8b3bd); cursor: pointer;
+  width: 28px; height: 28px; border-radius: 50%;
+  font-size: 13px; line-height: 1; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: inherit;
+}
+.wxm-close:active { background: rgba(255,255,255,0.12); }
+.wxm-rounds {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 6px; margin-bottom: 12px;
+}
+.wxm-round {
+  background: rgba(0,0,0,0.25); border-radius: 8px; padding: 8px 4px;
+  text-align: center; min-width: 0;
+}
+.wxm-round-head {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.4px;
+  color: var(--gold, #d4a843); margin-bottom: 4px;
+}
+.wxm-round-day {
+  color: var(--text2, #a8b3bd); font-weight: 500;
+}
+.wxm-round-icon { font-size: 22px; line-height: 1; margin: 2px 0; }
+.wxm-round-temp {
+  font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums;
+  color: var(--text, #e6e6e6); margin: 2px 0;
+}
+.wxm-round-lo {
+  color: var(--text3, #6b7682); font-weight: 600; font-size: 11px;
+}
+.wxm-round-meta {
+  font-size: 10px; color: var(--text2, #a8b3bd);
+  font-variant-numeric: tabular-nums;
+}
+.wxm-radar {
+  border-radius: 8px; overflow: hidden; background: #000;
+  margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: center;
+}
+.wxm-radar img {
+  display: block; width: 100%; height: auto; max-height: 380px;
+  object-fit: contain;
+}
+.wxm-radar-empty {
+  padding: 22px 8px; text-align: center;
+  color: var(--text3, #6b7682); font-size: 11px;
+  background: rgba(0,0,0,0.25); border-radius: 8px; margin-bottom: 8px;
+}
+.wxm-attrib {
+  text-align: center; font-size: 9px; letter-spacing: 0.5px;
+  color: var(--text3, #6b7682); text-transform: uppercase;
+}
+
