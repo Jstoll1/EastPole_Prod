@@ -1055,18 +1055,21 @@ async function _buildWeatherModalHtml() {
       + '</div>'
       + '</div>';
   });
-  // Radar via RainViewer's embed map — NWS deprecated the /ridge/standard
-  // GIF endpoint we were hitting, and their replacement requires picking a
-  // station + parsing a directory listing. RainViewer is free, global, and
-  // takes a lat/lon directly.
+  // Radar via Windy's embed endpoint — RainViewer's map.html sends
+  // X-Frame-Options that block iframe embedding; Windy's embed2.html is
+  // purpose-built for it and accepts lat/lon directly so we get true
+  // dynamic-per-tournament behavior without picking radar stations.
   var radar = '';
   if (coords) {
-    var radarUrl = 'https://www.rainviewer.com/map.html'
-      + '?loc=' + coords.lat + ',' + coords.lon + ',8'
-      + '&oCS=1&oC=0&oU=0&oF=0&c=3&o=83&lm=1&layer=radar&sm=1&sn=1';
+    var radarUrl = 'https://embed.windy.com/embed2.html'
+      + '?lat=' + coords.lat + '&lon=' + coords.lon
+      + '&detailLat=' + coords.lat + '&detailLon=' + coords.lon
+      + '&zoom=8&level=surface&overlay=radar&product=radar'
+      + '&menu=&message=true&marker=true&type=map&location=coordinates'
+      + '&metricWind=mph&metricTemp=%C2%B0F';
     radar = '<div class="wxm-radar">'
       + '<iframe src="' + radarUrl + '" allowfullscreen loading="lazy"'
-      + ' style="width:100%;height:280px;border:0;display:block"></iframe>'
+      + ' style="width:100%;height:300px;border:0;display:block"></iframe>'
       + '</div>';
   } else {
     radar = '<div class="wxm-radar-empty">Radar unavailable for this venue.</div>';
@@ -1078,6 +1081,6 @@ async function _buildWeatherModalHtml() {
     + '</div>'
     + '<div class="wxm-rounds">' + rounds + '</div>'
     + radar
-    + '<div class="wxm-attrib">Forecast · Open-Meteo&nbsp;·&nbsp;Radar · RainViewer</div>'
+    + '<div class="wxm-attrib">Forecast · Open-Meteo&nbsp;·&nbsp;Radar · Windy.com</div>'
     + '</div>';
 }

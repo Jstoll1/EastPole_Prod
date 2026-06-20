@@ -6097,11 +6097,13 @@ to  {
 .wxm-radar {
   border-radius: 8px; overflow: hidden; background: #000;
   margin-bottom: 8px;
-  display: flex; align-items: center; justify-content: center;
 }
 .wxm-radar img {
   display: block; width: 100%; height: auto; max-height: 380px;
   object-fit: contain;
+}
+.wxm-radar iframe {
+  display: block; width: 100%; height: 300px; border: 0;
 }
 .wxm-radar-empty {
   padding: 22px 8px; text-align: center;
