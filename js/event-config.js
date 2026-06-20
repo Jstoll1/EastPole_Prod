@@ -95,6 +95,10 @@
       var sStr = s.toLocaleDateString('en-US', opts);
       var eStr = e ? e.toLocaleDateString('en-US', opts) : '';
       window.EVENT_DATES_OVERRIDE = e ? (sStr + ' – ' + eStr) : sStr;
+      // Raw ISO start/end so other code (e.g. the weather modal) can
+      // align round indices to specific forecast days.
+      window.EVENT_DATES_START_ISO = cfg.dates.start;
+      window.EVENT_DATES_END_ISO = cfg.dates.end || '';
     }
   }
 })();

@@ -858,13 +858,13 @@ window.fetch = async function() {
 // Self-contained so terminal.js's existing weather code keeps working
 // unchanged. Same Open-Meteo endpoint, narrower payload (today only).
 var _MOBILE_WX_COORDS = {
-  'Shinnecock Hills Golf Club':   { lat: 40.893, lon: -72.458 },
-  'Aronimink Golf Club':          { lat: 40.011, lon: -75.355 },
-  'Augusta National Golf Club':   { lat: 33.503, lon: -82.021 },
-  'Quail Hollow Club':            { lat: 35.154, lon: -80.821 },
-  'Pebble Beach Golf Links':      { lat: 36.569, lon: -121.949 },
-  'TPC Sawgrass':                 { lat: 30.199, lon: -81.395 },
-  'Torrey Pines Golf Course':     { lat: 32.895, lon: -117.250 }
+  'Shinnecock Hills Golf Club':   { lat: 40.893, lon: -72.458, nws: 'OKX' },
+  'Aronimink Golf Club':          { lat: 40.011, lon: -75.355, nws: 'DIX' },
+  'Augusta National Golf Club':   { lat: 33.503, lon: -82.021, nws: 'JGX' },
+  'Quail Hollow Club':            { lat: 35.154, lon: -80.821, nws: 'GSP' },
+  'Pebble Beach Golf Links':      { lat: 36.569, lon: -121.949, nws: 'MUX' },
+  'TPC Sawgrass':                 { lat: 30.199, lon: -81.395, nws: 'JAX' },
+  'Torrey Pines Golf Course':     { lat: 32.895, lon: -117.250, nws: 'NKX' }
 };
 function _mobileWxLookupCoords(courseName) {
   if (!courseName) return null;
@@ -891,10 +891,13 @@ var _mobileWxCache = { course: '', daily: null, fetchedAt: 0 };
 async function _fetchMobileWeather(courseName) {
   var coords = _mobileWxLookupCoords(courseName);
   if (!coords) return null;
+  // 14-day window covers any tournament that starts within ~10 days from
+  // boot. The modal filters down to R1–R4 based on EVENT_DATES_START_ISO;
+  // the chip uses today (index 0).
   var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + coords.lat
     + '&longitude=' + coords.lon
-    + '&daily=temperature_2m_max,wind_speed_10m_max,weather_code'
-    + '&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=1';
+    + '&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max,weather_code'
+    + '&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=14';
   try {
     var res = await fetch(url);
     if (!res.ok) return null;
@@ -921,4 +924,82 @@ async function renderMobileWeather() {
   if (temp == null) return;
   el.textContent = _mobileWxIcon(code) + ' ' + temp + '°' + (wind != null ? ' · ' + wind + 'mph' : '');
   el.style.display = 'inline';
+  // Make the chip tappable — opens the radar + 4-round modal.
+  el.style.cursor = 'pointer';
+  el.onclick = openWeatherModal;
+}
+
+// ─── Weather modal ──────────────────────────────────────────────────────
+// Opens a popup with the four tournament rounds (R1–R4) forecast and a
+// looping NWS Doppler radar GIF. NWS imagery is public-domain so no
+// licensing or attribution traps.
+function openWeatherModal() {
+  var existing = document.getElementById('weather-modal');
+  if (existing) existing.remove();
+  var modal = document.createElement('div');
+  modal.id = 'weather-modal';
+  modal.className = 'wxm-overlay';
+  modal.innerHTML = _buildWeatherModalHtml();
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) closeWeatherModal();
+  });
+  document.body.appendChild(modal);
+}
+function closeWeatherModal() {
+  var el = document.getElementById('weather-modal');
+  if (el) el.remove();
+}
+function _buildWeatherModalHtml() {
+  var course = (typeof TOURNEY_COURSE === 'string' && TOURNEY_COURSE) || '';
+  var coords = _mobileWxLookupCoords(course);
+  var station = (coords && coords.nws) ? coords.nws : '';
+  var d = (_mobileWxCache && _mobileWxCache.daily) || null;
+  var startIso = (typeof window.EVENT_DATES_START_ISO === 'string' && window.EVENT_DATES_START_ISO) || '';
+  var title = ((typeof window.EVENT_DISPLAY_NAME === 'string' && window.EVENT_DISPLAY_NAME) || TOURNEY_NAME || 'Forecast');
+  // Find the index of the tournament start date in daily.time; if absent
+  // or in the past, fall back to today (index 0).
+  var startIdx = 0;
+  if (d && d.time && startIso) {
+    var i = d.time.indexOf(startIso);
+    if (i >= 0) startIdx = i;
+  }
+  var rounds = '';
+  ['R1','R2','R3','R4'].forEach(function(label, k) {
+    var idx = startIdx + k;
+    var t = d && d.temperature_2m_max && d.temperature_2m_max[idx];
+    var lo = d && d.temperature_2m_min && d.temperature_2m_min[idx];
+    var w = d && d.wind_speed_10m_max && d.wind_speed_10m_max[idx];
+    var p = d && d.precipitation_probability_max && d.precipitation_probability_max[idx];
+    var code = d && d.weather_code && d.weather_code[idx];
+    var dateStr = d && d.time && d.time[idx] ? new Date(d.time[idx] + 'T12:00:00Z').toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' }) : '';
+    rounds += '<div class="wxm-round">'
+      + '<div class="wxm-round-head">' + label + (dateStr ? ' · <span class="wxm-round-day">' + dateStr + '</span>' : '') + '</div>'
+      + '<div class="wxm-round-icon">' + _mobileWxIcon(code) + '</div>'
+      + '<div class="wxm-round-temp">' + (t != null ? Math.round(t) + '°' : '—')
+      + (lo != null ? ' <span class="wxm-round-lo">/' + Math.round(lo) + '°</span>' : '')
+      + '</div>'
+      + '<div class="wxm-round-meta">'
+      + (w != null ? Math.round(w) + ' mph' : '—')
+      + (p != null ? ' · ' + p + '%' : '')
+      + '</div>'
+      + '</div>';
+  });
+  var radar = '';
+  if (station) {
+    var radarUrl = 'https://radar.weather.gov/ridge/standard/' + station + '_loop.gif';
+    radar = '<div class="wxm-radar">'
+      + '<img src="' + radarUrl + '" alt="NWS Doppler radar — ' + station + '">'
+      + '</div>';
+  } else {
+    radar = '<div class="wxm-radar-empty">Radar unavailable for this venue.</div>';
+  }
+  return '<div class="wxm-card" onclick="event.stopPropagation()">'
+    + '<div class="wxm-header">'
+    + '<span class="wxm-title">' + title + (course ? ' · ' + course : '') + '</span>'
+    + '<button class="wxm-close" onclick="closeWeatherModal()" aria-label="Close">✕</button>'
+    + '</div>'
+    + '<div class="wxm-rounds">' + rounds + '</div>'
+    + radar
+    + '<div class="wxm-attrib">Forecast · Open-Meteo&nbsp;·&nbsp;Radar · NWS</div>'
+    + '</div>';
 }
