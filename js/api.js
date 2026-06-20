@@ -897,19 +897,34 @@ var _mobileWxCache = { course: '', daily: null, fetchedAt: 0 };
 async function _fetchMobileWeather(courseName) {
   var coords = _mobileWxLookupCoords(courseName);
   if (!coords) return null;
-  // 14-day window covers any tournament that starts within ~10 days from
-  // boot. The modal filters down to R1–R4 based on EVENT_DATES_START_ISO;
-  // the chip uses today (index 0).
+  // 14-day window + 4 past days covers any tournament that started up to
+  // 4 days ago. The modal aligns R1–R4 by matching EVENT_DATES_START_ISO
+  // inside daily.time; the chip just uses today's index. past_days is
+  // mandatory once the tournament is mid-flight — Open-Meteo would
+  // otherwise drop the Thu/Fri columns and R1–R4 would all shift forward.
   var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + coords.lat
     + '&longitude=' + coords.lon
     + '&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max,weather_code'
-    + '&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=14';
+    + '&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&past_days=4&forecast_days=10';
   try {
     var res = await fetch(url);
     if (!res.ok) return null;
     var data = await res.json();
     return data.daily || null;
   } catch (e) { return null; }
+}
+// Today's index inside daily.time. Open-Meteo returns one entry per day
+// keyed by local date (YYYY-MM-DD). With past_days=4 the today slot is
+// no longer index 0 — match by string.
+function _mobileWxTodayIdx(d) {
+  if (!d || !d.time) return -1;
+  var now = new Date();
+  var y = now.getFullYear();
+  var m = String(now.getMonth() + 1).padStart(2, '0');
+  var day = String(now.getDate()).padStart(2, '0');
+  var todayIso = y + '-' + m + '-' + day;
+  var i = d.time.indexOf(todayIso);
+  return i >= 0 ? i : 0;
 }
 async function renderMobileWeather() {
   var el = document.getElementById('lb-weather-chip');
@@ -924,9 +939,10 @@ async function renderMobileWeather() {
     _mobileWxCache = { course: course, daily: daily, fetchedAt: Date.now() };
   }
   var d = _mobileWxCache.daily;
-  var temp = d.temperature_2m_max && d.temperature_2m_max[0] != null ? Math.round(d.temperature_2m_max[0]) : null;
-  var wind = d.wind_speed_10m_max && d.wind_speed_10m_max[0] != null ? Math.round(d.wind_speed_10m_max[0]) : null;
-  var code = d.weather_code && d.weather_code[0] != null ? d.weather_code[0] : null;
+  var ti = _mobileWxTodayIdx(d);
+  var temp = d.temperature_2m_max && d.temperature_2m_max[ti] != null ? Math.round(d.temperature_2m_max[ti]) : null;
+  var wind = d.wind_speed_10m_max && d.wind_speed_10m_max[ti] != null ? Math.round(d.wind_speed_10m_max[ti]) : null;
+  var code = d.weather_code && d.weather_code[ti] != null ? d.weather_code[ti] : null;
   if (temp == null) return;
   el.textContent = _mobileWxIcon(code) + ' ' + temp + '°' + (wind != null ? ' · ' + wind + 'mph' : '');
   el.style.display = 'inline';
@@ -990,11 +1006,18 @@ function _buildWeatherModalHtml() {
       + '</div>'
       + '</div>';
   });
+  // Radar via RainViewer's embed map — NWS deprecated the /ridge/standard
+  // GIF endpoint we were hitting, and their replacement requires picking a
+  // station + parsing a directory listing. RainViewer is free, global, and
+  // takes a lat/lon directly.
   var radar = '';
-  if (station) {
-    var radarUrl = 'https://radar.weather.gov/ridge/standard/' + station + '_loop.gif';
+  if (coords) {
+    var radarUrl = 'https://www.rainviewer.com/map.html'
+      + '?loc=' + coords.lat + ',' + coords.lon + ',8'
+      + '&oCS=1&oC=0&oU=0&oF=0&c=3&o=83&lm=1&layer=radar&sm=1&sn=1';
     radar = '<div class="wxm-radar">'
-      + '<img src="' + radarUrl + '" alt="NWS Doppler radar — ' + station + '">'
+      + '<iframe src="' + radarUrl + '" allowfullscreen loading="lazy"'
+      + ' style="width:100%;height:280px;border:0;display:block"></iframe>'
       + '</div>';
   } else {
     radar = '<div class="wxm-radar-empty">Radar unavailable for this venue.</div>';
@@ -1006,6 +1029,6 @@ function _buildWeatherModalHtml() {
     + '</div>'
     + '<div class="wxm-rounds">' + rounds + '</div>'
     + radar
-    + '<div class="wxm-attrib">Forecast · Open-Meteo&nbsp;·&nbsp;Radar · NWS</div>'
+    + '<div class="wxm-attrib">Forecast · Open-Meteo&nbsp;·&nbsp;Radar · RainViewer</div>'
     + '</div>';
 }
