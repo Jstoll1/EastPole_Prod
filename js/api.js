@@ -42,10 +42,16 @@ function _extractTourneyMeta(ev) {
   }
   var venue = comp && comp.venue;
   var espnCourse = venue ? (venue.fullName || venue.shortName || '') : '';
-  // Don't clobber a value seeded by events/current.json or a previous fetch
-  // when ESPN hasn't yet published the venue.
-  if (espnCourse) TOURNEY_COURSE = espnCourse;
-  else if (!TOURNEY_COURSE) TOURNEY_COURSE = '';
+  // Honor a hard pin from events/current.json — keeps Shinnecock visible
+  // when ESPN's scoreboard is still reporting an in-between tour stop.
+  // Drops to ESPN once the override is cleared (no override key set).
+  if (typeof window.EVENT_COURSE_OVERRIDE === 'string' && window.EVENT_COURSE_OVERRIDE) {
+    TOURNEY_COURSE = window.EVENT_COURSE_OVERRIDE;
+  } else if (espnCourse) {
+    TOURNEY_COURSE = espnCourse;
+  } else if (!TOURNEY_COURSE) {
+    TOURNEY_COURSE = '';
+  }
   if (venue && venue.address) {
     TOURNEY_CITY = venue.address.summary
       || [venue.address.city, venue.address.state || venue.address.country].filter(Boolean).join(', ')

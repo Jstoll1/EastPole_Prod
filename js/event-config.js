@@ -82,6 +82,9 @@
     // venue is missing/blank on subsequent polls.
     if (cfg.course && typeof TOURNEY_COURSE !== 'undefined') {
       window.TOURNEY_COURSE = cfg.course;
+      // Hard pin: prevent api.js from clobbering with ESPN's "current event"
+      // venue while we're still between tournaments. api.js honors this.
+      window.EVENT_COURSE_OVERRIDE = cfg.course;
     }
 
     // Date override for the splash chip — pinned dates from the JSON win
