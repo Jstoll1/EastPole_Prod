@@ -861,17 +861,43 @@ window.fetch = async function() {
 };
 
 // ─── Mobile weather chip (compact forecast next to the round label) ──────
-// Self-contained so terminal.js's existing weather code keeps working
-// unchanged. Same Open-Meteo endpoint, narrower payload (today only).
+// Coords resolve dynamically per tournament: small hand-maintained fast
+// path for venues we've already seen, then Open-Meteo's free geocoding
+// API for anything new. Geocode hits are cached in localStorage so we
+// never re-fetch the same course twice. RainViewer takes lat/lon
+// directly so no station-code mapping is required.
 var _MOBILE_WX_COORDS = {
-  'Shinnecock Hills Golf Club':   { lat: 40.893, lon: -72.458, nws: 'OKX' },
-  'Aronimink Golf Club':          { lat: 40.011, lon: -75.355, nws: 'DIX' },
-  'Augusta National Golf Club':   { lat: 33.503, lon: -82.021, nws: 'JGX' },
-  'Quail Hollow Club':            { lat: 35.154, lon: -80.821, nws: 'GSP' },
-  'Pebble Beach Golf Links':      { lat: 36.569, lon: -121.949, nws: 'MUX' },
-  'TPC Sawgrass':                 { lat: 30.199, lon: -81.395, nws: 'JAX' },
-  'Torrey Pines Golf Course':     { lat: 32.895, lon: -117.250, nws: 'NKX' }
+  'Shinnecock Hills Golf Club':   { lat: 40.893, lon: -72.458 },
+  'Aronimink Golf Club':          { lat: 40.011, lon: -75.355 },
+  'Augusta National Golf Club':   { lat: 33.503, lon: -82.021 },
+  'Quail Hollow Club':            { lat: 35.154, lon: -80.821 },
+  'Pebble Beach Golf Links':      { lat: 36.569, lon: -121.949 },
+  'TPC Sawgrass':                 { lat: 30.199, lon: -81.395 },
+  'Torrey Pines Golf Course':     { lat: 32.895, lon: -117.250 }
 };
+var _WX_GEOCODE_LS_KEY = 'east_pole_wx_geocode_v1';
+var _wxGeocodeCache = (function() {
+  try { return JSON.parse(localStorage.getItem(_WX_GEOCODE_LS_KEY) || '{}') || {}; }
+  catch (e) { return {}; }
+})();
+function _wxGeocodePersist() {
+  try { localStorage.setItem(_WX_GEOCODE_LS_KEY, JSON.stringify(_wxGeocodeCache)); } catch (e) {}
+}
+async function _wxGeocode(query) {
+  if (!query) return null;
+  try {
+    var url = 'https://geocoding-api.open-meteo.com/v1/search'
+      + '?name=' + encodeURIComponent(query)
+      + '&count=1&language=en&format=json';
+    var res = await fetch(url);
+    if (!res.ok) return null;
+    var data = await res.json();
+    var hit = data && data.results && data.results[0];
+    return hit ? { lat: hit.latitude, lon: hit.longitude } : null;
+  } catch (e) { return null; }
+}
+// Sync fast-path lookup against the hand-maintained map. Returns null
+// when no match — caller should fall through to the async resolver.
 function _mobileWxLookupCoords(courseName) {
   if (!courseName) return null;
   if (_MOBILE_WX_COORDS[courseName]) return _MOBILE_WX_COORDS[courseName];
@@ -881,6 +907,24 @@ function _mobileWxLookupCoords(courseName) {
     if (lower.indexOf(kl) !== -1 || kl.indexOf(lower) !== -1) return _MOBILE_WX_COORDS[k];
   }
   return null;
+}
+// Full resolver — fast path → localStorage cache → geocode by course →
+// geocode by ESPN city/state. Caches every hit so subsequent loads are
+// free. Returns { lat, lon } or null.
+async function _mobileWxResolveCoords(courseName) {
+  if (!courseName) return null;
+  var fast = _mobileWxLookupCoords(courseName);
+  if (fast) return fast;
+  if (_wxGeocodeCache[courseName]) return _wxGeocodeCache[courseName];
+  var coords = await _wxGeocode(courseName);
+  if (!coords && typeof TOURNEY_CITY === 'string' && TOURNEY_CITY) {
+    coords = await _wxGeocode(TOURNEY_CITY);
+  }
+  if (coords) {
+    _wxGeocodeCache[courseName] = coords;
+    _wxGeocodePersist();
+  }
+  return coords;
 }
 function _mobileWxIcon(code) {
   if (code == null) return '☁️';
@@ -895,7 +939,7 @@ function _mobileWxIcon(code) {
 }
 var _mobileWxCache = { course: '', daily: null, fetchedAt: 0 };
 async function _fetchMobileWeather(courseName) {
-  var coords = _mobileWxLookupCoords(courseName);
+  var coords = await _mobileWxResolveCoords(courseName);
   if (!coords) return null;
   // 14-day window + 4 past days covers any tournament that started up to
   // 4 days ago. The modal aligns R1–R4 by matching EVENT_DATES_START_ISO
@@ -953,28 +997,33 @@ async function renderMobileWeather() {
 
 // ─── Weather modal ──────────────────────────────────────────────────────
 // Opens a popup with the four tournament rounds (R1–R4) forecast and a
-// looping NWS Doppler radar GIF. NWS imagery is public-domain so no
-// licensing or attribution traps.
-function openWeatherModal() {
+// RainViewer Doppler radar embed centered on the venue. Coords come from
+// the cached lookup populated by the chip's earlier fetch — on a cold
+// open we show a brief skeleton while the async resolver runs.
+async function openWeatherModal() {
   var existing = document.getElementById('weather-modal');
   if (existing) existing.remove();
   var modal = document.createElement('div');
   modal.id = 'weather-modal';
   modal.className = 'wxm-overlay';
-  modal.innerHTML = _buildWeatherModalHtml();
+  modal.innerHTML = '<div class="wxm-card"><div class="wxm-loading">Loading forecast…</div></div>';
   modal.addEventListener('click', function(e) {
     if (e.target === modal) closeWeatherModal();
   });
   document.body.appendChild(modal);
+  var html = await _buildWeatherModalHtml();
+  // Guard against the user closing the modal mid-await
+  if (document.getElementById('weather-modal') === modal) {
+    modal.innerHTML = html;
+  }
 }
 function closeWeatherModal() {
   var el = document.getElementById('weather-modal');
   if (el) el.remove();
 }
-function _buildWeatherModalHtml() {
+async function _buildWeatherModalHtml() {
   var course = (typeof TOURNEY_COURSE === 'string' && TOURNEY_COURSE) || '';
-  var coords = _mobileWxLookupCoords(course);
-  var station = (coords && coords.nws) ? coords.nws : '';
+  var coords = await _mobileWxResolveCoords(course);
   var d = (_mobileWxCache && _mobileWxCache.daily) || null;
   var startIso = (typeof window.EVENT_DATES_START_ISO === 'string' && window.EVENT_DATES_START_ISO) || '';
   var title = ((typeof window.EVENT_DISPLAY_NAME === 'string' && window.EVENT_DISPLAY_NAME) || TOURNEY_NAME || 'Forecast');
