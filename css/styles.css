@@ -6112,4 +6112,9 @@ to  {
   text-align: center; font-size: 9px; letter-spacing: 0.5px;
   color: var(--text3, #6b7682); text-transform: uppercase;
 }
+.wxm-loading {
+  padding: 40px 8px; text-align: center;
+  color: var(--text2, #a8b3bd); font-size: 12px;
+  letter-spacing: 0.3px;
+}
 
