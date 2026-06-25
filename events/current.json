@@ -1,14 +1,5 @@
 {
-  "id": "us-open-2026",
-  "name": "U.S. Open",
-  "displayName": "U.S. Open",
-  "course": "Shinnecock Hills Golf Club",
-  "courseTimezone": "America/New_York",
-  "logo": "",
-  "dates": {
-    "start": "2026-06-18",
-    "end": "2026-06-21"
-  },
+  "id": "dynamic",
   "pool": {
     "buyIn": 20,
     "fifthEntryBuyIn": 10,
