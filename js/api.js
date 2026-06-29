@@ -457,6 +457,11 @@ async function fetchESPN() {
 
     // Determine round status
     var _isPlayoff = allStatusText.indexOf('playoff') !== -1 || espnRoundNumber > 4;
+    // Expose globally so renderers can show a "* Playoff" footnote even
+    // when ESPN flags the playoff but no 5th round data exists yet
+    // (scheduled-but-not-played state, e.g. Sunday night before a Monday
+    // playoff). The local _isPlayoff covers that case via allStatusText.
+    window.IS_PLAYOFF_PENDING = _isPlayoff;
     if (isPreTournament) {
       setApiStatus('scheduled', 'Pre-Tournament');
       setRoundLive(false);
