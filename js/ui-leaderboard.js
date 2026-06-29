@@ -223,6 +223,13 @@ function renderLeaderboard() {
       tvTitle.textContent = 'FIRST ROUND';
     }
   }
+  // Inline "* Playoff" footnote when ESPN flags a playoff (scheduled or
+  // in progress). Sits in the existing round-label row — no table impact.
+  var poNote = document.getElementById('lb-playoff-note');
+  if (poNote) {
+    var playoffPending = isPlayoff || (typeof window.IS_PLAYOFF_PENDING !== 'undefined' && window.IS_PLAYOFF_PENDING);
+    poNote.style.display = playoffPending ? 'inline' : 'none';
+  }
   console.log('🏌️ Round debug: ESPN_ROUND=' + ESPN_ROUND + ' currentRound=' + currentRound + ' anyStillPlaying=' + anyStillPlaying + ' anyHaveTeeTime=' + anyHaveTeeTime + ' completedRoundCount=' + completedRoundCount);
   var sortArrow = function(col) { return lbSort===col ? '<span class="sort-arrow">' + (lbSortAsc ? '▲' : '▼') + '</span>' : ''; };
   var sortCls = function(col) { return lbSort===col ? ' tv-h-active' : ''; };
