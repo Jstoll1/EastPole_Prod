@@ -33,6 +33,17 @@
   function _apply(cfg) {
     if (!cfg || typeof cfg !== 'object') return;
 
+    // Tag <body> with the event id so styles.css can add subtle per-event
+    // accents without touching the durable East Pole brand. Strip any
+    // prior event- class first so switching events cleanly deactivates
+    // the previous theme.
+    if (document && document.body && cfg.id) {
+      Array.prototype.slice.call(document.body.classList).forEach(function(c) {
+        if (c.indexOf('event-') === 0) document.body.classList.remove(c);
+      });
+      document.body.classList.add('event-' + String(cfg.id).replace(/[^a-z0-9-]/gi, '').toLowerCase());
+    }
+
     // Pool config — merge into existing POOL_CONFIG so unspecified keys
     // keep their defaults from state.js.
     if (typeof POOL_CONFIG !== 'undefined') {
