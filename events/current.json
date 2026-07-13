@@ -1,7 +1,7 @@
 {
   "id": "the-open-2026",
   "displayName": "The Open",
-  "hideTrophy": true,
+  "stackTitle": true,
   "pool": {
     "buyIn": 20,
     "fifthEntryBuyIn": 10,

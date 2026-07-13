@@ -73,9 +73,14 @@
     if (cfg.logo) window.EVENT_LOGO_URL = cfg.logo;
 
     // Optional: suppress the default 🏆 emoji prepend even when no logo
-    // is set. Useful when the wordmark alone is the intended treatment
-    // (The Open — big serif "THE OPEN" with no icon competing for space).
+    // is set. Useful when the wordmark alone is the intended treatment.
     window.EVENT_HIDE_TROPHY = cfg.hideTrophy === true;
+
+    // Optional: force the header wordmark to stack across two lines even
+    // when the display name is short enough to fit on one. api.js's
+    // default splitter only stacks when the name is > 12 chars — this
+    // opts short names in (e.g. "The Open" → THE / OPEN).
+    window.EVENT_STACK_TITLE = cfg.stackTitle === true;
 
     // Defending champion (rendered in F1 leaderboard "Def. Champion" badge).
     if (typeof cfg.previousWinner === 'string') {
