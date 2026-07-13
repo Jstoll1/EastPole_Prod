@@ -1,5 +1,6 @@
 {
-  "id": "dynamic",
+  "id": "the-open-2026",
+  "displayName": "The Open",
   "pool": {
     "buyIn": 20,
     "fifthEntryBuyIn": 10,
@@ -11,6 +12,6 @@
   "sheet": {
     "publishedTsvUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNKh8Lxdmn_haArQ3ug8Yb3IPUTkaRJAU9IVpYGdYaJfwaXWdOUQ6-x3s7HrsAJ2VlgTCRFWYhEPlD/pub?output=tsv"
   },
-  "previousWinner": "J.J. Spaun",
+  "previousWinner": "Scottie Scheffler",
   "amateurs": []
 }
