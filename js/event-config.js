@@ -72,6 +72,11 @@
     // trophy SVG.
     if (cfg.logo) window.EVENT_LOGO_URL = cfg.logo;
 
+    // Optional: suppress the default 🏆 emoji prepend even when no logo
+    // is set. Useful when the wordmark alone is the intended treatment
+    // (The Open — big serif "THE OPEN" with no icon competing for space).
+    window.EVENT_HIDE_TROPHY = cfg.hideTrophy === true;
+
     // Defending champion (rendered in F1 leaderboard "Def. Champion" badge).
     if (typeof cfg.previousWinner === 'string') {
       window.PREV_WINNER = cfg.previousWinner;

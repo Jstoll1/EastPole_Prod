@@ -104,10 +104,11 @@ function _extractTourneyMeta(ev) {
     var l2 = document.querySelector('.hdr-tourney-line2');
     var name = (typeof window.EVENT_DISPLAY_NAME === 'string' && window.EVENT_DISPLAY_NAME) || TOURNEY_NAME || '';
     var lastSpace = name.lastIndexOf(' ');
-    // Suppress the 🏆 emoji when a real event logo is configured — the
-    // image already sits to the left of the wordmark and the emoji becomes
-    // a duplicate icon.
-    var trophy = iconHtml ? '' : '🏆';
+    // Suppress the 🏆 emoji when a real event logo is configured (image
+    // already sits to the left of the wordmark and the emoji becomes a
+    // duplicate icon) OR when events/current.json opts out via hideTrophy
+    // (wordmark-alone treatment, e.g. The Open).
+    var trophy = (iconHtml || window.EVENT_HIDE_TROPHY) ? '' : '🏆';
     if (l1 && l2) {
       if (lastSpace > 0 && name.length > 12) {
         l1.textContent = trophy + name.slice(0, lastSpace);
