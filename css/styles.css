@@ -6130,6 +6130,11 @@ body.event-the-open-2026 .splash-event-chip {
   border-color: rgba(139, 74, 145, 0.7);
   box-shadow: 0 0 22px rgba(91, 42, 94, 0.35);
 }
+/* Header itself — swap navy gradient for a dark aubergine so the whole
+   top bar actually reads purple. Wordmark stays white for contrast. */
+body.event-the-open-2026 #hdr {
+  background: linear-gradient(180deg, #3a1a4a 0%, #1a0e2e 100%);
+}
 body.event-the-open-2026 .hdr-tourney-line1,
 body.event-the-open-2026 .hdr-tourney-line2 {
   text-shadow: 0 0 14px rgba(91, 42, 94, 0.55);
