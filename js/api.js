@@ -109,8 +109,13 @@ function _extractTourneyMeta(ev) {
     // duplicate icon) OR when events/current.json opts out via hideTrophy
     // (wordmark-alone treatment, e.g. The Open).
     var trophy = (iconHtml || window.EVENT_HIDE_TROPHY) ? '' : '🏆';
+    // Split when the name is long enough that a single line would crowd the
+    // header, OR when the current event opts in via cfg.stackTitle (short
+    // names like "The Open" split into THE / OPEN for a stacked broadcast
+    // treatment).
+    var forceStack = lastSpace > 0 && (name.length > 12 || window.EVENT_STACK_TITLE);
     if (l1 && l2) {
-      if (lastSpace > 0 && name.length > 12) {
+      if (forceStack) {
         l1.textContent = trophy + name.slice(0, lastSpace);
         l2.textContent = name.slice(lastSpace + 1);
       } else {
