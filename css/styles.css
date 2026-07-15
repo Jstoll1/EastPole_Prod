@@ -6181,6 +6181,25 @@ body.event-the-open-2026 {
   --card: #20102e;
   --card2: #2b1a3e;
 }
+/* A handful of surfaces bake in a greenish-navy rgba (12,30,20,X) or
+   border rgba (26,51,38,X) rather than reading the tokens, so the
+   token override alone leaves them looking blue. Repaint those with
+   aubergine equivalents so the Open theme carries through the whole
+   app end-to-end. */
+body.event-the-open-2026 .tv-row:nth-child(even),
+body.event-the-open-2026 .standing-row:nth-child(even) {
+  background: rgba(48, 24, 60, 0.55);
+}
+body.event-the-open-2026 .tv-row,
+body.event-the-open-2026 .standing-row {
+  border-bottom-color: rgba(80, 50, 110, 0.35);
+}
+body.event-the-open-2026 .seg {
+  background: rgba(48, 24, 60, 0.55);
+}
+body.event-the-open-2026 #nav {
+  background: linear-gradient(180deg, #20102e 0%, #0d051a 100%);
+}
 /* Leaderboard + standings pages — push aubergine into the accents that
    were previously gold-only, so the Open theme reads through the whole
    app instead of stopping at the header. Gold is still the persistent
