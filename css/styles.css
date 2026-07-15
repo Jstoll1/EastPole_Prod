@@ -6172,6 +6172,25 @@ body.event-the-open-2026 .hdr-tourney-line2 {
 body.event-the-open-2026 .hdr-tourney-name {
   gap: 2px;
 }
+/* Leaderboard + standings pages — push aubergine into the accents that
+   were previously gold-only, so the Open theme reads through the whole
+   app instead of stopping at the header. Gold is still the persistent
+   East Pole brand on score/pill colors; only the mode toggles + column
+   accents pick up purple. */
+body.event-the-open-2026 .seg-btn.active {
+  background: rgba(139, 74, 145, 0.22);
+  color: #d4b0dc;
+}
+body.event-the-open-2026 #lb-round-title {
+  color: #d4b0dc;
+}
+body.event-the-open-2026 .tv-h-today {
+  color: #b78ac1;
+}
+body.event-the-open-2026 .payout-card {
+  background: rgba(139, 74, 145, 0.09);
+  border-color: rgba(139, 74, 145, 0.28);
+}
 body.event-the-open-2026 #lb-round-title::before {
   content: '';
   display: inline-block;
