@@ -6180,6 +6180,10 @@ body.event-the-open-2026 {
   --bg: #160724;
   --card: #20102e;
   --card2: #2b1a3e;
+  /* Dune-shift the gold slightly warmer for Open week — reads as coastal
+     champagne rather than generic tournament gold. Cascades to every
+     surface that reads var(--gold). */
+  --gold: #c9a86a;
 }
 /* A handful of surfaces bake in a greenish-navy rgba (12,30,20,X) or
    border rgba (26,51,38,X) rather than reading the tokens, so the
