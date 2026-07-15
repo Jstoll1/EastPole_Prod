@@ -6154,7 +6154,9 @@ body.event-the-open-2026 .hdr-tourney-line2 {
 }
 /* Trophy emoji rendered as a sibling icon (stacked-wordmark mode) —
    sized to match the combined height of the two 13px lines so it reads
-   as a proper header mark, not an inline glyph. */
+   as a proper header mark, not an inline glyph. Negative margin-right
+   pulls the wordmark closer to compensate for iOS emoji's intrinsic
+   padding, so the trophy sits visually flush with THE / OPEN. */
 .hdr-tourney-emoji {
   display: inline-flex;
   align-items: center;
@@ -6162,7 +6164,13 @@ body.event-the-open-2026 .hdr-tourney-line2 {
   font-size: 28px;
   line-height: 1;
   flex-shrink: 0;
+  margin-right: -6px;
   filter: drop-shadow(0 1px 3px rgba(0,0,0,0.4));
+}
+/* Kill the default 8px gap on the flex container when using the emoji
+   icon path — the emoji's own margin-right handles spacing. */
+body.event-the-open-2026 .hdr-tourney-name {
+  gap: 2px;
 }
 body.event-the-open-2026 #lb-round-title::before {
   content: '';
