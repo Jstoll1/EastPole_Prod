@@ -6152,6 +6152,18 @@ body.event-the-open-2026 .hdr-tourney-line1,
 body.event-the-open-2026 .hdr-tourney-line2 {
   text-shadow: 0 0 14px rgba(91, 42, 94, 0.55);
 }
+/* Trophy emoji rendered as a sibling icon (stacked-wordmark mode) —
+   sized to match the combined height of the two 13px lines so it reads
+   as a proper header mark, not an inline glyph. */
+.hdr-tourney-emoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  line-height: 1;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.4));
+}
 body.event-the-open-2026 #lb-round-title::before {
   content: '';
   display: inline-block;
