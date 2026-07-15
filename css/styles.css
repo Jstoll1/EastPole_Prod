@@ -6186,13 +6186,21 @@ body.event-the-open-2026 {
    token override alone leaves them looking blue. Repaint those with
    aubergine equivalents so the Open theme carries through the whole
    app end-to-end. */
+body.event-the-open-2026 .tv-row:nth-child(odd),
+body.event-the-open-2026 .standing-row:nth-child(odd) {
+  background: #160724;
+}
 body.event-the-open-2026 .tv-row:nth-child(even),
 body.event-the-open-2026 .standing-row:nth-child(even) {
-  background: rgba(48, 24, 60, 0.55);
+  background: #23113a;
 }
 body.event-the-open-2026 .tv-row,
 body.event-the-open-2026 .standing-row {
-  border-bottom-color: rgba(80, 50, 110, 0.35);
+  border-bottom: 1px solid rgba(139, 74, 145, 0.18);
+}
+body.event-the-open-2026 .tv-row:hover,
+body.event-the-open-2026 .standing-row:hover {
+  background: #2e1748;
 }
 body.event-the-open-2026 .seg {
   background: rgba(48, 24, 60, 0.55);
