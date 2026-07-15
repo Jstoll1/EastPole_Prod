@@ -6186,12 +6186,16 @@ body.event-the-open-2026 {
    token override alone leaves them looking blue. Repaint those with
    aubergine equivalents so the Open theme carries through the whole
    app end-to-end. */
-body.event-the-open-2026 .tv-row:nth-child(odd),
-body.event-the-open-2026 .standing-row:nth-child(odd) {
+/* Each .tv-row has a hidden .sc-panel sibling immediately after it in
+   the DOM, so .tv-row:nth-child(odd)/(even) misfire — rows are always at
+   even DOM positions. Use 4n+2 / 4n to alternate correctly across the
+   row/panel pairs. */
+body.event-the-open-2026 .tv-row:nth-child(4n+2),
+body.event-the-open-2026 .standing-row:nth-child(4n+2) {
   background: #150522 !important;
 }
-body.event-the-open-2026 .tv-row:nth-child(even),
-body.event-the-open-2026 .standing-row:nth-child(even) {
+body.event-the-open-2026 .tv-row:nth-child(4n),
+body.event-the-open-2026 .standing-row:nth-child(4n) {
   background: #2a134a !important;
 }
 body.event-the-open-2026 .tv-row,
