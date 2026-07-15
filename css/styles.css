@@ -6188,19 +6188,25 @@ body.event-the-open-2026 {
    app end-to-end. */
 body.event-the-open-2026 .tv-row:nth-child(odd),
 body.event-the-open-2026 .standing-row:nth-child(odd) {
-  background: #160724;
+  background: #150522 !important;
 }
 body.event-the-open-2026 .tv-row:nth-child(even),
 body.event-the-open-2026 .standing-row:nth-child(even) {
-  background: #23113a;
+  background: #2a134a !important;
 }
 body.event-the-open-2026 .tv-row,
 body.event-the-open-2026 .standing-row {
-  border-bottom: 1px solid rgba(139, 74, 145, 0.18);
+  border-bottom: 1px solid rgba(139, 74, 145, 0.22);
 }
 body.event-the-open-2026 .tv-row:hover,
 body.event-the-open-2026 .standing-row:hover {
-  background: #2e1748;
+  background: #3a1a5e !important;
+}
+/* Position column — bolder, gold-tinted so it reads as a badge rather
+   than a muted label. Adds visual weight to each row. */
+body.event-the-open-2026 .tv-pos {
+  color: var(--gold);
+  font-weight: 800;
 }
 body.event-the-open-2026 .seg {
   background: rgba(48, 24, 60, 0.55);
