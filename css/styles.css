@@ -6172,6 +6172,15 @@ body.event-the-open-2026 .hdr-tourney-line2 {
 body.event-the-open-2026 .hdr-tourney-name {
   gap: 2px;
 }
+/* Full-theme aubergine — override the base color tokens so every surface
+   that reads var(--bg) / var(--card) / var(--card2) (leaderboard rows,
+   panels, modals) picks up the Open palette automatically. Single
+   source of truth; no per-selector chasing. */
+body.event-the-open-2026 {
+  --bg: #160724;
+  --card: #20102e;
+  --card2: #2b1a3e;
+}
 /* Leaderboard + standings pages — push aubergine into the accents that
    were previously gold-only, so the Open theme reads through the whole
    app instead of stopping at the header. Gold is still the persistent
