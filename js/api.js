@@ -79,6 +79,11 @@ function _extractTourneyMeta(ev) {
   var iconHtml = '';
   if (typeof window.EVENT_LOGO_URL === 'string' && window.EVENT_LOGO_URL) {
     iconHtml = '<img class="hdr-tourney-icon hdr-tourney-icon-img" src="' + window.EVENT_LOGO_URL + '" alt="">';
+  } else if (window.EVENT_STACK_TITLE && !window.EVENT_HIDE_TROPHY) {
+    // Stacked wordmark (e.g. The Open): render the trophy emoji as a
+    // sibling icon so it can scale to the full two-line height instead
+    // of hugging the top line as inline text.
+    iconHtml = '<span class="hdr-tourney-emoji">🏆</span>';
   }
   if (splashLogo) {
     splashLogo.style.display = 'none';
