@@ -6186,31 +6186,34 @@ body.event-the-open-2026 {
    token override alone leaves them looking blue. Repaint those with
    aubergine equivalents so the Open theme carries through the whole
    app end-to-end. */
-/* Each .tv-row has a hidden .sc-panel sibling immediately after it in
-   the DOM, so .tv-row:nth-child(odd)/(even) misfire — rows are always at
-   even DOM positions. Use 4n+2 / 4n to alternate correctly across the
-   row/panel pairs. */
+/* Elegant leaderboard treatment — restrained. Each .tv-row has a hidden
+   .sc-panel sibling right after it in the DOM, so we alternate via
+   4n+2 / 4n (nth-child(odd/even) would misfire). Delta is intentionally
+   whisper-thin — banding for structure, not for pop. */
 body.event-the-open-2026 .tv-row:nth-child(4n+2),
 body.event-the-open-2026 .standing-row:nth-child(4n+2) {
-  background: #150522 !important;
+  background: transparent !important;
 }
 body.event-the-open-2026 .tv-row:nth-child(4n),
 body.event-the-open-2026 .standing-row:nth-child(4n) {
-  background: #2a134a !important;
+  background: rgba(255, 255, 255, 0.018) !important;
 }
 body.event-the-open-2026 .tv-row,
 body.event-the-open-2026 .standing-row {
-  border-bottom: 1px solid rgba(139, 74, 145, 0.22);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.045);
 }
 body.event-the-open-2026 .tv-row:hover,
 body.event-the-open-2026 .standing-row:hover {
-  background: #3a1a5e !important;
+  background: rgba(255, 255, 255, 0.04) !important;
 }
-/* Position column — bolder, gold-tinted so it reads as a badge rather
-   than a muted label. Adds visual weight to each row. */
+/* Position column — refined serif numerals (Playfair Display is already
+   loaded for the header). Muted color so gold stays reserved for score
+   accents. */
 body.event-the-open-2026 .tv-pos {
-  color: var(--gold);
-  font-weight: 800;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 700;
+  color: var(--text2);
+  letter-spacing: 0.5px;
 }
 body.event-the-open-2026 .seg {
   background: rgba(48, 24, 60, 0.55);
