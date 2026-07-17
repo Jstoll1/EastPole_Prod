@@ -884,6 +884,7 @@ window.fetch = async function() {
 // directly so no station-code mapping is required.
 var _MOBILE_WX_COORDS = {
   'Shinnecock Hills Golf Club':   { lat: 40.893, lon: -72.458 },
+  'Royal Birkdale Golf Club':     { lat: 53.629, lon: -3.024 },
   'Aronimink Golf Club':          { lat: 40.011, lon: -75.355 },
   'Augusta National Golf Club':   { lat: 33.503, lon: -82.021 },
   'Quail Hollow Club':            { lat: 35.154, lon: -80.821 },

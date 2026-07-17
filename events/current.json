@@ -2,6 +2,8 @@
   "id": "the-open-2026",
   "displayName": "The Open",
   "stackTitle": true,
+  "course": "Royal Birkdale Golf Club",
+  "courseTimezone": "Europe/London",
   "pool": {
     "buyIn": 20,
     "fifthEntryBuyIn": 10,
