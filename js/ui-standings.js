@@ -1,6 +1,11 @@
 // ── Standings View ──
 
 var _openPanelTeam = null;
+// Snapshot of the actually-rendered list. togglePanel needs to look up
+// team-by-position against what's on screen (filters + sort applied),
+// NOT the raw ranked array — otherwise clicking row N stores the wrong
+// team and the auto-refresh reopens the panel on a neighbor row.
+var _stDisplayRanked = null;
 var standingsSort = 'total';
 var standingsSortDir = 1; // 1 = asc for score, toggled on re-click
 var stSearch = '';
@@ -366,6 +371,9 @@ function renderStandings() {
     displayRanked = pairs.map(function(p) { return p.e; });
     displayRanks = pairs.map(function(p) { return p.r; });
   }
+  // Freeze the list togglePanel will index against — must match what's
+  // rendered, not the raw ranked array.
+  _stDisplayRanked = displayRanked;
 
   var html = '';
   // Empty-after-filter state: a search that matches nothing should say so
@@ -570,8 +578,10 @@ function togglePanel(row, i) {
   var standingRow = panel.previousElementSibling;
   if (standingRow) { if (open) standingRow.classList.add('panel-open'); else standingRow.classList.remove('panel-open'); }
   if (open) {
-    var ranked = getRanked();
-    _openPanelTeam = ranked[i] ? ranked[i].team : null;
+    // Index against the on-screen list, not the raw ranked array — the
+    // two diverge when a search / friend filter is active or a non-total
+    // sort is applied.
+    _openPanelTeam = (_stDisplayRanked && _stDisplayRanked[i]) ? _stDisplayRanked[i].team : null;
   } else {
     _openPanelTeam = null;
   }
