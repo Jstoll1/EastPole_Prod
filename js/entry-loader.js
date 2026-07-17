@@ -56,7 +56,7 @@ function parsePoolTSV(text) {
     timestamp:  find(/timestamp/i),
     email:      find(/e.?mail/i),
     entrant:    find(/^entrant$|^user\s*name$|^username$|your\s*name|full\s*name|first.*last\s*name|last\s*name|^name$/i),
-    team:       find(/entry\s*name|team\s*name|name\s*your\s*entry/i),
+    team:       find(/entry\s*name|team\s*name|name\s*your\s*entry|^entry$|^team$|your\s*entry|your\s*team|pool\s*name|squad|nickname/i),
     tier1:      find(/tier\s*1/i),
     tier2:      find(/tier\s*2/i),
     tier3:      find(/tier\s*3/i),
@@ -139,7 +139,15 @@ async function loadPoolEntries(force) {
     _lastPoolFetch = Date.now();
     if (!entries.length) {
       console.warn('⚠️ Pool sheet returned 0 entries (check headers)');
-      window.POOL_FETCH_LAST_ERROR = 'parsed 0 rows (bytes=' + text.length + ')';
+      // Include the actual column headers so the diagnostic banner tells
+      // us WHAT the parser saw — otherwise "header mismatch?" is a blind
+      // dead end. Truncate + strip HTML chars for safety.
+      var _hdrs = [];
+      try {
+        var _firstLine = (text.replace(/\r/g, '').split('\n')[0] || '').slice(0, 400);
+        _hdrs = _firstLine.split('\t').map(function(h) { return h.trim(); }).filter(Boolean);
+      } catch (_e) {}
+      window.POOL_FETCH_LAST_ERROR = 'parsed 0 rows · headers=[' + _hdrs.join(' | ') + ']';
       window.POOL_FETCH_STATE = 'error-parse';
       return;
     }
