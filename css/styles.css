@@ -2626,17 +2626,30 @@ body.is-standalone .view {
   overflow: hidden;
 }
 
+/* Splash hero — CSS-generated per tournament (zero external images,
+   zero IP risk). Default is the East Pole deep-navy gradient; per-event
+   overrides layer a matching gradient + subtle SVG silhouette scoped by
+   body.event-<id>. See CLAUDE.md for the color-scheme rule. */
 #splash::after {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url('https://royalbirkdale.com/wp-content/uploads/2025/05/RB-The-Open-2-1536x864.jpg');
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
+  background: linear-gradient(180deg, #0a2c5b 0%, #001d3b 100%);
   z-index: 0;
   transform-origin: 50% 52%;
   animation: kenBurns 26s ease-in-out infinite alternate;
+}
+/* The Open — aubergine sky + double dune-silhouette horizon */
+body[class*="event-the-open-"] #splash::after {
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 300' preserveAspectRatio='none'><path d='M0,300 L0,110 C100,80 180,70 260,95 C340,120 420,80 500,100 C580,120 660,95 720,110 L800,115 L800,300 Z' fill='rgba(15,4,25,0.55)'/><path d='M0,300 L0,185 C120,170 220,150 320,175 C440,200 540,165 640,185 C700,195 760,185 800,195 L800,300 Z' fill='rgba(8,2,15,0.7)'/></svg>") center bottom / 100% 55% no-repeat,
+    linear-gradient(180deg, #3a1a4a 0%, #1a0e2e 100%);
+}
+/* The Masters — Augusta green sky + pine silhouettes */
+body[class*="event-masters-"] #splash::after {
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 300' preserveAspectRatio='none'><g fill='rgba(8,26,16,0.72)'><path d='M120,300 L104,220 L86,228 L112,168 L96,172 L120,120 L144,172 L128,168 L154,228 L136,220 Z'/><path d='M680,300 L664,235 L646,242 L672,185 L656,189 L680,140 L704,189 L688,185 L714,242 L696,235 Z'/><path d='M400,300 L386,250 L372,256 L394,210 L382,214 L400,175 L418,214 L406,210 L428,256 L414,250 Z'/><path d='M240,300 L228,255 L216,260 L235,225 L225,228 L240,195 L255,228 L245,225 L264,260 L252,255 Z'/><path d='M560,300 L548,255 L536,260 L555,225 L545,228 L560,195 L575,228 L565,225 L584,260 L572,255 Z'/></g></svg>") center bottom / 100% 65% no-repeat,
+    linear-gradient(180deg, #1e4a2e 0%, #0f2a1a 100%);
 }
 
 @keyframes kenBurns {
