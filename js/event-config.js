@@ -2,9 +2,9 @@
 // Fetches events/current.json at boot and applies its values to the
 // global config that state.js seeds with defaults.
 //
-// Why: switching tournaments used to mean editing POOL_SHEET_URL,
-// POOL_CONFIG.tournamentNameMatch, PREV_WINNER, AMATEURS, COURSE_TZ
-// across 4-5 files. Now drop in a JSON and deploy. See events/README.md.
+// Why: switching tournaments used to mean editing PREV_WINNER, AMATEURS,
+// COURSE_TZ across several files. Now drop in a JSON and deploy. See
+// events/README.md.
 //
 // Boot ordering: state.js loads first (sets defaults), event-config.js
 // loads next (overrides with per-event values), the rest of the app
@@ -42,23 +42,6 @@
         if (c.indexOf('event-') === 0) document.body.classList.remove(c);
       });
       document.body.classList.add('event-' + String(cfg.id).replace(/[^a-z0-9-]/gi, '').toLowerCase());
-    }
-
-    // Pool config — merge into existing POOL_CONFIG so unspecified keys
-    // keep their defaults from state.js.
-    if (typeof POOL_CONFIG !== 'undefined') {
-      if (cfg.pool && typeof cfg.pool === 'object') {
-        Object.keys(cfg.pool).forEach(function(k) { POOL_CONFIG[k] = cfg.pool[k]; });
-      }
-      if (cfg.espn) {
-        if (cfg.espn.tournamentNameMatch) POOL_CONFIG.tournamentNameMatch = cfg.espn.tournamentNameMatch;
-        if (cfg.espn.tournamentDate)      POOL_CONFIG.tournamentDate      = cfg.espn.tournamentDate;
-      }
-    }
-
-    // Pool sheet URL — entry-loader reads this global on every fetch.
-    if (cfg.sheet && cfg.sheet.publishedTsvUrl) {
-      window.POOL_SHEET_URL = cfg.sheet.publishedTsvUrl;
     }
 
     // Optional display-name override. Lets us preview a future event's

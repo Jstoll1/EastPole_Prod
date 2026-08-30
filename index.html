@@ -6,16 +6,16 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="East Pole Golf">
-<title>East Pole Golf Pool</title>
-<meta name="description" content="Live leaderboard and pool standings for the East Pole Coffee Golf Pool. Track your entries, compare head-to-head, and follow hole-by-hole action.">
-<meta property="og:title" content="East Pole Golf Pool">
-<meta property="og:description" content="Live leaderboard, pool standings, and hole-by-hole updates for East Pole Golf Pool.">
+<title>East Pole Golf</title>
+<meta name="description" content="Live PGA Tour leaderboard from East Pole Coffee. Follow the field, compare rounds, and track hole-by-hole action.">
+<meta property="og:title" content="East Pole Golf">
+<meta property="og:description" content="Live PGA Tour leaderboard and hole-by-hole updates from East Pole Coffee.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://leaguestack.app">
 <meta property="og:image" content="https://leaguestack.app/favicon.svg">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="East Pole Golf Pool">
-<meta name="twitter:description" content="Live leaderboard and pool standings for East Pole Golf Pool.">
+<meta name="twitter:title" content="East Pole Golf">
+<meta name="twitter:description" content="Live PGA Tour leaderboard from East Pole Coffee.">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,61 +37,6 @@
 </div>
 <img src="" alt="" class="splash-masters-logo" id="splash-tourney-logo">
 <div class="splash-cta">Tap to Enter</div>
-</div>
-</div>
-<div id="welcome" onclick="if(event.target===this)hideWelcome()">
-<div class="welcome-card" role="dialog" aria-labelledby="welcome-title">
-<button class="welcome-close" onclick="hideWelcome()" aria-label="Close">✕</button>
-<div class="welcome-title" id="welcome-title">Welcome to the pool</div>
-<div class="welcome-sub">A few quick things to know</div>
-<div class="welcome-row">
-<div class="welcome-icon">🔍</div>
-<div class="welcome-text">
-<div class="welcome-label">Find your name</div>
-<div class="welcome-desc">Pick your name to filter your entries across every view automatically.</div>
-</div>
-</div>
-<div class="welcome-row">
-<div class="welcome-icon">🎛</div>
-<div class="welcome-text">
-<div class="welcome-label">Switch entries anytime</div>
-<div class="welcome-desc">Top-right pill, or the All / In Pool toggle above the board.</div>
-</div>
-</div>
-<div class="welcome-row">
-<div class="welcome-icon">⚔️</div>
-<div class="welcome-text">
-<div class="welcome-label">See how you stack up</div>
-<div class="welcome-desc">Hit H2H on Standings to compare any two entries.</div>
-</div>
-</div>
-<div class="welcome-row">
-<div class="welcome-icon">⚡</div>
-<div class="welcome-text">
-<div class="welcome-label">Don't miss a shot</div>
-<div class="welcome-desc">Tap ⚡ for a live feed of every birdie and bogey.</div>
-</div>
-</div>
-<button class="welcome-cta" onclick="hideWelcome()">Got it →</button>
-</div>
-</div>
-<div id="onboarding">
-<div class="ob-top">
-<div class="ob-title">Find Your Team</div>
-<div class="ob-sub">Select your name to personalize your experience</div>
-<button onclick="dismissSplashBrowse()" style="margin-top:8px;padding:7px 20px;background:transparent;border:1.5px solid var(--gold);border-radius:20px;color:var(--gold);font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:0.5px">Just Browse →</button>
-</div>
-<div class="ob-search-wrap">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-<circle cx="11" cy="11" r="8"/>
-<path d="M21 21l-4.35-4.35"/>
-</svg>
-<input class="ob-search-input" id="ob-search" placeholder="Search name…" oninput="filterObNames()" autocorrect="off" autocapitalize="words">
-</div>
-<div class="ob-list" id="ob-list">
-</div>
-<div class="ob-footer">
-<button class="ob-confirm-btn" id="ob-confirm" onclick="confirmOnboarding()">Confirm</button>
 </div>
 </div>
 <header id="hdr">
@@ -116,75 +61,22 @@
 <div id="schedule-list" class="schedule-list"></div>
 </div>
 <div class="hdr-right">
-<div id="hdr-team-display" onclick="toggleTeamDropdown()" style="cursor:pointer">
-<div class="hdr-team-pill">
-<span class="hdr-active-team" id="hdr-active-team"></span>
-<span class="hdr-dropdown-caret" id="hdr-dd-caret">▾</span>
+<button id="theme-toggle-btn" onclick="toggleTheme()" style="background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--text);cursor:pointer;font-weight:600">🌙 Dark</button>
 </div>
-</div>
-<button id="hdr-join-btn" onclick="showOnboarding()" style="display:none">Sign in</button>
-</div>
-</div>
-<div id="team-dropdown">
-<div class="td-header">Entries</div>
-<div id="team-dropdown-list">
-</div>
-<div style="padding:8px 14px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
-<span style="font-size:12px;color:var(--text2);font-weight:600">Theme</span>
-<button id="theme-toggle-btn" onclick="event.stopPropagation();toggleTheme()" style="background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--text);cursor:pointer;font-weight:600">🌙 Dark</button>
-</div>
-<button class="td-change-btn" onclick="event.stopPropagation();closeTeamDropdown();showOnboarding()">Change User</button>
 </div>
 </header>
-<div class="ticker-wrap" ondblclick="toggleTickerMode()">
-<div class="ticker-label">POOL</div>
+<div class="ticker-wrap">
+<div class="ticker-label">PGA</div>
 <div class="ticker-track"><div class="ticker-content" id="ticker-content"></div></div>
 </div>
 <div id="views">
-<div class="view" id="view-standings">
-<div id="standings-cards" style="display:flex;gap:6px;margin:8px 14px 0;"></div>
-<div id="standings-pool-sub" style="margin:4px 14px 6px;font-size:10px;color:var(--text3);line-height:1.4;text-align:center;"></div>
-<div id="my-teams-container"></div>
-<div id="h2h-inline-panel"></div>
-<div id="cmp-hint" style="display:none" class="cmp-hint">Tap two teams to compare</div>
-<div style="display:flex;align-items:center;justify-content:space-between;padding:0 14px 4px">
-<button class="cmp-toggle" id="cmp-toggle" onclick="toggleCompareMode()">⚔️ H2H</button>
-<div style="position:relative;width:110px">
-<input type="text" id="st-search" placeholder="Search…" oninput="filterStandingsSearch()" autocorrect="off" autocapitalize="off" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:4px 24px 4px 8px;font-size:10px;color:var(--text);font-family:inherit;outline:none;letter-spacing:0.2px">
-<span id="st-search-clear" onclick="document.getElementById('st-search').value='';filterStandingsSearch();document.getElementById('st-search').focus()" style="display:none;position:absolute;right:4px;top:50%;transform:translateY(-50%);width:16px;height:16px;line-height:16px;text-align:center;font-size:11px;color:rgba(255,255,255,0.4);cursor:pointer;border-radius:50%;background:rgba(255,255,255,0.1)">✕</span>
-</div>
-</div>
-<div class="st-sticky-hdr">
-<div class="tv-col-hdr" style="margin-top:0">
-<div class="tv-h-pos tv-h-sort" data-st-sort="total" onclick="toggleStandingsSort('total')"># <span class="st-sort-arrow" data-st-arrow="total"></span></div>
-<div class="tv-h-player tv-h-sort" data-st-sort="entry" onclick="toggleStandingsSort('entry')">ENTRY <span class="st-sort-arrow" data-st-arrow="entry"></span></div>
-<div class="tv-h-today tv-h-sort" data-st-sort="today" onclick="toggleStandingsSort('today')">TODAY <span class="st-sort-arrow" data-st-arrow="today"></span></div>
-<div class="tv-h-score tv-h-sort" data-st-sort="total" onclick="toggleStandingsSort('total')">TOTAL <span class="st-sort-arrow" data-st-arrow="total"></span></div>
-</div>
-</div>
-<div id="standings-list">
-</div>
-<div id="standings-footnote" style="padding:12px 14px 0;font-size:10px;color:var(--text3);line-height:1.5;display:none;">
-<strong style="color:var(--text2);">TB</strong> = Tied teams in the top 3 are broken by lowest 5th-best golfer score, then 6th-best. Still tied after 6 = split evenly.
-<br><strong style="color:var(--text2);">MC</strong> = Missed Cut (+11 penalty).
-</div>
-</div>
 <div class="view active" id="view-leaderboard">
 <div class="ptr-indicator" id="ptr-indicator"><span class="ptr-arrow">↓</span><span class="ptr-text">Pull to refresh</span><span class="ptr-spinner"></span></div>
 <div class="lb-sticky-hdr">
-<div class="seg-wrap" style="padding:6px 14px 6px">
-<div class="seg">
-<button class="seg-btn active" onclick="setLbFilter('all',this)">All</button>
-<button class="seg-btn" onclick="setLbFilter('pool',this)">In Pool</button>
-</div>
-</div>
-<div id="lb-legend" style="display:none"></div>
-<div class="lb-count-tag" id="lb-count" style="padding:0;margin:0;display:none"></div>
 <div style="display:flex;align-items:center;padding:6px 14px 4px;gap:8px">
 <span class="lb-round-label" id="lb-round-title" style="margin:0">First Round</span>
 <span id="lb-playoff-note" style="display:none;color:var(--gold);font-size:11px;font-style:italic;letter-spacing:0.3px;white-space:nowrap">* Playoff</span>
 <span id="lb-weather-chip" style="display:none;font-size:11px;color:var(--text2);letter-spacing:0.3px;white-space:nowrap;font-variant-numeric:tabular-nums"></span>
-<span id="lb-threat-tagline" style="display:none;margin-left:auto;color:var(--gold);font-size:11px;font-style:italic;letter-spacing:0.3px;white-space:nowrap">Who to root against</span>
 <div id="lb-search-wrap" style="position:relative;width:110px;margin-left:auto">
 <input type="text" id="lb-search" placeholder="Search…" oninput="filterLeaderboardSearch()" autocorrect="off" autocapitalize="off" style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:4px 24px 4px 8px;font-size:10px;color:var(--text);font-family:inherit;outline:none;letter-spacing:0.2px">
 <span id="lb-search-clear" onclick="document.getElementById('lb-search').value='';filterLeaderboardSearch();document.getElementById('lb-search').focus()" style="display:none;position:absolute;right:4px;top:50%;transform:translateY(-50%);width:16px;height:16px;line-height:16px;text-align:center;font-size:11px;color:rgba(255,255,255,0.4);cursor:pointer;border-radius:50%;background:rgba(255,255,255,0.1)">✕</span>
@@ -198,40 +90,6 @@
 <div class="fb-view-header">
 <span class="fb-view-title">Help</span>
 <button class="fb-view-close" onclick="closeFeedback()">✕</button>
-</div>
-<div class="fb-view-card help-section-card">
-<div class="help-section-title">How it works</div>
-<p class="fb-view-intro" style="margin-bottom:14px">New here? Or need a refresher on how the pool app works?</p>
-<button class="help-section-btn" onclick="showWelcome(true)">Getting Started Guide</button>
-</div>
-<div class="fb-view-card help-section-card">
-<div class="help-section-title">Pool Rules</div>
-<p class="fb-view-intro" style="margin-bottom:10px">The quick version — full email went out before tee-off.</p>
-<div class="help-rules-section">
-<div class="help-rules-h">Rules</div>
-<ul class="help-rules-list">
-<li>Pick <strong>10 golfers</strong> from the tiered pool</li>
-<li><strong>Best 4 scores</strong> count toward your team's foursome — lowest total to par wins</li>
-<li>Up to <strong>5 entries per person</strong></li>
-<li><strong>$20</strong> per entry · 5th entry is <strong>$10</strong></li>
-</ul>
-</div>
-<div class="help-rules-section">
-<div class="help-rules-h">Payouts (top 3)</div>
-<ul class="help-rules-list">
-<li><strong>1st</strong> — 70% of pot (less 3rd-place entry-fee reimbursement)</li>
-<li><strong>2nd</strong> — 30% of pot (less 3rd-place entry-fee reimbursement)</li>
-<li><strong>3rd</strong> — all entry fees reimbursed</li>
-</ul>
-</div>
-<div class="help-rules-section">
-<div class="help-rules-h">Tiebreaker (top 3 only)</div>
-<ul class="help-rules-list">
-<li>5th-best score breaks the tie</li>
-<li>Then 6th-best if still tied</li>
-<li>If still tied after six scores, payout splits evenly among the tied teams</li>
-</ul>
-</div>
 </div>
 <div class="fb-view-card help-section-card" id="fb-form-wrap">
 <div class="help-section-title">Feedback or a question?</div>
@@ -265,15 +123,6 @@
 <div class="fb-view-success-title">Thanks!</div>
 <div class="fb-view-success-text">We got it and we'll get back to you if needed.</div>
 </div>
-<div class="fb-view-card help-section-card help-section-tools">
-<div class="help-section-title">Tools</div>
-<a class="help-tool-link" href="./terminal.html">
-<span class="help-tool-name">Terminal View</span>
-<span class="help-tool-sub">Power-user dashboard — F1 leaderboard, F2 standings, F3 trends, F4 entries, F5 course intel</span>
-<span class="help-tool-arrow">→</span>
-</a>
-</div>
-</div>
 </div>
 <div class="view" id="view-coffee">
 <div class="coffee-view-wrap">
@@ -283,11 +132,11 @@
 <div class="coffee-view-body">
 <div class="coffee-view-discount-banner">
 <span class="cd-star">★</span>
-<span class="cd-text">Pool players: <strong>18% off</strong> with code <strong>DOTGOLF26</strong></span>
+<span class="cd-text">App users: <strong>18% off</strong> with code <strong>DOTGOLF26</strong></span>
 <span class="cd-star">★</span>
 </div>
 <h1 class="coffee-view-tagline">A roastery and coffee bar from Atlanta.</h1>
-<div class="coffee-view-sponsor-pill">Proud Sponsor of the<strong>East Pole dot golf Masters Pool</strong></div>
+<div class="coffee-view-sponsor-pill">Proud Sponsor of<strong>East Pole dot golf</strong></div>
 <h2 class="coffee-view-section-h">Have Coffee With Us</h2>
 <div class="coffee-view-loc">
 <div class="coffee-view-loc-name">Armour Yards</div>
@@ -345,7 +194,7 @@
 <path d="M3 3v18h18"/>
 <path d="M7 16l4-4 4 4 5-5"/>
 </svg> Board </button>
-<button class="nav-btn" onclick="switchTab('standings',this)">
+<button class="nav-btn nav-btn-disabled" disabled title="No pool this year">
 <svg viewBox="0 0 24 24">
 <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C6 4 6 7 6 7"/>
 <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C18 4 18 7 18 7"/>
@@ -353,7 +202,7 @@
 <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
 <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
 <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
-</svg> Standings </button>
+</svg> Pool <span class="nav-btn-sub">No pool</span></button>
 
 <button class="nav-btn" onclick="switchTab('coffee',this)">
 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -418,12 +267,8 @@
 <script defer src="./js/utils.js?v=ad814b27"></script>
 <script defer src="./js/api.js?v=c4e8b210"></script>
 <script defer src="./js/ui-header.js?v=2a04e91d"></script>
-<script defer src="./js/entry-loader.js?v=f3c9a710"></script>
-<script defer src="./js/ui-standings.js?v=e7b39c40"></script>
 <script defer src="./js/ui-leaderboard.js?v=8b3c5e21"></script>
-<script defer src="./js/ui-threat.js?v=2d0a4f81"></script>
 <script defer src="./js/ui-scorecard.js?v=cf0da20d"></script>
-<script defer src="./js/ui-compare.js?v=3b0e9d28"></script>
 
 <script defer src="./js/ui-coffee.js?v=8b146dd4"></script>
 <script defer src="./js/ui-activity.js?v=d76e2095"></script>

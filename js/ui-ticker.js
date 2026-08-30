@@ -1,85 +1,26 @@
 // ── Ticker ──────────────────────────────────────────────────
 
-var _tickerMode = 'entries';
-
-function tickerHasData(mode) {
-  if (mode === 'entries') {
-    return Array.isArray(ENTRIES) && ENTRIES.length > 0;
-  }
-  // golfers mode: any active golfer (score < 11) in GOLFER_SCORES, OR a populated FLAGS list
-  var hasScores = Object.values(GOLFER_SCORES || {}).some(function(g) { return g && g.score < 11; });
-  if (hasScores) return true;
-  return Object.keys(FLAGS || {}).length > 0;
-}
-
-function toggleTickerMode() {
-  var target = _tickerMode === 'entries' ? 'golfers' : 'entries';
-  // Don't toggle into an empty mode — stay where we are if the other side has nothing
-  if (!tickerHasData(target)) {
-    if (!tickerHasData(_tickerMode)) {
-      // Neither has data — just re-render with current mode (will show "No data yet")
-      renderTicker();
-    }
-    return;
-  }
-  _tickerMode = target;
-  trackEvent('ticker-toggle-' + _tickerMode);
-  var label = document.querySelector('.ticker-label');
-  if (label) label.textContent = _tickerMode === 'entries' ? 'POOL' : 'PGA';
-  var track = document.querySelector('.ticker-track');
-  if (track) track.scrollLeft = 0;
-  renderTicker();
-  console.log('🎰 Ticker mode:', _tickerMode);
-}
-
 function renderTicker() {
   var el = document.getElementById('ticker-content');
   if (!el) return;
-  // If current mode has no data but the other one does, silently switch
-  if (!tickerHasData(_tickerMode) && tickerHasData(_tickerMode === 'entries' ? 'golfers' : 'entries')) {
-    _tickerMode = _tickerMode === 'entries' ? 'golfers' : 'entries';
-    var label = document.querySelector('.ticker-label');
-    if (label) label.textContent = _tickerMode === 'entries' ? 'POOL' : 'PGA';
-  }
   var track = document.querySelector('.ticker-track');
-  var prevScroll = track ? track.scrollLeft : 0;
-  var items;
-  if (_tickerMode === 'golfers') {
-    var poolNames = new Set(ENTRIES.flatMap(function(e) { return e.picks; }));
-    var players = Object.entries(GOLFER_SCORES).map(function(pair) { return Object.assign({ name: pair[0] }, pair[1]); });
-    // If GOLFER_SCORES is sparse, supplement from FLAGS
-    if (players.length < 10) {
-      Object.keys(FLAGS).forEach(function(name) {
-        if (!GOLFER_SCORES[name]) {
-          players.push({ name: name, pos: '—', score: 0, thru: '—' });
-        }
-      });
-    }
-    var active = players.filter(function(p) { return p.score < 11; });
-    active.sort(function(a, b) { return a.score - b.score; });
-    items = active.map(function(p) {
-      var scf = fmt(p.score);
-      var scc = cls(p.score);
-      var flag = FLAGS[p.name] || '';
-      var dot = poolNames.has(p.name) ? '<span class="ticker-pool-dot"></span>' : '';
-      return '<span class="ticker-item"><span class="ticker-item-rank">' + p.pos + '</span> <span>' + flag + ' ' + p.name + dot + '</span> <span class="ticker-item-score ' + scc + '">' + scf + '</span></span>';
-    }).join('');
-  } else {
-    var ranked = getRanked();
-    var ranks = [];
-    ranked.forEach(function(e, i) {
-      if (i === 0) ranks.push(1);
-      else ranks.push(e.total === ranked[i - 1].total ? ranks[i - 1] : i + 1);
+  var players = Object.entries(GOLFER_SCORES).map(function(pair) { return Object.assign({ name: pair[0] }, pair[1]); });
+  // If GOLFER_SCORES is sparse, supplement from FLAGS
+  if (players.length < 10) {
+    Object.keys(FLAGS).forEach(function(name) {
+      if (!GOLFER_SCORES[name]) {
+        players.push({ name: name, pos: '—', score: 0, thru: '—' });
+      }
     });
-    items = ranked.map(function(e, i) {
-      var rank = ranks[i];
-      var scf = fmtTeam(e.total);
-      var scc = cls(e.total);
-      var money = rank <= 3 ? ' 💰' : '';
-      var nameStyle = rank <= 3 ? ' style="color:var(--gold)"' : '';
-      return '<span class="ticker-item"><span class="ticker-item-rank">' + rank + '.</span> <span' + nameStyle + '>' + escHtml(e.team) + '</span> <span class="ticker-item-score ' + scc + '">' + scf + '</span>' + money + '</span>';
-    }).join('');
   }
+  var active = players.filter(function(p) { return p.score < 11; });
+  active.sort(function(a, b) { return a.score - b.score; });
+  var items = active.map(function(p) {
+    var scf = fmt(p.score);
+    var scc = cls(p.score);
+    var flag = FLAGS[p.name] || '';
+    return '<span class="ticker-item"><span class="ticker-item-rank">' + p.pos + '</span> <span>' + flag + ' ' + p.name + '</span> <span class="ticker-item-score ' + scc + '">' + scf + '</span></span>';
+  }).join('');
   if (!items) items = '<span class="ticker-item">No data yet</span>';
   el.innerHTML = items + items;
   if (track) track.scrollLeft = 0;

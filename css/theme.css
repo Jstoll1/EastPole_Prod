@@ -29,6 +29,8 @@
 [data-theme="light"] .nav-btn { color: #9a9a8e; }
 [data-theme="light"] .nav-btn.active { color: var(--brand); }
 [data-theme="light"] .nav-btn.active::after { background: var(--brand); }
+[data-theme="light"] .nav-btn-disabled { color: rgba(0,0,0,0.16); }
+[data-theme="light"] .nav-btn-sub { color: rgba(0,0,0,0.14); }
 [data-theme="light"] .ticker-wrap {
   background: var(--brand);
 }

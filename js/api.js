@@ -430,18 +430,6 @@ async function fetchESPN() {
       SCORE_CHANGES = {};
     }
 
-    // Players in picks/FLAGS but missing from ESPN data are likely WD (only during tournament)
-    if (!isPreTournament) {
-      var allPickNames = new Set();
-      ENTRIES.forEach(function(e) { e.picks.forEach(function(p) { allPickNames.add(p); }); });
-      allPickNames.forEach(function(name) {
-        if (!freshScores[name] && FLAGS[name]) {
-          freshScores[name] = { pos: 'WD', score: 12, thru: 'WD', teeTime: '', startHole: 1, tot: null, todayDisplay: '—', r1: null, r2: null, r3: null, r4: null };
-          console.log('⚠️ Marked', name, 'as WD (missing from ESPN data)');
-        }
-      });
-    }
-
     await detectGolfActivity(freshScores);
     GOLFER_SCORES = freshScores;
     ATHLETE_IDS = freshAthleteIds;
@@ -542,8 +530,6 @@ function setApiStatus(state, text) {
   if (dot) dot.className = 'live-dot' + (state === 'live' ? ' on' : '');
   var hdrStatus = document.getElementById('hdr-status');
   if (hdrStatus) hdrStatus.textContent = text;
-  var ticker = document.querySelector('.ticker-label');
-  if (ticker) ticker.textContent = _tickerMode === 'entries' ? 'POOL' : 'PGA';
 }
 
 function refreshData() {
@@ -555,10 +541,9 @@ function refreshData() {
     pill.classList.add('is-refreshing');
     setTimeout(function() { pill.classList.remove('is-refreshing'); }, 700);
   }
-  // Force-refresh DG predictions + pool sheet alongside ESPN so a tap of
-  // the LIVE pill genuinely pulls all three feeds, not just scores.
+  // Force-refresh DG predictions alongside ESPN so a tap of the LIVE pill
+  // genuinely pulls both feeds, not just scores.
   if (typeof fetchDGLivePreds === 'function') fetchDGLivePreds(true);
-  if (typeof loadPoolEntries === 'function') loadPoolEntries(true);
   fetchESPN();
 }
 

@@ -49,8 +49,7 @@ function debugExport() {
     userAgent: navigator.userAgent,
     errors: ErrorTracker.log,
     network: DebugPerf.network,
-    golferCount: Object.keys(GOLFER_SCORES).length,
-    entryCount: ENTRIES.length
+    golferCount: Object.keys(GOLFER_SCORES).length
   };
   var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   var a = document.createElement('a');
@@ -186,11 +185,9 @@ function renderDebugPanel() {
       var diff = prev !== undefined && g.score !== prev ? (g.score - prev) : null;
       var diffStr = diff !== null ? (diff > 0 ? '<span style="color:#FF7F7F">+' + diff + '</span>' : '<span style="color:#34c759">' + diff + '</span>') : '';
       var holesLeft = getHolesRemaining(name);
-      var inPool = ENTRIES.some(function(e) { return e.picks.includes(name); });
       return '<div class="debug-row" style="flex-wrap:wrap;gap:4px">'
         + '<div style="display:flex;align-items:center;gap:6px;width:100%">'
         + '<span style="font-weight:700;color:#fff;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (FLAGS[name] || '') + ' ' + name + '</span>'
-        + (inPool ? '<span style="font-size:8px;background:rgba(212,168,67,0.2);color:var(--gold);padding:1px 5px;border-radius:3px;font-weight:700">POOL</span>' : '')
         + '<span class="debug-copy-btn" onclick="debugCopyEntry(\'' + name.replace(/'/g, "\\'") + ': \'+JSON.stringify(GOLFER_SCORES[\'' + name.replace(/'/g, "\\'") + '\']))">⧉</span>'
         + '</div>'
         + '<div style="display:flex;gap:10px;width:100%;font-size:10px;color:var(--text3)">'
