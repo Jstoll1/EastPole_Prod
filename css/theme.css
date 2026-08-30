@@ -30,7 +30,8 @@
 [data-theme="light"] .nav-btn.active { color: var(--brand); }
 [data-theme="light"] .nav-btn.active::after { background: var(--brand); }
 [data-theme="light"] .nav-btn-disabled { color: rgba(0,0,0,0.16); }
-[data-theme="light"] .nav-btn-sub { color: rgba(0,0,0,0.14); }
+[data-theme="light"] .nav-btn-sub { color: #9a6a1f; }
+[data-theme="light"] .nav-btn-caution { color: #c4841a; }
 [data-theme="light"] .ticker-wrap {
   background: var(--brand);
 }

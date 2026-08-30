@@ -520,12 +520,26 @@ body.is-standalone .view {
 .nav-btn-disabled svg  {
   opacity: 0.5;
 }
+.nav-btn-icon-wrap  {
+  position: relative;
+  display: inline-flex;
+}
+.nav-btn-caution  {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  width: 12px;
+  height: 12px;
+  opacity: 1 !important;
+  color: #e0a030;
+  filter: drop-shadow(0 0 1px rgba(0,0,0,0.6));
+}
 .nav-btn-sub  {
   font-size: 7px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.4px;
   text-transform: none;
-  color: rgba(255,255,255,0.12);
+  color: #b8863a;
 }
 
 /* Elevated center Entry button — FAB-style, pokes above the nav bar */
