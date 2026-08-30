@@ -1,5 +1,6 @@
 // ── Leaderboard View ──
 
+var lbFilter = 'all';
 var lbSearch = '';
 var lbSort = 'score';
 var lbSortAsc = true;
@@ -29,6 +30,31 @@ function setLbSort(col) {
   renderLeaderboard();
 }
 
+function setLbFilter(f, btn) {
+  lbFilter = f;
+  trackEvent('lb-filter-' + f);
+  document.querySelectorAll('#view-leaderboard .seg-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  _closeOpenScorecardForRerender();
+  renderLeaderboard();
+}
+
+function updateLbSeg() {
+  var seg = document.querySelector('#view-leaderboard .seg');
+  if (!seg) return;
+  if (lbFilter === 'teamA' || lbFilter === 'teamB') lbFilter = 'all';
+  if (lbFilter === 'myPicks' && !currentUserTeams.length) lbFilter = 'all';
+  var myPicksBtn = currentUserTeams.length ? '<button class="seg-btn' + (lbFilter==='myPicks'?' active':'') + '" onclick="setLbFilter(\'myPicks\',this)">My Picks</button>' : '';
+  var teamLegend = '';
+  if (lbFilter === 'myPicks' && currentUserTeams.length > 0) {
+    teamLegend = '<div style="display:flex;gap:8px;justify-content:center;padding:4px 14px 0;flex-wrap:wrap">' + currentUserTeams.map(function(t, i) { return '<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--text2)"><span class="team-pill ' + (PILL_CLASSES[i]||'') + '" style="width:16px;height:13px;font-size:8px;border-radius:4px">' + pillLabel(i) + '</span>' + escHtml(t.team) + '</span>'; }).join('') + '</div>';
+  }
+  seg.innerHTML = '<button class="seg-btn' + (lbFilter==='all'?' active':'') + '" onclick="setLbFilter(\'all\',this)">All</button> <button class="seg-btn' + (lbFilter==='pool'?' active':'') + '" onclick="setLbFilter(\'pool\',this)">In Pool</button> ' + myPicksBtn + ' <button class="seg-btn' + (lbFilter==='threat'?' active':'') + '" onclick="setLbFilter(\'threat\',this)">🎯 Threat</button>';
+  var oldLegend = seg.parentNode.querySelector('.seg-team-legend');
+  if (oldLegend) oldLegend.remove();
+  if (teamLegend) { var div = document.createElement('div'); div.className = 'seg-team-legend'; div.innerHTML = teamLegend; seg.parentNode.appendChild(div); }
+}
+
 function renderLeaderboard() {
   // Don't re-render while a scorecard is open — it would destroy the panel
   if (_openScorecardIdx !== null) { _pendingLbRender = true; return; }
@@ -40,6 +66,13 @@ function renderLeaderboard() {
     _lbSearchEl.parentNode.style.visibility = '';
     _lbSearchEl.parentNode.style.display = '';
   }
+  var _tagline = document.getElementById('lb-threat-tagline');
+  if (_tagline) _tagline.style.display = 'none';
+  // Branch: Threat Board mode takes over the #leaderboard-list container
+  if (lbFilter === 'threat') { renderThreatBoard(); return; }
+  var poolNames = new Set(ENTRIES.flatMap(function(e) { return e.picks; }));
+  var myPicksMap = getMyPicksMap();
+  var myAllPicks = getActiveTeamPicks();
   var players = Object.entries(GOLFER_SCORES).map(function(entry) { var name = entry[0], d = entry[1]; return Object.assign({ name: name }, d); });
   var parseTodayVal = function(p) {
     if (p.score === 11 || p.score === 12) return 999;
@@ -99,7 +132,17 @@ function renderLeaderboard() {
   mcPlayers.sort(function(a,b) { return a.score - b.score; });
   players = activePlayers.concat(mcPlayers);
   var allPlayers = players;
+  if (lbFilter==='pool') players = players.filter(function(p) { return poolNames.has(p.name); });
+  if (lbFilter==='myPicks') players = players.filter(function(p) { return myAllPicks.has(p.name); });
   if (lbSearch) players = players.filter(function(p) { return p.name.toLowerCase().indexOf(lbSearch) !== -1; });
+  var countEl = document.getElementById('lb-count');
+  if (countEl) {
+    if (lbFilter==='pool') countEl.textContent = players.length + ' pool picks';
+    else if (lbFilter==='myPicks') countEl.textContent = players.length + ' of your picks';
+    else countEl.textContent = '';
+  }
+  var legendEl = document.getElementById('lb-legend');
+  if (legendEl) { legendEl.innerHTML = ''; legendEl.style.display = 'none'; }
   // Use the full unfiltered list for round detection so filters don't break it
   var samplePlayer = allPlayers.find(function(p) { return p.thru!=='—'&&p.thru!=='MC'&&p.thru!=='WD'; });
   var maxCompletedRounds = 0;
@@ -190,7 +233,7 @@ function renderLeaderboard() {
   console.log('🏌️ Round debug: ESPN_ROUND=' + ESPN_ROUND + ' currentRound=' + currentRound + ' anyStillPlaying=' + anyStillPlaying + ' anyHaveTeeTime=' + anyHaveTeeTime + ' completedRoundCount=' + completedRoundCount);
   var sortArrow = function(col) { return lbSort===col ? '<span class="sort-arrow">' + (lbSortAsc ? '▲' : '▼') + '</span>' : ''; };
   var sortCls = function(col) { return lbSort===col ? ' tv-h-active' : ''; };
-  var colHdr = '<div class="tv-col-hdr"><div class="tv-h-pos">POS</div><div class="tv-h-player">PLAYER</div>'
+  var colHdr = '<div class="tv-col-hdr"><div class="tv-h-pos">POS</div><div class="tv-h-pill"></div><div class="tv-h-player">PLAYER</div>'
       + '<div class="tv-h-score tv-h-sort' + sortCls('score') + '" onclick="setLbSort(\'score\')">SCORE' + sortArrow('score') + '</div>'
       + '<div class="tv-h-today tv-h-sort' + sortCls('today') + '" onclick="setLbSort(\'today\')">TODAY' + sortArrow('today') + '</div>'
       + '<div class="tv-h-thru tv-h-sort' + sortCls('thru') + '" onclick="setLbSort(\'thru\')">THRU' + sortArrow('thru') + '</div>'
@@ -198,7 +241,7 @@ function renderLeaderboard() {
   var rows = '';
   var cutInserted = false;
   var estCutInserted = false;
-  var estCutShow = currentRound === 2 && lbSort === 'score' && lbSortAsc && !lbSearch;
+  var estCutShow = currentRound === 2 && lbSort === 'score' && lbSortAsc && lbFilter === 'all' && !lbSearch;
   var estCutScore = null;
   if (estCutShow) { var cnt = 0; for (var ci = 0; ci < players.length; ci++) { var pp = players[ci]; if (pp.thru !== 'MC') { cnt++; if (cnt === 65) { estCutScore = pp.score; break; } } } }
   // Use full-field prior positions for arrows (consistent across filters)
@@ -215,7 +258,7 @@ function renderLeaderboard() {
   var topMoverNames = isPreT ? new Map() : getTopMovers(arrowPlayers);
   var rowIdx = 0;
   players.forEach(function(p) {
-    var mc = p.thru==='MC'||p.thru==='WD'||p.score===11||p.score===12;
+    var mc = p.thru==='MC'||p.thru==='WD'||p.score===11||p.score===12, inPool = poolNames.has(p.name);
     if (!cutInserted && mc && currentRound >= 2 && lbSort === 'score' && lbSortAsc) { rows += '<div class="cut-line-row"><div class="cut-line-label">── Cut Line ──</div></div>'; cutInserted = true; }
     if (lbSort === 'score' && !estCutInserted && !cutInserted && estCutScore !== null && !mc && p.score > estCutScore) { rows += '<div class="est-cut-line-row"><div class="est-cut-line-label">── Estimated Cut Line ──</div></div>'; estCutInserted = true; }
     var sc = p.score, scf = fmt(sc);
@@ -262,6 +305,9 @@ function renderLeaderboard() {
     }
     var moverInfo = topMoverNames.get(p.name);
     var isMover = !!moverInfo;
+    var myTeamIdxs = myPicksMap[p.name] || [];
+    var pills = myTeamIdxs.map(function(i) { return '<span class="team-pill ' + (PILL_CLASSES[i]||'') + '">' + pillLabel(i) + '</span>'; }).join('');
+    var isMyPick = myTeamIdxs.length > 0;
     var isPrevWinner = isPreT && p.name === PREV_WINNER;
     var ri = rowIdx++;
     var escapedName = p.name.replace(/'/g, "\\'");
@@ -270,12 +316,14 @@ function renderLeaderboard() {
     var displayName = p.name;
     var amTag = AMATEURS.has(p.name) ? ' <span class="tv-am">(a)</span>' : '';
     var emojiTag = getPlayerEmoji(p.name) || '';
-    rows += '<div class="tv-row' + (mc?' tv-mc':'') + (isPrevWinner?' tv-prev-winner':'') + flashCls + '" onclick="toggleScorecard(' + ri + ',\'' + escapedName + '\')" style="cursor:pointer">'
+    rows += '<div class="tv-row' + (mc?' tv-mc':'') + (isMyPick?' is-my-team':'') + (isPrevWinner?' tv-prev-winner':'') + flashCls + '" onclick="toggleScorecard(' + ri + ',\'' + escapedName + '\')" style="cursor:pointer">'
         + '<div class="tv-pos">' + (mc?(p.thru==='WD'||p.score===12?'WD':'MC'):p.pos) + moveHtml + '</div>'
-        + '<div class="tv-player"><span class="tv-name">' + displayName + amTag + '</span> <span class="tv-country">' + flag + (cc?' '+cc:'') + '</span>'
+        + '<div class="tv-pill-slot">' + pills + '</div>'
+        + '<div class="tv-player"><span class="tv-name ' + (isMyPick?'is-my-pick':'') + '">' + displayName + amTag + '</span> <span class="tv-country">' + flag + (cc?' '+cc:'') + '</span>'
         + (emojiTag ? '<span class="tv-emoji-tag">' + emojiTag + '</span>' : '')
         + (isMover ? (moverInfo.sign === 'up' ? '<span class="top-mover"><span class="mover-arrow">\uD83D\uDD25</span>' + Math.abs(roundDelta) + '</span>' : '<span class="top-mover down"><span class="mover-arrow">\uD83E\uDDCA</span>' + Math.abs(roundDelta) + '</span>') : '')
         + (isPrevWinner?'<span class="prev-winner-badge">Def. Champion</span>':'')
+        + (inPool&&!isMyPick?'<span class="tv-pool-dot"></span>':'')
         + '</div>'
         + '<div class="tv-score ' + scClass + '">' + (preT?'—':mc?(p.thru==='WD'||p.score===12?'WD':'MC'):(scoreChange ? '<span class="score-pulse">' + scf + '</span>' : scf)) + '</div>'
         + '<div class="tv-today ' + todayCls + '">' + todayDisp + '</div>'
@@ -298,7 +346,7 @@ function renderLeaderboard() {
         + '<div style="font-size:42px;margin-bottom:14px">⛳</div>'
         + '<div style="font-size:15px;font-weight:800;color:var(--text);letter-spacing:0.5px;margin-bottom:8px">' + (TOURNEY_NAME || 'PGA Tournament') + '</div>'
         + '<div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:18px">' + (TOURNEY_DATES ? TOURNEY_DATES + (TOURNEY_COURSE ? ' · ' + TOURNEY_COURSE : '') : 'Loading tournament info…') + '</div>'
-        + '<div style="font-size:11px;line-height:1.6;color:var(--text3);max-width:280px;margin:0 auto">Field and tee times publish from ESPN this week — leaderboard goes live Thursday tee-off.</div>'
+        + '<div style="font-size:11px;line-height:1.6;color:var(--text3);max-width:280px;margin:0 auto">Field and tee times publish from ESPN this week. Pool entries open now — leaderboard goes live Thursday tee-off.</div>'
         + '</div>';
     }
   } else {

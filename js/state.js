@@ -11,7 +11,8 @@ var ErrorTracker = (function() {
       type: type,
       message: message,
       detail: detail || null,
-      url: window.location.href
+      url: window.location.href,
+      user: (typeof currentUserEmail !== 'undefined') ? currentUserEmail : null
     };
     log.push(entry);
     if (log.length > MAX_LOG) log.shift();
@@ -72,10 +73,15 @@ window.addEventListener('unhandledrejection', function(e) {
 // ╔══════════════════════════════════════════════════════════════╗
 // ║  TOURNAMENT CONFIG — Change these values for each new week  ║
 // ╠══════════════════════════════════════════════════════════════╣
-// ║  1. FLAGS          → player → flag emoji map                ║
-// ║  2. PREV_WINNER    → defending champion name                ║
-// ║  3. getDefaultPars → 18 hole pars for course (in utils.js)  ║
+// ║  1. ENTRIES        → team picks array                       ║
+// ║  2. FLAGS          → player → flag emoji map                ║
+// ║  3. PREV_WINNER    → defending champion name                ║
+// ║  4. getDefaultPars → 18 hole pars for course (in utils.js)  ║
+// ║  5. POOL_CONFIG    → buy-in, payouts                        ║
 // ╚══════════════════════════════════════════════════════════════╝
+
+var ENTRIES = [
+];
 
 // 2026 Masters Tournament — 91-player field (from masters.com)
 var FLAGS = {
@@ -263,15 +269,34 @@ var PRE_ODDS = {
   'Jackson Herrington':        ['+500000', '+49000', '+18500']
 };
 
+// 2026 Masters pool config
+var POOL_CONFIG = {
+  buyIn: 20,
+  fifthEntryBuyIn: 10,
+  maxEntriesPerPerson: 5,
+  picksPerTeam: 10,
+  bestN: 4,
+  // 1st = 70% of (pot - 3rd reimbursement), 2nd = 30% of (pot - 3rd reimbursement)
+  // 3rd = single entry fee reimbursed ($20)
+  payoutPctOfNet: { first: 0.70, second: 0.30 }
+};
+
+var PILL_CLASSES = ['pill-a', 'pill-b', 'pill-c', 'pill-d', 'pill-e'];
+function pillLabel(teamIdx) { return teamIdx + 1; }
+
 // ── Mutable State ──────────────────────────────────────────
 
 var GOLFER_SCORES = {};
+var allTeamEmails = [];
 var PREV_POSITIONS = {};
+var PREV_RANKS = {};
 var ROUND_START_POSITIONS = {};
+var ROUND_START_ENTRY_RANKS = {};
 var ROUND_START_ROUND = 0;
 var PREV_SCORES = {};
 var PREV_THRU = {};
 var SCORE_CHANGES = {};
+var OWNERSHIP_DATA = [];
 var TOURNAMENT_STARTED = false;
 var ESPN_ROUND = 0;
 var ATHLETE_IDS = {};
@@ -372,8 +397,16 @@ var lastFetchTime = 0;
 var _lastStatusText = 'Loading…';
 var _renderCount = 0;
 
+// User state
+var currentUserEmail = null;
+var currentUserTeams = [];
+var activeTeamIdx = 0;
+Object.defineProperty(window, 'currentTeamEmail', { get: function() { return currentUserEmail; } });
+
+var STORAGE_KEY = 'eastpole_v2';
 var SPLASH_DATE_KEY = 'eastpole_splash_date';
 var PLAYER_EMOJI_KEY = 'eastpole_player_emoji';
+var WELCOME_KEY = 'eastpole_welcome_v1_seen';
 var PLAYER_EMOJI = {};
 try { PLAYER_EMOJI = JSON.parse(localStorage.getItem(PLAYER_EMOJI_KEY) || '{}'); } catch(e) {}
 
@@ -385,9 +418,15 @@ function setPlayerEmoji(name, emoji) {
 
 // Load round-start positions from localStorage
 try {
+  // Migrate: clear old entry ranks keyed by team name only
+  if (!localStorage.getItem('eastpole_rsr_v2')) {
+    var oldData = JSON.parse(localStorage.getItem('eastpole_round_start') || '{}');
+    if (oldData.entryRanks) { delete oldData.entryRanks; localStorage.setItem('eastpole_round_start', JSON.stringify(oldData)); }
+    localStorage.setItem('eastpole_rsr_v2', '1');
+  }
   var saved = JSON.parse(localStorage.getItem('eastpole_round_start') || '{}');
   var posAge = saved.timestamp ? Date.now() - saved.timestamp : Infinity;
-  if (saved.round && saved.positions && posAge < 18 * 60 * 60 * 1000) { ROUND_START_POSITIONS = saved.positions; ROUND_START_ROUND = saved.round; }
+  if (saved.round && saved.positions && posAge < 18 * 60 * 60 * 1000) { ROUND_START_POSITIONS = saved.positions; ROUND_START_ROUND = saved.round; if (saved.entryRanks) ROUND_START_ENTRY_RANKS = saved.entryRanks; }
 } catch(e) {}
 
 function saveRoundStartPositions(round) {
@@ -397,7 +436,15 @@ function saveRoundStartPositions(round) {
     var p = parsePos(pair[1].pos);
     if (p) ROUND_START_POSITIONS[pair[0]] = p;
   });
-  try { localStorage.setItem('eastpole_round_start', JSON.stringify({ round: round, positions: ROUND_START_POSITIONS, timestamp: Date.now() })); } catch(e) {}
+  // Snapshot entry ranks at round start
+  ROUND_START_ENTRY_RANKS = {};
+  var ranked = getRanked();
+  var rk = 1;
+  ranked.forEach(function(e, i) {
+    if (i > 0 && ranked[i].total !== ranked[i-1].total) rk = i + 1;
+    ROUND_START_ENTRY_RANKS[e.team + '|' + e.email] = rk;
+  });
+  try { localStorage.setItem('eastpole_round_start', JSON.stringify({ round: round, positions: ROUND_START_POSITIONS, entryRanks: ROUND_START_ENTRY_RANKS, timestamp: Date.now() })); } catch(e) {}
 }
 
 function shouldShowSplash() {
@@ -424,3 +471,50 @@ function markSplashSeen() {
   } catch(e) {}
 }
 
+function saveUser() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ email: currentUserEmail, activeTeamIdx: activeTeamIdx })); } catch(e) {} }
+
+// Match an identity key against an entry. New keys are prefixed:
+//   __ent__<lowercased entrant>  · __eml__<lowercased email>  · __team__<team>
+// Legacy keys (bare email / team / entrant) are matched loosely.
+function _matchUserKey(e, key) {
+  if (!key) return false;
+  if (typeof key === 'string') {
+    if (key.indexOf('__ent__') === 0) {
+      return !!(e.entrant && e.entrant.toLowerCase().trim() === key.slice(7));
+    }
+    if (key.indexOf('__eml__') === 0) {
+      return !!(e.email && e.email.toLowerCase() === key.slice(7));
+    }
+    if (key.indexOf('__team__') === 0) {
+      return e.team === key.slice(8);
+    }
+    // Legacy/loose match: email → entrant → team
+    var kl = String(key).toLowerCase();
+    if (e.email && e.email === key) return true;
+    if (e.entrant && e.entrant.toLowerCase() === kl) return true;
+    if (e.team === key) return true;
+  }
+  return false;
+}
+
+function loadUser() {
+  try {
+    var s = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+    if (s?.email && ENTRIES.some(function(e) { return _matchUserKey(e, s.email); })) {
+      setUser(s.email, s.activeTeamIdx != null ? s.activeTeamIdx : -1, false);
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+function setUser(email, teamIdx, save) {
+  if (save === undefined) save = true;
+  currentUserEmail = email;
+  currentUserTeams = ENTRIES.filter(function(e) { return _matchUserKey(e, email); });
+  activeTeamIdx = teamIdx === -1 ? -1 : Math.min(teamIdx, Math.max(0, currentUserTeams.length - 1));
+  if (save) saveUser();
+  updateHeaderDisplay();
+  updateLbSeg();
+  renderAll();
+}

@@ -1,6 +1,42 @@
 // ── Scorecard (hole-by-hole) ──
 
 var _openScorecardIdx = null;
+var _openStScorecardId = null;
+
+function showPickerPopup(owners, evt) {
+  evt.stopPropagation();
+  var existing = document.getElementById('picker-popup');
+  if (existing) existing.remove();
+  if (!owners || !owners.length) return;
+  var popup = document.createElement('div');
+  popup.id = 'picker-popup';
+  popup.style.cssText = 'position:fixed;z-index:9999;background:var(--card);border:1px solid var(--gold);border-radius:10px;padding:12px 16px;box-shadow:0 8px 24px rgba(0,0,0,.45);max-width:260px;min-width:200px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;';
+  var rect = evt.target.getBoundingClientRect();
+  var topPos = rect.bottom + 6;
+  var availBelow = window.innerHeight - topPos - 12;
+  popup.style.top = topPos + 'px';
+  popup.style.maxHeight = Math.max(160, availBelow) + 'px';
+  popup.style.right = Math.max(12, window.innerWidth - rect.right) + 'px';
+  var html = '<div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:8px;text-transform:uppercase;">Picked by</div>';
+  owners.forEach(function(e) {
+    // JSON.stringify gives a valid JS string literal (escapes quotes, \, control chars);
+    // escHtml then makes it safe inside the double-quoted onclick attribute.
+    var teamAttr = escHtml(JSON.stringify(e.team));
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;gap:12px;border-bottom:1px solid var(--border);cursor:pointer" onclick="event.stopPropagation();jumpToEntry(' + teamAttr + ')">'
+      + '<span style="font-size:12px;font-weight:600;color:var(--text)">' + escHtml(e.name) + '</span>'
+      + '<span style="font-size:10px;color:var(--gold);text-align:right;white-space:nowrap;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px">' + escHtml(e.team) + ' →</span></div>';
+  });
+  popup.innerHTML = html;
+  document.body.appendChild(popup);
+  var dismiss = function(ev) {
+    if (!popup.contains(ev.target)) {
+      ev.stopPropagation();
+      popup.remove();
+      document.removeEventListener('click', dismiss, true);
+    }
+  };
+  setTimeout(function() { document.addEventListener('click', dismiss, true); }, 0);
+}
 
 function buildDGLiveRow(playerName) {
   var dg = DG_LIVE_PREDS[playerName];
@@ -57,6 +93,19 @@ async function toggleScorecard(idx, playerName) {
 
   var rounds = SCORECARD_CACHE[playerName];
   var gd = GOLFER_SCORES[playerName];
+  var ownEntry = OWNERSHIP_DATA.find(function(o) { return o.player === playerName; });
+  var ownPct = ownEntry ? Math.round(ownEntry.pct * 100) : 0;
+  var ownPctStr = ownPct + '% of entries';
+  var ownOwners = ENTRIES.filter(function(e) { return e.picks.indexOf(playerName) !== -1; });
+
+  function buildOwnBadge() {
+    if (ownOwners.length > 0) return '<span class="own-badge-btn" style="font-size:10px;color:var(--gold);font-weight:600;margin-left:auto;white-space:nowrap;cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px;padding:4px 6px">' + ownPctStr + '</span>';
+    return '<span style="font-size:10px;color:var(--text3);font-weight:600;margin-left:auto;white-space:nowrap">' + ownPctStr + '</span>';
+  }
+  function bindOwnBadge(container) {
+    var btn = container.querySelector('.own-badge-btn');
+    if (btn) btn.addEventListener('click', function(e) { e.stopPropagation(); showPickerPopup(ownOwners, e); });
+  }
 
   // Fallback: round-level summary if no hole-by-hole data
   if (!rounds || !rounds.length || !rounds.some(function(r) { return r.holes && r.holes.length > 0; })) {
@@ -64,6 +113,7 @@ async function toggleScorecard(idx, playerName) {
     var fb = '<div class="sc-header">' + (fbAid ? '<img class="sc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + fbAid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">' : '') + '<span class="sc-player-name">' + playerName + '</span>';
     fb += emojiButtonHtml(escapedName);
     if (gd) fb += '<span class="sc-player-pos">' + gd.pos + '</span>';
+    fb += buildOwnBadge();
     fb += '</div><div style="padding:8px 12px 12px;">';
     var flag = FLAGS[playerName] || '';
     var cc = getCountryCode(playerName);
@@ -102,6 +152,7 @@ async function toggleScorecard(idx, playerName) {
     if (gd?.thru && gd.thru !== '—') fb += '<div style="margin-top:8px;font-size:10px;color:var(--text3);">Thru ' + gd.thru + (gd.todayDisplay !== '—' ? ' · Today: ' + gd.todayDisplay : '') + '</div>';
     fb += '</div>';
     panel.innerHTML = fb;
+    bindOwnBadge(panel);
     return;
   }
 
@@ -109,6 +160,7 @@ async function toggleScorecard(idx, playerName) {
   var html = '<div class="sc-header">' + (scAid ? '<img class="sc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + scAid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">' : '') + '<span class="sc-player-name">' + playerName + '</span>';
   html += emojiButtonHtml(escapedName);
   if (gd) html += '<span class="sc-player-pos">' + gd.pos + '</span>';
+  html += buildOwnBadge();
   html += '</div>';
   html += buildDGLiveRow(playerName);
 
@@ -178,8 +230,149 @@ async function toggleScorecard(idx, playerName) {
   }
 
   panel.innerHTML = html;
+  bindOwnBadge(panel);
 }
 
+// Standings inline scorecard
+async function toggleStandingsScorecard(panelId, playerName) {
+  var panel = document.getElementById(panelId);
+  if (!panel) return;
+  if (_openStScorecardId === panelId) {
+    panel.classList.remove('open');
+    panel.innerHTML = '';
+    _openStScorecardId = null;
+    return;
+  }
+  if (_openStScorecardId !== null) {
+    var prev = document.getElementById(_openStScorecardId);
+    if (prev) { prev.classList.remove('open'); prev.innerHTML = ''; }
+    _openStScorecardId = null;
+    return;
+  }
+  _openStScorecardId = panelId;
+  panel.innerHTML = '<div class="sc-loading">Loading scorecard…</div>';
+  panel.classList.add('open');
+
+  delete SCORECARD_CACHE[playerName];
+  await Promise.all([fetchCourseHoles(), fetchPlayerScorecard(playerName)]);
+
+  var rounds = SCORECARD_CACHE[playerName];
+  var gd = GOLFER_SCORES[playerName];
+  var escapedName = playerName.replace(/'/g, "\\'");
+  var ownEntry = OWNERSHIP_DATA.find(function(o) { return o.player === playerName; });
+  var ownPct = ownEntry ? Math.round(ownEntry.pct * 100) : 0;
+  var ownPctStr = ownPct + '% of entries';
+  var ownOwners = ENTRIES.filter(function(e) { return e.picks.indexOf(playerName) !== -1; });
+
+  function buildOwnBadge() {
+    if (ownOwners.length > 0) return '<span class="own-badge-btn" style="font-size:10px;color:var(--gold);font-weight:600;margin-left:auto;white-space:nowrap;cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px;padding:4px 6px">' + ownPctStr + '</span>';
+    return '<span style="font-size:10px;color:var(--text3);font-weight:600;margin-left:auto;white-space:nowrap">' + ownPctStr + '</span>';
+  }
+  function bindOwnBadge(container) {
+    var btn = container.querySelector('.own-badge-btn');
+    if (btn) btn.addEventListener('click', function(e) { e.stopPropagation(); showPickerPopup(ownOwners, e); });
+  }
+
+  if (!rounds || !rounds.length || !rounds.some(function(r) { return r.holes && r.holes.length > 0; })) {
+    var fbAid = ATHLETE_IDS[playerName];
+    var fb = '<div class="sc-header">' + (fbAid ? '<img class="sc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + fbAid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">' : '') + '<span class="sc-player-name">' + playerName + '</span>';
+    fb += emojiButtonHtml(escapedName);
+    if (gd) fb += '<span class="sc-player-pos">' + gd.pos + '</span>';
+    fb += buildOwnBadge();
+    fb += '</div><div style="padding:8px 12px 12px;">';
+    var flag = FLAGS[playerName] || '';
+    var cc = getCountryCode(playerName);
+    if (flag || cc) fb += '<div style="font-size:11px;color:var(--text2);margin-bottom:8px;">' + flag + ' ' + cc + '</div>';
+    fb += buildDGLiveRow(playerName);
+    var pOdds = PRE_ODDS[playerName];
+    if (pOdds) {
+      fb += '<div style="display:flex;gap:8px;margin-bottom:10px;">';
+      fb += '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;text-align:center;min-width:60px;"><div style="font-size:9px;color:var(--text3);font-weight:700;">WIN</div><div style="font-size:14px;font-weight:800;color:var(--gold)">' + pOdds[0] + '</div></div>';
+      fb += '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;text-align:center;min-width:60px;"><div style="font-size:9px;color:var(--text3);font-weight:700;">TOP 5</div><div style="font-size:14px;font-weight:800;color:var(--gold)">' + pOdds[1] + '</div></div>';
+      fb += '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;text-align:center;min-width:60px;"><div style="font-size:9px;color:var(--text3);font-weight:700;">TOP 10</div><div style="font-size:14px;font-weight:800;color:var(--gold)">' + pOdds[2] + '</div></div>';
+      fb += '</div>';
+    }
+    // Uniform chip format — LABEL on top, colored to-par on bottom, same
+    // sizing across TOT/R1-R4/TDY so the row reads consistently.
+    var _chip = 'background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;text-align:center;min-width:60px;';
+    var _chipLbl = 'font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;';
+    var _chipVal = 'font-size:18px;font-weight:900;';
+    fb += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+    fb += '<div style="' + _chip + '">'
+      + '<div style="' + _chipLbl + '">Total</div>'
+      + '<div style="' + _chipVal + '" class="' + (gd ? cls(gd.score) : '') + '">' + (gd ? fmt(gd.score) : '—') + '</div></div>';
+    [{ label:'R1', val:gd?.r1 },{ label:'R2', val:gd?.r2 },{ label:'R3', val:gd?.r3 },{ label:'R4', val:gd?.r4 }].filter(function(r) { return r.val != null; }).forEach(function(r) {
+      var toPar = r.val - COURSE_PAR;
+      fb += '<div style="' + _chip + '">'
+        + '<div style="' + _chipLbl + '">' + r.label + '</div>'
+        + '<div style="' + _chipVal + '" class="' + (toPar < 0 ? 'neg' : toPar > 0 ? 'pos' : 'eve') + '">' + fmtTeam(toPar) + '</div></div>';
+    });
+    if (gd && gd.todayDisplay && gd.todayDisplay !== '—') {
+      var _tdy = gd.todayDisplay === 'E' ? 0 : parseInt(gd.todayDisplay.replace('+','')) || 0;
+      fb += '<div style="' + _chip + '">'
+        + '<div style="' + _chipLbl + '">TDY</div>'
+        + '<div style="' + _chipVal + '" class="' + cls(_tdy) + '">' + gd.todayDisplay + '</div></div>';
+    }
+    fb += '</div>';
+    if (gd?.thru && gd.thru !== '—') fb += '<div style="margin-top:8px;font-size:10px;color:var(--text3);">Thru ' + gd.thru + (gd.todayDisplay !== '—' ? ' · Today: ' + gd.todayDisplay : '') + '</div>';
+    fb += '</div>';
+    panel.innerHTML = fb;
+    bindOwnBadge(panel);
+    return;
+  }
+
+  var scAid = ATHLETE_IDS[playerName];
+  var html = '<div class="sc-header">' + (scAid ? '<img class="sc-headshot" src="https://a.espncdn.com/combiner/i?img=/i/headshots/golf/players/full/' + scAid + '.png&w=80&h=58" onerror="this.style.display=\'none\'">' : '') + '<span class="sc-player-name">' + playerName + '</span>';
+  html += emojiButtonHtml(escapedName);
+  if (gd) html += '<span class="sc-player-pos">' + gd.pos + '</span>';
+  html += buildOwnBadge();
+  html += '</div>';
+  html += buildDGLiveRow(playerName);
+
+  var completedRounds = rounds.map(function(r, i) { return { r: r, i: i }; }).filter(function(obj) { return obj.r.value != null && obj.r.value > 50; });
+  if (completedRounds.length > 1) {
+    html += '<div class="sc-round-summary">';
+    html += completedRounds.map(function(obj) {
+      var r = obj.r, i = obj.i;
+      var dpC = '';
+      if (r.displayValue) { dpC = r.displayValue.indexOf('-') === 0 ? 'color:var(--red)' : (r.displayValue === 'E' ? '' : 'color:var(--green-bright)'); }
+      return '<span class="sc-round-chip">R' + (i + 1) + ': ' + r.value + (r.displayValue ? ' (<span style="' + dpC + '">' + r.displayValue + '</span>)' : '') + '</span>';
+    }).join('<span class="sc-round-sep">|</span>');
+    html += '</div>';
+  }
+
+  var roundsWithData = rounds.map(function(r, i) { return { round: r, idx: i }; }).filter(function(obj) { return obj.round.holes && obj.round.holes.length > 0; });
+  var activeRound = roundsWithData.length ? roundsWithData[roundsWithData.length - 1] : null;
+  if (activeRound) {
+    var r = activeRound.round;
+    var ri = activeRound.idx;
+    var dpColor = '';
+    if (r.displayValue) {
+      if (r.displayValue.indexOf('-') === 0) dpColor = 'color:var(--red)';
+      else if (r.displayValue === 'E') dpColor = '';
+      else dpColor = 'color:var(--green-bright)';
+    }
+    if (completedRounds.length <= 1) {
+      html += '<div class="sc-round-label">R' + (ri + 1) + (r.value ? ' — ' + r.value : '') + (r.displayValue ? ' (<span style="' + dpColor + '">' + r.displayValue + '</span>)' : '') + '</div>';
+    }
+    html += '<div class="sc-grid">';
+    var holeMap = {};
+    r.holes.forEach(function(h) { holeMap[h.hole] = h; });
+    html += '<div class="sc-nine"><div class="sc-nine-label">OUT</div><div class="sc-row sc-row-hdr">';
+    for (var hn = 1; hn <= 9; hn++) html += '<div class="sc-cell">' + hn + '</div>';
+    html += '</div><div class="sc-row sc-row-score">';
+    for (var hn = 1; hn <= 9; hn++) { var hd = holeMap[hn]; var par = getHolePar(hn); var scCls = hd && hd.strokes ? scorecardClass(hd.strokes, par) : ''; html += '<div class="sc-cell ' + scCls + '"><span class="sc-num">' + (hd && hd.strokes ? hd.strokes : '–') + '</span></div>'; }
+    html += '</div></div>';
+    html += '<div class="sc-nine"><div class="sc-nine-label">IN</div><div class="sc-row sc-row-hdr">';
+    for (var hn = 10; hn <= 18; hn++) html += '<div class="sc-cell">' + hn + '</div>';
+    html += '</div><div class="sc-row sc-row-score">';
+    for (var hn = 10; hn <= 18; hn++) { var hd = holeMap[hn]; var par = getHolePar(hn); var scCls = hd && hd.strokes ? scorecardClass(hd.strokes, par) : ''; html += '<div class="sc-cell ' + scCls + '"><span class="sc-num">' + (hd && hd.strokes ? hd.strokes : '–') + '</span></div>'; }
+    html += '</div></div></div>';
+  }
+
+  panel.innerHTML = html;
+  bindOwnBadge(panel);
+}
 
 // Standalone scorecard popup (used from activity feed)
 async function openScorecardPopup(playerName) {
@@ -222,6 +415,8 @@ async function openScorecardPopup(playerName) {
 
   var rounds = SCORECARD_CACHE[playerName];
   var gd = GOLFER_SCORES[playerName];
+  var ownEntry = OWNERSHIP_DATA.find(function(o) { return o.player === playerName; });
+  var ownPct = ownEntry ? Math.round(ownEntry.pct * 100) : 0;
   var flag = FLAGS[playerName] || '';
   var aid = ATHLETE_IDS[playerName];
 
@@ -232,6 +427,7 @@ async function openScorecardPopup(playerName) {
     + '<span class="sc-player-name">' + flag + ' ' + playerName + '</span>';
   html += emojiButtonHtml(escapedForEmoji);
   if (gd) html += '<span class="sc-player-pos">' + gd.pos + '</span>';
+  html += '<span style="font-size:10px;color:var(--text3);font-weight:600;margin-left:auto">' + ownPct + '% owned</span>';
   html += '</div>';
 
   // DataGolf live predictions

@@ -2,8 +2,10 @@
 
 function renderAll() {
   _renderCount++;
+  renderStandings();
   renderLeaderboard();
   renderTicker();
+  if (compareMode && cmpSelections.length === 2) renderH2HInline();
   if (_debugOpen) renderDebugPanel();
 }
 
@@ -98,11 +100,25 @@ function renderAll() {
 async function initApp() {
   try {
     console.log('🚀 initApp() starting');
-    trackEvent('visit');
+    ENTRIES.forEach(function(e) { e.picks = e.picks.map(resolvePlayerName); });
+    allTeamEmails = [].concat(Array.from(new Set(ENTRIES.map(function(e) { return e.email; })))).sort();
+    OWNERSHIP_DATA = computeOwnership();
+    console.log('✅ Loaded', ENTRIES.length, 'baked-in entries');
+
+    var returning = loadUser();
+    if (returning) {
+      console.log('👤 Returning user:', currentUserEmail);
+      trackEvent('returning-user');
+      trackEvent('returning-entries-' + currentUserTeams.length);
+    } else {
+      trackEvent('new-visitor');
+    }
     if (!shouldShowSplash()) {
       var sp = document.getElementById('splash');
       if (sp) { sp.style.display = 'none'; sp.classList.add('hidden'); }
     }
+
+    updateLbSeg();
 
     Object.keys(FLAGS).forEach(function(name) {
       if (!GOLFER_SCORES[name]) {
@@ -163,4 +179,11 @@ document.addEventListener('DOMContentLoaded', function() {
   } else {
     console.error('❌ Splash element not found!');
   }
+
+  // Close team dropdown on outside click
+  document.addEventListener('click', function(e) {
+    if (_teamDdOpen && !e.target.closest('#hdr-team-display') && !e.target.closest('#team-dropdown')) {
+      closeTeamDropdown();
+    }
+  });
 });
